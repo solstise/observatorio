@@ -1,0 +1,143 @@
+{
+  "type": "FeatureCollection",
+  "name": "poligonos_observatorio_posadas",
+  "crs": {
+    "type": "name",
+    "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "itaembe_mini",
+        "nombre": "Itaembé Miní",
+        "descripcion": "Zona de expansión rápida al sur-oeste de Posadas, crecimiento sostenido 2018-2026 con incorporación de familias jóvenes y fuerte presencia de vivienda social en construcción autogestionada.",
+        "categoria": "asentamiento_crecimiento_rapido",
+        "prioridad": 1,
+        "publicar_en_sitio": true,
+        "fecha_creacion_poligono": "2026-04-22",
+        "sensible": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-55.97, -27.43],
+            [-55.95, -27.43],
+            [-55.95, -27.41],
+            [-55.97, -27.41],
+            [-55.97, -27.43]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "itaembe_guazu",
+        "nombre": "Itaembé Guazú",
+        "descripcion": "Extensión sur de Itaembé Miní, frente de expansión más reciente (post-2020), con menor consolidación de servicios y fuerte presión habitacional.",
+        "categoria": "asentamiento_crecimiento_rapido",
+        "prioridad": 1,
+        "publicar_en_sitio": true,
+        "fecha_creacion_poligono": "2026-04-22",
+        "sensible": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-55.98, -27.45],
+            [-55.96, -27.45],
+            [-55.96, -27.43],
+            [-55.98, -27.43],
+            [-55.98, -27.45]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "chacra_32",
+        "nombre": "Chacra 32",
+        "descripcion": "Zona de chacras subdivididas en proceso de consolidación urbana con crecimiento moderado y acceso creciente a servicios.",
+        "categoria": "consolidado_crecimiento",
+        "prioridad": 2,
+        "publicar_en_sitio": true,
+        "fecha_creacion_poligono": "2026-04-22",
+        "sensible": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-55.94, -27.40],
+            [-55.92, -27.40],
+            [-55.92, -27.39],
+            [-55.94, -27.39],
+            [-55.94, -27.40]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "villa_cabello",
+        "nombre": "Villa Cabello",
+        "descripcion": "Barrio consolidado centro-este con trama urbana estable. Polígono de control: debería mostrar baja variación interanual para calibrar la precisión del sistema.",
+        "categoria": "control_consolidado",
+        "prioridad": 3,
+        "publicar_en_sitio": true,
+        "fecha_creacion_poligono": "2026-04-22",
+        "sensible": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-55.89, -27.375],
+            [-55.87, -27.375],
+            [-55.87, -27.36],
+            [-55.89, -27.36],
+            [-55.89, -27.375]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "el_brete",
+        "nombre": "El Brete",
+        "descripcion": "Polígono angosto sobre la costanera del Paraná, zona sensible por inundabilidad, tensiones dominiales y visibilidad pública. Se publica agregado, no con detalle.",
+        "categoria": "zona_sensible",
+        "prioridad": 2,
+        "publicar_en_sitio": false,
+        "fecha_creacion_poligono": "2026-04-22",
+        "sensible": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-55.89, -27.355],
+            [-55.883, -27.353],
+            [-55.876, -27.351],
+            [-55.870, -27.348],
+            [-55.864, -27.346],
+            [-55.860, -27.345],
+            [-55.860, -27.349],
+            [-55.864, -27.350],
+            [-55.870, -27.352],
+            [-55.876, -27.354],
+            [-55.883, -27.356],
+            [-55.89, -27.358],
+            [-55.89, -27.355]
+          ]
+        ]
+      }
+    }
+  ]
+}

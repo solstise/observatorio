@@ -1,0 +1,33 @@
+# SYNTHETIC - Datos sinteticos de prueba. Observatorio Urbano Posadas.
+# Cobertura de servicios publicos por poligono. Porcentajes 0-100. Reemplazar por salida real.
+poligono_id,servicio,cobertura_pct,fuente,anio_referencia
+itaembe_mini,agua_red,62,IPRODHA_ficha_publica,2024
+itaembe_mini,cloaca,31,IPRODHA_ficha_publica,2024
+itaembe_mini,gas_natural,18,ECOGAS_mapa_publico,2024
+itaembe_mini,energia_electrica,91,EMSA_mapa_publico,2024
+itaembe_mini,alumbrado,74,Municipalidad_Posadas,2023
+itaembe_mini,transporte_publico,58,SUBE_paradas,2024
+itaembe_guazu,agua_red,54,IPRODHA_ficha_publica,2024
+itaembe_guazu,cloaca,22,IPRODHA_ficha_publica,2024
+itaembe_guazu,gas_natural,12,ECOGAS_mapa_publico,2024
+itaembe_guazu,energia_electrica,88,EMSA_mapa_publico,2024
+itaembe_guazu,alumbrado,61,Municipalidad_Posadas,2023
+itaembe_guazu,transporte_publico,44,SUBE_paradas,2024
+chacra_32,agua_red,94,IPRODHA_ficha_publica,2024
+chacra_32,cloaca,78,IPRODHA_ficha_publica,2024
+chacra_32,gas_natural,72,ECOGAS_mapa_publico,2024
+chacra_32,energia_electrica,99,EMSA_mapa_publico,2024
+chacra_32,alumbrado,96,Municipalidad_Posadas,2023
+chacra_32,transporte_publico,87,SUBE_paradas,2024
+villa_cabello,agua_red,97,IPRODHA_ficha_publica,2024
+villa_cabello,cloaca,84,IPRODHA_ficha_publica,2024
+villa_cabello,gas_natural,81,ECOGAS_mapa_publico,2024
+villa_cabello,energia_electrica,99,EMSA_mapa_publico,2024
+villa_cabello,alumbrado,98,Municipalidad_Posadas,2023
+villa_cabello,transporte_publico,92,SUBE_paradas,2024
+el_brete,agua_red,38,IPRODHA_ficha_publica,2024
+el_brete,cloaca,14,IPRODHA_ficha_publica,2024
+el_brete,gas_natural,6,ECOGAS_mapa_publico,2024
+el_brete,energia_electrica,82,EMSA_mapa_publico,2024
+el_brete,alumbrado,45,Municipalidad_Posadas,2023
+el_brete,transporte_publico,32,SUBE_paradas,2024

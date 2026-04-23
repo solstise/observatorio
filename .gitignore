@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Datos pesados
+data/raw/
+data/processed/
+data/outputs/
+*.tif
+*.geotiff
+*.tiff
+
+# Modelos entrenados
+models/*.pt
+models/*.pth
+models/*.h5
+
+# Credenciales
+.env
+.env.local
+*.key
+service-account*.json
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Notebooks
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Web
+node_modules/
+.next/
+out/
+build/
+webapp/frontend/node_modules/
+webapp/frontend/.next/
+webapp/frontend/out/
+webapp/backend/__pycache__/
+webapp/backend/.venv/
+
+# Logs
+*.log
+logs/

@@ -1,0 +1,55 @@
+{
+  "type": "FeatureCollection",
+  "name": "servicios_publicos_posadas",
+  "crs": {
+    "type": "name",
+    "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "caps_itaembe_mini_placeholder",
+        "tipo": "caps",
+        "nombre": "CAPS Itaembé Miní (placeholder)",
+        "descripcion": "Registro de ejemplo. Reemplazar con datos reales al correr scripts/04_descarga_osm.py.",
+        "fuente": "placeholder",
+        "verificado": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-55.96, -27.42]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "escuela_chacra_32_placeholder",
+        "tipo": "escuela",
+        "nombre": "Escuela Chacra 32 (placeholder)",
+        "descripcion": "Registro de ejemplo. Reemplazar con datos reales al correr scripts/04_descarga_osm.py.",
+        "fuente": "placeholder",
+        "verificado": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-55.93, -27.395]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "comisaria_villa_cabello_placeholder",
+        "tipo": "comisaria",
+        "nombre": "Comisaría Villa Cabello (placeholder)",
+        "descripcion": "Registro de ejemplo. Reemplazar con datos reales al correr scripts/04_descarga_osm.py.",
+        "fuente": "placeholder",
+        "verificado": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-55.88, -27.368]
+      }
+    }
+  ]
+}

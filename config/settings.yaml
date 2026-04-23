@@ -1,0 +1,84 @@
+# Configuración global del Observatorio Urbano Posadas
+
+proyecto:
+  nombre: "Observatorio Urbano Posadas"
+  version: "0.1.0"
+  autor: "[completar en .env o aquí]"
+
+geografia:
+  ciudad: "Posadas"
+  provincia: "Misiones"
+  pais: "Argentina"
+  centro_lat: -27.3667
+  centro_lon: -55.8967
+  bbox:
+    norte: -27.30
+    sur: -27.50
+    este: -55.80
+    oeste: -56.00
+  crs_metrico: "EPSG:32721"  # UTM 21S, para cálculos en metros
+
+sentinel2:
+  cloud_threshold: 20
+  bandas_rgb: ["B4", "B3", "B2"]
+  bandas_analisis: ["B2", "B3", "B4", "B8", "B11", "B12"]
+  meses_composite: [6, 7, 8]  # invierno seco
+  fechas_target:
+    - "2018-07"
+    - "2019-07"
+    - "2020-07"
+    - "2021-07"
+    - "2022-07"
+    - "2023-07"
+    - "2024-07"
+    - "2025-07"
+    - "2026-07"
+
+planet_nicfi:
+  habilitado: false  # activar cuando esté la API key
+  primer_mes: "2020-09"
+
+edificios:
+  fuente_principal: "google_open_buildings"
+  confidence_threshold: 0.70
+  margen_error_pct: 15
+
+poblacion:
+  fuente: "worldpop_2020"
+  personas_por_vivienda_misiones: 3.6
+  factor_correccion_ninos: 0.30
+
+servicios_osm:
+  radio_busqueda_metros: 2000
+  servicios:
+    - amenity=clinic
+    - amenity=hospital
+    - amenity=school
+    - amenity=kindergarten
+    - amenity=pharmacy
+    - highway=bus_stop
+
+reportes:
+  formato_fecha: "%B %Y"  # "Julio 2026"
+  paleta:
+    primario: "#1a3a5c"
+    secundario: "#5a7a9c"
+    fondo: "#ffffff"
+    texto: "#222222"
+    acento: "#c97d3c"
+  fuente: "Inter"
+
+logging:
+  nivel: "INFO"
+  archivo: "logs/observatorio.log"
+  rotacion: "10 MB"
+
+output:
+  base: "./data"
+  raw: "./data/raw"
+  processed: "./data/processed"
+  outputs: "./data/outputs"
+
+paths:
+  logs: "./logs"
+  cache: "./data/raw"

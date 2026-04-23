@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  background-color: #ffffff;
+  color: #222222;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Foco accesible WCAG AA. */
+:where(a, button, [role="button"], input, select, textarea):focus-visible {
+  outline: 2px solid #1a3a5c;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Tipografia editorial sobria. */
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #1a3a5c;
+}
+
+p {
+  color: #222222;
+  line-height: 1.65;
+}
+
+/* Contenedor estandar. */
+.container-obs {
+  width: 100%;
+  max-width: 72rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Boton base sobrio. */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #1a3a5c;
+  color: #ffffff;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  transition: background-color 120ms ease;
+}
+.btn-primary:hover {
+  background-color: #152f4a;
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #1a3a5c;
+  color: #1a3a5c;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  transition: background-color 120ms ease;
+}
+.btn-outline:hover {
+  background-color: #f0f4f9;
+}
+
+/* Tarjeta de metrica. */
+.card {
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+/* Tabla sobria. */
+table.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+table.data-table th,
+table.data-table td {
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+table.data-table th {
+  background-color: #f0f4f9;
+  font-weight: 600;
+  color: #1a3a5c;
+}

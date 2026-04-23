@@ -1,0 +1,8 @@
+# SYNTHETIC - Datos sinteticos de prueba. Observatorio Urbano Posadas.
+# Indicadores compuestos de vulnerabilidad. Escala 0-1 (1 = mayor vulnerabilidad). Reemplazar.
+poligono_id,indice_vulnerabilidad,carencia_servicios,riesgo_inundacion,accesibilidad_salud,accesibilidad_educacion,confianza_inferior,confianza_superior
+itaembe_mini,0.62,0.58,0.41,0.48,0.52,0.55,0.69
+itaembe_guazu,0.71,0.66,0.38,0.58,0.61,0.64,0.78
+chacra_32,0.24,0.18,0.22,0.26,0.21,0.20,0.28
+villa_cabello,0.18,0.14,0.19,0.22,0.17,0.15,0.21
+el_brete,0.78,0.74,0.62,0.68,0.72,0.71,0.85

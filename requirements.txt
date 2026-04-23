@@ -1,0 +1,62 @@
+# ============================================================================
+# Observatorio Urbano Posadas - Dependencias runtime
+# ============================================================================
+# Instalación: pip install -r requirements.txt
+# Python 3.11 o 3.12 requerido.
+# En Windows, varias de estas dependencias compilan mejor vía conda-forge
+# o, idealmente, en WSL2 (especialmente weasyprint).
+# ----------------------------------------------------------------------------
+
+# --- Google Earth Engine y geoespacial ---
+earthengine-api>=0.1.400
+geopandas>=0.14
+rasterio>=1.3
+shapely>=2.0
+pyproj>=3.6
+fiona>=1.9
+
+# --- Procesamiento de imágenes ---
+Pillow>=10.0
+imageio>=2.31
+imageio-ffmpeg>=0.4.9
+opencv-python-headless>=4.8
+scikit-image>=0.22
+
+# --- Análisis de datos ---
+numpy>=1.26
+pandas>=2.1
+scikit-learn>=1.3
+
+# --- Visualización ---
+matplotlib>=3.8
+seaborn>=0.13
+folium>=0.15
+
+# --- HTTP y APIs ---
+requests>=2.31
+mercantile>=1.2
+
+# --- OpenStreetMap ---
+overpy>=0.7
+osmnx>=1.9
+
+# --- Configuración y utilidades ---
+python-dotenv>=1.0
+pyyaml>=6.0
+click>=8.1
+tqdm>=4.66
+loguru>=0.7
+
+# --- Generación de reportes PDF ---
+jinja2>=3.1
+weasyprint>=60.0
+
+# --- Desarrollo / exploración ---
+ipykernel>=6.27
+jupyter>=1.0
+
+# --- Testing (pueden ir en requirements-dev.txt pero los dejamos también
+# acá para que el pipeline CI/CD mínimo no falte) ---
+pytest>=7.4
+pytest-mock>=3.12
+responses>=0.24

@@ -1,0 +1,64 @@
+# ============================================================================
+# Observatorio Urbano Posadas - Configuración de herramientas de dev
+# ============================================================================
+
+[tool.black]
+line-length = 100
+target-version = ["py311", "py312"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  | venv
+  | \.venv
+  | data
+  | models
+  | webapp/frontend
+  | notebooks
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [
+    "venv",
+    ".venv",
+    "data",
+    "models",
+    "webapp/frontend",
+    "notebooks",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+ignore = [
+    "E501",  # line length (black maneja esto)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["F401", "F811"]
+"scripts/**/*.py" = ["E402"]  # imports no al tope permitidos en scripts con argparse
+
+[tool.mypy]
+python_version = "3.11"
+strict_optional = true
+warn_return_any = true
+warn_unused_ignores = true
+check_untyped_defs = true
+ignore_missing_imports = true
+exclude = [
+    "venv",
+    ".venv",
+    "data",
+    "models",
+    "webapp/frontend",
+    "notebooks",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
