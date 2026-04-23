@@ -44,6 +44,20 @@ import click
 from loguru import logger
 from tqdm import tqdm
 
+# --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------------------
+# Aseguramos que el root del proyecto esté en sys.path para que los imports
+# `from scripts.utils.X` funcionen al correr este archivo como script.
+import sys as _sys
+from pathlib import Path as _Path
+_p = _Path(__file__).resolve().parent
+while _p != _p.parent:
+    if (_p / "pyproject.toml").exists():
+        if str(_p) not in _sys.path:
+            _sys.path.insert(0, str(_p))
+        break
+    _p = _p.parent
+# --- fin del parche ---------------------------------------------------------
+
 from scripts.utils.config import Settings, load_settings
 from scripts.utils.interrupts import graceful_interrupt
 from scripts.utils.io_geo import (

@@ -57,6 +57,20 @@ except ImportError:  # pragma: no cover
     LineString = None
     Point = None
 
+# --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------------------
+# Aseguramos que el root del proyecto esté en sys.path para que los imports
+# `from scripts.utils.X` funcionen al correr este archivo como script.
+import sys as _sys
+from pathlib import Path as _Path
+_p = _Path(__file__).resolve().parent
+while _p != _p.parent:
+    if (_p / "pyproject.toml").exists():
+        if str(_p) not in _sys.path:
+            _sys.path.insert(0, str(_p))
+        break
+    _p = _p.parent
+# --- fin del parche ---------------------------------------------------------
+
 from scripts.utils.config import load_settings
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_parent, resolve_path
