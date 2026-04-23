@@ -28,7 +28,7 @@
 
     @page {
       size: A4;
-      margin: 1.5cm;
+      margin: 1.1cm 1.2cm;
     }
 
     :root {
@@ -49,8 +49,8 @@
 
     body {
       font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      font-size: 10pt;
-      line-height: 1.4;
+      font-size: 9.5pt;
+      line-height: 1.35;
       color: var(--color-texto);
       background: var(--color-fondo);
     }
@@ -60,8 +60,8 @@
       justify-content: space-between;
       align-items: center;
       border-bottom: 2px solid var(--color-primario);
-      padding-bottom: 8px;
-      margin-bottom: 14px;
+      padding-bottom: 6px;
+      margin-bottom: 10px;
     }
 
     .header h1 {
@@ -85,8 +85,8 @@
     .barrio-section {
       background: #f4f6f9;
       border-left: 4px solid var(--color-acento);
-      padding: 10px 14px;
-      margin-bottom: 14px;
+      padding: 7px 12px;
+      margin-bottom: 10px;
     }
 
     .barrio-section h2 {
@@ -103,8 +103,8 @@
 
     .imagenes-comparativas {
       display: flex;
-      gap: 12px;
-      margin-bottom: 14px;
+      gap: 10px;
+      margin-bottom: 10px;
     }
 
     .imagen-comparativa {
@@ -127,30 +127,30 @@
     }
 
     h3.section-heading {
-      font-size: 11pt;
+      font-size: 10pt;
       font-weight: 700;
       color: var(--color-primario);
       border-bottom: 1px solid var(--color-divider);
-      padding-bottom: 4px;
-      margin-bottom: 8px;
+      padding-bottom: 3px;
+      margin-bottom: 6px;
       letter-spacing: 0.02em;
       text-transform: uppercase;
     }
 
     section.bloque {
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
 
     table.tabla-crecimiento {
       width: 100%;
       border-collapse: collapse;
-      font-size: 9pt;
-      margin-bottom: 8px;
+      font-size: 8.5pt;
+      margin-bottom: 6px;
     }
 
     table.tabla-crecimiento th,
     table.tabla-crecimiento td {
-      padding: 5px 8px;
+      padding: 3px 6px;
       text-align: left;
       border-bottom: 1px solid var(--color-divider);
     }
@@ -175,26 +175,29 @@
     .poblacion-box {
       background: #fbf3ea;
       border: 1px solid var(--color-acento);
-      padding: 10px 14px;
+      padding: 7px 12px;
       border-radius: 3px;
     }
 
     .poblacion-box .valor-central {
-      font-size: 16pt;
+      font-size: 14pt;
       font-weight: 700;
       color: var(--color-acento);
     }
 
     .poblacion-box .rango {
-      font-size: 9pt;
+      font-size: 8.5pt;
       color: var(--color-texto-suave);
       margin-top: 2px;
     }
 
     .metodologia-box {
-      font-size: 8.5pt;
+      font-size: 8pt;
       color: var(--color-texto-suave);
-      line-height: 1.5;
+      line-height: 1.4;
+    }
+    .metodologia-box p {
+      margin-bottom: 3px;
     }
 
     .metodologia-box strong {
@@ -236,12 +239,14 @@
 
   <div class="imagenes-comparativas">
     <div class="imagen-comparativa">
-      <img src="{{ imagen_2018_path }}" alt="Imagen satelital 2018 {{ poligono.nombre }}">
-      <div class="caption">Julio 2018</div>
+      <img src="{{ imagen_inicio_path | default(imagen_2018_path) }}"
+           alt="Imagen satelital {{ fecha_inicio_legible | default('inicio') }} {{ poligono.nombre }}">
+      <div class="caption">{{ fecha_inicio_legible | default("Inicio de serie") }}</div>
     </div>
     <div class="imagen-comparativa">
-      <img src="{{ imagen_2026_path }}" alt="Imagen satelital 2026 {{ poligono.nombre }}">
-      <div class="caption">Julio 2026</div>
+      <img src="{{ imagen_fin_path | default(imagen_2026_path) }}"
+           alt="Imagen satelital {{ fecha_fin_legible | default('fin') }} {{ poligono.nombre }}">
+      <div class="caption">{{ fecha_fin_legible | default("Fin de serie") }}</div>
     </div>
   </div>
 
@@ -275,8 +280,8 @@
     <div class="poblacion-box">
       <div class="valor-central">{{ poblacion.central | default("—") }} personas</div>
       <div class="rango">
-        Rango {{ poblacion.min | default("—") }} - {{ poblacion.max | default("—") }}.
-        Niños 0-14 estimados: {{ poblacion.ninos | default("—") }}.
+        Rango {{ poblacion.min | default("—") }} a {{ poblacion.max | default("—") }}
+        &middot; Niños 0-14 estimados: {{ poblacion.ninos | default("—") }}.
       </div>
     </div>
   </section>
@@ -298,12 +303,13 @@
         conteo de edificios.
       </p>
       <p>
-        <strong>Período cubierto:</strong> enero 2018 - {{ fecha_actual | default("presente") }}.
+        <strong>Período cubierto:</strong>
+        {{ periodo_legible | default(fecha_actual | default("serie en curso")) }}.
+        Composite mediano del invierno seco (junio-agosto) de cada año.
       </p>
       <p>
         <strong>Margen de error de conteo:</strong>
-        <span class="margen-error">±15%</span>.
-        Los números se reportan como rango por honestidad estadística.
+        <span class="margen-error">±15%</span>.&nbsp;Los números se reportan como rango por honestidad estadística.
       </p>
       <p>
         Detalle completo en <strong>METODOLOGIA.md</strong> del repositorio

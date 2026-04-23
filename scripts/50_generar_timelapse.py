@@ -257,7 +257,7 @@ def _dibujar_frame(
                     width=2,
                 )
     except Exception as exc:  # noqa: BLE001
-        logger.debug("Overlay de polígono falló: %s", exc)
+        logger.debug(f"Overlay de polígono falló: {exc}")
 
     # --- Textos ---
     fuente_fecha = _cargar_fuente(48, bold=True)
@@ -368,7 +368,7 @@ def _generar_comparacion_2x2(
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     lienzo.save(out_path, "PNG")
-    logger.info("Comparación 2x2 guardada -> %s", out_path)
+    logger.info(f"Comparación 2x2 guardada -> {out_path}")
 
 
 # --- Main por polígono -------------------------------------------------------
@@ -404,11 +404,11 @@ def _generar_para_poligono(
     tiffs = _listar_geotiffs_rgb(sentinel_dir, poligono_id)
     if len(tiffs) < 2:
         logger.warning(
-            "Polígono '%s' tiene %d GeoTIFFs RGB — se necesita ≥2. Skip.",
-            poligono_id, len(tiffs),
+            f"Polígono '{poligono_id}' tiene {len(tiffs)} GeoTIFFs RGB — "
+            f"se necesita ≥2. Skip."
         )
         return
-    logger.info("Polígono '%s': %d frames base", poligono_id, len(tiffs))
+    logger.info(f"Polígono '{poligono_id}': {len(tiffs)} frames base")
 
     atribucion = "Fuente: Sentinel-2 / ESA Copernicus"
     frames: list[Image.Image] = []
@@ -418,7 +418,7 @@ def _generar_para_poligono(
         try:
             rgb, transform, src_crs = _leer_rgb(path)
         except Exception as exc:  # noqa: BLE001
-            logger.warning("No se pudo leer %s: %s", path, exc)
+            logger.warning(f"No se pudo leer {path}: {exc}")
             continue
         fecha_iso = f"{yyyymm[:4]}-{yyyymm[4:6]}"
         cont = serie_conteos.get(fecha_iso)
@@ -436,7 +436,7 @@ def _generar_para_poligono(
         frames_por_anio[yyyymm[:4]] = frame
 
     if len(frames) < 2:
-        logger.warning("Polígono '%s': no hay frames válidos suficientes.", poligono_id)
+        logger.warning(f"Polígono '{poligono_id}': no hay frames válidos suficientes.")
         return
 
     # Cross-fade.
@@ -462,9 +462,10 @@ def _generar_para_poligono(
             imageio.mimsave(
                 gif_path, arrays, duration=1.0 / max(fps_efectivo, 1), loop=0,
             )
-            logger.info("GIF -> %s (%.1fs)", gif_path, len(arrays) / max(fps_efectivo, 1))
+            dur_gif = len(arrays) / max(fps_efectivo, 1)
+            logger.info(f"GIF -> {gif_path} ({dur_gif:.1f}s)")
         except Exception as exc:  # noqa: BLE001
-            logger.exception("Error exportando GIF: %s", exc)
+            logger.exception(f"Error exportando GIF: {exc}")
 
     if formato in ("mp4", "both"):
         mp4_path = output_dir / f"{poligono_id}.mp4"
@@ -472,11 +473,11 @@ def _generar_para_poligono(
             imageio.mimsave(
                 mp4_path, arrays, fps=fps_efectivo, codec="h264", quality=8,
             )
-            logger.info("MP4 -> %s", mp4_path)
+            logger.info(f"MP4 -> {mp4_path}")
         except Exception as exc:  # noqa: BLE001
             logger.warning(
-                "Error exportando MP4 (necesitás imageio-ffmpeg / ffmpeg en PATH): %s",
-                exc,
+                f"Error exportando MP4 (necesitás imageio-ffmpeg / ffmpeg "
+                f"en PATH): {exc}"
             )
 
     comp_path = output_dir / f"{poligono_id}_comparacion.png"
@@ -548,11 +549,11 @@ def cli(
     else:
         seleccion = gdf[gdf["id"].astype(str) == poligono]
         if seleccion.empty:
-            logger.error("No se encontró polígono '%s' en %s", poligono, poligonos)
+            logger.error(f"No se encontró polígono '{poligono}' en {poligonos}")
             sys.exit(1)
 
     def _handler(signum, frame):  # noqa: ANN001
-        logger.warning("Interrupción (%s) — salida.", signum)
+        logger.warning(f"Interrupción ({signum}) — salida.")
         sys.exit(130)
 
     signal.signal(signal.SIGINT, _handler)
@@ -574,9 +575,9 @@ def cli(
                 interpolar=interpolar,
             )
         except Exception as exc:  # noqa: BLE001
-            logger.exception("Falla en polígono '%s': %s", pid, exc)
+            logger.exception(f"Falla en polígono '{pid}': {exc}")
 
-    logger.info("Duración total: %.1fs", time.time() - t0)
+    logger.info(f"Duración total: {time.time() - t0:.1f}s")
 
 
 if __name__ == "__main__":

@@ -204,10 +204,8 @@ def _cargar_buildings(path: Path, confidence_min: float) -> gpd.GeoDataFrame:
         n_antes = len(gdf)
         gdf = gdf[gdf[col_conf].fillna(0) >= confidence_min].copy()
         logger.info(
-            "Filtro confianza >= %.2f: %d -> %d edificios",
-            confidence_min,
-            n_antes,
-            len(gdf),
+            f"Filtro confianza >= {confidence_min:.2f}: "
+            f"{n_antes} -> {len(gdf)} edificios"
         )
 
     # Aseguramos un ID estable.
@@ -524,14 +522,14 @@ def cli(
     logger.info("Observatorio Posadas — Conteo de techos (Tarea 1.6)")
     logger.info("=" * 60)
     logger.info("Parámetros:")
-    logger.info("  poligonos       = %s", poligonos)
-    logger.info("  buildings       = %s", buildings)
-    logger.info("  sentinel_dir    = %s", sentinel_dir)
-    logger.info("  output_dir      = %s", output_dir)
-    logger.info("  ndbi_threshold  = %.3f", ndbi_threshold)
-    logger.info("  ndvi_threshold  = %.3f", ndvi_threshold)
-    logger.info("  confidence_min  = %.2f", confidence_min)
-    logger.info("  workers         = %s", workers or "auto")
+    logger.info(f"  poligonos       = {poligonos}")
+    logger.info(f"  buildings       = {buildings}")
+    logger.info(f"  sentinel_dir    = {sentinel_dir}")
+    logger.info(f"  output_dir      = {output_dir}")
+    logger.info(f"  ndbi_threshold  = {ndbi_threshold:.3f}")
+    logger.info(f"  ndvi_threshold  = {ndvi_threshold:.3f}")
+    logger.info(f"  confidence_min  = {confidence_min:.2f}")
+    logger.info(f"  workers         = {workers or 'auto'}")
     logger.info(
         "Honestidad: precisión ~80-85%% según literatura, aplicamos banda ±15%% al conteo."
     )
@@ -542,9 +540,8 @@ def cli(
 
     if out_edificios.exists() and not skip_cache:
         logger.info(
-            "Encontrado cache %s — rehacemos la serie temporal a partir de él. "
-            "Usá --skip-cache para forzar recomputo completo.",
-            out_edificios,
+            f"Encontrado cache {out_edificios} — rehacemos la serie temporal "
+            f"a partir de él. Usá --skip-cache para forzar recomputo completo."
         )
         try:
             edificios_df = pd.read_csv(out_edificios)
@@ -556,13 +553,12 @@ def cli(
             serie_df = _construir_serie_temporal(edificios_df, fechas_por_pol_cache)
             serie_df.to_csv(out_serie, index=False, encoding="utf-8")
             logger.info(
-                "Serie temporal regenerada desde cache: %d filas -> %s",
-                len(serie_df),
-                out_serie,
+                f"Serie temporal regenerada desde cache: {len(serie_df)} filas "
+                f"-> {out_serie}"
             )
             return
         except Exception as exc:  # noqa: BLE001
-            logger.warning("Falló la lectura de cache (%s). Se recomputa todo.", exc)
+            logger.warning(f"Falló la lectura de cache ({exc}). Se recomputa todo.")
 
     # Si hay cache previo pero queremos recomputar, limpiamos para no appendear.
     if out_edificios.exists():
@@ -573,7 +569,7 @@ def cli(
         poligonos_gdf = _cargar_poligonos(poligonos)
         buildings_gdf = _cargar_buildings(buildings, confidence_min=confidence_min)
     except Exception as exc:
-        logger.exception("Error cargando inputs: %s", exc)
+        logger.exception(f"Error cargando inputs: {exc}")
         sys.exit(1)
 
     # Construimos jobs.
@@ -587,9 +583,7 @@ def cli(
         fechas_pol = _listar_fechas_disponibles(sentinel_dir, pol_id)
         if not fechas_pol:
             logger.warning(
-                "Polígono '%s' no tiene GeoTIFFs multi en %s — se salta",
-                pol_id,
-                sentinel_dir,
+                f"Polígono '{pol_id}' no tiene GeoTIFFs multi en {sentinel_dir} — se salta"
             )
             continue
         fechas_por_pol[pol_id] = fechas_pol
@@ -617,26 +611,24 @@ def cli(
             }
         )
         logger.info(
-            "Polígono '%s': %d edificios, %d fechas disponibles",
-            pol_id,
-            len(edificios_lista),
-            len(fechas_pol),
+            f"Polígono '{pol_id}': {len(edificios_lista)} edificios, "
+            f"{len(fechas_pol)} fechas disponibles"
         )
 
     if not jobs:
         logger.error("No hay jobs para procesar. Verificá polígonos y GeoTIFFs.")
         sys.exit(1)
 
-    logger.info("Total edificios a procesar: %d sobre %d polígonos", total_edif, len(jobs))
+    logger.info(f"Total edificios a procesar: {total_edif} sobre {len(jobs)} polígonos")
 
     # --- Paralelización ---
     n_workers = workers if workers and workers > 0 else max(1, (os.cpu_count() or 2) - 1)
-    logger.info("Workers = %d", n_workers)
+    logger.info(f"Workers = {n_workers}")
 
     estado = _EstadoParcial(out_edificios)
 
     def _handler(signum, frame):  # noqa: ANN001
-        logger.warning("Interrupción (%s) — volcando estado parcial y saliendo.", signum)
+        logger.warning(f"Interrupción ({signum}) — volcando estado parcial y saliendo.")
         estado.volcar()
         sys.exit(130)
 
@@ -669,30 +661,28 @@ def cli(
         sys.exit(2)
 
     edificios_df = pd.read_csv(out_edificios)
-    logger.info("Edificios con fecha: %d filas -> %s", len(edificios_df), out_edificios)
+    logger.info(f"Edificios con fecha: {len(edificios_df)} filas -> {out_edificios}")
 
     n_pre = int((edificios_df["fecha_aparicion"] == FECHA_PRE_2018).sum())
     n_desc = int((edificios_df["fecha_aparicion"] == FECHA_DESCONOCIDA).sum())
+    n_datados = len(edificios_df) - n_pre - n_desc
     logger.info(
-        "Desglose: %d preexistentes (<2018), %d desconocidos (excluidos), %d datados",
-        n_pre,
-        n_desc,
-        len(edificios_df) - n_pre - n_desc,
+        f"Desglose: {n_pre} preexistentes (<2018), {n_desc} desconocidos "
+        f"(excluidos), {n_datados} datados"
     )
     if n_desc and len(edificios_df):
         pct_desc = 100.0 * n_desc / len(edificios_df)
         if pct_desc > 20:
             logger.warning(
-                "%.1f%% edificios marcados 'desconocida' — revisá umbrales o "
-                "cobertura de GeoTIFFs multiespectrales.",
-                pct_desc,
+                f"{pct_desc:.1f}% edificios marcados 'desconocida' — revisá "
+                f"umbrales o cobertura de GeoTIFFs multiespectrales."
             )
 
     serie_df = _construir_serie_temporal(edificios_df, fechas_por_pol)
     serie_df.to_csv(out_serie, index=False, encoding="utf-8")
-    logger.info("Serie temporal: %d filas -> %s", len(serie_df), out_serie)
+    logger.info(f"Serie temporal: {len(serie_df)} filas -> {out_serie}")
 
-    logger.info("Duración total: %.1fs", time.time() - t0)
+    logger.info(f"Duración total: {time.time() - t0:.1f}s")
     logger.info("Fin Tarea 1.6.")
 
 

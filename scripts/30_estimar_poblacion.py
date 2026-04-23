@@ -113,7 +113,7 @@ def _suma_zonal_worldpop(
             valido = suma > 0.0
             return suma, valido
     except Exception as exc:  # noqa: BLE001
-        logger.warning("Fallo zonal WorldPop: %s", exc)
+        logger.warning(f"Fallo zonal WorldPop: {exc}")
         return 0.0, False
 
 
@@ -191,9 +191,9 @@ def cli(
     logger.info("Observatorio Posadas — Estimación de población (Fase 1)")
     logger.info("=" * 60)
     logger.info("Supuestos explícitos:")
-    logger.info("  personas/vivienda  = %.2f (INDEC Misiones)", personas_por_vivienda)
-    logger.info("  base poblacional   = WorldPop 2020 (%s)", worldpop)
-    logger.info("  banda de error pob = ±%.0f%%", BANDA_ERROR_POBLACION * 100)
+    logger.info(f"  personas/vivienda  = {personas_por_vivienda:.2f} (INDEC Misiones)")
+    logger.info(f"  base poblacional   = WorldPop 2020 ({worldpop})")
+    logger.info(f"  banda de error pob = ±{BANDA_ERROR_POBLACION * 100:.0f}%")
     logger.info(
         "Nota: WorldPop subestima zonas de cambio rápido. "
         "Escalamos por crecimiento edilicio respecto del baseline 2020."
@@ -202,7 +202,7 @@ def cli(
     output.parent.mkdir(parents=True, exist_ok=True)
 
     def _handler(signum, frame):  # noqa: ANN001
-        logger.warning("Interrupción (%s) — salida limpia.", signum)
+        logger.warning(f"Interrupción ({signum}) — salida limpia.")
         sys.exit(130)
 
     signal.signal(signal.SIGINT, _handler)
@@ -286,11 +286,11 @@ def cli(
 
     out_df = pd.DataFrame(filas)
     out_df.to_csv(output, index=False, encoding="utf-8")
-    logger.info("Población estimada: %d filas -> %s", len(out_df), output)
+    logger.info(f"Población estimada: {len(out_df)} filas -> {output}")
 
     resumen_metodo = out_df["metodo"].value_counts().to_dict()
-    logger.info("Desglose por método: %s", resumen_metodo)
-    logger.info("Duración total: %.1fs", time.time() - t0)
+    logger.info(f"Desglose por método: {resumen_metodo}")
+    logger.info(f"Duración total: {time.time() - t0:.1f}s")
     logger.info("Fin estimación población Fase 1.")
 
 

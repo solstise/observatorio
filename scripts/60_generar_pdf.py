@@ -72,7 +72,57 @@ PALETA = {
     "texto": "#222222",
     "acento": "#c97d3c",
 }
-HITOS_DEFAULT = ["2018", "2021", "2024", "2026"]
+# Nombres de meses en español para formatear fechas (ej. "2018-07" -> "Julio 2018").
+MESES_ES = {
+    "01": "Enero", "02": "Febrero", "03": "Marzo", "04": "Abril",
+    "05": "Mayo", "06": "Junio", "07": "Julio", "08": "Agosto",
+    "09": "Septiembre", "10": "Octubre", "11": "Noviembre", "12": "Diciembre",
+}
+
+# Mapeo de slug de categoría (del GeoJSON) a texto humano en español.
+CATEGORIAS_LEGIBLES = {
+    "asentamiento_crecimiento_rapido": "Asentamiento de crecimiento rápido",
+    "consolidado_crecimiento": "Barrio consolidado con crecimiento",
+    "control_consolidado": "Barrio consolidado (control)",
+    "zona_sensible": "Zona sensible",
+}
+
+
+def _categoria_legible(categoria: str) -> str:
+    """Traduce el slug de categoría a un texto legible.
+
+    El GeoJSON guarda categoría como slug (p. ej. `asentamiento_crecimiento_rapido`)
+    para facilitar comparaciones, pero en el PDF queremos el texto con tildes.
+    """
+    if not categoria:
+        return ""
+    if categoria in CATEGORIAS_LEGIBLES:
+        return CATEGORIAS_LEGIBLES[categoria]
+    return categoria.replace("_", " ").capitalize()
+
+
+def _fecha_legible(fecha_iso: str) -> str:
+    """Formatea 'YYYY-MM' como 'Julio 2018'. Si el formato es inesperado,
+    devuelve la cadena original para no perder información."""
+    try:
+        anio, mes = fecha_iso.split("-")[:2]
+        return f"{MESES_ES[mes]} {anio}"
+    except (ValueError, KeyError):
+        return fecha_iso
+
+
+def _seleccionar_hitos(serie_pol: pd.DataFrame, n: int = 4) -> list[str]:
+    """Devuelve hasta `n` fechas (YYYY-MM) espaciadas uniformemente de la serie."""
+    if serie_pol.empty:
+        return []
+    fechas = sorted(serie_pol["fecha"].unique().tolist())
+    if len(fechas) <= n:
+        return fechas
+    paso = (len(fechas) - 1) / (n - 1)
+    idx = [int(round(i * paso)) for i in range(n)]
+    # Aseguramos que queden únicos y ordenados.
+    idx = sorted(dict.fromkeys(idx))
+    return [fechas[i] for i in idx]
 
 
 # --- Utilidades imágenes -----------------------------------------------------
@@ -105,11 +155,21 @@ def _buscar_rgb_cerca(sentinel_dir: Path, poligono_id: str, anio: str) -> Path |
         c2 = sorted(sentinel_dir.glob(f"{poligono_id}_{a2}*_rgb.tif"))
         if c2:
             logger.warning(
-                "No hay RGB para %s-%s, uso año %s como fallback.",
-                poligono_id, anio, a2,
+                f"No hay RGB para {poligono_id}-{anio}, uso año {a2} como fallback."
             )
             return c2[0]
     return None
+
+
+def _buscar_rgb_por_fecha_iso(sentinel_dir: Path, poligono_id: str, fecha_iso: str) -> Path | None:
+    """Busca el GeoTIFF RGB que corresponde a una fecha YYYY-MM exacta."""
+    yyyymm = fecha_iso.replace("-", "")[:6]
+    candidatos = sorted(sentinel_dir.glob(f"{poligono_id}_{yyyymm}_rgb.tif"))
+    if candidatos:
+        return candidatos[0]
+    # Fallback: sólo por año.
+    anio = fecha_iso[:4]
+    return _buscar_rgb_cerca(sentinel_dir, poligono_id, anio)
 
 
 def _geotiff_a_png(path_tif: Path, out_png: Path, size: tuple[int, int] = (640, 320)) -> bool:
@@ -133,7 +193,7 @@ def _geotiff_a_png(path_tif: Path, out_png: Path, size: tuple[int, int] = (640, 
         canvas.save(out_png, "PNG")
         return True
     except Exception as exc:  # noqa: BLE001
-        logger.warning("No se pudo generar PNG desde %s: %s", path_tif, exc)
+        logger.warning(f"No se pudo generar PNG desde {path_tif}: {exc}")
         return False
 
 
@@ -151,7 +211,7 @@ def _grafico_crecimiento(
     minv = serie_pol["n_edificios_min"].astype(float)
     maxv = serie_pol["n_edificios_max"].astype(float)
 
-    fig, ax = plt.subplots(figsize=(7, 3.2), dpi=160)
+    fig, ax = plt.subplots(figsize=(6.8, 2.4), dpi=150)
     ax.fill_between(fechas, minv, maxv, color=COLOR_SECUNDARIO, alpha=0.35,
                     label="Banda ±15%")
     ax.plot(fechas, est, color=COLOR_PRIMARIO, linewidth=2.2, marker="o",
@@ -176,26 +236,23 @@ def _grafico_crecimiento(
 
 
 def _hitos_serie(serie_pol: pd.DataFrame) -> list[dict]:
-    """Genera cifras de 2018, 2021, 2024, 2026 (o los años más próximos)."""
+    """Cuatro hitos equidistantes de la serie temporal real (no hardcodeados)."""
     if serie_pol.empty:
         return []
-    serie_pol = serie_pol.copy()
-    serie_pol["anio"] = serie_pol["fecha"].str[:4]
+    fechas_hitos = _seleccionar_hitos(serie_pol, n=4)
     hitos: list[dict] = []
-    for anio_obj in HITOS_DEFAULT:
-        sub = serie_pol[serie_pol["anio"] == anio_obj]
-        if sub.empty:
-            # fallback: año más cercano disponible
-            try:
-                idx = (serie_pol["anio"].astype(int) - int(anio_obj)).abs().idxmin()
-                sub = serie_pol.loc[[idx]]
-            except Exception:  # noqa: BLE001
-                continue
-        fila = sub.iloc[0]
+    for fecha in fechas_hitos:
+        fila = serie_pol[serie_pol["fecha"] == fecha].iloc[0]
         est = int(fila["n_edificios_estimado"])
         delta = max(est - int(fila["n_edificios_min"]),
                     int(fila["n_edificios_max"]) - est)
-        hitos.append({"anio": anio_obj, "valor": est, "delta": delta})
+        hitos.append({
+            "fecha": fecha,
+            "fecha_legible": _fecha_legible(fecha),
+            "anio": fecha[:4],
+            "valor": est,
+            "delta": delta,
+        })
     return hitos
 
 
@@ -215,17 +272,25 @@ def _generar_pdf_poligono(
     pob_pol = poblacion_df[poblacion_df["poligono_id"] == poligono_id].copy()
 
     if serie_pol.empty:
-        logger.warning("Sin serie temporal para '%s' — no se genera PDF.", poligono_id)
+        logger.warning(f"Sin serie temporal para '{poligono_id}' — no se genera PDF.")
         return False
+
+    # Fechas dinámicas a partir de la serie temporal real (no hardcodeadas).
+    fechas_disponibles = sorted(serie_pol["fecha"].unique().tolist())
+    fecha_inicio = fechas_disponibles[0]
+    fecha_fin = fechas_disponibles[-1]
+    fecha_inicio_legible = _fecha_legible(fecha_inicio)
+    fecha_fin_legible = _fecha_legible(fecha_fin)
+    periodo_legible = f"{fecha_inicio_legible} - {fecha_fin_legible}"
 
     with tempfile.TemporaryDirectory(prefix=f"obsp_{poligono_id}_") as tmpdir:
         tmp = Path(tmpdir)
-        img_2018_path = tmp / f"{poligono_id}_2018.png"
-        img_2026_path = tmp / f"{poligono_id}_2026.png"
-        rgb2018 = _buscar_rgb_cerca(sentinel_dir, poligono_id, "2018")
-        rgb2026 = _buscar_rgb_cerca(sentinel_dir, poligono_id, "2026")
-        ok18 = _geotiff_a_png(rgb2018, img_2018_path) if rgb2018 else False
-        ok26 = _geotiff_a_png(rgb2026, img_2026_path) if rgb2026 else False
+        img_inicio_path = tmp / f"{poligono_id}_{fecha_inicio}.png"
+        img_fin_path = tmp / f"{poligono_id}_{fecha_fin}.png"
+        rgb_inicio = _buscar_rgb_por_fecha_iso(sentinel_dir, poligono_id, fecha_inicio)
+        rgb_fin = _buscar_rgb_por_fecha_iso(sentinel_dir, poligono_id, fecha_fin)
+        ok_inicio = _geotiff_a_png(rgb_inicio, img_inicio_path) if rgb_inicio else False
+        ok_fin = _geotiff_a_png(rgb_fin, img_fin_path) if rgb_fin else False
 
         grafico_path = tmp / f"{poligono_id}_grafico.png"
         _grafico_crecimiento(serie_pol, nombre, grafico_path)
@@ -257,15 +322,19 @@ def _generar_pdf_poligono(
             }
 
         hitos = _hitos_serie(serie_pol)
-        # La plantilla del repo espera una tabla `crecimiento` con fecha + min/est/max.
+        # Tabla compacta con 4 hitos equidistantes (en lugar de cada año),
+        # para que el PDF quepa en una página A4. El gráfico de abajo
+        # muestra la serie completa.
+        fechas_hitos = [h["fecha"] for h in hitos]
+        serie_hitos_df = serie_pol[serie_pol["fecha"].isin(fechas_hitos)]
         crecimiento_tabla = [
             {
-                "fecha": row["fecha"],
-                "n_edificios_estimado": int(row["n_edificios_estimado"]),
-                "n_edificios_min": int(row["n_edificios_min"]),
-                "n_edificios_max": int(row["n_edificios_max"]),
+                "fecha": _fecha_legible(row["fecha"]),
+                "n_edificios_estimado": f"{int(row['n_edificios_estimado']):,}".replace(",", "."),
+                "n_edificios_min": f"{int(row['n_edificios_min']):,}".replace(",", "."),
+                "n_edificios_max": f"{int(row['n_edificios_max']):,}".replace(",", "."),
             }
-            for _, row in serie_pol.sort_values("fecha").iterrows()
+            for _, row in serie_hitos_df.sort_values("fecha").iterrows()
         ]
 
         contexto = {
@@ -274,25 +343,34 @@ def _generar_pdf_poligono(
                 "nombre": nombre,
                 "descripcion": descripcion,
                 "categoria": categoria,
-                "categoria_legible": categoria.replace("_", " ").capitalize() if categoria else "",
+                "categoria_legible": _categoria_legible(categoria),
             },
             # Para la plantilla del repo:
             "crecimiento": crecimiento_tabla,
             "poblacion": pob_ctx,
-            "fecha_actual": dt.datetime.now().strftime("%B %Y"),
+            "fecha_actual": _fecha_legible(fecha_fin),
             # Variables usadas en mi plantilla alternativa:
             "serie_hitos": hitos,
             "poblacion_actual": pob_ctx,
+            # Fechas dinámicas de la serie — REEMPLAZAN los hardcodeos anteriores.
+            "fecha_inicio": fecha_inicio,
+            "fecha_fin": fecha_fin,
+            "fecha_inicio_legible": fecha_inicio_legible,
+            "fecha_fin_legible": fecha_fin_legible,
+            "periodo_legible": periodo_legible,
             # Comunes:
             "grafico_crecimiento_path": str(grafico_path.resolve()),
-            "imagen_2018_path": str(img_2018_path.resolve()) if ok18 else "",
-            "imagen_2026_path": str(img_2026_path.resolve()) if ok26 else "",
+            "imagen_inicio_path": str(img_inicio_path.resolve()) if ok_inicio else "",
+            "imagen_fin_path": str(img_fin_path.resolve()) if ok_fin else "",
+            # Alias compatibles con la plantilla existente (que espera imagen_2018/_2026).
+            "imagen_2018_path": str(img_inicio_path.resolve()) if ok_inicio else "",
+            "imagen_2026_path": str(img_fin_path.resolve()) if ok_fin else "",
             "fecha_generacion": dt.datetime.now().strftime("%Y-%m-%d %H:%M"),
             "version": VERSION,
             "paleta": PALETA,
             "supuestos": {
                 "personas_por_vivienda": f"{personas_por_vivienda:.1f}",
-                "periodo": f"{serie_pol['fecha'].min()} a {serie_pol['fecha'].max()}",
+                "periodo": periodo_legible,
                 "banda_edificios_pct": 15,
                 "banda_poblacion_pct": 20,
             },
@@ -313,11 +391,11 @@ def _generar_pdf_poligono(
         try:
             from weasyprint import HTML  # import diferido para no reventar si falta
             HTML(string=html, base_url=str(tmp)).write_pdf(str(pdf_path))
-            logger.info("PDF -> %s", pdf_path)
+            logger.info(f"PDF -> {pdf_path}")
             return True
         except Exception as exc:  # noqa: BLE001
             logger.error(
-                "WeasyPrint falló generando PDF para '%s': %s", poligono_id, exc
+                f"WeasyPrint falló generando PDF para '{poligono_id}': {exc}"
             )
             logger.error(
                 "Ver instrucciones Windows/GTK3: "
@@ -330,7 +408,7 @@ def _generar_pdf_poligono(
             # Fallback: guardar el HTML al menos, para diagnóstico.
             html_path = out_dir / f"{poligono_id}_v{VERSION}_{fecha_stamp}.html"
             html_path.write_text(html, encoding="utf-8")
-            logger.warning("HTML de diagnóstico -> %s", html_path)
+            logger.warning(f"HTML de diagnóstico -> {html_path}")
             return False
 
 
@@ -408,7 +486,7 @@ def cli(
     else:
         seleccion = gdf[gdf["id"].astype(str) == poligono]
         if seleccion.empty:
-            logger.error("Polígono '%s' no encontrado en %s", poligono, poligonos)
+            logger.error(f"Polígono '{poligono}' no encontrado en {poligonos}")
             sys.exit(1)
 
     ok = 0
@@ -436,10 +514,10 @@ def cli(
             else:
                 fail += 1
         except Exception as exc:  # noqa: BLE001
-            logger.exception("Error en polígono '%s': %s", pid, exc)
+            logger.exception(f"Error en polígono '{pid}': {exc}")
             fail += 1
 
-    logger.info("Resumen: %d OK, %d FALLO. Duración %.1fs", ok, fail, time.time() - t0)
+    logger.info(f"Resumen: {ok} OK, {fail} FALLO. Duración {time.time() - t0:.1f}s")
 
 
 if __name__ == "__main__":
