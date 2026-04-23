@@ -371,12 +371,13 @@ def cli(
     # 2. Sanity EE
     resumen.agregar(_etapa_test_ee(dry_run))
 
-    # 3-6. Etapas de descarga (críticas)
+    # 3-5. Etapas de descarga (críticas).
+    # Nota: 10_recortar_por_poligono.py es una utility, no parte del flujo
+    # automático (cada script de descarga ya recorta a sus polígonos).
     etapas_descarga = [
         ("scripts/01_descarga_sentinel.py", "descarga_sentinel"),
         ("scripts/03_descarga_buildings.py", "descarga_buildings"),
         ("scripts/05_descarga_worldpop.py", "descarga_worldpop"),
-        ("scripts/10_recortar_por_poligono.py", "recortar_por_poligono"),
     ]
     if skip_descargas:
         logger.info("--skip-descargas activo: se saltean 01/03/05/10.")

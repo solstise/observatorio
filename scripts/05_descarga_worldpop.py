@@ -196,10 +196,20 @@ def _recortar_a_bbox(
     help="Año de WorldPop (2000-2020 disponibles en URL estándar).",
 )
 @click.option(
+    "--poligonos",
+    "poligonos_path",
+    default=None,
+    type=click.Path(exists=True, dir_okay=False),
+    help=(
+        "Path a GeoJSON de polígonos. Si se pasa, el bbox se deriva como el "
+        "total_bounds de todos los polígonos. Tiene menor prioridad que --bbox."
+    ),
+)
+@click.option(
     "--bbox",
     "bbox_cli",
     default=None,
-    help="BBox 'oeste,sur,este,norte'. Default: bbox de settings.yaml.",
+    help="BBox 'oeste,sur,este,norte'. Default: --poligonos derivado o bbox de settings.yaml.",
 )
 @click.option(
     "--output",
@@ -223,6 +233,7 @@ def _recortar_a_bbox(
 def main(
     pais: str,
     year: int,
+    poligonos_path: Optional[str],
     bbox_cli: Optional[str],
     output_dir: str,
     force: bool,
@@ -232,6 +243,15 @@ def main(
     setup_logger(nivel=nivel_log.upper())
     settings = load_settings()
 
+    # Prioridad: --bbox explícito > --poligonos derivado > settings.yaml default.
+    if bbox_cli is None and poligonos_path is not None:
+        import geopandas as gpd
+        gdf = gpd.read_file(poligonos_path)
+        west, south, east, north = gdf.total_bounds
+        bbox_cli = f"{west},{south},{east},{north}"
+        logger.info(
+            f"BBox derivado de --poligonos ({poligonos_path}): {bbox_cli}"
+        )
     bbox = _parsear_bbox(bbox_cli, settings)
     out_dir = ensure_dir(resolve_path(output_dir))
 

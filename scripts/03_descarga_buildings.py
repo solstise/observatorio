@@ -317,12 +317,22 @@ def _post_procesar_geojson(
 
 @click.command()
 @click.option(
+    "--poligonos",
+    "poligonos_path",
+    default=None,
+    type=click.Path(exists=True, dir_okay=False),
+    help=(
+        "Path a GeoJSON de polígonos. Si se pasa, el bbox se deriva como el "
+        "total_bounds de todos los polígonos. Tiene menor prioridad que --bbox."
+    ),
+)
+@click.option(
     "--bbox",
     "bbox_cli",
     default=None,
     help=(
         "BBox en grados: 'oeste,sur,este,norte'. "
-        "Si se omite, se usa el bbox de settings.yaml."
+        "Si se omite, se intenta --poligonos y luego bbox de settings.yaml."
     ),
 )
 @click.option(
@@ -358,6 +368,7 @@ def _post_procesar_geojson(
     help="Nivel de logging.",
 )
 def main(
+    poligonos_path: Optional[str],
     bbox_cli: Optional[str],
     confidence_min: Optional[float],
     output_path: str,
@@ -369,6 +380,15 @@ def main(
     setup_logger(nivel=nivel_log.upper())
     settings = load_settings()
 
+    # Prioridad: --bbox explícito > --poligonos derivado > settings.yaml default.
+    if bbox_cli is None and poligonos_path is not None:
+        import geopandas as gpd
+        gdf = gpd.read_file(poligonos_path)
+        west, south, east, north = gdf.total_bounds
+        bbox_cli = f"{west},{south},{east},{north}"
+        logger.info(
+            f"BBox derivado de --poligonos ({poligonos_path}): {bbox_cli}"
+        )
     bbox = _parsear_bbox(bbox_cli, settings)
     conf = confidence_min if confidence_min is not None else settings.edificios.confidence_threshold
     output_geojson = ensure_parent(resolve_path(output_path))
