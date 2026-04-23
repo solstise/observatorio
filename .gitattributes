@@ -1,0 +1,46 @@
+# Force LF for scripts that must run on Linux containers (Docker Alpine, VPS)
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Python and config can autodetect (prefer LF but tolerant)
+*.py text
+*.yaml text
+*.yml text
+*.toml text
+*.json text
+*.md text
+*.cfg text
+*.ini text
+
+# GeoJSON and CSV are text, LF preferred
+*.geojson text eol=lf
+*.csv text
+
+# JavaScript/TypeScript/Web
+*.js text
+*.jsx text
+*.ts text
+*.tsx text
+*.mjs text
+*.css text
+*.html text
+
+# Binary (no line-ending conversion)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.mp4 binary
+*.webm binary
+*.pdf binary
+*.tif binary
+*.tiff binary
+*.geotiff binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.zip binary
+*.pt binary
+*.pth binary
+*.h5 binary

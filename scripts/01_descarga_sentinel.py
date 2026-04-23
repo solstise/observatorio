@@ -131,7 +131,10 @@ def _mask_s2_qa60(image):
         .eq(0)
         .And(qa.bitwiseAnd(cirrus_bit_mask).eq(0))
     )
-    return image.updateMask(mask).divide(10000).copyProperties(image, image.propertyNames())
+    # divide(10000) puede reescalar pero preservamos nombres originales.
+    scaled = image.updateMask(mask).divide(10000)
+    # ee.Image() asegura que el resultado sea tratado como Image tras copyProperties.
+    return ee.Image(scaled.copyProperties(image, image.propertyNames()))
 
 
 def _build_composite(

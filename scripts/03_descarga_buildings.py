@@ -128,7 +128,12 @@ def _intentar_descarga_directa(
         True si la descarga tuvo éxito, False si falló (para caer a siguiente fallback).
     """
     try:
-        url = fc.getDownloadURL(filetype="GeoJSON")
+        # Formato "GEOJSON" para earthengine-api moderno. Probamos también variantes.
+        try:
+            url = fc.getDownloadURL(filetype="GEOJSON")
+        except TypeError:
+            # API vieja: usar positional o dict.
+            url = fc.getDownloadURL("GEOJSON")
     except Exception as exc:  # noqa: BLE001
         logger.warning(f"getDownloadURL falló: {exc}")
         return False

@@ -1,0 +1,36 @@
+# docker-compose del backend del Observatorio Urbano Posadas.
+# Uso: desde webapp/backend/
+#   docker compose up --build
+
+services:
+  api:
+    build: .
+    image: observatorio-posadas-api:latest
+    container_name: observatorio-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_VERSION=${APP_VERSION:-0.1.0-fase3}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+      - API_KEY=${API_KEY:-}
+      - RATE_LIMIT_PUBLIC=${RATE_LIMIT_PUBLIC:-100/minute}
+      - RATE_LIMIT_AUTHED=${RATE_LIMIT_AUTHED:-600/minute}
+      # El data loader lee /app/data/outputs. El volumen siguiente lo monta.
+      - DATA_ROOT=/app/data/outputs
+      # - REDIS_URL=redis://redis:6379/0
+    volumes:
+      # Mapea data/outputs del repo raiz en modo lectura.
+      - ../../data:/app/data:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/api/salud"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Descomentar para rate limiting distribuido con Redis.
+  # redis:
+  #   image: redis:7-alpine
+  #   restart: unless-stopped
+  #   container_name: observatorio-redis
