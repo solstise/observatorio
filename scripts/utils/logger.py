@@ -107,4 +107,23 @@ def setup_logger(
     logger.debug(f"Logger configurado | nivel={nivel} | archivo={log_file}")
 
 
-__all__ = ["setup_logger", "logger"]
+def get_logger(name: Optional[str] = None):
+    """Shim de compatibilidad.
+
+    Algunos scripts del pipeline se escribieron esperando `get_logger(__name__)`
+    al estilo de `logging.getLogger`. Como loguru tiene un logger global y
+    detecta el módulo llamador automáticamente, acá ignoramos `name` y
+    retornamos el logger global después de asegurar que esté configurado.
+
+    Args:
+        name: Ignorado. Se acepta por compatibilidad con el patrón stdlib.
+
+    Returns:
+        El `logger` global de loguru, ya configurado.
+    """
+    if not _CONFIGURED:
+        setup_logger()
+    return logger
+
+
+__all__ = ["setup_logger", "get_logger", "logger"]

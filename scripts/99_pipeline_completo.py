@@ -115,8 +115,9 @@ def _run_subprocess(
         return ResultadoEtapa(etapa, poligono, False, 0.0,
                               f"FALLO: script no encontrado: {script_rel}")
     cmd = [sys.executable, str(script), *args]
-    logger.info("▶ %s%s", etapa, f" ({poligono})" if poligono else "")
-    logger.info("  cmd: %s", " ".join(cmd))
+    sufijo = f" ({poligono})" if poligono else ""
+    logger.info(f"▶ {etapa}{sufijo}")
+    logger.info(f"  cmd: {' '.join(cmd)}")
     try:
         proc = subprocess.run(
             cmd, cwd=str(PROJECT_ROOT), check=False,
@@ -178,10 +179,21 @@ def _validar_setup(poligonos_path: Path) -> ResultadoEtapa:
 
     # Check autenticación Earth Engine (no crítico, solo warn).
     try:
+        # Cargamos .env para obtener EE_PROJECT_ID.
+        try:
+            from dotenv import load_dotenv
+            load_dotenv(PROJECT_ROOT / ".env")
+        except ImportError:
+            pass
         ee = importlib.import_module("ee")
         try:
-            ee.Initialize()
-            mensajes.append("EE ok")
+            project = os.environ.get("EE_PROJECT_ID")
+            if project:
+                ee.Initialize(project=project)
+                mensajes.append(f"EE ok (proyecto={project})")
+            else:
+                ee.Initialize()
+                mensajes.append("EE ok (sin project, usando default)")
         except Exception as exc:  # noqa: BLE001
             mensajes.append(f"EE no inicializado: {exc}")
     except ImportError:
@@ -328,9 +340,9 @@ def cli(
     ))
     logging.getLogger().addHandler(fh)
 
+    modo = "(DRY-RUN)" if dry_run else ""
     logger.info("=" * 60)
-    logger.info("Observatorio Posadas — Pipeline Fase %d %s",
-                fase, "(DRY-RUN)" if dry_run else "")
+    logger.info(f"Observatorio Posadas — Pipeline Fase {fase} {modo}")
     logger.info("=" * 60)
 
     resumen = ResumenPipeline()
@@ -338,7 +350,8 @@ def cli(
     # 1. Validación
     r = _validar_setup(poligonos)
     resumen.agregar(r)
-    logger.info("Validación: %s (%s)", "OK" if r.ok else "FALLO", r.mensaje)
+    estado = "OK" if r.ok else "FALLO"
+    logger.info(f"Validación: {estado} ({r.mensaje})")
     if not r.ok:
         logger.error("Validación falló — aborto.")
         print("\n" + resumen.como_markdown())
@@ -349,11 +362,11 @@ def cli(
         seleccion = [p.strip() for p in poligonos_subset.split(",") if p.strip()]
         desconocidos = set(seleccion) - set(ids_todos)
         if desconocidos:
-            logger.warning("IDs desconocidos en subset: %s", sorted(desconocidos))
+            logger.warning(f"IDs desconocidos en subset: {sorted(desconocidos)}")
         poligonos_ids = [p for p in seleccion if p in ids_todos]
     else:
         poligonos_ids = ids_todos
-    logger.info("Polígonos a procesar: %s", poligonos_ids)
+    logger.info(f"Polígonos a procesar: {poligonos_ids}")
 
     # 2. Sanity EE
     resumen.agregar(_etapa_test_ee(dry_run))
@@ -374,8 +387,9 @@ def cli(
             r = _etapa_descarga(script_rel, etapa, poligonos, dry_run)
             resumen.agregar(r)
             if not r.ok and not r.mensaje.startswith("SKIP"):
-                logger.warning("Etapa %s falló: %s (continuamos con lo que haya)",
-                               etapa, r.mensaje)
+                logger.warning(
+                    f"Etapa {etapa} falló: {r.mensaje} (continuamos con lo que haya)"
+                )
 
     # 7. Conteo
     r_cont = _etapa_contar(poligonos, dry_run)
@@ -389,25 +403,25 @@ def cli(
     r_pob = _etapa_poblacion(poligonos, dry_run)
     resumen.agregar(r_pob)
     if not r_pob.ok and not r_pob.mensaje.startswith("SKIP"):
-        logger.warning("Estimación de población falló: %s (continuamos)", r_pob.mensaje)
+        logger.warning(f"Estimación de población falló: {r_pob.mensaje} (continuamos)")
 
     # 9. Timelapses (paralelo por polígono, I/O bound)
-    logger.info("Generando timelapses en paralelo (workers=%d)...", workers_poligono)
+    logger.info(f"Generando timelapses en paralelo (workers={workers_poligono})...")
     resumen.etapas.extend(_ejecutar_por_poligono(
         _etapa_timelapse, poligonos_ids, workers_poligono, dry_run,
     ))
 
     # 10. PDFs
-    logger.info("Generando PDFs en paralelo (workers=%d)...", workers_poligono)
+    logger.info(f"Generando PDFs en paralelo (workers={workers_poligono})...")
     resumen.etapas.extend(_ejecutar_por_poligono(
         _etapa_pdf, poligonos_ids, workers_poligono, dry_run,
     ))
 
     # Resumen final
     total_s = time.time() - t0
-    logger.info("Duración total pipeline: %.1fs", total_s)
+    logger.info(f"Duración total pipeline: {total_s:.1f}s")
     markdown = resumen.como_markdown()
-    logger.info("\nResumen final:\n%s", markdown)
+    logger.info(f"\nResumen final:\n{markdown}")
     print("\n================ RESUMEN PIPELINE FASE 1 ================\n")
     print(markdown)
     print(f"\nTiempo total: {total_s:.1f}s. Log: {log_file}\n")
