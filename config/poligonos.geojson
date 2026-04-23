@@ -3,30 +3,336 @@
   "name": "poligonos_observatorio_posadas",
   "crs": {
     "type": "name",
-    "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" }
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
   },
   "features": [
     {
       "type": "Feature",
       "properties": {
-        "id": "itaembe_mini",
-        "nombre": "Itaembé Miní",
-        "descripcion": "Zona de expansión rápida al sur-oeste de Posadas, crecimiento sostenido 2018-2026 con incorporación de familias jóvenes y fuerte presencia de vivienda social en construcción autogestionada.",
+        "id": "itaembe_guazu",
+        "nombre": "Itaembé Guazú",
+        "descripcion": "Barrio del sur de Posadas en expansión. Polígono oficial OSM relation/4860758.",
         "categoria": "asentamiento_crecimiento_rapido",
         "prioridad": 1,
         "publicar_en_sitio": true,
-        "fecha_creacion_poligono": "2026-04-22",
-        "sensible": false
+        "sensible": false,
+        "fecha_creacion_poligono": "2026-04-23",
+        "fuente_poligono": "OSM Nominatim"
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [
           [
-            [-55.97, -27.43],
-            [-55.95, -27.43],
-            [-55.95, -27.41],
-            [-55.97, -27.41],
-            [-55.97, -27.43]
+            [
+              -56.0080436,
+              -27.4057881
+            ],
+            [
+              -56.0071557,
+              -27.4075033
+            ],
+            [
+              -56.0070687,
+              -27.4076713
+            ],
+            [
+              -56.0068292,
+              -27.4081339
+            ],
+            [
+              -56.0065855,
+              -27.4086045
+            ],
+            [
+              -56.0064266,
+              -27.4089338
+            ],
+            [
+              -56.0063713,
+              -27.4090483
+            ],
+            [
+              -56.006159,
+              -27.4094706
+            ],
+            [
+              -56.0061471,
+              -27.4096318
+            ],
+            [
+              -56.0059318,
+              -27.4100814
+            ],
+            [
+              -56.0056566,
+              -27.4106156
+            ],
+            [
+              -56.0054133,
+              -27.4111582
+            ],
+            [
+              -56.0051412,
+              -27.4116015
+            ],
+            [
+              -56.0049947,
+              -27.4116927
+            ],
+            [
+              -56.0047654,
+              -27.4122384
+            ],
+            [
+              -56.0045319,
+              -27.4126929
+            ],
+            [
+              -56.0042085,
+              -27.4133141
+            ],
+            [
+              -56.0041035,
+              -27.4134703
+            ],
+            [
+              -56.0037972,
+              -27.4140704
+            ],
+            [
+              -56.0030616,
+              -27.415407
+            ],
+            [
+              -56.0028176,
+              -27.4158913
+            ],
+            [
+              -56.0023882,
+              -27.4167292
+            ],
+            [
+              -56.0021432,
+              -27.4171971
+            ],
+            [
+              -56.0020464,
+              -27.417399
+            ],
+            [
+              -56.0016706,
+              -27.4181283
+            ],
+            [
+              -56.0015149,
+              -27.4185079
+            ],
+            [
+              -56.0012063,
+              -27.4191014
+            ],
+            [
+              -56.0010344,
+              -27.4192903
+            ],
+            [
+              -55.998459,
+              -27.4213914
+            ],
+            [
+              -55.9974209,
+              -27.4220581
+            ],
+            [
+              -55.9973954,
+              -27.4220744
+            ],
+            [
+              -55.9966124,
+              -27.4222552
+            ],
+            [
+              -55.996489,
+              -27.4223107
+            ],
+            [
+              -55.9961423,
+              -27.4224665
+            ],
+            [
+              -55.995901,
+              -27.4226378
+            ],
+            [
+              -55.9773733,
+              -27.4093309
+            ],
+            [
+              -55.9803162,
+              -27.3905712
+            ],
+            [
+              -55.9805361,
+              -27.3887739
+            ],
+            [
+              -55.9810396,
+              -27.3889742
+            ],
+            [
+              -55.9814553,
+              -27.3891396
+            ],
+            [
+              -55.9829879,
+              -27.3897792
+            ],
+            [
+              -55.983604,
+              -27.3900363
+            ],
+            [
+              -55.9836762,
+              -27.3900677
+            ],
+            [
+              -55.9838201,
+              -27.3901304
+            ],
+            [
+              -55.9841357,
+              -27.3902622
+            ],
+            [
+              -55.9844745,
+              -27.3904033
+            ],
+            [
+              -55.9849173,
+              -27.3905166
+            ],
+            [
+              -55.985151,
+              -27.3905699
+            ],
+            [
+              -55.9854726,
+              -27.3905949
+            ],
+            [
+              -55.985727,
+              -27.3906109
+            ],
+            [
+              -55.9877687,
+              -27.3906877
+            ],
+            [
+              -55.9908033,
+              -27.3908718
+            ],
+            [
+              -55.9908581,
+              -27.3908734
+            ],
+            [
+              -55.9909747,
+              -27.3908817
+            ],
+            [
+              -55.9923128,
+              -27.3909697
+            ],
+            [
+              -55.9934833,
+              -27.3910432
+            ],
+            [
+              -55.9941872,
+              -27.3910888
+            ],
+            [
+              -55.9958245,
+              -27.3911819
+            ],
+            [
+              -55.9960831,
+              -27.3912018
+            ],
+            [
+              -55.9973553,
+              -27.3912748
+            ],
+            [
+              -55.9996658,
+              -27.3914221
+            ],
+            [
+              -55.9997285,
+              -27.3914247
+            ],
+            [
+              -56.0031954,
+              -27.3915692
+            ],
+            [
+              -56.0032031,
+              -27.3916451
+            ],
+            [
+              -56.0035437,
+              -27.3974558
+            ],
+            [
+              -56.0036099,
+              -27.3985626
+            ],
+            [
+              -56.0036154,
+              -27.3987035
+            ],
+            [
+              -56.0036459,
+              -27.399235
+            ],
+            [
+              -56.0036906,
+              -27.3993789
+            ],
+            [
+              -56.0039562,
+              -27.4000921
+            ],
+            [
+              -56.004075,
+              -27.400411
+            ],
+            [
+              -56.0042484,
+              -27.4019466
+            ],
+            [
+              -56.0048588,
+              -27.4019063
+            ],
+            [
+              -56.0072387,
+              -27.4017494
+            ],
+            [
+              -56.0075959,
+              -27.4035418
+            ],
+            [
+              -56.0080309,
+              -27.4057244
+            ],
+            [
+              -56.0080436,
+              -27.4057881
+            ]
           ]
         ]
       }
@@ -34,24 +340,40 @@
     {
       "type": "Feature",
       "properties": {
-        "id": "itaembe_guazu",
-        "nombre": "Itaembé Guazú",
-        "descripcion": "Extensión sur de Itaembé Miní, frente de expansión más reciente (post-2020), con menor consolidación de servicios y fuerte presión habitacional.",
+        "id": "itaembe_mini",
+        "nombre": "Itaembé Miní",
+        "descripcion": "Barrio de expansión rápida en el sur de Posadas. Cuadrado 2×2 km en centro OSM (place=suburb).",
         "categoria": "asentamiento_crecimiento_rapido",
         "prioridad": 1,
         "publicar_en_sitio": true,
-        "fecha_creacion_poligono": "2026-04-22",
-        "sensible": false
+        "sensible": false,
+        "fecha_creacion_poligono": "2026-04-23",
+        "fuente_poligono": "buffer 2x2 km centro OSM"
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [
           [
-            [-55.98, -27.45],
-            [-55.96, -27.45],
-            [-55.96, -27.43],
-            [-55.98, -27.43],
-            [-55.98, -27.45]
+            [
+              -55.96641929173809,
+              -27.42068311174991
+            ],
+            [
+              -55.946180708261906,
+              -27.42068311174991
+            ],
+            [
+              -55.946180708261906,
+              -27.40271688825009
+            ],
+            [
+              -55.96641929173809,
+              -27.40271688825009
+            ],
+            [
+              -55.96641929173809,
+              -27.42068311174991
+            ]
           ]
         ]
       }
@@ -61,22 +383,38 @@
       "properties": {
         "id": "chacra_32",
         "nombre": "Chacra 32",
-        "descripcion": "Zona de chacras subdivididas en proceso de consolidación urbana con crecimiento moderado y acceso creciente a servicios.",
+        "descripcion": "Zona de chacras subdivididas sector Cristo Rey. Cuadrado 2×2 km en centro OSM.",
         "categoria": "consolidado_crecimiento",
         "prioridad": 2,
         "publicar_en_sitio": true,
-        "fecha_creacion_poligono": "2026-04-22",
-        "sensible": false
+        "sensible": false,
+        "fecha_creacion_poligono": "2026-04-23",
+        "fuente_poligono": "buffer 2x2 km centro OSM"
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [
           [
-            [-55.94, -27.40],
-            [-55.92, -27.40],
-            [-55.92, -27.39],
-            [-55.94, -27.39],
-            [-55.94, -27.40]
+            [
+              -55.9177180556475,
+              -27.40718311174991
+            ],
+            [
+              -55.897481944352506,
+              -27.40718311174991
+            ],
+            [
+              -55.897481944352506,
+              -27.38921688825009
+            ],
+            [
+              -55.9177180556475,
+              -27.38921688825009
+            ],
+            [
+              -55.9177180556475,
+              -27.40718311174991
+            ]
           ]
         ]
       }
@@ -86,22 +424,38 @@
       "properties": {
         "id": "villa_cabello",
         "nombre": "Villa Cabello",
-        "descripcion": "Barrio consolidado centro-este con trama urbana estable. Polígono de control: debería mostrar baja variación interanual para calibrar la precisión del sistema.",
+        "descripcion": "Barrio consolidado, usado como control para validar el modelo. Cuadrado 2×2 km en centro OSM (place=suburb).",
         "categoria": "control_consolidado",
         "prioridad": 3,
         "publicar_en_sitio": true,
-        "fecha_creacion_poligono": "2026-04-22",
-        "sensible": false
+        "sensible": false,
+        "fecha_creacion_poligono": "2026-04-23",
+        "fuente_poligono": "buffer 2x2 km centro OSM"
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [
           [
-            [-55.89, -27.375],
-            [-55.87, -27.375],
-            [-55.87, -27.36],
-            [-55.89, -27.36],
-            [-55.89, -27.375]
+            [
+              -55.95901523876144,
+              -27.37638311174991
+            ],
+            [
+              -55.938784761238566,
+              -27.37638311174991
+            ],
+            [
+              -55.938784761238566,
+              -27.35841688825009
+            ],
+            [
+              -55.95901523876144,
+              -27.35841688825009
+            ],
+            [
+              -55.95901523876144,
+              -27.37638311174991
+            ]
           ]
         ]
       }
@@ -111,30 +465,38 @@
       "properties": {
         "id": "el_brete",
         "nombre": "El Brete",
-        "descripcion": "Polígono angosto sobre la costanera del Paraná, zona sensible por inundabilidad, tensiones dominiales y visibilidad pública. Se publica agregado, no con detalle.",
+        "descripcion": "Zona costera de Posadas con tensión por inundabilidad. Polígono angosto siguiendo la ribera del Paraná.",
         "categoria": "zona_sensible",
         "prioridad": 2,
         "publicar_en_sitio": false,
-        "fecha_creacion_poligono": "2026-04-22",
-        "sensible": true
+        "sensible": true,
+        "fecha_creacion_poligono": "2026-04-23",
+        "fuente_poligono": "buffer 2x2 km centro OSM"
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [
           [
-            [-55.89, -27.355],
-            [-55.883, -27.353],
-            [-55.876, -27.351],
-            [-55.870, -27.348],
-            [-55.864, -27.346],
-            [-55.860, -27.345],
-            [-55.860, -27.349],
-            [-55.864, -27.350],
-            [-55.870, -27.352],
-            [-55.876, -27.354],
-            [-55.883, -27.356],
-            [-55.89, -27.358],
-            [-55.89, -27.355]
+            [
+              -55.921,
+              -27.36
+            ],
+            [
+              -55.9,
+              -27.354
+            ],
+            [
+              -55.895,
+              -27.351
+            ],
+            [
+              -55.918,
+              -27.356
+            ],
+            [
+              -55.921,
+              -27.36
+            ]
           ]
         ]
       }
