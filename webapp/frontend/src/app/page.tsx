@@ -3,6 +3,7 @@
 // Home: mapa interactivo con sidebar de poligono.
 // El MapView se importa dinamicamente con ssr:false porque Leaflet depende de window.
 
+import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 
@@ -123,19 +124,24 @@ function PolygonList({
 }) {
   return (
     <div className="mt-8">
-      <h2 className="mb-3 text-lg font-semibold text-primary">
-        Poligonos de analisis
+      <h2 className="mb-2 text-lg font-semibold text-primary">
+        Polígonos de análisis
       </h2>
+      <p className="mb-3 text-sm text-neutral-muted">
+        Hacé clic en un polígono del mapa, tocá &quot;Seleccionar&quot; para
+        enfocarlo, o abrí directamente la ficha completa con todos los
+        indicadores, gráficos de historia larga y descargas.
+      </p>
       <div className="overflow-x-auto">
-        <table className="data-table" aria-label="Lista de poligonos">
+        <table className="data-table" aria-label="Lista de polígonos">
           <thead>
             <tr>
               <th scope="col">Nombre</th>
-              <th scope="col">Categoria</th>
-              <th scope="col">Score expansion</th>
+              <th scope="col">Categoría</th>
+              <th scope="col">Score expansión</th>
               <th scope="col">Superficie</th>
-              <th scope="col">Poblacion</th>
-              <th scope="col">Accion</th>
+              <th scope="col">Población</th>
+              <th scope="col">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -152,17 +158,26 @@ function PolygonList({
                   </th>
                   <td className="text-sm text-neutral-muted">{p.categoria}</td>
                   <td>{p.score_expansion.toFixed(2)}</td>
-                  <td>{p.superficie_km2.toFixed(1)} km2</td>
+                  <td>{p.superficie_km2.toFixed(1)} km²</td>
                   <td>{p.poblacion_estimada.toLocaleString("es-AR")}</td>
                   <td>
-                    <button
-                      type="button"
-                      onClick={() => onSelect(p.id)}
-                      className="text-sm font-medium text-primary underline-offset-2 hover:underline"
-                      aria-label={`Seleccionar ${p.nombre} en el mapa`}
-                    >
-                      Seleccionar
-                    </button>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => onSelect(p.id)}
+                        className="text-sm font-medium text-secondary underline-offset-2 hover:underline"
+                        aria-label={`Seleccionar ${p.nombre} en el mapa`}
+                      >
+                        Seleccionar
+                      </button>
+                      <Link
+                        href={`/poligono/${p.id}`}
+                        className="text-sm font-semibold text-primary underline-offset-2 hover:underline"
+                        aria-label={`Abrir ficha completa de ${p.nombre}`}
+                      >
+                        Ver ficha →
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               );
