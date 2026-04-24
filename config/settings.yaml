@@ -51,12 +51,33 @@ poblacion:
 servicios_osm:
   radio_busqueda_metros: 2000
   servicios:
+    # Salud
     - amenity=clinic
+    - amenity=doctors
     - amenity=hospital
+    - amenity=pharmacy
+    - healthcare=clinic
+    - healthcare=hospital
+    # Educación
     - amenity=school
     - amenity=kindergarten
-    - amenity=pharmacy
+    - amenity=university
+    - amenity=college
+    # Transporte
     - highway=bus_stop
+    - public_transport=stop_position
+    # Seguridad
+    - amenity=police
+    - amenity=fire_station
+    # Comercio / financiero
+    - shop=supermarket
+    - amenity=marketplace
+    - amenity=bank
+    - amenity=atm
+    # Espacios verdes
+    - leisure=park
+    - leisure=playground
+    - leisure=pitch
 
 reportes:
   formato_fecha: "%B %Y"  # "Julio 2026"

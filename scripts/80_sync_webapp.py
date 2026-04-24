@@ -387,6 +387,12 @@ def cli(
         ("data/processed/historia_larga/mapbiomas_por_poligono.csv", "mapbiomas.csv"),
         ("data/processed/historia_larga/ghsl_por_poligono.csv", "ghsl.csv"),
         ("data/processed/historia_larga/viirs_por_poligono.csv", "viirs.csv"),
+        # Capa ambiental (script 47)
+        ("data/processed/ambiental/chirps_anual.csv", "chirps.csv"),
+        ("data/processed/ambiental/no2_anual.csv", "no2.csv"),
+        ("data/processed/ambiental/lst_anual.csv", "lst.csv"),
+        ("data/processed/ambiental/firms_anual.csv", "firms.csv"),
+        ("data/processed/ambiental/wdpa_intersection.csv", "wdpa.csv"),
     ]
     for src_rel, dest_name in extras:
         src = resolve_path(src_rel)

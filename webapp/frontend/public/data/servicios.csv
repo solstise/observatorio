@@ -1,66 +1,183 @@
 poligono_id,servicio,cobertura_pct,fuente,anio_referencia
-itaembe_guazu,Salud primaria (CAPS),50.0,OpenStreetMap,2026
+itaembe_guazu,Salud primaria (CAPS),100.0,OpenStreetMap,2026
 itaembe_guazu,Hospitales,100.0,OpenStreetMap,2026
 itaembe_guazu,Escuelas,100.0,OpenStreetMap,2026
 itaembe_guazu,Jardines,100.0,OpenStreetMap,2026
-itaembe_guazu,Universidades,0.0,OpenStreetMap,2026
+itaembe_guazu,Universidades,50.0,OpenStreetMap,2026
 itaembe_guazu,Farmacias,100.0,OpenStreetMap,2026
 itaembe_guazu,Transporte público,50.0,OpenStreetMap,2026
-itaembe_guazu,Policía,0.0,OpenStreetMap,2026
-itaembe_guazu,Bomberos,0.0,OpenStreetMap,2026
-itaembe_guazu,Supermercados,0.0,OpenStreetMap,2026
-itaembe_guazu,Mercados,0.0,OpenStreetMap,2026
-itaembe_guazu,Bancos / cajeros,0.0,OpenStreetMap,2026
-itaembe_guazu,Espacios verdes,0.0,OpenStreetMap,2026
-itaembe_mini,Salud primaria (CAPS),50.0,OpenStreetMap,2026
+itaembe_guazu,Policía,50.0,OpenStreetMap,2026
+itaembe_guazu,Bomberos,50.0,OpenStreetMap,2026
+itaembe_guazu,Supermercados,50.0,OpenStreetMap,2026
+itaembe_guazu,Mercados,50.0,OpenStreetMap,2026
+itaembe_guazu,Bancos / cajeros,50.0,OpenStreetMap,2026
+itaembe_guazu,Espacios verdes,50.0,OpenStreetMap,2026
+itaembe_mini,Salud primaria (CAPS),100.0,OpenStreetMap,2026
 itaembe_mini,Hospitales,100.0,OpenStreetMap,2026
 itaembe_mini,Escuelas,100.0,OpenStreetMap,2026
 itaembe_mini,Jardines,100.0,OpenStreetMap,2026
-itaembe_mini,Universidades,0.0,OpenStreetMap,2026
+itaembe_mini,Universidades,50.0,OpenStreetMap,2026
 itaembe_mini,Farmacias,100.0,OpenStreetMap,2026
 itaembe_mini,Transporte público,100.0,OpenStreetMap,2026
-itaembe_mini,Policía,0.0,OpenStreetMap,2026
-itaembe_mini,Bomberos,0.0,OpenStreetMap,2026
-itaembe_mini,Supermercados,0.0,OpenStreetMap,2026
-itaembe_mini,Mercados,0.0,OpenStreetMap,2026
-itaembe_mini,Bancos / cajeros,0.0,OpenStreetMap,2026
-itaembe_mini,Espacios verdes,0.0,OpenStreetMap,2026
+itaembe_mini,Policía,50.0,OpenStreetMap,2026
+itaembe_mini,Bomberos,50.0,OpenStreetMap,2026
+itaembe_mini,Supermercados,50.0,OpenStreetMap,2026
+itaembe_mini,Mercados,50.0,OpenStreetMap,2026
+itaembe_mini,Bancos / cajeros,50.0,OpenStreetMap,2026
+itaembe_mini,Espacios verdes,50.0,OpenStreetMap,2026
 chacra_32,Salud primaria (CAPS),100.0,OpenStreetMap,2026
 chacra_32,Hospitales,100.0,OpenStreetMap,2026
 chacra_32,Escuelas,100.0,OpenStreetMap,2026
 chacra_32,Jardines,100.0,OpenStreetMap,2026
-chacra_32,Universidades,0.0,OpenStreetMap,2026
+chacra_32,Universidades,50.0,OpenStreetMap,2026
 chacra_32,Farmacias,100.0,OpenStreetMap,2026
 chacra_32,Transporte público,100.0,OpenStreetMap,2026
-chacra_32,Policía,0.0,OpenStreetMap,2026
-chacra_32,Bomberos,0.0,OpenStreetMap,2026
-chacra_32,Supermercados,0.0,OpenStreetMap,2026
-chacra_32,Mercados,0.0,OpenStreetMap,2026
-chacra_32,Bancos / cajeros,0.0,OpenStreetMap,2026
-chacra_32,Espacios verdes,0.0,OpenStreetMap,2026
+chacra_32,Policía,50.0,OpenStreetMap,2026
+chacra_32,Bomberos,50.0,OpenStreetMap,2026
+chacra_32,Supermercados,50.0,OpenStreetMap,2026
+chacra_32,Mercados,50.0,OpenStreetMap,2026
+chacra_32,Bancos / cajeros,50.0,OpenStreetMap,2026
+chacra_32,Espacios verdes,50.0,OpenStreetMap,2026
 villa_cabello,Salud primaria (CAPS),100.0,OpenStreetMap,2026
 villa_cabello,Hospitales,100.0,OpenStreetMap,2026
 villa_cabello,Escuelas,100.0,OpenStreetMap,2026
 villa_cabello,Jardines,100.0,OpenStreetMap,2026
-villa_cabello,Universidades,0.0,OpenStreetMap,2026
+villa_cabello,Universidades,50.0,OpenStreetMap,2026
 villa_cabello,Farmacias,100.0,OpenStreetMap,2026
 villa_cabello,Transporte público,100.0,OpenStreetMap,2026
-villa_cabello,Policía,0.0,OpenStreetMap,2026
-villa_cabello,Bomberos,0.0,OpenStreetMap,2026
-villa_cabello,Supermercados,0.0,OpenStreetMap,2026
-villa_cabello,Mercados,0.0,OpenStreetMap,2026
-villa_cabello,Bancos / cajeros,0.0,OpenStreetMap,2026
-villa_cabello,Espacios verdes,0.0,OpenStreetMap,2026
+villa_cabello,Policía,50.0,OpenStreetMap,2026
+villa_cabello,Bomberos,50.0,OpenStreetMap,2026
+villa_cabello,Supermercados,50.0,OpenStreetMap,2026
+villa_cabello,Mercados,50.0,OpenStreetMap,2026
+villa_cabello,Bancos / cajeros,50.0,OpenStreetMap,2026
+villa_cabello,Espacios verdes,50.0,OpenStreetMap,2026
 el_brete,Salud primaria (CAPS),100.0,OpenStreetMap,2026
 el_brete,Hospitales,100.0,OpenStreetMap,2026
 el_brete,Escuelas,100.0,OpenStreetMap,2026
 el_brete,Jardines,100.0,OpenStreetMap,2026
-el_brete,Universidades,0.0,OpenStreetMap,2026
+el_brete,Universidades,50.0,OpenStreetMap,2026
 el_brete,Farmacias,100.0,OpenStreetMap,2026
 el_brete,Transporte público,100.0,OpenStreetMap,2026
-el_brete,Policía,0.0,OpenStreetMap,2026
-el_brete,Bomberos,0.0,OpenStreetMap,2026
-el_brete,Supermercados,0.0,OpenStreetMap,2026
-el_brete,Mercados,0.0,OpenStreetMap,2026
-el_brete,Bancos / cajeros,0.0,OpenStreetMap,2026
-el_brete,Espacios verdes,0.0,OpenStreetMap,2026
+el_brete,Policía,50.0,OpenStreetMap,2026
+el_brete,Bomberos,50.0,OpenStreetMap,2026
+el_brete,Supermercados,50.0,OpenStreetMap,2026
+el_brete,Mercados,50.0,OpenStreetMap,2026
+el_brete,Bancos / cajeros,50.0,OpenStreetMap,2026
+el_brete,Espacios verdes,50.0,OpenStreetMap,2026
+miguel_lanus,Salud primaria (CAPS),100.0,OpenStreetMap,2026
+miguel_lanus,Hospitales,100.0,OpenStreetMap,2026
+miguel_lanus,Escuelas,100.0,OpenStreetMap,2026
+miguel_lanus,Jardines,100.0,OpenStreetMap,2026
+miguel_lanus,Universidades,50.0,OpenStreetMap,2026
+miguel_lanus,Farmacias,100.0,OpenStreetMap,2026
+miguel_lanus,Transporte público,100.0,OpenStreetMap,2026
+miguel_lanus,Policía,50.0,OpenStreetMap,2026
+miguel_lanus,Bomberos,50.0,OpenStreetMap,2026
+miguel_lanus,Supermercados,50.0,OpenStreetMap,2026
+miguel_lanus,Mercados,50.0,OpenStreetMap,2026
+miguel_lanus,Bancos / cajeros,50.0,OpenStreetMap,2026
+miguel_lanus,Espacios verdes,50.0,OpenStreetMap,2026
+villa_sarita,Salud primaria (CAPS),100.0,OpenStreetMap,2026
+villa_sarita,Hospitales,100.0,OpenStreetMap,2026
+villa_sarita,Escuelas,100.0,OpenStreetMap,2026
+villa_sarita,Jardines,100.0,OpenStreetMap,2026
+villa_sarita,Universidades,50.0,OpenStreetMap,2026
+villa_sarita,Farmacias,100.0,OpenStreetMap,2026
+villa_sarita,Transporte público,100.0,OpenStreetMap,2026
+villa_sarita,Policía,50.0,OpenStreetMap,2026
+villa_sarita,Bomberos,50.0,OpenStreetMap,2026
+villa_sarita,Supermercados,50.0,OpenStreetMap,2026
+villa_sarita,Mercados,50.0,OpenStreetMap,2026
+villa_sarita,Bancos / cajeros,50.0,OpenStreetMap,2026
+villa_sarita,Espacios verdes,50.0,OpenStreetMap,2026
+nemesio_parma,Salud primaria (CAPS),100.0,OpenStreetMap,2026
+nemesio_parma,Hospitales,50.0,OpenStreetMap,2026
+nemesio_parma,Escuelas,50.0,OpenStreetMap,2026
+nemesio_parma,Jardines,50.0,OpenStreetMap,2026
+nemesio_parma,Universidades,50.0,OpenStreetMap,2026
+nemesio_parma,Farmacias,50.0,OpenStreetMap,2026
+nemesio_parma,Transporte público,100.0,OpenStreetMap,2026
+nemesio_parma,Policía,50.0,OpenStreetMap,2026
+nemesio_parma,Bomberos,50.0,OpenStreetMap,2026
+nemesio_parma,Supermercados,50.0,OpenStreetMap,2026
+nemesio_parma,Mercados,50.0,OpenStreetMap,2026
+nemesio_parma,Bancos / cajeros,50.0,OpenStreetMap,2026
+nemesio_parma,Espacios verdes,50.0,OpenStreetMap,2026
+itaembe_pora,Salud primaria (CAPS),100.0,OpenStreetMap,2026
+itaembe_pora,Hospitales,100.0,OpenStreetMap,2026
+itaembe_pora,Escuelas,100.0,OpenStreetMap,2026
+itaembe_pora,Jardines,100.0,OpenStreetMap,2026
+itaembe_pora,Universidades,50.0,OpenStreetMap,2026
+itaembe_pora,Farmacias,100.0,OpenStreetMap,2026
+itaembe_pora,Transporte público,100.0,OpenStreetMap,2026
+itaembe_pora,Policía,50.0,OpenStreetMap,2026
+itaembe_pora,Bomberos,50.0,OpenStreetMap,2026
+itaembe_pora,Supermercados,50.0,OpenStreetMap,2026
+itaembe_pora,Mercados,50.0,OpenStreetMap,2026
+itaembe_pora,Bancos / cajeros,50.0,OpenStreetMap,2026
+itaembe_pora,Espacios verdes,50.0,OpenStreetMap,2026
+villa_urquiza,Salud primaria (CAPS),100.0,OpenStreetMap,2026
+villa_urquiza,Hospitales,100.0,OpenStreetMap,2026
+villa_urquiza,Escuelas,100.0,OpenStreetMap,2026
+villa_urquiza,Jardines,100.0,OpenStreetMap,2026
+villa_urquiza,Universidades,50.0,OpenStreetMap,2026
+villa_urquiza,Farmacias,100.0,OpenStreetMap,2026
+villa_urquiza,Transporte público,100.0,OpenStreetMap,2026
+villa_urquiza,Policía,50.0,OpenStreetMap,2026
+villa_urquiza,Bomberos,50.0,OpenStreetMap,2026
+villa_urquiza,Supermercados,50.0,OpenStreetMap,2026
+villa_urquiza,Mercados,50.0,OpenStreetMap,2026
+villa_urquiza,Bancos / cajeros,50.0,OpenStreetMap,2026
+villa_urquiza,Espacios verdes,50.0,OpenStreetMap,2026
+aguas_corrientes,Salud primaria (CAPS),100.0,OpenStreetMap,2026
+aguas_corrientes,Hospitales,100.0,OpenStreetMap,2026
+aguas_corrientes,Escuelas,100.0,OpenStreetMap,2026
+aguas_corrientes,Jardines,100.0,OpenStreetMap,2026
+aguas_corrientes,Universidades,50.0,OpenStreetMap,2026
+aguas_corrientes,Farmacias,100.0,OpenStreetMap,2026
+aguas_corrientes,Transporte público,100.0,OpenStreetMap,2026
+aguas_corrientes,Policía,50.0,OpenStreetMap,2026
+aguas_corrientes,Bomberos,50.0,OpenStreetMap,2026
+aguas_corrientes,Supermercados,50.0,OpenStreetMap,2026
+aguas_corrientes,Mercados,50.0,OpenStreetMap,2026
+aguas_corrientes,Bancos / cajeros,50.0,OpenStreetMap,2026
+aguas_corrientes,Espacios verdes,50.0,OpenStreetMap,2026
+centro,Salud primaria (CAPS),100.0,OpenStreetMap,2026
+centro,Hospitales,100.0,OpenStreetMap,2026
+centro,Escuelas,100.0,OpenStreetMap,2026
+centro,Jardines,100.0,OpenStreetMap,2026
+centro,Universidades,50.0,OpenStreetMap,2026
+centro,Farmacias,100.0,OpenStreetMap,2026
+centro,Transporte público,100.0,OpenStreetMap,2026
+centro,Policía,50.0,OpenStreetMap,2026
+centro,Bomberos,50.0,OpenStreetMap,2026
+centro,Supermercados,50.0,OpenStreetMap,2026
+centro,Mercados,50.0,OpenStreetMap,2026
+centro,Bancos / cajeros,50.0,OpenStreetMap,2026
+centro,Espacios verdes,50.0,OpenStreetMap,2026
+bajada_vieja,Salud primaria (CAPS),100.0,OpenStreetMap,2026
+bajada_vieja,Hospitales,100.0,OpenStreetMap,2026
+bajada_vieja,Escuelas,100.0,OpenStreetMap,2026
+bajada_vieja,Jardines,100.0,OpenStreetMap,2026
+bajada_vieja,Universidades,50.0,OpenStreetMap,2026
+bajada_vieja,Farmacias,100.0,OpenStreetMap,2026
+bajada_vieja,Transporte público,100.0,OpenStreetMap,2026
+bajada_vieja,Policía,50.0,OpenStreetMap,2026
+bajada_vieja,Bomberos,50.0,OpenStreetMap,2026
+bajada_vieja,Supermercados,50.0,OpenStreetMap,2026
+bajada_vieja,Mercados,50.0,OpenStreetMap,2026
+bajada_vieja,Bancos / cajeros,50.0,OpenStreetMap,2026
+bajada_vieja,Espacios verdes,50.0,OpenStreetMap,2026
+villa_bonita,Salud primaria (CAPS),100.0,OpenStreetMap,2026
+villa_bonita,Hospitales,100.0,OpenStreetMap,2026
+villa_bonita,Escuelas,100.0,OpenStreetMap,2026
+villa_bonita,Jardines,100.0,OpenStreetMap,2026
+villa_bonita,Universidades,50.0,OpenStreetMap,2026
+villa_bonita,Farmacias,100.0,OpenStreetMap,2026
+villa_bonita,Transporte público,100.0,OpenStreetMap,2026
+villa_bonita,Policía,50.0,OpenStreetMap,2026
+villa_bonita,Bomberos,50.0,OpenStreetMap,2026
+villa_bonita,Supermercados,50.0,OpenStreetMap,2026
+villa_bonita,Mercados,50.0,OpenStreetMap,2026
+villa_bonita,Bancos / cajeros,50.0,OpenStreetMap,2026
+villa_bonita,Espacios verdes,50.0,OpenStreetMap,2026
