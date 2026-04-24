@@ -291,9 +291,17 @@ def copiar_media(src_outputs: Path, src_processed: Path, dest_media: Path) -> di
     ensure_dir(dest_media)
     contadores: dict[str, int] = {"pdfs": 0, "mp4": 0, "gif": 0, "comparacion_hd": 0, "comparacion_2x2": 0}
 
+    # PDFs: copiamos con nombre original (para archivar historial) Y con alias
+    # canónico `{poligono_id}.pdf` (para que el frontend los referencie estable).
     for pdf in (src_outputs / "pdfs").glob("*.pdf"):
         shutil.copy2(pdf, dest_media / pdf.name)
         contadores["pdfs"] += 1
+        # Extraer poligono_id del nombre (antes del primer "_v").
+        stem = pdf.stem
+        if "_v" in stem:
+            pid = stem.split("_v")[0]
+            alias = dest_media / f"{pid}.pdf"
+            shutil.copy2(pdf, alias)
 
     for hd in (src_outputs / "comparaciones_hd").glob("*.png"):
         shutil.copy2(hd, dest_media / hd.name)

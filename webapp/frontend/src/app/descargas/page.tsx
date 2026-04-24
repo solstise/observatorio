@@ -90,7 +90,7 @@ export default async function DescargasPage() {
               <li key={p.id} className="card flex items-center justify-between">
                 <span className="font-medium text-primary">{p.nombre}</span>
                 <a
-                  href={`/api/poligonos/${p.id}/reporte.pdf`}
+                  href={`/data/media/${p.id}.pdf`}
                   className="text-sm font-medium text-primary underline-offset-2 hover:underline"
                   download
                 >

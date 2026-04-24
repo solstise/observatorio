@@ -108,8 +108,10 @@ export function PolygonSidebar({ properties, onClear }: PolygonSidebarProps) {
           Ver detalle
         </Link>
         <a
-          href={`/api/poligonos/${properties.id}/reporte.pdf`}
+          href={`/data/media/${properties.id}.pdf`}
           className="btn-outline"
+          target="_blank"
+          rel="noopener noreferrer"
           aria-label={`Descargar reporte PDF de ${properties.nombre}`}
         >
           Reporte PDF

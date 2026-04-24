@@ -185,20 +185,43 @@ export default async function PoligonoPage({ params }: PageProps) {
 
         <section className="mt-10 flex flex-wrap gap-3">
           <a
-            href={`/api/poligonos/${properties.id}/reporte.pdf`}
+            href={`/data/media/${properties.id}.pdf`}
             className="btn-primary"
+            target="_blank"
+            rel="noopener noreferrer"
           >
             Descargar reporte PDF
           </a>
           <a
-            href={`/api/poligonos/${properties.id}/timelapse.gif`}
+            href={`/data/media/${properties.id}.gif`}
             className="btn-outline"
+            target="_blank"
+            rel="noopener noreferrer"
           >
             Timelapse (GIF)
           </a>
+          <a
+            href={`/data/media/${properties.id}.mp4`}
+            className="btn-outline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Timelapse (MP4)
+          </a>
           <Link href="/comparar" className="btn-outline">
-            Comparar con otros poligonos
+            Comparar con otros polígonos
           </Link>
+        </section>
+
+        <section className="mt-8">
+          <h3 className="mb-3 text-sm font-bold uppercase tracking-wider text-primary">
+            Comparación alta resolución (antes / después)
+          </h3>
+          <img
+            src={`/data/media/${properties.id}_comparacion_hd.png`}
+            alt={`Comparación HD de ${properties.nombre}`}
+            className="w-full rounded-lg border border-neutral-200 shadow-sm"
+          />
         </section>
       </article>
     </>

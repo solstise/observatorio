@@ -54,7 +54,7 @@ async function fetchCsv<T>(relativePath: string): Promise<T[]> {
 
 export async function getPoligonos(): Promise<PoligonosCollection> {
   if (API_BASE) {
-    return fetchJson<PoligonosCollection>("/api/poligonos/geojson");
+    return fetchJson<PoligonosCollection>(`${API_BASE}/api/poligonos/geojson`);
   }
   return fetchJson<PoligonosCollection>("/data/poligonos.geojson");
 }
