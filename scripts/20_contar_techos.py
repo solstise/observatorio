@@ -561,8 +561,23 @@ def cli(
             logger.warning(f"Falló la lectura de cache ({exc}). Se recomputa todo.")
 
     # Si hay cache previo pero queremos recomputar, limpiamos para no appendear.
+    # Windows/WSL a veces bloquea unlink por Defender / procesos que abrieron
+    # el CSV — hacemos retry + truncate como fallback para no abortar.
     if out_edificios.exists():
-        out_edificios.unlink()
+        import time as _time
+        for _intento in range(3):
+            try:
+                out_edificios.unlink()
+                break
+            except PermissionError:
+                _time.sleep(0.5)
+        else:
+            # Truncate in-place si unlink seguía fallando.
+            with out_edificios.open("w", encoding="utf-8") as _fh:
+                _fh.truncate(0)
+            logger.warning(
+                f"No pude hacer unlink de {out_edificios}, lo vacié con truncate."
+            )
 
     # --- Cargar polígonos y edificios ---
     try:

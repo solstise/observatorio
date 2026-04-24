@@ -231,17 +231,35 @@ def _etapa_descarga(
     return _run_subprocess(script_rel, args, etapa)
 
 
+# Workaround: si `data/processed/conteos/*.csv` están lockeados por Windows
+# Search Indexer / Defender / algún otro proceso, los scripts no pueden
+# sobrescribir. En ese caso seteamos OBS_CSV_DIR a una carpeta alternativa
+# y todas las etapas downstream leen de ahí.
+OBS_CSV_DIR = os.environ.get("OBS_CSV_DIR", "data/processed/conteos")
+OBS_SERIE_CSV = f"{OBS_CSV_DIR}/serie_temporal.csv"
+OBS_POB_CSV = os.environ.get(
+    "OBS_POB_CSV", "data/processed/poblacion_estimada.csv"
+)
+
+
 def _etapa_contar(poligonos_path: Path, dry: bool) -> ResultadoEtapa:
     if dry:
         return ResultadoEtapa("contar_techos", None, True, 0.0, "SKIP (dry-run)")
-    args = ["--poligonos", str(poligonos_path)]
+    args = [
+        "--poligonos", str(poligonos_path),
+        "--output-dir", OBS_CSV_DIR,
+    ]
     return _run_subprocess("scripts/20_contar_techos.py", args, "contar_techos")
 
 
 def _etapa_poblacion(poligonos_path: Path, dry: bool) -> ResultadoEtapa:
     if dry:
         return ResultadoEtapa("estimar_poblacion", None, True, 0.0, "SKIP (dry-run)")
-    args = ["--poligonos", str(poligonos_path)]
+    args = [
+        "--poligonos", str(poligonos_path),
+        "--serie-temporal", OBS_SERIE_CSV,
+        "--output", OBS_POB_CSV,
+    ]
     return _run_subprocess("scripts/30_estimar_poblacion.py", args, "estimar_poblacion")
 
 
@@ -253,7 +271,11 @@ def _etapa_timelapse(poligono_id: str, dry: bool) -> ResultadoEtapa:
         return ResultadoEtapa("timelapse", poligono_id, True, 0.0, "SKIP (dry-run)")
     return _run_subprocess(
         "scripts/50_generar_timelapse.py",
-        ["--poligono", poligono_id, "--formato", "both"],
+        [
+            "--poligono", poligono_id,
+            "--formato", "both",
+            "--serie-temporal", OBS_SERIE_CSV,
+        ],
         "timelapse", poligono_id,
     )
 
@@ -263,7 +285,11 @@ def _etapa_pdf(poligono_id: str, dry: bool) -> ResultadoEtapa:
         return ResultadoEtapa("pdf", poligono_id, True, 0.0, "SKIP (dry-run)")
     return _run_subprocess(
         "scripts/60_generar_pdf.py",
-        ["--poligono", poligono_id],
+        [
+            "--poligono", poligono_id,
+            "--serie-temporal", OBS_SERIE_CSV,
+            "--poblacion", OBS_POB_CSV,
+        ],
         "pdf", poligono_id,
     )
 

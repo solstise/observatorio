@@ -1,6 +1,6 @@
 poligono_id,indice_vulnerabilidad,carencia_servicios,riesgo_inundacion,accesibilidad_salud,accesibilidad_educacion,confianza_inferior,confianza_superior
-itaembe_guazu,0.409,0.514,0.5,0.0,0.972,0.259,0.559
-itaembe_mini,0.614,0.429,0.5,0.301,0.842,0.464,0.764
-chacra_32,0.385,0.088,0.5,0.965,0.859,0.235,0.535
-villa_cabello,0.293,0.0,0.5,1.0,1.0,0.143,0.443
-el_brete,0.407,0.518,0.5,0.963,0.0,0.257,0.557
+itaembe_guazu,0.366,0.514,0.5,0.0,0.972,0.216,0.516
+itaembe_mini,0.631,0.429,0.5,0.301,0.842,0.481,0.781
+chacra_32,0.384,0.088,0.5,0.965,0.859,0.234,0.534
+villa_cabello,0.306,0.0,0.5,1.0,1.0,0.156,0.456
+el_brete,0.42,0.518,0.5,0.963,0.0,0.27,0.57
