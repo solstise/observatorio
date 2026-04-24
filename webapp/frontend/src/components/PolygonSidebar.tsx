@@ -4,11 +4,21 @@
 import Link from "next/link";
 
 import { CATEGORY_COLORS } from "@/lib/colors";
-import type { PoligonoProperties } from "@/lib/types";
+import type { DynamicWorldRow, PoligonoProperties } from "@/lib/types";
 
 interface PolygonSidebarProps {
   properties: PoligonoProperties | null;
+  // Filas de Dynamic World YA filtradas por el poligono seleccionado.
+  // Se pasan opcionales para degradar si el CSV no esta disponible.
+  dynamicWorldRows?: DynamicWorldRow[];
   onClear: () => void;
+}
+
+// Normaliza a 0-100 (el CSV viene en fraccion 0-1).
+function normalizarPct(raw: number): number {
+  if (!Number.isFinite(raw)) return 0;
+  const pct = raw <= 1 ? raw * 100 : raw;
+  return Math.max(0, Math.min(100, pct));
 }
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -18,7 +28,11 @@ const CATEGORY_LABEL: Record<string, string> = {
   desconocido: "Sin clasificar",
 };
 
-export function PolygonSidebar({ properties, onClear }: PolygonSidebarProps) {
+export function PolygonSidebar({
+  properties,
+  dynamicWorldRows,
+  onClear,
+}: PolygonSidebarProps) {
   if (!properties) {
     return (
       <aside
@@ -42,6 +56,12 @@ export function PolygonSidebar({ properties, onClear }: PolygonSidebarProps) {
           100
         ).toFixed(1)
       : null;
+
+  // Dynamic World: fecha mas reciente del array filtrado por este poli.
+  const dwUltima = dynamicWorldRows && dynamicWorldRows.length
+    ? [...dynamicWorldRows].sort((a, b) => b.fecha.localeCompare(a.fecha))[0]
+    : null;
+  const dwPct = dwUltima ? normalizarPct(dwUltima.dw_built_pct_ge_50) : null;
 
   return (
     <aside
@@ -74,6 +94,20 @@ export function PolygonSidebar({ properties, onClear }: PolygonSidebarProps) {
           Cerrar
         </button>
       </header>
+
+      {dwPct != null && dwUltima && (
+        <div className="rounded-md border border-neutral-border bg-primary-50 p-3">
+          <p className="text-[11px] uppercase tracking-wider text-secondary">
+            Superficie construida (Dynamic World)
+          </p>
+          <p className="mt-1 text-xl font-bold text-primary">
+            {dwPct.toFixed(1)} %
+          </p>
+          <p className="text-[11px] text-neutral-muted">
+            Prob. &ge; 0.5 en {dwUltima.fecha}
+          </p>
+        </div>
+      )}
 
       <dl className="grid grid-cols-2 gap-3 text-sm">
         <Metric label="Score expansion" value={properties.score_expansion.toFixed(2)} />

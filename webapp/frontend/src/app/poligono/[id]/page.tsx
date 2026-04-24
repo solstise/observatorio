@@ -5,11 +5,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { Disclaimer } from "@/components/Disclaimer";
+import { DynamicWorldGauge } from "@/components/DynamicWorldGauge";
+import { HistoriaLargaChart } from "@/components/HistoriaLargaChart";
+import { SarDeltaBadge } from "@/components/SarDeltaBadge";
 import { ServiceTable } from "@/components/ServiceTable";
 import { TimelineChart } from "@/components/TimelineChart";
 import {
+  getDynamicWorld,
+  getGhsl,
+  getMapBiomas,
   getPoligonoDetalle,
   getPoligonos,
+  getSentinel1,
+  getViirs,
 } from "@/lib/data.server";
 
 interface PageProps {
@@ -50,6 +58,17 @@ export default async function PoligonoPage({ params }: PageProps) {
 
   const { properties, serie_temporal, poblacion, servicios, vulnerabilidad } =
     detalle;
+
+  // Datasets satelitales complementarios. Los cargamos en paralelo y
+  // degradamos graciosamente si alguno no existe (las funciones devuelven
+  // [] ante errores de lectura, ver data.server.ts).
+  const [mapbiomas, ghsl, viirs, dynamicWorld, sentinel1] = await Promise.all([
+    getMapBiomas(properties.id),
+    getGhsl(properties.id),
+    getViirs(properties.id),
+    getDynamicWorld(properties.id),
+    getSentinel1(properties.id),
+  ]);
 
   const poblacionUltima = [...poblacion].sort((a, b) => b.anio - a.anio)[0];
   const primerAnio = [...serie_temporal].sort((a, b) => a.anio - b.anio)[0];
@@ -182,6 +201,40 @@ export default async function PoligonoPage({ params }: PageProps) {
             </p>
           </section>
         )}
+
+        <section aria-labelledby="historia-larga" className="mt-10">
+          <h2
+            id="historia-larga"
+            className="mb-4 text-xl font-semibold text-primary"
+          >
+            Historia larga
+          </h2>
+          <div className="card">
+            <HistoriaLargaChart
+              poligonoId={properties.id}
+              mapbiomas={mapbiomas}
+              ghsl={ghsl}
+              viirs={viirs}
+            />
+          </div>
+        </section>
+
+        <section aria-labelledby="indicadores-compl" className="mt-10">
+          <h2
+            id="indicadores-compl"
+            className="mb-4 text-xl font-semibold text-primary"
+          >
+            Indicadores complementarios
+          </h2>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="card">
+              <DynamicWorldGauge rows={dynamicWorld} />
+            </div>
+            <div className="card">
+              <SarDeltaBadge rows={sentinel1} />
+            </div>
+          </div>
+        </section>
 
         <section className="mt-10 flex flex-wrap gap-3">
           <a

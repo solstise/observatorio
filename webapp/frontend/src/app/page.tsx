@@ -8,8 +8,12 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Disclaimer } from "@/components/Disclaimer";
 import { PolygonSidebar } from "@/components/PolygonSidebar";
-import { getPoligonos } from "@/lib/data.client";
-import type { PoligonoProperties, PoligonosCollection } from "@/lib/types";
+import { getDynamicWorld, getPoligonos } from "@/lib/data.client";
+import type {
+  DynamicWorldRow,
+  PoligonoProperties,
+  PoligonosCollection,
+} from "@/lib/types";
 
 const MapView = dynamic(() => import("@/components/MapView"), {
   ssr: false,
@@ -24,6 +28,7 @@ export default function HomePage() {
   const [collection, setCollection] = useState<PoligonosCollection | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [dynamicWorld, setDynamicWorld] = useState<DynamicWorldRow[]>([]);
 
   useEffect(() => {
     getPoligonos()
@@ -31,6 +36,11 @@ export default function HomePage() {
       .catch((e: unknown) =>
         setError(e instanceof Error ? e.message : "Error desconocido"),
       );
+    // Dynamic World se carga en paralelo. Si el CSV falta, getDynamicWorld
+    // devuelve [] (no crashea), y el sidebar simplemente no muestra la fila.
+    getDynamicWorld()
+      .then(setDynamicWorld)
+      .catch(() => setDynamicWorld([]));
   }, []);
 
   const selected = useMemo<PoligonoProperties | null>(() => {
@@ -40,6 +50,11 @@ export default function HomePage() {
         ?.properties ?? null
     );
   }, [collection, selectedId]);
+
+  const dwRowsForSelected = useMemo<DynamicWorldRow[]>(() => {
+    if (!selectedId) return [];
+    return dynamicWorld.filter((r) => r.poligono_id === selectedId);
+  }, [dynamicWorld, selectedId]);
 
   return (
     <>
@@ -84,6 +99,7 @@ export default function HomePage() {
 
             <PolygonSidebar
               properties={selected}
+              dynamicWorldRows={dwRowsForSelected}
               onClear={() => setSelectedId(null)}
             />
           </div>

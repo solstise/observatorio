@@ -14,12 +14,17 @@ import path from "node:path";
 import Papa from "papaparse";
 
 import type {
+  DynamicWorldRow,
+  GhslRow,
+  MapBiomasRow,
   PoblacionRow,
   PoligonoDetalle,
   PoligonoFeature,
   PoligonosCollection,
   SerieTemporalRow,
+  Sentinel1Row,
   ServicioRow,
+  ViirsRow,
   VulnerabilidadRow,
 } from "./types";
 
@@ -88,6 +93,62 @@ export async function getVulnerabilidad(
   poligonoId?: string,
 ): Promise<VulnerabilidadRow[]> {
   const rows = await readStaticCsv<VulnerabilidadRow>("/data/vulnerabilidad.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+// Lectura resiliente: si el CSV todavia no existe en disco, devolvemos
+// [] para que el componente degrade graciosamente (NO crashear el SSR).
+async function readStaticCsvOptional<T>(
+  relativePath: string,
+): Promise<T[]> {
+  try {
+    return await readStaticCsv<T>(relativePath);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn(`CSV opcional no disponible: ${relativePath}`, err);
+    return [];
+  }
+}
+
+export async function getDynamicWorld(
+  poligonoId?: string,
+): Promise<DynamicWorldRow[]> {
+  const rows = await readStaticCsvOptional<DynamicWorldRow>(
+    "/data/dynamic_world.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getSentinel1(
+  poligonoId?: string,
+): Promise<Sentinel1Row[]> {
+  const rows = await readStaticCsvOptional<Sentinel1Row>(
+    "/data/sentinel1.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getMapBiomas(
+  poligonoId?: string,
+): Promise<MapBiomasRow[]> {
+  const rows = await readStaticCsvOptional<MapBiomasRow>(
+    "/data/mapbiomas.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getGhsl(poligonoId?: string): Promise<GhslRow[]> {
+  const rows = await readStaticCsvOptional<GhslRow>("/data/ghsl.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getViirs(poligonoId?: string): Promise<ViirsRow[]> {
+  const rows = await readStaticCsvOptional<ViirsRow>("/data/viirs.csv");
   if (!poligonoId) return rows;
   return rows.filter((r) => r.poligono_id === poligonoId);
 }
