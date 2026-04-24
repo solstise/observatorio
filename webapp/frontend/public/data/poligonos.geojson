@@ -10,7 +10,7 @@
         "categoria_original": "asentamiento_crecimiento_rapido",
         "score_expansion": 36.58,
         "superficie_km2": 11.907,
-        "poblacion_estimada": 4185,
+        "poblacion_estimada": 30694,
         "edificios_2018": 6340,
         "edificios_2026": 8526,
         "_synthetic": false,
@@ -261,6 +261,6 @@
     }
   ],
   "_synthetic": false,
-  "_generated_at": "2026-04-24T16:25:10",
+  "_generated_at": "2026-04-24T16:51:56",
   "_note": "Datos reales del Observatorio Urbano Posadas. Los polígonos de 'control_consolidado' y 'consolidado_crecimiento' se proyectan a la categoría genérica del frontend por compatibilidad."
 }

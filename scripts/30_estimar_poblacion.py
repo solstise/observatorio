@@ -233,10 +233,8 @@ def cli(
         pob, valido = _suma_zonal_worldpop(worldpop, fila.geometry)
         baseline_por_pol[pol_id] = (pob, valido)
         logger.info(
-            "Baseline WorldPop 2020 '%s': %s personas (válido=%s)",
-            pol_id,
-            f"{pob:,.0f}" if valido else "n/a",
-            valido,
+            f"Baseline WorldPop 2020 '{pol_id}': "
+            f"{f'{pob:,.0f}' if valido else 'n/a'} personas (válido={valido})"
         )
 
     # Iteramos serie y generamos filas de salida.
@@ -247,12 +245,26 @@ def cli(
         n_edif_2020 = _buscar_n_edif_2020(serie_df, str(pol_id))
 
         usa_worldpop = wp_valido and n_edif_2020 is not None and n_edif_2020 > 0
+
+        # Sanity check: si el ratio habitantes/vivienda del baseline es
+        # irreal (<1.5), WorldPop está subestimando — típicamente por
+        # polígonos con áreas heterogéneas (ej. incluyen zonas deshabitadas
+        # tipo hipódromo, reservas, chacras). En ese caso, caemos al método
+        # directo que al menos aplica el factor INDEC de forma consistente.
+        if usa_worldpop:
+            ratio_baseline = pob_base / float(n_edif_2020)
+            if ratio_baseline < 1.5:
+                logger.warning(
+                    f"Polígono '{pol_id}': baseline WorldPop ({pob_base:.0f} hab "
+                    f"para {n_edif_2020} viv, ratio {ratio_baseline:.2f}) es "
+                    f"irreal. Fallback a método directo."
+                )
+                usa_worldpop = False
+
         if not usa_worldpop:
             logger.info(
-                "Polígono '%s': método directo (WorldPop válido=%s, n_edif_2020=%s)",
-                pol_id,
-                wp_valido,
-                n_edif_2020,
+                f"Polígono '{pol_id}': método directo "
+                f"(WorldPop válido={wp_valido}, n_edif_2020={n_edif_2020})"
             )
 
         for _, fila in sub.iterrows():
