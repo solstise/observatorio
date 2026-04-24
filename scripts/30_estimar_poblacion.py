@@ -34,7 +34,7 @@ Ejemplo::
 
     python scripts/30_estimar_poblacion.py \\
         --serie-temporal data/processed/conteos/serie_temporal.csv \\
-        --worldpop data/raw/worldpop/arg_ppp_2020.tif \\
+        --worldpop data/raw/worldpop/posadas_pop_2020.tif \\
         --poligonos config/poligonos.geojson \\
         --output data/processed/poblacion_estimada.csv \\
         --personas-por-vivienda 3.6
@@ -156,8 +156,14 @@ def _buscar_n_edif_2020(serie: pd.DataFrame, poligono_id: str) -> int | None:
 @click.option(
     "--worldpop",
     type=click.Path(dir_okay=False, path_type=Path),
-    default=Path("data/raw/worldpop/arg_ppp_2020.tif"),
+    default=Path("data/raw/worldpop/posadas_pop_2020.tif"),
     show_default=True,
+    help=(
+        "Raster WorldPop a usar para el baseline. Default: el recorte de "
+        "Posadas generado por scripts/05_descarga_worldpop.py vía Earth "
+        "Engine (~150 KB). El raster país-completo arg_ppp_2020.tif también "
+        "funciona pero es 1.8 GB."
+    ),
 )
 @click.option(
     "--poligonos",

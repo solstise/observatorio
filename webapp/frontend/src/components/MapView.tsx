@@ -40,7 +40,13 @@ import {
 import { colorFromScore } from "@/lib/colors";
 import type { PoligonoProperties, PoligonosCollection } from "@/lib/types";
 
+import BuildingsLayer from "./BuildingsLayer";
+
 import "@/styles/leaflet.css";
+// CSS del clustering de leaflet.markercluster — necesarios para que los iconos
+// de cluster (los círculos con el conteo) se rendericen con estilo correcto.
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
 interface MapViewProps {
   collection: PoligonosCollection;
@@ -177,7 +183,7 @@ export default function MapView({
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · Edificios: &copy; <a href="https://sites.research.google/open-buildings/" target="_blank" rel="noopener noreferrer">Google Open Buildings</a> &amp; <a href="https://github.com/microsoft/GlobalMLBuildingFootprints" target="_blank" rel="noopener noreferrer">Microsoft Building Footprints</a>'
       />
       <ZoomControl position="topright" />
 
@@ -266,6 +272,16 @@ export default function MapView({
             opacity={0.65}
             attribution={IDE_POSADAS_ATTRIBUTION}
           />
+        </LayersControl.Overlay>
+
+        {/* --- Edificios detectados (Google Open Buildings + MS Footprints) ---
+            Off por default: el GeoJSON pesa ~24 MB (≈2 MB gzip) y son 217k
+            puntos. Solo se descarga cuando el usuario activa la capa. */}
+        <LayersControl.Overlay
+          name="Edificios detectados (217k)"
+          checked={false}
+        >
+          <BuildingsLayer />
         </LayersControl.Overlay>
 
         {/* --- Poligonos del observatorio (siempre visibles por default) --- */}

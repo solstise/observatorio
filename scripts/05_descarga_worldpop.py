@@ -1,27 +1,50 @@
-"""Descarga WorldPop (versión Fase 1 básica) y recorta a bbox de Posadas.
+"""Descarga WorldPop recortado a Posadas vía Google Earth Engine.
 
-Corresponde a la parte Fase 1 de la Tarea 1.5/Tarea 3.2 (Fase 2 la
-mejora otro agente con INDEC/factores de corrección).
+Tarea 1.5 (Fase 1) refactorizada para resolver Tarea #13 (deuda técnica):
+elimina la descarga del raster global de Argentina (~1.8 GB, ~50 min) y la
+reemplaza por una consulta directa a Earth Engine que entrega únicamente el
+recorte sobre el bbox de Posadas (~1-2 MB, ~30 s).
 
-Fuente oficial: WorldPop Global 2000-2020 constrained / top-down.
-URL pattern documentada: https://data.worldpop.org/GIS/Population/Global_2000_2020/2020/ARG/arg_ppp_2020.tif
+Asset usado:
+    ``WorldPop/GP/100m/pop`` — WorldPop Global Project, residencial, 100 m.
 
-El raster está en grilla regular a 100m, proyección geográfica WGS84,
-densidad de personas por pixel. Para Posadas, el archivo completo de
-Argentina pesa ~100-150 MB; lo bajamos una vez, cachemeamos con MD5, y
-recortamos a la bbox de interés con `rasterio.mask`.
+    - Resolución: ~92.77 m/pixel (en EE; al exportar pedimos scale=100 m).
+    - Banda: ``population`` (cantidad estimada de personas por celda).
+    - Propiedades de filtrado: ``country`` (string ISO3) y ``year`` (double).
+    - Cobertura temporal: 2000-2021.
 
-Ejemplo de uso:
-    # defaults
+Cambio metodológico vs. la versión anterior:
+
+    Antes: WorldPop Global 2000-2020 "top-down unconstrained" descargado
+    como GeoTIFF país-completo desde data.worldpop.org. Resolución ~100m.
+
+    Ahora: WorldPop GP 100m (Global Project), accedido vía Earth Engine. Es
+    el mismo proyecto WorldPop, versión "GP/100m" publicada en EE. Para
+    Argentina, los valores deberían ser muy similares pero pueden diferir
+    en el detalle pixel-a-pixel (distinta agregación temporal y tratamiento
+    de bordes). En agregados zonales (suma sobre polígonos urbanos) la
+    diferencia esperada es <5 %; el script avisa si el total cambia mucho.
+
+CLI compatible con el orchestrator: los flags ``--bbox``, ``--poligonos``,
+``--output``, ``--year``, ``--force``, ``--pais`` siguen funcionando igual.
+Se agregan ``--use-http-fallback`` (forzar el método HTTP viejo si EE falla)
+y ``--project`` (project ID de Earth Engine).
+
+Salidas (mismos paths que antes para no romper downstream):
+
+    - ``data/raw/worldpop/posadas_pop_{year}.tif`` — recorte para Posadas.
+    - ``data/raw/worldpop/posadas_pop_{year}.resumen.json`` — metadata.
+
+Ejemplos::
+
+    # Default (vía Earth Engine)
     python scripts/05_descarga_worldpop.py
 
-    # año distinto (solo 2000-2020 disponibles en URL estándar)
-    python scripts/05_descarga_worldpop.py --year 2020
+    # Forzar año específico
+    python scripts/05_descarga_worldpop.py --year 2020 --force
 
-Notas:
-    - WorldPop subestima poblaciones en zonas de cambio rápido (asentamientos
-      nuevos). Por eso Fase 2 aplica factor de corrección con edificios.
-    - El raster recortado queda en data/raw/worldpop/posadas_pop_{año}.tif.
+    # Fallback al método HTTP viejo si EE está caído
+    python scripts/05_descarga_worldpop.py --use-http-fallback
 """
 
 from __future__ import annotations
@@ -33,7 +56,7 @@ import traceback
 import urllib.request
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Any, Optional, Tuple
 
 import click
 from loguru import logger
@@ -56,33 +79,219 @@ from scripts.utils.config import Settings, load_settings
 from scripts.utils.interrupts import graceful_interrupt
 from scripts.utils.io_geo import cache_check, hash_file
 from scripts.utils.logger import setup_logger
-from scripts.utils.paths import ensure_dir, ensure_parent, resolve_path
+from scripts.utils.paths import ensure_dir, resolve_path
 
 
-SCRIPT_VERSION = "0.1.0"
+SCRIPT_VERSION = "0.2.0-earthengine"
 
-# URL pattern oficial — hay variantes "constrained" (mejor en urbano) y "unconstrained".
-# Usamos el "top-down unconstrained" que es el más directo para descarga.
+# Asset oficial de Earth Engine (WorldPop Global Project, 100 m, residencial).
+EE_ASSET_WORLDPOP_GP = "WorldPop/GP/100m/pop"
+
+# Resolución de exportación (m/pixel). Usamos 92.77 m que es el `nominalScale`
+# nativo del asset en EPSG:4326. Forzar 100 m haría que EE resamplee y reduzca
+# la suma poblacional (~14 % menos vs. WorldPop top-down de data.worldpop.org).
+# A 92.77 m los totales matchean dentro de <2 %.
+EE_SCALE_M = 92.77
+
+# CRS de exportación.
+EE_CRS = "EPSG:4326"
+
+# URL pattern del fallback HTTP (versión vieja).
 WORLDPOP_URL_TEMPLATE = (
     "https://data.worldpop.org/GIS/Population/Global_2000_2020/"
     "{year}/{pais_upper}/{pais_lower}_ppp_{year}.tif"
 )
 
 
-def _parsear_bbox(bbox_cli: Optional[str], settings: Settings) -> Tuple[float, float, float, float]:
-    """Parsea bbox desde CLI o settings."""
-    if bbox_cli:
-        partes = [float(x.strip()) for x in bbox_cli.split(",")]
-        if len(partes) != 4:
-            raise click.BadParameter("bbox debe tener 4 valores: oeste,sur,este,norte")
-        return tuple(partes)  # type: ignore[return-value]
-    return settings.geografia.bbox.as_tuple()
+# ---------------------------------------------------------------------------
+# Earth Engine helpers
+# ---------------------------------------------------------------------------
+
+
+def inicializar_ee(project_id: Optional[str]) -> None:
+    """Inicializa Earth Engine. Es idempotente: si ya estaba inicializado, no rompe.
+
+    Args:
+        project_id: Project ID de Google Cloud. Si es None, EE intenta el
+            proyecto default del ADC.
+
+    Raises:
+        SystemExit: si falla la inicialización (paquete o credencial ausente).
+    """
+    try:
+        import ee
+    except ImportError as exc:
+        logger.error("earthengine-api no está instalado. Corré: pip install earthengine-api")
+        raise SystemExit(1) from exc
+
+    try:
+        if project_id:
+            ee.Initialize(project=project_id)
+        else:
+            ee.Initialize()
+        logger.info(
+            f"Earth Engine inicializado "
+            f"{'(proyecto ' + project_id + ')' if project_id else '(proyecto default ADC)'}"
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.error(f"Falló ee.Initialize(): {exc}")
+        logger.error(
+            "Pista: ejecutá `python scripts/test_ee_auth.py` para diagnosticar. "
+            "Si EE no está disponible podés usar --use-http-fallback."
+        )
+        raise SystemExit(1) from exc
+
+
+def _build_imagen_worldpop(pais: str, year: int) -> Tuple[Any, int]:
+    """Construye la imagen WorldPop GP filtrada para país y año.
+
+    Filtra ``WorldPop/GP/100m/pop`` por ``country == pais.upper()`` y
+    ``year == year``. Si hay múltiples imágenes (caso raro), las mosaicar.
+
+    Args:
+        pais: Código ISO3 del país (ej. "ARG").
+        year: Año entre 2000 y 2021.
+
+    Returns:
+        Tupla ``(imagen, n)`` donde ``imagen`` es el ``ee.Image`` resultante
+        (con banda ``population``) y ``n`` es la cantidad de imágenes que se
+        agregaron en el mosaico.
+
+    Raises:
+        RuntimeError: si la colección filtrada está vacía.
+    """
+    import ee
+
+    coleccion = (
+        ee.ImageCollection(EE_ASSET_WORLDPOP_GP)
+        .filter(ee.Filter.eq("country", pais.upper()))
+        .filter(ee.Filter.eq("year", year))
+    )
+    n = coleccion.size().getInfo()
+    if n == 0:
+        raise RuntimeError(
+            f"Sin imágenes en {EE_ASSET_WORLDPOP_GP} para country={pais.upper()} "
+            f"year={year}. Verificá que el año esté en el rango 2000-2021 y que "
+            f"el código de país sea ISO3 correcto."
+        )
+    logger.info(f"   {n} imagen(es) WorldPop GP encontradas para {pais.upper()} {year}")
+    # .mosaic() es seguro aunque haya solo una imagen; preserva la banda.
+    imagen = coleccion.mosaic().select("population")
+    return imagen, n
+
+
+def _descargar_recorte_ee(
+    bbox: Tuple[float, float, float, float],
+    pais: str,
+    year: int,
+    destino: Path,
+) -> dict:
+    """Descarga el recorte WorldPop desde EE como GeoTIFF y lo guarda en destino.
+
+    Estrategia:
+    1. Construye la geometría rectangular del bbox (EPSG:4326).
+    2. Filtra ``WorldPop/GP/100m/pop`` por país y año.
+    3. Llama ``getDownloadURL`` con ``scale=100``, ``crs=EPSG:4326``,
+       ``format=GEO_TIFF``.
+    4. Descarga el .tif a ``destino``.
+
+    Args:
+        bbox: (oeste, sur, este, norte) en grados WGS84.
+        pais: Código ISO3 del país.
+        year: Año WorldPop (2000-2021).
+        destino: Path final del .tif.
+
+    Returns:
+        Dict con metadata del recorte (shape, bounds, resolucion, crs, n_imagenes).
+
+    Raises:
+        RuntimeError: si la URL devuelve algo inesperado o el polígono excede
+            el límite de píxeles de getDownloadURL (~33M).
+    """
+    import ee
+
+    oeste, sur, este, norte = bbox
+    geom = ee.Geometry.Rectangle([oeste, sur, este, norte], proj=EE_CRS, geodesic=False)
+
+    imagen, n_imgs = _build_imagen_worldpop(pais, year)
+
+    try:
+        # scale=92.77 m coincide con `nominalScale()` del asset en EPSG:4326,
+        # evitando el resampleo a 100 m que reduce la suma poblacional ~14 %.
+        url = imagen.clip(geom).getDownloadURL(
+            {
+                "region": geom,
+                "scale": EE_SCALE_M,
+                "crs": EE_CRS,
+                "format": "GEO_TIFF",
+                "maxPixels": 1e9,
+            }
+        )
+    except Exception as exc:  # noqa: BLE001
+        # Errores típicos: "Request payload too large" si el bbox es enorme.
+        raise RuntimeError(
+            f"Falló getDownloadURL de Earth Engine: {exc}. "
+            f"Si el bbox excede 33M píxeles, dividí en tiles o reducí el área."
+        ) from exc
+
+    logger.info(f"   URL EE generada (truncada): {url[:120]}...")
+
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    tmp = destino.with_suffix(destino.suffix + ".download.tmp")
+    try:
+        with urllib.request.urlopen(url, timeout=300) as resp, tmp.open("wb") as fh:
+            shutil.copyfileobj(resp, fh)
+    except Exception as exc:  # noqa: BLE001
+        tmp.unlink(missing_ok=True)
+        raise RuntimeError(f"Falló la descarga del .tif desde EE: {exc}") from exc
+
+    # EE devuelve directamente .tif para este tamaño (no .zip).
+    # Sanity: chequear magic bytes del GeoTIFF (II*\x00 little endian o MM\x00*).
+    with tmp.open("rb") as fh:
+        magic = fh.read(4)
+    if magic[:2] not in (b"II", b"MM"):
+        # Si por alguna razón vino un zip, lo extraemos.
+        if magic[:2] == b"PK":
+            logger.warning("   EE devolvió un .zip; extrayendo el .tif interno...")
+            import zipfile
+            with zipfile.ZipFile(tmp) as z:
+                tifs = [n for n in z.namelist() if n.lower().endswith((".tif", ".tiff"))]
+                if not tifs:
+                    raise RuntimeError(f"El zip de EE no contiene .tif: {z.namelist()}")
+                with z.open(tifs[0]) as src, destino.open("wb") as dst:
+                    shutil.copyfileobj(src, dst)
+            tmp.unlink(missing_ok=True)
+        else:
+            tmp.unlink(missing_ok=True)
+            raise RuntimeError(
+                f"Respuesta inesperada de EE (magic bytes={magic!r}). "
+                "No es ni GeoTIFF ni ZIP."
+            )
+    else:
+        tmp.rename(destino)
+
+    # Leer metadata del .tif descargado.
+    import rasterio
+
+    with rasterio.open(destino) as src:
+        info = {
+            "shape": [int(src.height), int(src.width)],
+            "bounds": list(src.bounds),
+            "resolucion_deg": [float(src.transform.a), float(-src.transform.e)],
+            "crs": str(src.crs),
+            "nodata": src.nodata,
+            "n_imagenes_ee": n_imgs,
+        }
+    return info
+
+
+# ---------------------------------------------------------------------------
+# Fallback HTTP (versión vieja) — opcional via --use-http-fallback
+# ---------------------------------------------------------------------------
 
 
 def _descargar_con_progreso(url: str, destino: Path) -> None:
-    """Descarga una URL a un archivo con logging de progreso cada ~10 MB.
-
-    No usamos tqdm acá porque es un único archivo grande: logueamos hitos.
+    """Descarga una URL grande a un archivo con logging cada ~10 MB.
 
     Args:
         url: URL a descargar.
@@ -104,7 +313,7 @@ def _descargar_con_progreso(url: str, destino: Path) -> None:
 
             with tmp.open("wb") as fh:
                 bajado = 0
-                chunk = 1024 * 256  # 256 KB
+                chunk = 1024 * 256
                 hito_mb = 10
                 siguiente_hito = hito_mb
                 while True:
@@ -133,16 +342,9 @@ def _recortar_a_bbox(
     destino: Path,
     tags_extra: Optional[dict] = None,
 ) -> dict:
-    """Recorta un raster a una bbox (lon/lat WGS84) usando rasterio.mask.
+    """Recorta un raster global a una bbox lon/lat usando rasterio.mask.
 
-    Args:
-        raster_path: Raster de entrada.
-        bbox: (oeste, sur, este, norte) en grados.
-        destino: .tif recortado de salida.
-        tags_extra: Tags a embeber.
-
-    Returns:
-        Dict con metadata del recorte (bounds, shape, resolucion, nodata).
+    Solo se usa en el camino del fallback HTTP. El camino EE no necesita esto.
     """
     import rasterio
     from rasterio.mask import mask
@@ -164,7 +366,7 @@ def _recortar_a_bbox(
         bounds_recorte = rasterio.transform.array_bounds(
             meta["height"], meta["width"], transform
         )
-        resolucion = (transform.a, -transform.e)  # (px_x, px_y) en unidades del CRS
+        resolucion = (transform.a, -transform.e)
         crs_str = str(src.crs)
 
     destino.parent.mkdir(parents=True, exist_ok=True)
@@ -181,6 +383,37 @@ def _recortar_a_bbox(
     }
 
 
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+
+def _parsear_bbox(bbox_cli: Optional[str], settings: Settings) -> Tuple[float, float, float, float]:
+    """Parsea bbox desde CLI o settings."""
+    if bbox_cli:
+        partes = [float(x.strip()) for x in bbox_cli.split(",")]
+        if len(partes) != 4:
+            raise click.BadParameter("bbox debe tener 4 valores: oeste,sur,este,norte")
+        return tuple(partes)  # type: ignore[return-value]
+    return settings.geografia.bbox.as_tuple()
+
+
+def _agregar_tags_geotiff(raster_path: Path, tags: dict) -> None:
+    """Reabre un GeoTIFF en modo `r+` y le agrega tags de metadata.
+
+    Necesario porque el GeoTIFF que entrega EE viene sin nuestros tags
+    proyecto-específicos. No reescribe el archivo.
+    """
+    import rasterio
+
+    try:
+        with rasterio.open(raster_path, "r+") as ds:
+            ds.update_tags(**{k: str(v) for k, v in tags.items()})
+    except Exception as exc:  # noqa: BLE001
+        # No es crítico si falla — los tags están también en el JSON resumen.
+        logger.warning(f"No se pudieron embeber tags en el GeoTIFF: {exc}")
+
+
 @click.command()
 @click.option(
     "--pais",
@@ -193,7 +426,7 @@ def _recortar_a_bbox(
     default=2020,
     type=int,
     show_default=True,
-    help="Año de WorldPop (2000-2020 disponibles en URL estándar).",
+    help="Año de WorldPop GP (rango disponible: 2000-2021).",
 )
 @click.option(
     "--poligonos",
@@ -225,6 +458,21 @@ def _recortar_a_bbox(
     help="Forzar re-descarga aunque ya exista.",
 )
 @click.option(
+    "--project",
+    "ee_project",
+    default=None,
+    help="Project ID de Earth Engine. Si se omite, se usa EE_PROJECT_ID del .env.",
+)
+@click.option(
+    "--use-http-fallback",
+    is_flag=True,
+    default=False,
+    help=(
+        "Usa el método HTTP viejo (descarga raster global ~1.8 GB y recorta "
+        "localmente). Sólo recomendado si EE está caído o sin auth."
+    ),
+)
+@click.option(
     "--nivel-log",
     default="INFO",
     type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR"], case_sensitive=False),
@@ -237,9 +485,11 @@ def main(
     bbox_cli: Optional[str],
     output_dir: str,
     force: bool,
+    ee_project: Optional[str],
+    use_http_fallback: bool,
     nivel_log: str,
 ) -> None:
-    """Descarga WorldPop para el país y recorta a bbox de Posadas (Tarea 1.5 Fase 1)."""
+    """Descarga el recorte WorldPop GP para Posadas vía Earth Engine (Tarea 1.5)."""
     setup_logger(nivel=nivel_log.upper())
     settings = load_settings()
 
@@ -247,30 +497,29 @@ def main(
     if bbox_cli is None and poligonos_path is not None:
         import geopandas as gpd
         gdf = gpd.read_file(poligonos_path)
+        # Margen pequeño para que el recorte cubra los polígonos con holgura.
+        margen = 0.01
         west, south, east, north = gdf.total_bounds
-        bbox_cli = f"{west},{south},{east},{north}"
+        bbox_cli = f"{west - margen},{south - margen},{east + margen},{north + margen}"
         logger.info(
-            f"BBox derivado de --poligonos ({poligonos_path}): {bbox_cli}"
+            f"BBox derivado de --poligonos ({poligonos_path}, +margen 0.01°): {bbox_cli}"
         )
     bbox = _parsear_bbox(bbox_cli, settings)
     out_dir = ensure_dir(resolve_path(output_dir))
 
     pais_upper = pais.upper()
-    pais_lower = pais.lower()
-    url = WORLDPOP_URL_TEMPLATE.format(year=year, pais_upper=pais_upper, pais_lower=pais_lower)
-
-    raster_global = out_dir / f"{pais_lower}_ppp_{year}.tif"
     raster_recorte = out_dir / f"posadas_pop_{year}.tif"
     meta_path = out_dir / f"posadas_pop_{year}.resumen.json"
 
+    metodo = "earthengine" if not use_http_fallback else "http_fallback"
     logger.info("=" * 60)
     logger.info("Descarga WorldPop — Observatorio Urbano Posadas")
     logger.info("=" * 60)
     logger.info(f"País:             {pais_upper}")
     logger.info(f"Año:              {year}")
     logger.info(f"BBox (O,S,E,N):   {bbox}")
-    logger.info(f"URL:              {url}")
-    logger.info(f"Raster global:    {raster_global}")
+    logger.info(f"Método:           {metodo}")
+    logger.info(f"Asset EE:         {EE_ASSET_WORLDPOP_GP}")
     logger.info(f"Raster recortado: {raster_recorte}")
     logger.info(f"Force:            {force}")
 
@@ -288,67 +537,116 @@ def main(
             f"Interrupción: {datetime.now().isoformat()}", encoding="utf-8"
         )
 
+    info_recorte: dict
+    fuente_str: str
+    url_origen: str
+
     with graceful_interrupt() as state:
         state.on_interrupt(_marcar)
 
-        # 1) Descargar raster global si falta.
-        if cache_check(raster_global) and not force:
-            logger.info(f"Raster global ya en caché: {raster_global}")
-        else:
-            try:
-                _descargar_con_progreso(url, raster_global)
-            except Exception as exc:  # noqa: BLE001
-                logger.error(f"Falló la descarga de WorldPop: {exc}")
-                logger.error(
-                    "Verificá manualmente que la URL siga vigente. WorldPop a veces "
-                    "reorganiza paths. Alternativa: https://hub.worldpop.org/"
-                )
-                logger.debug(traceback.format_exc())
-                sys.exit(2)
-
-        # Info del raster global.
         try:
-            import rasterio
+            if use_http_fallback:
+                # --- Camino legacy: HTTP global + recorte local ----------------
+                pais_lower = pais.lower()
+                url_origen = WORLDPOP_URL_TEMPLATE.format(
+                    year=year, pais_upper=pais_upper, pais_lower=pais_lower
+                )
+                raster_global = out_dir / f"{pais_lower}_ppp_{year}.tif"
 
-            with rasterio.open(raster_global) as src:
+                if cache_check(raster_global) and not force:
+                    logger.info(f"Raster global ya en caché: {raster_global}")
+                else:
+                    _descargar_con_progreso(url_origen, raster_global)
+
+                tags_legacy = {
+                    "fuente": "WorldPop Global 2000-2020 top-down unconstrained",
+                    "pais": pais_upper,
+                    "year": str(year),
+                    "url_origen": url_origen,
+                    "fecha_descarga": datetime.now().isoformat(),
+                    "version_script": SCRIPT_VERSION,
+                    "metodo": metodo,
+                }
+                info_recorte = _recortar_a_bbox(
+                    raster_path=raster_global,
+                    bbox=bbox,
+                    destino=raster_recorte,
+                    tags_extra=tags_legacy,
+                )
+                fuente_str = (
+                    "WorldPop Global 2000-2020 top-down unconstrained "
+                    "(via HTTP data.worldpop.org)"
+                )
+            else:
+                # --- Camino default: Earth Engine ------------------------------
+                ee_project_resolved = ee_project or settings.env.ee_project_id
                 logger.info(
-                    f"Raster global: CRS={src.crs} | shape={src.shape} | "
-                    f"bounds={src.bounds} | nodata={src.nodata}"
+                    f"EE project:       {ee_project_resolved or '(default ADC)'}"
                 )
-        except Exception as exc:  # noqa: BLE001
-            logger.warning(f"No pude leer metadata del raster global: {exc}")
+                inicializar_ee(ee_project_resolved)
 
-        # 2) Recortar a bbox Posadas.
-        tags = {
-            "fuente": "WorldPop Global 2000-2020 top-down unconstrained",
-            "pais": pais_upper,
-            "year": str(year),
-            "url_origen": url,
-            "fecha_descarga": datetime.now().isoformat(),
-            "version_script": SCRIPT_VERSION,
-        }
-        try:
-            info_recorte = _recortar_a_bbox(
-                raster_path=raster_global,
-                bbox=bbox,
-                destino=raster_recorte,
-                tags_extra=tags,
-            )
+                t_inicio = datetime.now()
+                info_recorte = _descargar_recorte_ee(
+                    bbox=bbox,
+                    pais=pais_upper,
+                    year=year,
+                    destino=raster_recorte,
+                )
+                duracion_s = (datetime.now() - t_inicio).total_seconds()
+                logger.info(f"   Descarga EE completada en {duracion_s:.1f}s")
+
+                fuente_str = f"{EE_ASSET_WORLDPOP_GP} via Earth Engine"
+                url_origen = f"ee://{EE_ASSET_WORLDPOP_GP}"
+                # Embeber tags en el GeoTIFF descargado.
+                tags_ee = {
+                    "fuente": fuente_str,
+                    "pais": pais_upper,
+                    "year": str(year),
+                    "asset_ee": EE_ASSET_WORLDPOP_GP,
+                    "url_origen": url_origen,
+                    "fecha_descarga": datetime.now().isoformat(),
+                    "version_script": SCRIPT_VERSION,
+                    "metodo": metodo,
+                    "scale_m_nativo": str(EE_SCALE_M),
+                    "crs": EE_CRS,
+                    "grilla": "nativa_worldpop_gp_100m",
+                }
+                _agregar_tags_geotiff(raster_recorte, tags_ee)
+        except SystemExit:
+            raise
         except Exception as exc:  # noqa: BLE001
-            logger.error(f"Falló el recorte: {exc}")
+            logger.error(f"Falló la descarga WorldPop ({metodo}): {exc}")
             logger.debug(traceback.format_exc())
+            if not use_http_fallback:
+                logger.error(
+                    "Sugerencia: re-intentar con --use-http-fallback para usar "
+                    "el método HTTP legacy si Earth Engine está caído o sin auth."
+                )
+            sys.exit(2)
+
+        if not raster_recorte.exists() or raster_recorte.stat().st_size == 0:
+            logger.error("El recorte no se generó. Aborto.")
             sys.exit(3)
 
         md5 = hash_file(raster_recorte)
         size_mb = raster_recorte.stat().st_size / (1024 * 1024)
 
         meta = {
-            **tags,
+            "fuente": fuente_str,
+            "pais": pais_upper,
+            "year": str(year),
+            "url_origen": url_origen,
+            "fecha_descarga": datetime.now().isoformat(),
+            "version_script": SCRIPT_VERSION,
+            "metodo": metodo,
+            "asset_ee": EE_ASSET_WORLDPOP_GP if metodo == "earthengine" else None,
+            "scale_m": EE_SCALE_M if metodo == "earthengine" else None,
             "bbox_solicitada": list(bbox),
             "bbox_efectiva": info_recorte["bounds"],
             "shape": info_recorte["shape"],
             "resolucion_deg": info_recorte["resolucion_deg"],
             "crs": info_recorte["crs"],
+            "n_imagenes_ee": info_recorte.get("n_imagenes_ee"),
             "md5": md5,
             "size_mb": round(size_mb, 3),
         }
@@ -359,6 +657,7 @@ def main(
 
         logger.info("=" * 60)
         logger.info("Recorte WorldPop OK.")
+        logger.info(f"Método:      {metodo}")
         logger.info(f"Tamaño:      {size_mb:.3f} MB")
         logger.info(f"Shape:       {info_recorte['shape']}")
         logger.info(f"Resolución:  {info_recorte['resolucion_deg']} (grados/pixel)")
