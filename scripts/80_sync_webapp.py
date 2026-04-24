@@ -377,6 +377,31 @@ def cli(
     vuln_out.to_csv(dest_data / "vulnerabilidad.csv", index=False, encoding="utf-8")
     logger.info(f"vulnerabilidad.csv -> {len(vuln_out)} filas")
 
+    # ----- Copia pass-through de métricas complementarias (S2a/S3) -------
+    # Estos CSVs salen de scripts nuevos (41, 43, 44) y se exponen al
+    # frontend con nombres canónicos simples. El schema del CSV lo define
+    # cada script; el frontend puede consumirlos con papaparse tal cual.
+    extras: list[tuple[str, str]] = [
+        ("data/processed/dynamic_world/dynamic_world_built.csv", "dynamic_world.csv"),
+        ("data/processed/sentinel1/sentinel1_backscatter.csv", "sentinel1.csv"),
+        ("data/processed/historia_larga/mapbiomas_por_poligono.csv", "mapbiomas.csv"),
+        ("data/processed/historia_larga/ghsl_por_poligono.csv", "ghsl.csv"),
+        ("data/processed/historia_larga/viirs_por_poligono.csv", "viirs.csv"),
+    ]
+    for src_rel, dest_name in extras:
+        src = resolve_path(src_rel)
+        if not src.exists():
+            logger.warning(f"  - saltado {dest_name}: no existe {src_rel}")
+            continue
+        dest_path = dest_data / dest_name
+        shutil.copy2(src, dest_path)
+        try:
+            import pandas as _pd
+            n = len(_pd.read_csv(src))
+            logger.info(f"{dest_name} -> {n} filas (pass-through)")
+        except Exception:
+            logger.info(f"{dest_name} -> copiado")
+
     # Timestamp de actualización.
     (dest_data / "updated_at.txt").write_text(
         datetime.now().isoformat(timespec="seconds"), encoding="utf-8"

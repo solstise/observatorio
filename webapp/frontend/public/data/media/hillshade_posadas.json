@@ -1,0 +1,26 @@
+{
+  "fuente": "COPERNICUS/DEM/GLO30 via Google Earth Engine",
+  "producto": "hillshade",
+  "generado_por": "scripts/46_generar_dem_posadas.py v0.1.0",
+  "generado_en": "2026-04-24T18:39:49",
+  "crs": "EPSG:4326",
+  "bounds": {
+    "south": -27.500035961222505,
+    "west": -56.00016632825527,
+    "north": -27.299801484392262,
+    "east": -55.79993185142503
+  },
+  "size_px": {
+    "width": 1024,
+    "height": 1024
+  },
+  "hillshade": {
+    "azimuth_deg": 315.0,
+    "altitude_deg": 45.0,
+    "algoritmo": "Horn (1981) local"
+  },
+  "dem_elevacion_m": {
+    "min": 61.81116485595703,
+    "max": 190.83157348632812
+  }
+}
