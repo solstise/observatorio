@@ -11,7 +11,7 @@ import {
   getPoligonos,
   getSerieTemporal,
   getServicios,
-} from "@/lib/data";
+} from "@/lib/data.client";
 import type {
   PoblacionRow,
   PoligonosCollection,

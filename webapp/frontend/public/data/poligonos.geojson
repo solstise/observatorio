@@ -1,37 +1,335 @@
 {
   "type": "FeatureCollection",
-  "_synthetic": true,
-  "_note": "Datos sinteticos de prueba para el Observatorio Urbano Posadas. No representan la realidad. Reemplazar por salida real del pipeline de data/outputs/.",
-  "_generated_at": "2026-04-22",
-  "crs": {
-    "type": "name",
-    "properties": {
-      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
-    }
-  },
   "features": [
     {
       "type": "Feature",
       "properties": {
-        "id": "itaembe_mini",
-        "nombre": "Itaembe Mini",
+        "id": "itaembe_guazu",
+        "nombre": "Itaembé Guazú",
         "categoria": "expansion_activa",
-        "score_expansion": 0.82,
-        "superficie_km2": 4.2,
-        "poblacion_estimada": 12450,
-        "edificios_2018": 1820,
-        "edificios_2026": 3140,
-        "_synthetic": true
+        "categoria_original": "asentamiento_crecimiento_rapido",
+        "score_expansion": 40.87,
+        "superficie_km2": 7.642,
+        "poblacion_estimada": 3789,
+        "edificios_2018": 6322,
+        "edificios_2026": 8488,
+        "_synthetic": false,
+        "descripcion": "Barrio del sur de Posadas en expansión. Polígono oficial OSM relation/4860758.",
+        "prioridad": 1,
+        "publicar_en_sitio": true
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [
           [
-            [-55.9510, -27.4010],
-            [-55.9290, -27.4010],
-            [-55.9290, -27.3820],
-            [-55.9510, -27.3820],
-            [-55.9510, -27.4010]
+            [
+              -56.0080436,
+              -27.4057881
+            ],
+            [
+              -56.0071557,
+              -27.4075033
+            ],
+            [
+              -56.0070687,
+              -27.4076713
+            ],
+            [
+              -56.0068292,
+              -27.4081339
+            ],
+            [
+              -56.0065855,
+              -27.4086045
+            ],
+            [
+              -56.0064266,
+              -27.4089338
+            ],
+            [
+              -56.0063713,
+              -27.4090483
+            ],
+            [
+              -56.006159,
+              -27.4094706
+            ],
+            [
+              -56.0061471,
+              -27.4096318
+            ],
+            [
+              -56.0059318,
+              -27.4100814
+            ],
+            [
+              -56.0056566,
+              -27.4106156
+            ],
+            [
+              -56.0054133,
+              -27.4111582
+            ],
+            [
+              -56.0051412,
+              -27.4116015
+            ],
+            [
+              -56.0049947,
+              -27.4116927
+            ],
+            [
+              -56.0047654,
+              -27.4122384
+            ],
+            [
+              -56.0045319,
+              -27.4126929
+            ],
+            [
+              -56.0042085,
+              -27.4133141
+            ],
+            [
+              -56.0041035,
+              -27.4134703
+            ],
+            [
+              -56.0037972,
+              -27.4140704
+            ],
+            [
+              -56.0030616,
+              -27.415407
+            ],
+            [
+              -56.0028176,
+              -27.4158913
+            ],
+            [
+              -56.0023882,
+              -27.4167292
+            ],
+            [
+              -56.0021432,
+              -27.4171971
+            ],
+            [
+              -56.0020464,
+              -27.417399
+            ],
+            [
+              -56.0016706,
+              -27.4181283
+            ],
+            [
+              -56.0015149,
+              -27.4185079
+            ],
+            [
+              -56.0012063,
+              -27.4191014
+            ],
+            [
+              -56.0010344,
+              -27.4192903
+            ],
+            [
+              -55.998459,
+              -27.4213914
+            ],
+            [
+              -55.9974209,
+              -27.4220581
+            ],
+            [
+              -55.9973954,
+              -27.4220744
+            ],
+            [
+              -55.9966124,
+              -27.4222552
+            ],
+            [
+              -55.996489,
+              -27.4223107
+            ],
+            [
+              -55.9961423,
+              -27.4224665
+            ],
+            [
+              -55.995901,
+              -27.4226378
+            ],
+            [
+              -55.9773733,
+              -27.4093309
+            ],
+            [
+              -55.9803162,
+              -27.3905712
+            ],
+            [
+              -55.9805361,
+              -27.3887739
+            ],
+            [
+              -55.9810396,
+              -27.3889742
+            ],
+            [
+              -55.9814553,
+              -27.3891396
+            ],
+            [
+              -55.9829879,
+              -27.3897792
+            ],
+            [
+              -55.983604,
+              -27.3900363
+            ],
+            [
+              -55.9836762,
+              -27.3900677
+            ],
+            [
+              -55.9838201,
+              -27.3901304
+            ],
+            [
+              -55.9841357,
+              -27.3902622
+            ],
+            [
+              -55.9844745,
+              -27.3904033
+            ],
+            [
+              -55.9849173,
+              -27.3905166
+            ],
+            [
+              -55.985151,
+              -27.3905699
+            ],
+            [
+              -55.9854726,
+              -27.3905949
+            ],
+            [
+              -55.985727,
+              -27.3906109
+            ],
+            [
+              -55.9877687,
+              -27.3906877
+            ],
+            [
+              -55.9908033,
+              -27.3908718
+            ],
+            [
+              -55.9908581,
+              -27.3908734
+            ],
+            [
+              -55.9909747,
+              -27.3908817
+            ],
+            [
+              -55.9923128,
+              -27.3909697
+            ],
+            [
+              -55.9934833,
+              -27.3910432
+            ],
+            [
+              -55.9941872,
+              -27.3910888
+            ],
+            [
+              -55.9958245,
+              -27.3911819
+            ],
+            [
+              -55.9960831,
+              -27.3912018
+            ],
+            [
+              -55.9973553,
+              -27.3912748
+            ],
+            [
+              -55.9996658,
+              -27.3914221
+            ],
+            [
+              -55.9997285,
+              -27.3914247
+            ],
+            [
+              -56.0031954,
+              -27.3915692
+            ],
+            [
+              -56.0032031,
+              -27.3916451
+            ],
+            [
+              -56.0035437,
+              -27.3974558
+            ],
+            [
+              -56.0036099,
+              -27.3985626
+            ],
+            [
+              -56.0036154,
+              -27.3987035
+            ],
+            [
+              -56.0036459,
+              -27.399235
+            ],
+            [
+              -56.0036906,
+              -27.3993789
+            ],
+            [
+              -56.0039562,
+              -27.4000921
+            ],
+            [
+              -56.004075,
+              -27.400411
+            ],
+            [
+              -56.0042484,
+              -27.4019466
+            ],
+            [
+              -56.0048588,
+              -27.4019063
+            ],
+            [
+              -56.0072387,
+              -27.4017494
+            ],
+            [
+              -56.0075959,
+              -27.4035418
+            ],
+            [
+              -56.0080309,
+              -27.4057244
+            ],
+            [
+              -56.0080436,
+              -27.4057881
+            ]
           ]
         ]
       }
@@ -39,25 +337,44 @@
     {
       "type": "Feature",
       "properties": {
-        "id": "itaembe_guazu",
-        "nombre": "Itaembe Guazu",
+        "id": "itaembe_mini",
+        "nombre": "Itaembé Miní",
         "categoria": "expansion_activa",
-        "score_expansion": 0.74,
-        "superficie_km2": 5.8,
-        "poblacion_estimada": 9830,
-        "edificios_2018": 1240,
-        "edificios_2026": 2390,
-        "_synthetic": true
+        "categoria_original": "asentamiento_crecimiento_rapido",
+        "score_expansion": 61.36,
+        "superficie_km2": 3.982,
+        "poblacion_estimada": 12287,
+        "edificios_2018": 2150,
+        "edificios_2026": 3318,
+        "_synthetic": false,
+        "descripcion": "Barrio de expansión rápida en el sur de Posadas. Cuadrado 2×2 km en centro OSM (place=suburb).",
+        "prioridad": 1,
+        "publicar_en_sitio": true
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [
           [
-            [-55.9780, -27.4050],
-            [-55.9520, -27.4050],
-            [-55.9520, -27.3850],
-            [-55.9780, -27.3850],
-            [-55.9780, -27.4050]
+            [
+              -55.96641929173809,
+              -27.42068311174991
+            ],
+            [
+              -55.946180708261906,
+              -27.42068311174991
+            ],
+            [
+              -55.946180708261906,
+              -27.40271688825009
+            ],
+            [
+              -55.96641929173809,
+              -27.40271688825009
+            ],
+            [
+              -55.96641929173809,
+              -27.42068311174991
+            ]
           ]
         ]
       }
@@ -67,23 +384,42 @@
       "properties": {
         "id": "chacra_32",
         "nombre": "Chacra 32",
-        "categoria": "consolidado",
-        "score_expansion": 0.31,
-        "superficie_km2": 2.9,
-        "poblacion_estimada": 14210,
-        "edificios_2018": 3650,
-        "edificios_2026": 3890,
-        "_synthetic": true
+        "categoria": "emergente",
+        "categoria_original": "consolidado_crecimiento",
+        "score_expansion": 38.52,
+        "superficie_km2": 3.982,
+        "poblacion_estimada": 27275,
+        "edificios_2018": 4549,
+        "edificios_2026": 6937,
+        "_synthetic": false,
+        "descripcion": "Zona de chacras subdivididas sector Cristo Rey. Cuadrado 2×2 km en centro OSM.",
+        "prioridad": 2,
+        "publicar_en_sitio": true
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [
           [
-            [-55.9230, -27.3780],
-            [-55.9030, -27.3780],
-            [-55.9030, -27.3620],
-            [-55.9230, -27.3620],
-            [-55.9230, -27.3780]
+            [
+              -55.9177180556475,
+              -27.40718311174991
+            ],
+            [
+              -55.897481944352506,
+              -27.40718311174991
+            ],
+            [
+              -55.897481944352506,
+              -27.38921688825009
+            ],
+            [
+              -55.9177180556475,
+              -27.38921688825009
+            ],
+            [
+              -55.9177180556475,
+              -27.40718311174991
+            ]
           ]
         ]
       }
@@ -94,22 +430,41 @@
         "id": "villa_cabello",
         "nombre": "Villa Cabello",
         "categoria": "consolidado",
-        "score_expansion": 0.22,
-        "superficie_km2": 3.6,
-        "poblacion_estimada": 18920,
-        "edificios_2018": 4810,
-        "edificios_2026": 4980,
-        "_synthetic": true
+        "categoria_original": "control_consolidado",
+        "score_expansion": 29.28,
+        "superficie_km2": 3.982,
+        "poblacion_estimada": 16127,
+        "edificios_2018": 2595,
+        "edificios_2026": 3888,
+        "_synthetic": false,
+        "descripcion": "Barrio consolidado, usado como control para validar el modelo. Cuadrado 2×2 km en centro OSM (place=suburb).",
+        "prioridad": 3,
+        "publicar_en_sitio": true
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [
           [
-            [-55.9050, -27.3920],
-            [-55.8830, -27.3920],
-            [-55.8830, -27.3720],
-            [-55.9050, -27.3720],
-            [-55.9050, -27.3920]
+            [
+              -55.95901523876144,
+              -27.37638311174991
+            ],
+            [
+              -55.938784761238566,
+              -27.37638311174991
+            ],
+            [
+              -55.938784761238566,
+              -27.35841688825009
+            ],
+            [
+              -55.95901523876144,
+              -27.35841688825009
+            ],
+            [
+              -55.95901523876144,
+              -27.37638311174991
+            ]
           ]
         ]
       }
@@ -119,26 +474,49 @@
       "properties": {
         "id": "el_brete",
         "nombre": "El Brete",
-        "categoria": "emergente",
-        "score_expansion": 0.56,
-        "superficie_km2": 1.8,
-        "poblacion_estimada": 4320,
-        "edificios_2018": 420,
-        "edificios_2026": 980,
-        "_synthetic": true
+        "categoria": "expansion_activa",
+        "categoria_original": "zona_sensible",
+        "score_expansion": 40.71,
+        "superficie_km2": 0.603,
+        "poblacion_estimada": 3104,
+        "edificios_2018": 394,
+        "edificios_2026": 594,
+        "_synthetic": false,
+        "descripcion": "Zona costera de Posadas con tensión por inundabilidad. Polígono angosto siguiendo la ribera del Paraná.",
+        "prioridad": 2,
+        "publicar_en_sitio": false,
+        "_sensible": true
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [
           [
-            [-55.8960, -27.3650],
-            [-55.8800, -27.3650],
-            [-55.8800, -27.3520],
-            [-55.8960, -27.3520],
-            [-55.8960, -27.3650]
+            [
+              -55.921,
+              -27.36
+            ],
+            [
+              -55.9,
+              -27.354
+            ],
+            [
+              -55.895,
+              -27.351
+            ],
+            [
+              -55.918,
+              -27.356
+            ],
+            [
+              -55.921,
+              -27.36
+            ]
           ]
         ]
       }
     }
-  ]
+  ],
+  "_synthetic": false,
+  "_generated_at": "2026-04-24T12:08:54",
+  "_note": "Datos reales del Observatorio Urbano Posadas. Los polígonos de 'control_consolidado' y 'consolidado_crecimiento' se proyectan a la categoría genérica del frontend por compatibilidad."
 }

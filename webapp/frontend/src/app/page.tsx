@@ -8,7 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Disclaimer } from "@/components/Disclaimer";
 import { PolygonSidebar } from "@/components/PolygonSidebar";
-import { getPoligonos } from "@/lib/data";
+import { getPoligonos } from "@/lib/data.client";
 import type { PoligonoProperties, PoligonosCollection } from "@/lib/types";
 
 const MapView = dynamic(() => import("@/components/MapView"), {

@@ -247,8 +247,16 @@ def _cargar_componentes(inputs: Inputs, crs_metrico: str) -> pd.DataFrame:
 
     # --- Polígonos base ---
     gdf_poli = gpd.read_file(inputs.poligonos)
+    # El GeoJSON del proyecto usa la columna `id`; aceptamos también `poligono_id`
+    # por compatibilidad. Solo caemos al index numérico si no hay nada.
     if "poligono_id" not in gdf_poli.columns:
-        gdf_poli["poligono_id"] = gdf_poli.index.astype(str)
+        if "id" in gdf_poli.columns:
+            gdf_poli["poligono_id"] = gdf_poli["id"].astype(str)
+        else:
+            logger.warning(
+                "El GeoJSON no tiene columna 'id' ni 'poligono_id' — uso índice."
+            )
+            gdf_poli["poligono_id"] = gdf_poli.index.astype(str)
     gdf_poli["poligono_id"] = gdf_poli["poligono_id"].astype(str)
 
     # Área para densidad
@@ -276,8 +284,16 @@ def _cargar_componentes(inputs: Inputs, crs_metrico: str) -> pd.DataFrame:
                 base = sub.iloc[0]
             else:
                 base = hace_5.iloc[-1]
-            n_hoy = float(ultimo.get("n_edificios") or 0)
-            n_base = float(base.get("n_edificios") or 0)
+            # La serie_temporal del proyecto usa `n_edificios_estimado`.
+            # Aceptamos también `n_edificios` por compatibilidad con datasets viejos.
+            def _n(fila):
+                return float(
+                    fila.get("n_edificios_estimado")
+                    or fila.get("n_edificios")
+                    or 0
+                )
+            n_hoy = _n(ultimo)
+            n_base = _n(base)
             if n_base <= 0:
                 tasa = math.nan
             else:

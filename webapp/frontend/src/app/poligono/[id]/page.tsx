@@ -10,7 +10,7 @@ import { TimelineChart } from "@/components/TimelineChart";
 import {
   getPoligonoDetalle,
   getPoligonos,
-} from "@/lib/data";
+} from "@/lib/data.server";
 
 interface PageProps {
   params: { id: string };

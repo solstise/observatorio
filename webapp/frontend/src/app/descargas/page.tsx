@@ -3,7 +3,7 @@
 
 import type { Metadata } from "next";
 
-import { getPoligonos } from "@/lib/data";
+import { getPoligonos } from "@/lib/data.server";
 
 export const metadata: Metadata = {
   title: "Descargas",
