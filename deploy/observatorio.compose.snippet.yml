@@ -1,0 +1,30 @@
+# Snippet para agregar a /opt/apps/docker-compose.yml en el VPS.
+# NO es un compose standalone — es una entrada para el compose central.
+#
+# Instrucciones (primer deploy):
+#   1. SSH al VPS y hacé backup:
+#        ssh root@187.77.54.19 "cp /opt/apps/docker-compose.yml /opt/apps/docker-compose.yml.bak-\$(date +%Y%m%d-%H%M%S)"
+#   2. Editá /opt/apps/docker-compose.yml y pegá el bloque de abajo dentro de
+#      `services:` (respetando la sangría que ya tiene el archivo — 2 spaces).
+#   3. Creá el dir remoto:
+#        ssh root@187.77.54.19 "mkdir -p /opt/apps/observatorio"
+#   4. Desde local:
+#        bash deploy-vps.sh
+#
+# Puerto elegido: 3011 (siguiente libre después de 3010=paws).
+# Memoria reservada chica porque el contenedor solo sirve estáticos + SSR liviano.
+
+  observatorio:
+    build: /opt/apps/observatorio
+    container_name: observatorio
+    restart: unless-stopped
+    init: true
+    ports:
+      - "3011:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - NEXT_TELEMETRY_DISABLED=1
+    # No hay volumes: los datos están dentro de la imagen (public/data/).
+    # Cuando haya pipeline automático, volume-mapeamos public/data/ a un path
+    # host-mounted para actualizar sin rebuild.

@@ -1,8 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // El observatorio se sirve como sitio estatico + backend separado.
-  // Podria exportarse con `next build && next export` si se quiere servir desde CDN.
+  // Standalone output: genera .next/standalone/ con todo lo necesario para
+  // correr el server en producción con `node server.js`. Imprescindible para
+  // el Dockerfile multi-stage (ver webapp/frontend/Dockerfile).
+  output: "standalone",
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "**" },
