@@ -8,9 +8,13 @@
 import Papa from "papaparse";
 
 import type {
+  ChirpsRow,
   DynamicWorldRow,
+  FirmsRow,
   GhslRow,
+  LstRow,
   MapBiomasRow,
+  No2Row,
   PoblacionRow,
   PoligonoDetalle,
   PoligonoFeature,
@@ -20,6 +24,7 @@ import type {
   ServicioRow,
   ViirsRow,
   VulnerabilidadRow,
+  WdpaRow,
 } from "./types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "";
@@ -150,6 +155,39 @@ export async function getGhsl(poligonoId?: string): Promise<GhslRow[]> {
 
 export async function getViirs(poligonoId?: string): Promise<ViirsRow[]> {
   const rows = await fetchCsvOptional<ViirsRow>("/data/viirs.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+// Capa ambiental (clima, aire, calor, fuegos, areas protegidas).
+// Espejo del server data con fetch en lugar de fs.
+
+export async function getChirps(poligonoId?: string): Promise<ChirpsRow[]> {
+  const rows = await fetchCsvOptional<ChirpsRow>("/data/chirps.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getNo2(poligonoId?: string): Promise<No2Row[]> {
+  const rows = await fetchCsvOptional<No2Row>("/data/no2.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getLst(poligonoId?: string): Promise<LstRow[]> {
+  const rows = await fetchCsvOptional<LstRow>("/data/lst.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getFirms(poligonoId?: string): Promise<FirmsRow[]> {
+  const rows = await fetchCsvOptional<FirmsRow>("/data/firms.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getWdpa(poligonoId?: string): Promise<WdpaRow[]> {
+  const rows = await fetchCsvOptional<WdpaRow>("/data/wdpa.csv");
   if (!poligonoId) return rows;
   return rows.filter((r) => r.poligono_id === poligonoId);
 }

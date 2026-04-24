@@ -14,9 +14,13 @@ import path from "node:path";
 import Papa from "papaparse";
 
 import type {
+  ChirpsRow,
   DynamicWorldRow,
+  FirmsRow,
   GhslRow,
+  LstRow,
   MapBiomasRow,
+  No2Row,
   PoblacionRow,
   PoligonoDetalle,
   PoligonoFeature,
@@ -26,6 +30,7 @@ import type {
   ServicioRow,
   ViirsRow,
   VulnerabilidadRow,
+  WdpaRow,
 } from "./types";
 
 async function readPublicFile(relativePath: string): Promise<string> {
@@ -149,6 +154,39 @@ export async function getGhsl(poligonoId?: string): Promise<GhslRow[]> {
 
 export async function getViirs(poligonoId?: string): Promise<ViirsRow[]> {
   const rows = await readStaticCsvOptional<ViirsRow>("/data/viirs.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+// Capa ambiental: clima, aire, calor, fuegos, areas protegidas.
+// Mismo patron degradado que el resto, devuelve [] si falta el CSV.
+
+export async function getChirps(poligonoId?: string): Promise<ChirpsRow[]> {
+  const rows = await readStaticCsvOptional<ChirpsRow>("/data/chirps.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getNo2(poligonoId?: string): Promise<No2Row[]> {
+  const rows = await readStaticCsvOptional<No2Row>("/data/no2.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getLst(poligonoId?: string): Promise<LstRow[]> {
+  const rows = await readStaticCsvOptional<LstRow>("/data/lst.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getFirms(poligonoId?: string): Promise<FirmsRow[]> {
+  const rows = await readStaticCsvOptional<FirmsRow>("/data/firms.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getWdpa(poligonoId?: string): Promise<WdpaRow[]> {
+  const rows = await readStaticCsvOptional<WdpaRow>("/data/wdpa.csv");
   if (!poligonoId) return rows;
   return rows.filter((r) => r.poligono_id === poligonoId);
 }

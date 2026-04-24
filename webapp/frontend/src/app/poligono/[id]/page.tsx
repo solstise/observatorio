@@ -4,20 +4,30 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AireGauge } from "@/components/AireGauge";
+import { AreaProtegidaNotice } from "@/components/AreaProtegidaNotice";
+import { ClimaChart } from "@/components/ClimaChart";
 import { Disclaimer } from "@/components/Disclaimer";
 import { DynamicWorldGauge } from "@/components/DynamicWorldGauge";
+import { FirmsBadge } from "@/components/FirmsBadge";
 import { HistoriaLargaChart } from "@/components/HistoriaLargaChart";
+import { IslaCalorBadge } from "@/components/IslaCalorBadge";
 import { SarDeltaBadge } from "@/components/SarDeltaBadge";
 import { ServiceTable } from "@/components/ServiceTable";
 import { TimelineChart } from "@/components/TimelineChart";
 import {
+  getChirps,
   getDynamicWorld,
+  getFirms,
   getGhsl,
+  getLst,
   getMapBiomas,
+  getNo2,
   getPoligonoDetalle,
   getPoligonos,
   getSentinel1,
   getViirs,
+  getWdpa,
 } from "@/lib/data.server";
 
 interface PageProps {
@@ -62,12 +72,28 @@ export default async function PoligonoPage({ params }: PageProps) {
   // Datasets satelitales complementarios. Los cargamos en paralelo y
   // degradamos graciosamente si alguno no existe (las funciones devuelven
   // [] ante errores de lectura, ver data.server.ts).
-  const [mapbiomas, ghsl, viirs, dynamicWorld, sentinel1] = await Promise.all([
+  const [
+    mapbiomas,
+    ghsl,
+    viirs,
+    dynamicWorld,
+    sentinel1,
+    chirps,
+    no2,
+    lst,
+    firms,
+    wdpa,
+  ] = await Promise.all([
     getMapBiomas(properties.id),
     getGhsl(properties.id),
     getViirs(properties.id),
     getDynamicWorld(properties.id),
     getSentinel1(properties.id),
+    getChirps(properties.id),
+    getNo2(properties.id),
+    getLst(properties.id),
+    getFirms(properties.id),
+    getWdpa(properties.id),
   ]);
 
   const poblacionUltima = [...poblacion].sort((a, b) => b.anio - a.anio)[0];
@@ -233,6 +259,33 @@ export default async function PoligonoPage({ params }: PageProps) {
             <div className="card">
               <SarDeltaBadge rows={sentinel1} />
             </div>
+          </div>
+        </section>
+
+        <section aria-labelledby="ambiental" className="mt-10">
+          <h2
+            id="ambiental"
+            className="mb-4 text-xl font-semibold text-primary"
+          >
+            Capa ambiental
+          </h2>
+          <AreaProtegidaNotice rows={wdpa} variant="banner" />
+          <div className="mt-3 grid gap-4 md:grid-cols-2">
+            <div className="card">
+              <IslaCalorBadge rows={lst} />
+            </div>
+            <div className="card">
+              <AireGauge rows={no2} />
+            </div>
+            <div className="card">
+              <FirmsBadge rows={firms} />
+            </div>
+            <div className="card">
+              <AreaProtegidaNotice rows={wdpa} variant="card" />
+            </div>
+          </div>
+          <div className="card mt-4">
+            <ClimaChart rows={chirps} />
           </div>
         </section>
 

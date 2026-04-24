@@ -144,3 +144,58 @@ export interface ViirsRow {
   viirs_mean: number;
   viirs_sum: number;
 }
+
+// CHIRPS (Climate Hazards InfraRed Precipitation with Station data).
+// Precipitacion mensual 0.05 grados, resamplada a totales anuales y
+// estacionales (verano oct-mar, invierno abr-sep). Valores en mm.
+export interface ChirpsRow {
+  poligono_id: string;
+  anio: number;
+  precip_mm_anual: number;
+  precip_mm_verano: number;
+  precip_mm_invierno: number;
+}
+
+// Sentinel-5P TROPOMI NO2 troposferico. Columna media en mol/m2 y
+// ratio relativo al promedio del bbox Posadas (>1 = peor que el
+// promedio local, <1 = mejor calidad de aire relativa).
+export interface No2Row {
+  poligono_id: string;
+  anio: number;
+  no2_mean_mol_m2: number;
+  no2_relativo_bbox: number;
+}
+
+// MODIS Land Surface Temperature (MOD11A2 / MYD11A2): temperatura de
+// superficie dia/noche promedio en verano e invierno, y delta de isla
+// de calor urbana contra el promedio del bbox Posadas. En grados C.
+export interface LstRow {
+  poligono_id: string;
+  anio: number;
+  lst_dia_verano_c: number;
+  lst_noche_verano_c: number;
+  lst_dia_invierno_c: number;
+  lst_noche_invierno_c: number;
+  isla_calor_c: number;
+}
+
+// FIRMS (Fire Information for Resource Management System, NASA):
+// focos de calor detectados por VIIRS / MODIS. n_focos es conteo
+// anual y pct_area_afectada es el porcentaje del poligono quemado.
+export interface FirmsRow {
+  poligono_id: string;
+  anio: number;
+  n_focos: number;
+  pct_area_afectada: number;
+}
+
+// WDPA (World Database on Protected Areas, UNEP-WCMC): interseccion
+// del poligono con areas protegidas. intersecta_ap puede venir como
+// boolean nativo o string "True"/"False" desde papaparse segun
+// configuracion. Se normaliza en el componente consumidor.
+export interface WdpaRow {
+  poligono_id: string;
+  intersecta_ap: boolean | string;
+  nombre_ap: string;
+  pct_area_protegida: number;
+}
