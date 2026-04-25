@@ -1,0 +1,116 @@
+{
+  "type": "FeatureCollection",
+  "name": "poligonos_baseline_rural_posadas",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rural_profundidad",
+        "nombre": "Reserva Profundidad",
+        "tipo": "reserva",
+        "descripcion": "Reserva Natural Provincial Profundidad al oeste de Posadas. Selva paranaense remanente, baja intervención humana. Usada como baseline rural vegetal.",
+        "fuente_poligono": "manual — coords sobre área del SIFAP/MISIONES",
+        "fecha_creacion_poligono": "2026-04-24",
+        "area_km2_estimada": 4.0,
+        "publicar_en_sitio": false,
+        "sensible": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-56.070, -27.440],
+            [-56.050, -27.440],
+            [-56.050, -27.420],
+            [-56.070, -27.420],
+            [-56.070, -27.440]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rural_sur_garupa",
+        "nombre": "Rural Sur Garupá",
+        "tipo": "pasturas",
+        "descripcion": "Zona rural al sur de Garupá. Pasturas mixtas con parches de arbolado. Fuera del ejido urbano.",
+        "fuente_poligono": "manual — imagen satelital",
+        "fecha_creacion_poligono": "2026-04-24",
+        "area_km2_estimada": 4.0,
+        "publicar_en_sitio": false,
+        "sensible": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-55.850, -27.520],
+            [-55.830, -27.520],
+            [-55.830, -27.500],
+            [-55.850, -27.500],
+            [-55.850, -27.520]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rural_candelaria_norte",
+        "nombre": "Rural Norte Candelaria",
+        "tipo": "pasturas",
+        "descripcion": "Zona rural al norte de Candelaria, cobertura agrícola y pasturas. Baseline rural complementario al este de Posadas.",
+        "fuente_poligono": "manual — imagen satelital",
+        "fecha_creacion_poligono": "2026-04-24",
+        "area_km2_estimada": 4.0,
+        "publicar_en_sitio": false,
+        "sensible": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-55.760, -27.470],
+            [-55.740, -27.470],
+            [-55.740, -27.450],
+            [-55.760, -27.450],
+            [-55.760, -27.470]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rural_cerro_cora",
+        "nombre": "Selva Cerro Corá",
+        "tipo": "selva_remanente",
+        "descripcion": "Área de selva remanente cerca de Cerro Corá. Cobertura boscosa densa, representativa de la selva paranaense.",
+        "fuente_poligono": "manual — imagen satelital",
+        "fecha_creacion_poligono": "2026-04-24",
+        "area_km2_estimada": 4.0,
+        "publicar_en_sitio": false,
+        "sensible": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-55.710, -27.510],
+            [-55.690, -27.510],
+            [-55.690, -27.490],
+            [-55.710, -27.490],
+            [-55.710, -27.510]
+          ]
+        ]
+      }
+    }
+  ]
+}

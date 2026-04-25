@@ -8,6 +8,7 @@
 import Papa from "papaparse";
 
 import type {
+  CalorMensualRow,
   ChirpsRow,
   DynamicWorldRow,
   FirmsRow,
@@ -22,6 +23,8 @@ import type {
   SerieTemporalRow,
   Sentinel1Row,
   ServicioRow,
+  UhiEstacionalRow,
+  UhiMensualRow,
   ViirsRow,
   VulnerabilidadRow,
   WdpaRow,
@@ -219,4 +222,34 @@ export async function getUpdatedAt(): Promise<string> {
   } catch {
     return "";
   }
+}
+
+// ---------------------------------------------------------------------------
+// Capa de calor urbano (Landsat LST + UHI)
+// ---------------------------------------------------------------------------
+
+export async function getCalorMensual(
+  poligonoId?: string,
+): Promise<CalorMensualRow[]> {
+  const rows = await fetchCsvOptional<CalorMensualRow>("/data/calor/lst_mensual.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getUhiMensual(
+  poligonoId?: string,
+): Promise<UhiMensualRow[]> {
+  const rows = await fetchCsvOptional<UhiMensualRow>("/data/calor/uhi_mensual.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getUhiEstacional(
+  poligonoId?: string,
+): Promise<UhiEstacionalRow[]> {
+  const rows = await fetchCsvOptional<UhiEstacionalRow>(
+    "/data/calor/uhi_estacional.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
 }

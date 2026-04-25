@@ -2,7 +2,7 @@
 
 proyecto:
   nombre: "Observatorio Urbano Posadas"
-  version: "0.1.0"
+  version: "0.3.0"
   autor: "[completar en .env o aquí]"
 
 geografia:

@@ -199,3 +199,50 @@ export interface WdpaRow {
   nombre_ap: string;
   pct_area_protegida: number;
 }
+
+// ---------------------------------------------------------------------------
+// Capa de calor urbano (Landsat LST + UHI)
+// ---------------------------------------------------------------------------
+
+// Estadísticas mensuales de LST por polígono (urbanos + rurales baseline).
+// Si pct_validos < 30, los valores numéricos vienen como null (CSV vacío).
+export interface CalorMensualRow {
+  poligono_id: string;
+  tipo_poligono: "urbano" | "rural";
+  anio: number;
+  mes: number;
+  pct_validos: number;
+  count_validos: number;
+  lst_mean: number | null;
+  lst_median: number | null;
+  lst_std: number | null;
+  lst_p10: number | null;
+  lst_p90: number | null;
+  lst_max: number | null;
+}
+
+// UHI mensual por polígono urbano: 3 métricas + stats del histórico.
+// uhi_anomalia es null cuando no hay años anteriores del mismo mes.
+export interface UhiMensualRow {
+  poligono_id: string;
+  anio: number;
+  mes: number;
+  lst_mean: number;
+  uhi_vs_rural: number;
+  uhi_vs_ciudad: number;
+  uhi_anomalia: number | null;
+  lst_rural_baseline: number;
+  n_observaciones_historico: number;
+  std_historico: number | null;
+}
+
+// Agregación estacional (verano DJF, otoño MAM, invierno JJA, primavera SON).
+export interface UhiEstacionalRow {
+  poligono_id: string;
+  anio: number;
+  estacion: "verano" | "otono" | "invierno" | "primavera";
+  uhi_vs_rural_mean: number;
+  uhi_vs_ciudad_mean: number;
+  lst_mean: number;
+  n_meses: number;
+}

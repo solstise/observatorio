@@ -393,6 +393,10 @@ def cli(
         ("data/processed/ambiental/lst_anual.csv", "lst.csv"),
         ("data/processed/ambiental/firms_anual.csv", "firms.csv"),
         ("data/processed/ambiental/wdpa_intersection.csv", "wdpa.csv"),
+        # Capa calor (script 49)
+        ("data/processed/calor/lst_mensual_por_poligono.csv", "calor/lst_mensual.csv"),
+        ("data/processed/calor/uhi_por_poligono_mensual.csv", "calor/uhi_mensual.csv"),
+        ("data/processed/calor/uhi_estacional.csv", "calor/uhi_estacional.csv"),
     ]
     for src_rel, dest_name in extras:
         src = resolve_path(src_rel)
