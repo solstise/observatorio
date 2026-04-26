@@ -74,6 +74,7 @@ except ImportError:  # pragma: no cover
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -86,7 +87,6 @@ while _p != _p.parent:
 from scripts.utils.config import load_settings
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_parent, resolve_path
-
 
 # ---------------------------------------------------------------------------
 # Mapeos OSM → categoría
@@ -172,32 +172,30 @@ def _cargar_oficial_misiones(
     return gdf
 
 
-def _filtrar_osm(
-    gdf_osm: "gpd.GeoDataFrame", tipos: set
-) -> "gpd.GeoDataFrame":
+def _filtrar_osm(gdf_osm: "gpd.GeoDataFrame", tipos: set) -> "gpd.GeoDataFrame":
     """Filtra el GeoDataFrame de servicios OSM por un set de tags ``key=value``."""
     if gdf_osm is None or gdf_osm.empty:
         return gdf_osm
+
     # ``tipo`` viene como ``key=value`` o concatenado por comas.
     def _matches(tipo_str: str) -> bool:
         if not isinstance(tipo_str, str):
             return False
         partes = [p.strip() for p in tipo_str.split(",") if p.strip()]
         return any(p in tipos for p in partes)
+
     mask = gdf_osm["tipo"].apply(_matches)
     return gdf_osm[mask].copy()
 
 
-def _cargar_osm(
-    osm_path: Path, crs_metrico: str
-) -> Optional["gpd.GeoDataFrame"]:
+def _cargar_osm(osm_path: Path, crs_metrico: str) -> Optional["gpd.GeoDataFrame"]:
     """Carga el GeoJSON de servicios OSM y reproyecta a CRS métrico."""
     if not osm_path.exists():
         logger.warning(f"OSM no encontrado en {osm_path}.")
         return None
     gdf = gpd.read_file(osm_path)
     if "tipo" not in gdf.columns:
-        logger.warning(f"GeoJSON OSM sin columna 'tipo'.")
+        logger.warning("GeoJSON OSM sin columna 'tipo'.")
         return None
     return gdf.to_crs(crs_metrico)
 
@@ -235,20 +233,13 @@ def _procesar_poligono(
     centroide = geom.centroid
     area_km2 = float(geom.area / 1e6)
 
-    dist_caps, n_caps = _distancia_minima_y_conteo(
-        centroide, geom, capas["caps"]
-    )
-    dist_esc, n_esc = _distancia_minima_y_conteo(
-        centroide, geom, capas["escuela"]
-    )
-    dist_hosp, n_hosp = _distancia_minima_y_conteo(
-        centroide, geom, capas["hospital"]
-    )
-    dist_tra, n_tra = _distancia_minima_y_conteo(
-        centroide, geom, capas["transporte"]
-    )
+    dist_caps, n_caps = _distancia_minima_y_conteo(centroide, geom, capas["caps"])
+    dist_esc, n_esc = _distancia_minima_y_conteo(centroide, geom, capas["escuela"])
+    dist_hosp, n_hosp = _distancia_minima_y_conteo(centroide, geom, capas["hospital"])
+    dist_tra, n_tra = _distancia_minima_y_conteo(centroide, geom, capas["transporte"])
 
-    densidad = lambda n: round(n / area_km2, 3) if area_km2 > 0 else 0.0
+    def densidad(n):
+        return round(n / area_km2, 3) if area_km2 > 0 else 0.0
 
     return {
         "poligono_id": pid,

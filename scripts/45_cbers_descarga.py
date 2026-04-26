@@ -90,6 +90,7 @@ from __future__ import annotations
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -100,11 +101,10 @@ while _p != _p.parent:
 # --- fin del parche ---------------------------------------------------------
 
 import json
-import os
 import sys
 import time
 import urllib.request
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -115,7 +115,6 @@ from loguru import logger
 from scripts.utils.io_geo import cache_check
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, resolve_path
-
 
 SCRIPT_VERSION = "0.1.0"
 
@@ -207,9 +206,7 @@ def _s3_client():
     from botocore import UNSIGNED
     from botocore.config import Config
 
-    return boto3.client(
-        "s3", config=Config(signature_version=UNSIGNED), region_name=S3_REGION
-    )
+    return boto3.client("s3", config=Config(signature_version=UNSIGNED), region_name=S3_REGION)
 
 
 def _listar_escenas_s3(path: str, row: str) -> List[str]:
@@ -226,9 +223,7 @@ def _listar_escenas_s3(path: str, row: str) -> List[str]:
     s3 = _s3_client()
     prefix = f"CBERS4A/WPM/{path}/{row}/"
     try:
-        resp = s3.list_objects_v2(
-            Bucket=S3_BUCKET, Prefix=prefix, Delimiter="/", MaxKeys=200
-        )
+        resp = s3.list_objects_v2(Bucket=S3_BUCKET, Prefix=prefix, Delimiter="/", MaxKeys=200)
     except Exception as exc:  # noqa: BLE001
         logger.error(f"Falló listObjectsV2 sobre {prefix}: {exc}")
         return []
@@ -246,9 +241,7 @@ def _bbox_utm() -> Tuple[float, float, float, float]:
     """Devuelve (min_x, min_y, max_x, max_y) de POSADAS_BBOX_4326 en UTM 21S."""
     import pyproj
 
-    transformer = pyproj.Transformer.from_crs(
-        "EPSG:4326", CRS_OBJETIVO, always_xy=True
-    )
+    transformer = pyproj.Transformer.from_crs("EPSG:4326", CRS_OBJETIVO, always_xy=True)
     oeste, sur, este, norte = POSADAS_BBOX_4326
     xs, ys = [], []
     for lon, lat in [
@@ -398,9 +391,7 @@ def descubrir_candidatos(
     # Filtrar por nubes si tenemos info
     pre_filtro = len(candidatos)
     candidatos = [
-        c
-        for c in candidatos
-        if c.cloud_cover is None or c.cloud_cover <= cloud_threshold
+        c for c in candidatos if c.cloud_cover is None or c.cloud_cover <= cloud_threshold
     ]
     if pre_filtro != len(candidatos):
         logger.info(
@@ -571,9 +562,7 @@ def pansharpen_brovey(
     # Stretch p2-p98 por banda → uint8
     out = np.zeros((3, h_pan, w_pan), dtype="uint8")
     stats: Dict[str, Any] = {}
-    for i, (banda, arr) in enumerate(
-        [("red", r_pan), ("green", g_pan), ("blue", b_pan)]
-    ):
+    for i, (banda, arr) in enumerate([("red", r_pan), ("green", g_pan), ("blue", b_pan)]):
         valid = arr[(arr > 0) & np.isfinite(arr)]
         if valid.size == 0:
             stats[f"{banda}_p2"] = 0.0
@@ -767,14 +756,11 @@ def main(
     # Idempotencia: si ya existe el pansharpen del mes corriente, salimos
     pansharpen_path = out / f"posadas_{elegida.yyyymm}_pansharpen.tif"
     if cache_check(pansharpen_path) and not force:
-        logger.info(
-            f"Ya existe {pansharpen_path.name} → skip "
-            "(usá --force para sobreescribir)."
-        )
+        logger.info(f"Ya existe {pansharpen_path.name} → skip " "(usá --force para sobreescribir).")
         sys.exit(0)
 
     # Descargar bandas (recortadas)
-    logger.info(f"Descargando 5 bandas recortadas al bbox de Posadas...")
+    logger.info("Descargando 5 bandas recortadas al bbox de Posadas...")
     paths: Dict[str, Path] = {}
     for banda in ["pan", "red", "green", "blue", "nir"]:
         dest = out / f"cbers4a_{elegida.fecha}_{banda}.tif"
@@ -806,11 +792,8 @@ def main(
     logger.info("=" * 60)
     logger.info(f"  Pansharpen: {pansharpen_path}")
     logger.info(f"  Metadata:   {metadata_path}")
-    logger.info(f"  Resolución: 2 m/pixel (PAN), 8 m fuente MS")
-    logger.info(
-        f"  Próximo paso: python scripts/45b_cbers_recortar.py "
-        f"(recortar a 43 polígonos)"
-    )
+    logger.info("  Resolución: 2 m/pixel (PAN), 8 m fuente MS")
+    logger.info("  Próximo paso: python scripts/45b_cbers_recortar.py " "(recortar a 43 polígonos)")
     sys.exit(0)
 
 

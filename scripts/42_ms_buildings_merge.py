@@ -55,14 +55,18 @@ from __future__ import annotations
 
 import csv
 import gzip
-import io
 import json
-import shutil
 import sys
+
+# --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------------------
+# Aseguramos que el root del proyecto esté en sys.path para que los imports
+# `from scripts.utils.X` funcionen al correr este archivo como script.
+import sys as _sys
 import traceback
 import urllib.request
 from datetime import datetime
 from pathlib import Path
+from pathlib import Path as _Path
 from typing import Iterable, List, Optional, Sequence, Tuple
 
 import click
@@ -70,11 +74,6 @@ import mercantile
 from loguru import logger
 from tqdm import tqdm
 
-# --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------------------
-# Aseguramos que el root del proyecto esté en sys.path para que los imports
-# `from scripts.utils.X` funcionen al correr este archivo como script.
-import sys as _sys
-from pathlib import Path as _Path
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -95,14 +94,12 @@ from scripts.utils.io_geo import (
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, ensure_parent, resolve_path
 
-
 SCRIPT_VERSION = "0.2.0"
 
 # Endpoint oficial del Global ML Building Footprints — mantenido, actualizado 2025.
 # El CSV index mapea RegionName + QuadKey → URL directo de shard .csv.gz.
 MS_DATASET_LINKS_URL = (
-    "https://minedbuildings.z5.web.core.windows.net/"
-    "global-buildings/dataset-links.csv"
+    "https://minedbuildings.z5.web.core.windows.net/" "global-buildings/dataset-links.csv"
 )
 
 # Zoom del esquema de quadkeys usado por MS para particionar los shards.
@@ -133,9 +130,7 @@ MS_COUNTRIES_SUDAMERICA = (
 # ---------------------------------------------------------------------------
 
 
-def _parsear_bbox(
-    bbox_cli: Optional[str], settings: Settings
-) -> Tuple[float, float, float, float]:
+def _parsear_bbox(bbox_cli: Optional[str], settings: Settings) -> Tuple[float, float, float, float]:
     """Parsea bbox desde CLI o settings. Devuelve (oeste, sur, este, norte).
 
     Args:
@@ -187,14 +182,17 @@ def _descargar_stream(url: str, destino: Path, desc: Optional[str] = None) -> No
     req = urllib.request.Request(url, headers={"User-Agent": "observatorio-posadas/0.2"})
     with urllib.request.urlopen(req, timeout=600) as resp:
         total = int(resp.headers.get("Content-Length", 0) or 0)
-        with destino.open("wb") as fh, tqdm(
-            total=total,
-            unit="B",
-            unit_scale=True,
-            unit_divisor=1024,
-            desc=desc or f"Descargando {destino.name}",
-            leave=False,
-        ) as pbar:
+        with (
+            destino.open("wb") as fh,
+            tqdm(
+                total=total,
+                unit="B",
+                unit_scale=True,
+                unit_divisor=1024,
+                desc=desc or f"Descargando {destino.name}",
+                leave=False,
+            ) as pbar,
+        ):
             while True:
                 chunk = resp.read(_DOWNLOAD_CHUNK_BYTES)
                 if not chunk:
@@ -317,9 +315,7 @@ def _procesar_shard_csvgz(
             linea = first_stripped
             while linea is not None:
                 n_total += 1
-                match, feat_json = _linea_a_feature_si_intersecta(
-                    linea, oeste, sur, este, norte
-                )
+                match, feat_json = _linea_a_feature_si_intersecta(linea, oeste, sur, este, norte)
                 if match and feat_json:
                     if not primero_ref[0]:
                         out_fh.write(",")
@@ -348,9 +344,7 @@ def _procesar_shard_csvgz(
                 linea = row.get(geom_col, "")
                 if not linea:
                     continue
-                match, feat_json = _linea_a_feature_si_intersecta(
-                    linea, oeste, sur, este, norte
-                )
+                match, feat_json = _linea_a_feature_si_intersecta(linea, oeste, sur, este, norte)
                 if match and feat_json:
                     if not primero_ref[0]:
                         out_fh.write(",")
@@ -475,9 +469,7 @@ def _descargar_y_filtrar_shards(
                 continue
             total_seen += n_seen
             total_in_bbox += n_match
-            logger.info(
-                f"Shard {country}/{qk}: {n_seen:,} features leídas, {n_match:,} en bbox"
-            )
+            logger.info(f"Shard {country}/{qk}: {n_seen:,} features leídas, {n_match:,} en bbox")
             if not keep_shards and shard_path.exists():
                 shard_path.unlink()
 
@@ -618,7 +610,6 @@ def _merge_por_iou(
             building_id, source, lat, lon, area_m2, confidence_google, geometry_wkt, geometry.
     """
     import geopandas as gpd
-    import pandas as pd
 
     logger.info("Reproyectando a EPSG:32721 para cálculos métricos...")
     g_utm = reproject_to_utm(gdf_google.copy(), epsg=EPSG_UTM_POSADAS)
@@ -632,9 +623,7 @@ def _merge_por_iou(
     g_utm["area_m2"] = g_utm.geometry.area
     m_utm["area_m2"] = m_utm.geometry.area
 
-    logger.info(
-        f"Spatial join (intersects) — Google={len(g_utm):,} × MS={len(m_utm):,}"
-    )
+    logger.info(f"Spatial join (intersects) — Google={len(g_utm):,} × MS={len(m_utm):,}")
     # Spatial index-accelerated join. Devuelve 1 fila por par intersectante.
     pares = gpd.sjoin(
         g_utm[["__idx_g", "geometry"]],
@@ -679,9 +668,7 @@ def _merge_por_iou(
     pares_match = pares_match.sort_values("iou", ascending=False)
     pares_match = pares_match.drop_duplicates(subset="__idx_g", keep="first")
     pares_match = pares_match.drop_duplicates(subset="__idx_m", keep="first")
-    logger.info(
-        f"Matches 1:1 resueltos (greedy por IoU): {len(pares_match):,}"
-    )
+    logger.info(f"Matches 1:1 resueltos (greedy por IoU): {len(pares_match):,}")
 
     idx_g_matched = set(pares_match["__idx_g"].tolist())
     idx_m_matched = set(pares_match["__idx_m"].tolist())
@@ -691,9 +678,7 @@ def _merge_por_iou(
 
     # 1) Google+MS matched ("both"). Ganador = mayor confidence, desempate = mayor área.
     logger.info("Armando registros para matches 'both'...")
-    for _, row in tqdm(
-        pares_match.iterrows(), total=len(pares_match), desc="matches both"
-    ):
+    for _, row in tqdm(pares_match.iterrows(), total=len(pares_match), desc="matches both"):
         gi = int(row["__idx_g"])
         mi = int(row["__idx_m"])
         g_row = g_utm.iloc[gi]
@@ -730,9 +715,7 @@ def _merge_por_iou(
     # 2) Google solo.
     logger.info("Armando registros para 'google' únicos...")
     g_unicos = g_utm[~g_utm["__idx_g"].isin(idx_g_matched)]
-    for _, g_row in tqdm(
-        g_unicos.iterrows(), total=len(g_unicos), desc="google únicos"
-    ):
+    for _, g_row in tqdm(g_unicos.iterrows(), total=len(g_unicos), desc="google únicos"):
         conf_g = g_row.get("confidence_google")
         conf_g_val = float(conf_g) if conf_g is not None and not _es_nan(conf_g) else None
         filas.append(
@@ -747,9 +730,7 @@ def _merge_por_iou(
     # 3) Microsoft solo.
     logger.info("Armando registros para 'microsoft' únicos...")
     m_unicos = m_utm[~m_utm["__idx_m"].isin(idx_m_matched)]
-    for _, m_row in tqdm(
-        m_unicos.iterrows(), total=len(m_unicos), desc="microsoft únicos"
-    ):
+    for _, m_row in tqdm(m_unicos.iterrows(), total=len(m_unicos), desc="microsoft únicos"):
         filas.append(
             {
                 "source": "microsoft",
@@ -820,7 +801,6 @@ def _escribir_outputs(
     Returns:
         Tupla (geojson_path, csv_path, resumen_path).
     """
-    import pandas as pd
 
     ensure_dir(out_dir)
     geojson_path = out_dir / "posadas_merged_buildings.geojson"
@@ -985,9 +965,7 @@ def main(
 
     # --- Idempotencia global (si todo el merge ya existe) -------------------
     if cache_check(merged_geojson) and not force:
-        logger.info(
-            f"El merge ya existe en {merged_geojson}. Skip (usá --force para rehacer)."
-        )
+        logger.info(f"El merge ya existe en {merged_geojson}. Skip (usá --force para rehacer).")
         md5 = hash_file(merged_geojson)
         logger.info(f"MD5 merge existente: {md5}")
         sys.exit(0)
@@ -1004,9 +982,7 @@ def main(
 
         def _marcar_parcial() -> None:
             ensure_parent(marker)
-            marker.write_text(
-                f"Interrupción: {datetime.now().isoformat()}", encoding="utf-8"
-            )
+            marker.write_text(f"Interrupción: {datetime.now().isoformat()}", encoding="utf-8")
 
         state.on_interrupt(_marcar_parcial)
 
@@ -1021,9 +997,7 @@ def main(
         # --- Paso 2: calcular quadkeys del bbox y filtrar el CSV index -----
         quadkeys = _quadkeys_para_bbox(bbox, zoom=MS_QUADKEY_ZOOM)
         logger.info(f"Quadkeys @ z={MS_QUADKEY_ZOOM} que cubren el bbox: {quadkeys}")
-        shards = _resolver_shards_mss(
-            dataset_links_csv, quadkeys, countries=countries
-        )
+        shards = _resolver_shards_mss(dataset_links_csv, quadkeys, countries=countries)
         logger.info(f"Shards MS a descargar: {len(shards)}")
         for s in shards:
             logger.info(f"  - {s[0]} / quadkey={s[1]} / size={s[3]}")
@@ -1034,12 +1008,10 @@ def main(
 
         # --- Paso 3: descargar shards y filtrar por bbox -------------------
         if cache_check(ms_geojson) and not force:
-            logger.info(f"GeoJSON MS recortado ya existe en caché. Skip filtrado.")
+            logger.info("GeoJSON MS recortado ya existe en caché. Skip filtrado.")
         else:
             try:
-                n_ms = _descargar_y_filtrar_shards(
-                    shards, bbox, ms_shards, ms_geojson, keep_shards
-                )
+                n_ms = _descargar_y_filtrar_shards(shards, bbox, ms_shards, ms_geojson, keep_shards)
             except Exception as exc:  # noqa: BLE001
                 logger.error(f"Falló descarga/filtrado de shards MS: {exc}")
                 logger.debug(traceback.format_exc())
@@ -1060,9 +1032,7 @@ def main(
 
         # --- Paso 5: merge espacial con dedup IoU --------------------------
         try:
-            gdf_merge, n_both, n_g_unicos, n_m_unicos = _merge_por_iou(
-                gdf_g, gdf_m, iou_threshold
-            )
+            gdf_merge, n_both, n_g_unicos, n_m_unicos = _merge_por_iou(gdf_g, gdf_m, iou_threshold)
         except Exception as exc:  # noqa: BLE001
             logger.error(f"Falló merge IoU: {exc}")
             logger.debug(traceback.format_exc())
@@ -1078,8 +1048,7 @@ def main(
             "fuente_microsoft": MS_DATASET_LINKS_URL,
             "ms_quadkeys": quadkeys,
             "ms_shards": [
-                {"country": c, "quadkey": q, "url": u, "size": s}
-                for (c, q, u, s) in shards
+                {"country": c, "quadkey": q, "url": u, "size": s} for (c, q, u, s) in shards
             ],
             "total_google": n_google,
             "total_microsoft": n_microsoft,
@@ -1095,9 +1064,7 @@ def main(
         }
 
         try:
-            geojson_path, csv_path, resumen_path = _escribir_outputs(
-                gdf_merge, out_dir, resumen
-            )
+            geojson_path, csv_path, resumen_path = _escribir_outputs(gdf_merge, out_dir, resumen)
         except Exception as exc:  # noqa: BLE001
             logger.error(f"Falló escritura de outputs: {exc}")
             logger.debug(traceback.format_exc())

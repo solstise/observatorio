@@ -23,20 +23,21 @@ from __future__ import annotations
 
 import json
 import sys
+
+# --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------------------
+# Aseguramos que el root del proyecto esté en sys.path para que los imports
+# `from scripts.utils.X` funcionen al correr este archivo como script.
+import sys as _sys
 import traceback
 from datetime import datetime
 from pathlib import Path
+from pathlib import Path as _Path
 from typing import Dict, List, Optional
 
 import click
 from loguru import logger
 from tqdm import tqdm
 
-# --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------------------
-# Aseguramos que el root del proyecto esté en sys.path para que los imports
-# `from scripts.utils.X` funcionen al correr este archivo como script.
-import sys as _sys
-from pathlib import Path as _Path
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -50,7 +51,6 @@ from scripts.utils.interrupts import graceful_interrupt
 from scripts.utils.io_geo import hash_file, load_geojson
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, resolve_path
-
 
 SCRIPT_VERSION = "0.1.0"
 
@@ -78,11 +78,11 @@ def _recortar_uno(
     Returns:
         Dict con metadata del recorte, o None si no hubo intersección.
     """
+    import pyproj
     import rasterio
     from rasterio.mask import mask
     from shapely.geometry import shape
     from shapely.ops import transform as shp_transform
-    import pyproj
 
     geom = shape(geom_geojson)
 
@@ -103,9 +103,7 @@ def _recortar_uno(
             clipped, transform = mask(src, [geom.__geo_interface__], crop=True, filled=True)
         except ValueError as exc:
             # Puede levantar "Input shapes do not overlap raster" si no hay intersección.
-            logger.warning(
-                f"[{poligono_id}] Sin intersección con el raster: {exc}"
-            )
+            logger.warning(f"[{poligono_id}] Sin intersección con el raster: {exc}")
             return None
 
         meta = src.meta.copy()
@@ -209,9 +207,7 @@ def main(
 
         with rasterio.open(raster_path) as src:
             raster_crs = str(src.crs)
-            logger.info(
-                f"Raster CRS: {raster_crs} | shape={src.shape} | bounds={src.bounds}"
-            )
+            logger.info(f"Raster CRS: {raster_crs} | shape={src.shape} | bounds={src.bounds}")
     except Exception as exc:  # noqa: BLE001
         logger.error(f"No pude abrir el raster: {exc}")
         sys.exit(3)
@@ -259,9 +255,7 @@ def main(
                     continue
 
                 if info is None:
-                    resumen.append(
-                        {"poligono_id": poligono_id, "status": "sin_interseccion"}
-                    )
+                    resumen.append({"poligono_id": poligono_id, "status": "sin_interseccion"})
                 else:
                     try:
                         md5 = hash_file(destino)

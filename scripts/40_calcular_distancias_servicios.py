@@ -40,7 +40,6 @@ Uso
 
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -62,6 +61,7 @@ except ImportError:  # pragma: no cover
 # `from scripts.utils.X` funcionen al correr este archivo como script.
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():

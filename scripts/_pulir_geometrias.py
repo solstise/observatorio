@@ -9,11 +9,11 @@
 
 Backup automático en config/poligonos.geojson.bak.YYYYMMDD-HHMMSS.
 """
+
 from __future__ import annotations
 
 import json
 import shutil
-import time
 from datetime import datetime
 from pathlib import Path
 
@@ -21,7 +21,6 @@ import geopandas as gpd
 import requests
 from shapely.geometry import shape
 from shapely.ops import unary_union
-
 
 SRC = Path("config/poligonos.geojson")
 RATIO_DESCARTE = 0.20  # parte secundaria < 20% del total → descartar
@@ -109,12 +108,15 @@ def main() -> None:
             else:
                 pid = g.at[i, "id"]
                 area_descartada = p.area * 111 * 111  # rough km²
-                print(f"  [{pid}] descartar fragmento {ratio:.2%} ({area_descartada:.3f} km² aprox)")
+                print(
+                    f"  [{pid}] descartar fragmento {ratio:.2%} ({area_descartada:.3f} km² aprox)"
+                )
                 n_simplificados += 1
         if len(partes_a_mantener) == 1:
             g.at[i, "geometry"] = partes_a_mantener[0]
         else:
             from shapely.geometry import MultiPolygon
+
             g.at[i, "geometry"] = MultiPolygon(partes_a_mantener)
 
     print(f"Fragmentos descartados: {n_simplificados}")

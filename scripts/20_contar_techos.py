@@ -67,7 +67,6 @@ import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
 
 import click
 import geopandas as gpd
@@ -75,7 +74,6 @@ import numpy as np
 import pandas as pd
 import rasterio
 from rasterio.windows import Window
-from shapely.geometry import Point
 from tqdm import tqdm
 
 # --- Integración con utils del proyecto (si existen) -------------------------
@@ -88,7 +86,9 @@ except Exception:  # pragma: no cover - fallback cuando utils todavía no existe
 
         def get_logger(name: str) -> logging.Logger:
             return _setup(name) if callable(_setup) else logging.getLogger(name)
+
     except Exception:
+
         def get_logger(name: str) -> logging.Logger:
             logging.basicConfig(
                 level=logging.INFO,
@@ -96,9 +96,11 @@ except Exception:  # pragma: no cover - fallback cuando utils todavía no existe
             )
             return logging.getLogger(name)
 
+
 try:
     from scripts.utils.config import load_settings  # type: ignore
 except Exception:  # pragma: no cover
+
     def load_settings():  # type: ignore
         return None
 
@@ -175,9 +177,7 @@ def _cargar_poligonos(path: Path) -> gpd.GeoDataFrame:
     else:
         gdf = gdf.to_crs(epsg=4326)
     if "id" not in gdf.columns:
-        raise ValueError(
-            "config/poligonos.geojson debe tener property 'id' en cada feature"
-        )
+        raise ValueError("config/poligonos.geojson debe tener property 'id' en cada feature")
     return gdf
 
 
@@ -195,17 +195,14 @@ def _cargar_buildings(path: Path, confidence_min: float) -> gpd.GeoDataFrame:
             col_conf = cand
             break
     if col_conf is None:
-        logger.warning(
-            "No se encontró columna de confianza en buildings; no se filtra por score"
-        )
+        logger.warning("No se encontró columna de confianza en buildings; no se filtra por score")
         gdf["confidence"] = np.nan
         col_conf = "confidence"
     else:
         n_antes = len(gdf)
         gdf = gdf[gdf[col_conf].fillna(0) >= confidence_min].copy()
         logger.info(
-            f"Filtro confianza >= {confidence_min:.2f}: "
-            f"{n_antes} -> {len(gdf)} edificios"
+            f"Filtro confianza >= {confidence_min:.2f}: " f"{n_antes} -> {len(gdf)} edificios"
         )
 
     # Aseguramos un ID estable.
@@ -231,9 +228,7 @@ def _cargar_buildings(path: Path, confidence_min: float) -> gpd.GeoDataFrame:
     return gdf
 
 
-def _filtrar_edificios_en_poligono(
-    buildings: gpd.GeoDataFrame, poligono_geom
-) -> gpd.GeoDataFrame:
+def _filtrar_edificios_en_poligono(buildings: gpd.GeoDataFrame, poligono_geom) -> gpd.GeoDataFrame:
     """Devuelve los edificios cuyo centroide cae dentro del polígono."""
     centroides = buildings.geometry.centroid
     mascara = centroides.within(poligono_geom)
@@ -348,9 +343,7 @@ def _procesar_poligono_worker(args: dict) -> list[dict]:
     # Decisión: para cada edificio, buscar primera fecha con NDBI>thr y NDVI<thr,
     # aplicando monotonicidad creciente.
     for e_idx, edif in enumerate(edificios):
-        detectado_por_fecha = (
-            (ndbi_mat[:, e_idx] > ndbi_thr) & (ndvi_mat[:, e_idx] < ndvi_thr)
-        )
+        detectado_por_fecha = (ndbi_mat[:, e_idx] > ndbi_thr) & (ndvi_mat[:, e_idx] < ndvi_thr)
         # Monotonicidad: cualquier True propaga hacia adelante.
         detectado_mono = np.maximum.accumulate(detectado_por_fecha.astype(np.int8)).astype(bool)
 
@@ -365,12 +358,16 @@ def _procesar_poligono_worker(args: dict) -> list[dict]:
             else:
                 fecha_aparicion = _yyyymm_a_iso(yyyymm)
 
-        ndbi_max_val = float(np.nanmax(ndbi_mat[:, e_idx])) if np.any(
-            np.isfinite(ndbi_mat[:, e_idx])
-        ) else float("nan")
-        ndvi_min_val = float(np.nanmin(ndvi_mat[:, e_idx])) if np.any(
-            np.isfinite(ndvi_mat[:, e_idx])
-        ) else float("nan")
+        ndbi_max_val = (
+            float(np.nanmax(ndbi_mat[:, e_idx]))
+            if np.any(np.isfinite(ndbi_mat[:, e_idx]))
+            else float("nan")
+        )
+        ndvi_min_val = (
+            float(np.nanmin(ndvi_mat[:, e_idx]))
+            if np.any(np.isfinite(ndvi_mat[:, e_idx]))
+            else float("nan")
+        )
 
         registros.append(
             {
@@ -411,9 +408,7 @@ def _construir_serie_temporal(
             umbral_iso = fecha_iso
             mask_pre = subset["fecha_aparicion"] == FECHA_PRE_2018
             mask_desc = subset["fecha_aparicion"] == FECHA_DESCONOCIDA
-            mask_fecha = (~mask_pre) & (~mask_desc) & (
-                subset["fecha_aparicion"] <= umbral_iso
-            )
+            mask_fecha = (~mask_pre) & (~mask_desc) & (subset["fecha_aparicion"] <= umbral_iso)
             n_estimado = int(mask_pre.sum() + mask_fecha.sum())
             n_min = int(math.floor(n_estimado * (1 - BANDA_ERROR_PCT)))
             n_max = int(math.ceil(n_estimado * (1 + BANDA_ERROR_PCT)))
@@ -534,9 +529,7 @@ def cli(
     logger.info(f"  ndvi_threshold  = {ndvi_threshold:.3f}")
     logger.info(f"  confidence_min  = {confidence_min:.2f}")
     logger.info(f"  workers         = {workers or 'auto'}")
-    logger.info(
-        "Honestidad: precisión ~80-85%% según literatura, aplicamos banda ±15%% al conteo."
-    )
+    logger.info("Honestidad: precisión ~80-85%% según literatura, aplicamos banda ±15%% al conteo.")
 
     output_dir.mkdir(parents=True, exist_ok=True)
     out_edificios = output_dir / "edificios_con_fecha.csv"
@@ -551,14 +544,11 @@ def cli(
             edificios_df = pd.read_csv(out_edificios)
             fechas_por_pol_cache: dict[str, list[str]] = {}
             for pol_id in edificios_df["poligono_id"].unique():
-                fechas_por_pol_cache[pol_id] = _listar_fechas_disponibles(
-                    sentinel_dir, pol_id
-                )
+                fechas_por_pol_cache[pol_id] = _listar_fechas_disponibles(sentinel_dir, pol_id)
             serie_df = _construir_serie_temporal(edificios_df, fechas_por_pol_cache)
             serie_df.to_csv(out_serie, index=False, encoding="utf-8")
             logger.info(
-                f"Serie temporal regenerada desde cache: {len(serie_df)} filas "
-                f"-> {out_serie}"
+                f"Serie temporal regenerada desde cache: {len(serie_df)} filas " f"-> {out_serie}"
             )
             return
         except Exception as exc:  # noqa: BLE001
@@ -569,6 +559,7 @@ def cli(
     # el CSV — hacemos retry + truncate como fallback para no abortar.
     if out_edificios.exists():
         import time as _time
+
         for _intento in range(3):
             try:
                 out_edificios.unlink()
@@ -579,9 +570,7 @@ def cli(
             # Truncate in-place si unlink seguía fallando.
             with out_edificios.open("w", encoding="utf-8") as _fh:
                 _fh.truncate(0)
-            logger.warning(
-                f"No pude hacer unlink de {out_edificios}, lo vacié con truncate."
-            )
+            logger.warning(f"No pude hacer unlink de {out_edificios}, lo vacié con truncate.")
 
     # --- Cargar polígonos y edificios ---
     try:
@@ -612,9 +601,7 @@ def cli(
                 "lat": float(r["lat"]),
                 "lon": float(r["lon"]),
                 "area_m2": float(r.get("area_m2", 0.0) or 0.0),
-                "confianza_open_buildings": float(
-                    r.get("confianza_open_buildings", 0.0) or 0.0
-                ),
+                "confianza_open_buildings": float(r.get("confianza_open_buildings", 0.0) or 0.0),
             }
             for _, r in subset.iterrows()
         ]

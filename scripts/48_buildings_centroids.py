@@ -30,19 +30,19 @@ from __future__ import annotations
 
 import json
 import sys
-from collections import Counter
-from pathlib import Path
-from typing import Optional
-
-import click
-from loguru import logger
-from tqdm import tqdm
 
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------------------
 # Aseguramos que el root del proyecto esté en sys.path para que los imports
 # `from scripts.utils.X` funcionen al correr este archivo como script.
 import sys as _sys
+from collections import Counter
+from pathlib import Path
 from pathlib import Path as _Path
+
+import click
+from loguru import logger
+from tqdm import tqdm
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -55,7 +55,6 @@ while _p != _p.parent:
 from scripts.utils.io_geo import cache_check, hash_file
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_parent, resolve_path
-
 
 SCRIPT_VERSION = "0.1.0"
 
@@ -264,9 +263,7 @@ def main(
                 f"Skip (usá --force para rehacer)."
             )
             sys.exit(0)
-        logger.info(
-            f"Output existente pero MD5 distinto (prev={prev_md5}). Regenerando."
-        )
+        logger.info(f"Output existente pero MD5 distinto (prev={prev_md5}). Regenerando.")
 
     # --- Conversión --------------------------------------------------------
     metrics = _convertir_a_centroides(in_p, out_p)

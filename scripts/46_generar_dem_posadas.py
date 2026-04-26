@@ -46,7 +46,6 @@ while _p != _p.parent:
 import json
 import shutil
 import sys
-import tempfile
 import traceback
 import urllib.request
 import zipfile
@@ -60,7 +59,6 @@ from loguru import logger
 from scripts.utils.config import Settings, load_settings
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, ensure_parent, resolve_path
-
 
 SCRIPT_VERSION = "0.1.0"
 
@@ -96,9 +94,7 @@ def inicializar_ee(project_id: Optional[str]) -> None:
     try:
         import ee
     except ImportError as exc:
-        logger.error(
-            "earthengine-api no está instalado. Corré: pip install earthengine-api"
-        )
+        logger.error("earthengine-api no está instalado. Corré: pip install earthengine-api")
         raise SystemExit(1) from exc
 
     try:
@@ -119,9 +115,7 @@ def inicializar_ee(project_id: Optional[str]) -> None:
         raise SystemExit(1) from exc
 
 
-def _construir_dem_bbox(
-    oeste: float, sur: float, este: float, norte: float
-):
+def _construir_dem_bbox(oeste: float, sur: float, este: float, norte: float):
     """Devuelve (dem_image, bbox_geom) para el bbox dado.
 
     Usa `COPERNICUS/DEM/GLO30` que es un ImageCollection global. Mosaicamos
@@ -135,15 +129,9 @@ def _construir_dem_bbox(
     """
     import ee
 
-    bbox_geom = ee.Geometry.Rectangle(
-        [oeste, sur, este, norte], proj="EPSG:4326", geodesic=False
-    )
+    bbox_geom = ee.Geometry.Rectangle([oeste, sur, este, norte], proj="EPSG:4326", geodesic=False)
     # GLO30 es una ImageCollection; cada imagen tiene banda 'DEM'.
-    coleccion = (
-        ee.ImageCollection("COPERNICUS/DEM/GLO30")
-        .filterBounds(bbox_geom)
-        .select("DEM")
-    )
+    coleccion = ee.ImageCollection("COPERNICUS/DEM/GLO30").filterBounds(bbox_geom).select("DEM")
     # mosaic() toma el pixel más reciente; para DEM estático da lo mismo que mean().
     dem = coleccion.mosaic().rename("elevation")
     return dem, bbox_geom
@@ -290,9 +278,8 @@ def _renderizar_hillshade_png(
     az_rad = np.deg2rad(360.0 - azimuth + 90.0)  # convención geográfica
     alt_rad = np.deg2rad(altitude)
 
-    shaded = (
-        np.sin(alt_rad) * np.cos(slope)
-        + np.cos(alt_rad) * np.sin(slope) * np.cos(az_rad - aspect)
+    shaded = np.sin(alt_rad) * np.cos(slope) + np.cos(alt_rad) * np.sin(slope) * np.cos(
+        az_rad - aspect
     )
     shaded = np.clip(shaded, 0.0, 1.0)
     shaded_uint8 = (shaded * 255).astype("uint8")
@@ -366,9 +353,7 @@ def _escribir_sidecar(
 # ---------------------------------------------------------------------------
 
 
-def _resolver_paths(
-    dem_tif_arg: str, hillshade_png_arg: str
-) -> Tuple[Path, Path]:
+def _resolver_paths(dem_tif_arg: str, hillshade_png_arg: str) -> Tuple[Path, Path]:
     """Convierte los paths de CLI a absolutos y asegura los directorios padres."""
     dem_tif = resolve_path(dem_tif_arg)
     hillshade_png = resolve_path(hillshade_png_arg)
@@ -449,9 +434,7 @@ def main(
     logger.info("=" * 60)
     logger.info("DEM Posadas — Copernicus GLO-30 via Earth Engine")
     logger.info("=" * 60)
-    logger.info(
-        f"Bbox: W={bbox.oeste} S={bbox.sur} E={bbox.este} N={bbox.norte} (WGS84)"
-    )
+    logger.info(f"Bbox: W={bbox.oeste} S={bbox.sur} E={bbox.este} N={bbox.norte} (WGS84)")
     logger.info(f"DEM crudo:       {dem_tif}")
     logger.info(f"Hillshade PNG:   {hillshade_png}")
     logger.info(f"Azimuth/Altitud: {azimuth}° / {altitude}°")
@@ -468,9 +451,7 @@ def main(
 
     # 2. Armar el DEM y bajar el .tif crudo.
     try:
-        dem_image, bbox_geom = _construir_dem_bbox(
-            bbox.oeste, bbox.sur, bbox.este, bbox.norte
-        )
+        dem_image, bbox_geom = _construir_dem_bbox(bbox.oeste, bbox.sur, bbox.este, bbox.norte)
     except Exception as exc:  # noqa: BLE001
         logger.error(f"Falló la construcción del DEM: {exc}")
         logger.debug(traceback.format_exc())
@@ -503,8 +484,8 @@ def main(
         sys.exit(4)
 
     # Metadata del sidecar (elevaciones re-leídas del tif para que queden registradas).
-    import rasterio
     import numpy as _np  # alias local para no chocar con import superior si se reordena
+    import rasterio
 
     with rasterio.open(dem_tif) as src:
         dem_arr = src.read(1)

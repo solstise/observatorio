@@ -27,7 +27,6 @@ from dotenv import load_dotenv
 
 from scripts.utils.paths import project_root, resolve_path
 
-
 # ---------------------------------------------------------------------------
 # Dataclasses que estructuran el settings.yaml
 # ---------------------------------------------------------------------------

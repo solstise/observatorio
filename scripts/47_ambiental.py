@@ -107,21 +107,21 @@ from __future__ import annotations
 
 import csv
 import sys
+
+# --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------------------
+# Aseguramos que el root del proyecto esté en sys.path para que los imports
+# `from scripts.utils.X` funcionen al correr este archivo como script.
+import sys as _sys
 import traceback
 from dataclasses import dataclass
-from datetime import datetime
 from pathlib import Path
+from pathlib import Path as _Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import click
 from loguru import logger
 from tqdm import tqdm
 
-# --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------------------
-# Aseguramos que el root del proyecto esté en sys.path para que los imports
-# `from scripts.utils.X` funcionen al correr este archivo como script.
-import sys as _sys
-from pathlib import Path as _Path
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -136,7 +136,6 @@ from scripts.utils.interrupts import graceful_interrupt
 from scripts.utils.io_geo import EPSG_UTM_POSADAS, load_geojson
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, resolve_path
-
 
 SCRIPT_VERSION = "0.1.0"
 
@@ -366,11 +365,7 @@ def _chirps_suma_en_rango(
     import ee
 
     try:
-        col = (
-            ee.ImageCollection(CHIRPS_ASSET)
-            .filterDate(inicio, fin)
-            .select(CHIRPS_BAND)
-        )
+        col = ee.ImageCollection(CHIRPS_ASSET).filterDate(inicio, fin).select(CHIRPS_BAND)
         n = col.size().getInfo()
         if n == 0:
             return None
@@ -421,8 +416,11 @@ def procesar_chirps(
     logger.info("=" * 60)
 
     columnas = [
-        "poligono_id", "anio",
-        "precip_mm_anual", "precip_mm_verano", "precip_mm_invierno",
+        "poligono_id",
+        "anio",
+        "precip_mm_anual",
+        "precip_mm_verano",
+        "precip_mm_invierno",
     ]
     previas = [] if force else _leer_csv_existente(destino_csv, columnas)
     ya_hechas = _claves_poligono_anio(previas)
@@ -511,11 +509,7 @@ def _no2_media_en_rango(
     import ee
 
     try:
-        col = (
-            ee.ImageCollection(S5P_NO2_ASSET)
-            .filterDate(inicio, fin)
-            .select(S5P_NO2_BAND)
-        )
+        col = ee.ImageCollection(S5P_NO2_ASSET).filterDate(inicio, fin).select(S5P_NO2_BAND)
         n = col.size().getInfo()
         if n == 0:
             return None
@@ -595,9 +589,7 @@ def procesar_no2(
                     bbox_geom, f"{anio}-01-01", f"{anio + 1}-01-01"
                 )
                 if no2_bbox_por_anio[anio] is not None:
-                    logger.debug(
-                        f"NO2 bbox Posadas {anio} = {no2_bbox_por_anio[anio]:.4e} mol/m²"
-                    )
+                    logger.debug(f"NO2 bbox Posadas {anio} = {no2_bbox_por_anio[anio]:.4e} mol/m²")
 
             no2_pol = _no2_media_en_rango(geom, f"{anio}-01-01", f"{anio + 1}-01-01")
             no2_bbox = no2_bbox_por_anio.get(anio)
@@ -607,9 +599,7 @@ def procesar_no2(
                 pbar.update(1)
                 continue
 
-            relativo = (
-                round(no2_pol / no2_bbox, 4) if no2_bbox and no2_bbox != 0 else None
-            )
+            relativo = round(no2_pol / no2_bbox, 4) if no2_bbox and no2_bbox != 0 else None
             fila = {
                 "poligono_id": poligono_id,
                 "anio": anio,
@@ -618,10 +608,7 @@ def procesar_no2(
             }
             filas.append(fila)
             agregadas += 1
-            logger.debug(
-                f"[{poligono_id}|{anio}] no2={no2_pol:.4e} mol/m² "
-                f"rel_bbox={relativo}"
-            )
+            logger.debug(f"[{poligono_id}|{anio}] no2={no2_pol:.4e} mol/m² " f"rel_bbox={relativo}")
             pbar.update(1)
 
     pbar.close()
@@ -663,11 +650,7 @@ def _lst_media_estacional_c(
     import ee
 
     try:
-        col = (
-            ee.ImageCollection(MODIS_LST_ASSET)
-            .filterDate(inicio, fin)
-            .select(band)
-        )
+        col = ee.ImageCollection(MODIS_LST_ASSET).filterDate(inicio, fin).select(band)
         n = col.size().getInfo()
         if n == 0:
             return None
@@ -744,9 +727,12 @@ def procesar_lst(
     logger.info("=" * 60)
 
     columnas = [
-        "poligono_id", "anio",
-        "lst_dia_verano_c", "lst_noche_verano_c",
-        "lst_dia_invierno_c", "lst_noche_invierno_c",
+        "poligono_id",
+        "anio",
+        "lst_dia_verano_c",
+        "lst_noche_verano_c",
+        "lst_dia_invierno_c",
+        "lst_noche_invierno_c",
         "isla_calor_c",
     ]
     previas = [] if force else _leer_csv_existente(destino_csv, columnas)
@@ -790,8 +776,7 @@ def procesar_lst(
                 )
                 if bbox_lst_verano_por_anio[anio] is not None:
                     logger.debug(
-                        f"LST día verano bbox {anio} = "
-                        f"{bbox_lst_verano_por_anio[anio]:.2f}°C"
+                        f"LST día verano bbox {anio} = " f"{bbox_lst_verano_por_anio[anio]:.2f}°C"
                     )
 
             bbox_lst = bbox_lst_verano_por_anio.get(anio)
@@ -801,9 +786,7 @@ def procesar_lst(
                 else None
             )
 
-            if all(
-                x is None for x in (lst_dia_v, lst_noche_v, lst_dia_i, lst_noche_i)
-            ):
+            if all(x is None for x in (lst_dia_v, lst_noche_v, lst_dia_i, lst_noche_i)):
                 logger.debug(f"[{poligono_id}|{anio}] LST sin datos.")
                 pbar.update(1)
                 continue
@@ -1046,9 +1029,7 @@ def _wdpa_interseccion_poligono(geom: Any, area_poligono_km2: float) -> Dict[str
             area_m2 = inter.area(ee.ErrorMargin(1))
             return feat.set({"area_inter_m2": area_m2})
 
-        con_inter = fc.map(_calcular_interseccion).filter(
-            ee.Filter.gt("area_inter_m2", 0)
-        )
+        con_inter = fc.map(_calcular_interseccion).filter(ee.Filter.gt("area_inter_m2", 0))
         n_inter = con_inter.size().getInfo()
         if n_inter == 0:
             return {
@@ -1262,11 +1243,11 @@ def cmd_chirps(ctx: click.Context, anio_desde: int, anio_hasta: int) -> None:
     destino = out / "chirps_anual.csv"
 
     with graceful_interrupt() as state:
-        state.on_interrupt(lambda: logger.warning("Interrupción en CHIRPS — CSV puede estar incompleto."))
+        state.on_interrupt(
+            lambda: logger.warning("Interrupción en CHIRPS — CSV puede estar incompleto.")
+        )
         try:
-            ok, msg = procesar_chirps(
-                gdf, anio_desde, anio_hasta, destino, force=ctx.obj["force"]
-            )
+            ok, msg = procesar_chirps(gdf, anio_desde, anio_hasta, destino, force=ctx.obj["force"])
         except Exception as exc:  # noqa: BLE001
             logger.error(f"CHIRPS excepción: {exc}")
             logger.debug(traceback.format_exc())
@@ -1288,7 +1269,9 @@ def cmd_no2(ctx: click.Context, anio_desde: int, anio_hasta: int) -> None:
     bbox_geom = _bbox_ee_geometry(ctx.obj["settings"])
 
     with graceful_interrupt() as state:
-        state.on_interrupt(lambda: logger.warning("Interrupción en NO2 — CSV puede estar incompleto."))
+        state.on_interrupt(
+            lambda: logger.warning("Interrupción en NO2 — CSV puede estar incompleto.")
+        )
         try:
             ok, msg = procesar_no2(
                 gdf, bbox_geom, anio_desde, anio_hasta, destino, force=ctx.obj["force"]
@@ -1314,7 +1297,9 @@ def cmd_lst(ctx: click.Context, anio_desde: int, anio_hasta: int) -> None:
     bbox_geom = _bbox_ee_geometry(ctx.obj["settings"])
 
     with graceful_interrupt() as state:
-        state.on_interrupt(lambda: logger.warning("Interrupción en LST — CSV puede estar incompleto."))
+        state.on_interrupt(
+            lambda: logger.warning("Interrupción en LST — CSV puede estar incompleto.")
+        )
         try:
             ok, msg = procesar_lst(
                 gdf, bbox_geom, anio_desde, anio_hasta, destino, force=ctx.obj["force"]
@@ -1339,11 +1324,11 @@ def cmd_firms(ctx: click.Context, anio_desde: int, anio_hasta: int) -> None:
     destino = out / "firms_anual.csv"
 
     with graceful_interrupt() as state:
-        state.on_interrupt(lambda: logger.warning("Interrupción en FIRMS — CSV puede estar incompleto."))
+        state.on_interrupt(
+            lambda: logger.warning("Interrupción en FIRMS — CSV puede estar incompleto.")
+        )
         try:
-            ok, msg = procesar_firms(
-                gdf, anio_desde, anio_hasta, destino, force=ctx.obj["force"]
-            )
+            ok, msg = procesar_firms(gdf, anio_desde, anio_hasta, destino, force=ctx.obj["force"])
         except Exception as exc:  # noqa: BLE001
             logger.error(f"FIRMS excepción: {exc}")
             logger.debug(traceback.format_exc())
@@ -1362,7 +1347,9 @@ def cmd_wdpa(ctx: click.Context) -> None:
     destino = out / "wdpa_intersection.csv"
 
     with graceful_interrupt() as state:
-        state.on_interrupt(lambda: logger.warning("Interrupción en WDPA — CSV puede estar incompleto."))
+        state.on_interrupt(
+            lambda: logger.warning("Interrupción en WDPA — CSV puede estar incompleto.")
+        )
         try:
             ok, msg = procesar_wdpa(gdf, destino, force=ctx.obj["force"])
         except Exception as exc:  # noqa: BLE001

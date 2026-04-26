@@ -18,7 +18,6 @@ from pathlib import Path
 
 import pytest
 
-
 PROYECTO_ROOT = Path(__file__).resolve().parent.parent
 RUTA_SCRIPT_MAPAS = PROYECTO_ROOT / "scripts" / "49b_mapas_calor.py"
 DIR_MAPAS = PROYECTO_ROOT / "data" / "processed" / "calor" / "mapas"
@@ -32,9 +31,7 @@ def mapas_module():
     if str(PROYECTO_ROOT) not in sys.path:
         sys.path.insert(0, str(PROYECTO_ROOT))
 
-    spec = importlib.util.spec_from_file_location(
-        "calor_mapas_test_mod", RUTA_SCRIPT_MAPAS
-    )
+    spec = importlib.util.spec_from_file_location("calor_mapas_test_mod", RUTA_SCRIPT_MAPAS)
     if spec is None or spec.loader is None:
         pytest.skip("No se pudo crear spec para 49b_mapas_calor.py")
     mod = importlib.util.module_from_spec(spec)
@@ -62,9 +59,9 @@ def test_cli_help_retorna_0():
         timeout=60,
         cwd=str(PROYECTO_ROOT),
     )
-    assert res.returncode == 0, (
-        f"--help salió con {res.returncode}\nSTDOUT:\n{res.stdout}\nSTDERR:\n{res.stderr}"
-    )
+    assert (
+        res.returncode == 0
+    ), f"--help salió con {res.returncode}\nSTDOUT:\n{res.stdout}\nSTDERR:\n{res.stderr}"
     # Debe incluir las opciones documentadas
     salida = res.stdout + res.stderr
     assert "--tipo" in salida, "Falta opción --tipo en --help"
@@ -112,9 +109,7 @@ def test_naming_estacional_uhi_vs_rural():
         ("lst", 2026, "otono", "lst_2026_otono.png"),
     ],
 )
-def test_naming_estacional_parametrizado(
-    metrica: str, anio: int, estacion: str, esperado: str
-):
+def test_naming_estacional_parametrizado(metrica: str, anio: int, estacion: str, esperado: str):
     assert _construir_nombre_estacional(metrica, anio, estacion) == esperado
 
 
@@ -146,9 +141,9 @@ def test_two_slope_norm_centrado_en_cero(mapas_module):
     norm = TwoSlopeNorm(vmin=vmin, vcenter=0, vmax=vmax)
     assert norm.vcenter == 0, f"vcenter debe ser 0, es {norm.vcenter}"
     # 0 mapeado en TwoSlopeNorm centrado debe dar 0.5 (midpoint del cmap)
-    assert norm(0) == pytest.approx(0.5, abs=1e-6), (
-        f"norm(0) debería ser 0.5 (midpoint), es {float(norm(0)):.4f}"
-    )
+    assert norm(0) == pytest.approx(
+        0.5, abs=1e-6
+    ), f"norm(0) debería ser 0.5 (midpoint), es {float(norm(0)):.4f}"
     # Valores negativos < 0.5, positivos > 0.5
     assert norm(vmin) == pytest.approx(0.0, abs=1e-6)
     assert norm(vmax) == pytest.approx(1.0, abs=1e-6)
@@ -157,29 +152,25 @@ def test_two_slope_norm_centrado_en_cero(mapas_module):
 def test_rango_uhi_centrado_apto_diverging(mapas_module):
     """`RANGO_UHI_CENTRADO` permite construir TwoSlopeNorm — vmin<0<vmax."""
     vmin, vmax = mapas_module.RANGO_UHI_CENTRADO
-    assert vmin < 0 < vmax, (
-        f"RANGO_UHI_CENTRADO debe tener vmin<0<vmax, es ({vmin}, {vmax})"
-    )
+    assert vmin < 0 < vmax, f"RANGO_UHI_CENTRADO debe tener vmin<0<vmax, es ({vmin}, {vmax})"
 
 
 def test_rango_lst_apropiado(mapas_module):
     """`RANGO_LST` cubre el rango plausible de LST en Posadas (15-50°C)."""
     vmin, vmax = mapas_module.RANGO_LST
-    assert 0.0 <= vmin < vmax <= 60.0, (
-        f"RANGO_LST fuera de plausibilidad: {(vmin, vmax)}"
-    )
+    assert 0.0 <= vmin < vmax <= 60.0, f"RANGO_LST fuera de plausibilidad: {(vmin, vmax)}"
     # El rango debe cubrir al menos 20°C (variabilidad estacional)
     assert (vmax - vmin) >= 15.0, f"Rango LST muy chico: {vmax - vmin}°C"
 
 
 def test_cmap_lst_y_uhi_correctos(mapas_module):
     """LST usa cmap secuencial (magma); UHI usa cmap diverging (RdBu_r)."""
-    assert mapas_module.CMAP_LST == "magma", (
-        f"CMAP_LST esperado 'magma', es {mapas_module.CMAP_LST}"
-    )
-    assert mapas_module.CMAP_UHI == "RdBu_r", (
-        f"CMAP_UHI esperado 'RdBu_r' (diverging), es {mapas_module.CMAP_UHI}"
-    )
+    assert (
+        mapas_module.CMAP_LST == "magma"
+    ), f"CMAP_LST esperado 'magma', es {mapas_module.CMAP_LST}"
+    assert (
+        mapas_module.CMAP_UHI == "RdBu_r"
+    ), f"CMAP_UHI esperado 'RdBu_r' (diverging), es {mapas_module.CMAP_UHI}"
 
 
 # ---------------------------------------------------------------------------
@@ -215,9 +206,8 @@ def test_mapas_pngs_tamano_razonable(mapas_dir: Path):
         size = png.stat().st_size
         if size < 10 * KB or size > 5 * MB:
             fallos.append((png.name, size))
-    assert not fallos, (
-        f"PNGs con tamaño fuera de [10 KB, 5 MB]:\n"
-        + "\n".join(f"  {n}: {s} bytes" for n, s in fallos)
+    assert not fallos, "PNGs con tamaño fuera de [10 KB, 5 MB]:\n" + "\n".join(
+        f"  {n}: {s} bytes" for n, s in fallos
     )
 
 
@@ -230,9 +220,8 @@ def test_mapas_gifs_tamano_razonable(mapas_dir: Path):
         size = gif.stat().st_size
         if size < 10 * KB or size > 5 * MB:
             fallos.append((gif.name, size))
-    assert not fallos, (
-        f"GIFs con tamaño fuera de [10 KB, 5 MB]:\n"
-        + "\n".join(f"  {n}: {s} bytes" for n, s in fallos)
+    assert not fallos, "GIFs con tamaño fuera de [10 KB, 5 MB]:\n" + "\n".join(
+        f"  {n}: {s} bytes" for n, s in fallos
     )
 
 
@@ -273,6 +262,4 @@ def test_mapas_naming_estacional_se_cumple(mapas_dir: Path):
                 fallos.append((png.name, f"año fuera de rango: {anio}"))
         except ValueError:
             fallos.append((png.name, f"año no parseable: {anio_str}"))
-    assert not fallos, (
-        f"PNGs con naming inesperado:\n" + "\n".join(f"  {n}: {r}" for n, r in fallos)
-    )
+    assert not fallos, "PNGs con naming inesperado:\n" + "\n".join(f"  {n}: {r}" for n, r in fallos)

@@ -99,6 +99,7 @@ except ImportError:  # pragma: no cover
 # `from scripts.utils.X` funcionen al correr este archivo como script.
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -132,9 +133,7 @@ def _validar_pesos(p: Dict[str, float]) -> Dict[str, float]:
     faltantes = set(PESOS_DEFAULT) - set(p)
     extras = set(p) - set(PESOS_DEFAULT)
     if faltantes:
-        logger.warning(
-            f"Pesos faltantes {faltantes} — se completan con default."
-        )
+        logger.warning(f"Pesos faltantes {faltantes} — se completan con default.")
         for k in faltantes:
             p[k] = PESOS_DEFAULT[k]
     if extras:
@@ -143,9 +142,7 @@ def _validar_pesos(p: Dict[str, float]) -> Dict[str, float]:
             p.pop(k, None)
     total = sum(p.values())
     if abs(total - 1.0) > 1e-3:
-        logger.warning(
-            f"Pesos suman {total:.3f} ≠ 1.0 — los renormalizo proporcionalmente."
-        )
+        logger.warning(f"Pesos suman {total:.3f} ≠ 1.0 — los renormalizo proporcionalmente.")
         p = {k: v / total for k, v in p.items()}
     return p
 
@@ -178,9 +175,7 @@ def _min_max(serie: pd.Series, invertir: bool = False) -> pd.Series:
 # ---------------------------------------------------------------------------
 
 
-def _cobertura_pavimento(
-    poligonos_gdf, calles_gdf, crs_metrico: str
-) -> pd.Series:
+def _cobertura_pavimento(poligonos_gdf, calles_gdf, crs_metrico: str) -> pd.Series:
     """Calcula fracción de longitud vial interna con ``surface`` no pavimentado.
 
     Returns:
@@ -253,9 +248,7 @@ def _cargar_componentes(inputs: Inputs, crs_metrico: str) -> pd.DataFrame:
         if "id" in gdf_poli.columns:
             gdf_poli["poligono_id"] = gdf_poli["id"].astype(str)
         else:
-            logger.warning(
-                "El GeoJSON no tiene columna 'id' ni 'poligono_id' — uso índice."
-            )
+            logger.warning("El GeoJSON no tiene columna 'id' ni 'poligono_id' — uso índice.")
             gdf_poli["poligono_id"] = gdf_poli.index.astype(str)
     gdf_poli["poligono_id"] = gdf_poli["poligono_id"].astype(str)
 
@@ -284,14 +277,12 @@ def _cargar_componentes(inputs: Inputs, crs_metrico: str) -> pd.DataFrame:
                 base = sub.iloc[0]
             else:
                 base = hace_5.iloc[-1]
+
             # La serie_temporal del proyecto usa `n_edificios_estimado`.
             # Aceptamos también `n_edificios` por compatibilidad con datasets viejos.
             def _n(fila):
-                return float(
-                    fila.get("n_edificios_estimado")
-                    or fila.get("n_edificios")
-                    or 0
-                )
+                return float(fila.get("n_edificios_estimado") or fila.get("n_edificios") or 0)
+
             n_hoy = _n(ultimo)
             n_base = _n(base)
             if n_base <= 0:
@@ -315,19 +306,18 @@ def _cargar_componentes(inputs: Inputs, crs_metrico: str) -> pd.DataFrame:
     # --- Distancia a servicios ---
     if inputs.servicios and inputs.servicios.exists():
         svc = pd.read_csv(inputs.servicios)
+
         def _dist(familia: str) -> pd.Series:
             sub = svc[svc["tipo_servicio"] == familia]
             sub = sub.groupby("poligono_id")["distancia_minima_m"].min()
             return sub
+
         dc = _dist("caps_clinic")
         de = _dist("escuela")
         df["distancia_caps_m"] = df["poligono_id"].map(dc)
         df["distancia_escuela_m"] = df["poligono_id"].map(de)
     else:
-        logger.warning(
-            f"No hay CSV de servicios en {inputs.servicios} — "
-            "distancias quedan NaN."
-        )
+        logger.warning(f"No hay CSV de servicios en {inputs.servicios} — " "distancias quedan NaN.")
         df["distancia_caps_m"] = math.nan
         df["distancia_escuela_m"] = math.nan
 
@@ -337,10 +327,7 @@ def _cargar_componentes(inputs: Inputs, crs_metrico: str) -> pd.DataFrame:
         cobertura = _cobertura_pavimento(gdf_poli, calles_gdf, crs_metrico)
         df["pavimento_invertido"] = df["poligono_id"].map(cobertura)
     else:
-        logger.warning(
-            f"No hay calles OSM en {inputs.calles} — "
-            "cobertura pavimento queda NaN."
-        )
+        logger.warning(f"No hay calles OSM en {inputs.calles} — " "cobertura pavimento queda NaN.")
         df["pavimento_invertido"] = math.nan
 
     # --- Riesgo de inundación (override manual / placeholder) ---
@@ -397,6 +384,7 @@ def _construir_score(df: pd.DataFrame, pesos: Dict[str, float]) -> pd.DataFrame:
             "score": (score_raw * 100.0).round(2),
         }
     )
+
     # Componentes JSON por fila: crudo + normalizado + peso
     def _compo_fila(i: int) -> str:
         fila = df.iloc[i]

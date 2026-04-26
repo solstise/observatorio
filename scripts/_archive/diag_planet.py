@@ -1,4 +1,5 @@
 """Diagnóstico Planet NICFI: lista mosaicos accesibles con la API key."""
+
 from __future__ import annotations
 
 import os

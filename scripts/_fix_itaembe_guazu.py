@@ -12,6 +12,7 @@ Estrategia:
    otro polígono adyacente (priority a itaembe_guazu si solapa).
 4. Backup automático.
 """
+
 from __future__ import annotations
 
 import json
@@ -59,9 +60,7 @@ def fetch_osm_relation_geom(rel_id: int) -> dict:
 
     lines = [LineString(pts) for pts in outer_lines if len(pts) >= 2]
     merged = linemerge(MultiLineString(lines))
-    polys = list(polygonize(
-        [merged] if not hasattr(merged, "geoms") else list(merged.geoms)
-    ))
+    polys = list(polygonize([merged] if not hasattr(merged, "geoms") else list(merged.geoms)))
     if not polys:
         raise RuntimeError("polygonize devolvió 0")
     geom = unary_union(polys)
@@ -117,12 +116,14 @@ def main() -> None:
             print(f"  ⚠ {oid} quedaría vacío, saltando (no modifico)")
             continue
         g.at[i, "geometry"] = new_other
-        overlaps_modificados.append({
-            "id": oid,
-            "overlap_km2": round(inter_area, 3),
-            "area_antes_km2": round(other.area * 111 * 111, 3),
-            "area_despues_km2": round(new_other.area * 111 * 111, 3),
-        })
+        overlaps_modificados.append(
+            {
+                "id": oid,
+                "overlap_km2": round(inter_area, 3),
+                "area_antes_km2": round(other.area * 111 * 111, 3),
+                "area_despues_km2": round(new_other.area * 111 * 111, 3),
+            }
+        )
         print(f"  - {oid}: -{inter_area:.3f} km² (overlap removido)")
 
     # Asignar nueva geometría

@@ -64,7 +64,7 @@ import shutil
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Tuple
 
 import geopandas as gpd
 from shapely.ops import unary_union
@@ -257,9 +257,7 @@ def build_geometries(
         # umbral de aceptación: si quedó muy chico vs legacy y NO tiene radios, descartamos
         if not cods and ratio_kept < 0.50:
             descartados.append(pid)
-            print(
-                f"  [DESCARTE] {pid}: salvamento sin radios, quedó {ratio_kept:.0%} del legacy"
-            )
+            print(f"  [DESCARTE] {pid}: salvamento sin radios, quedó {ratio_kept:.0%} del legacy")
             continue
         # umbral mínimo absoluto: 0.05 km^2 (5 ha) — si menos, no tiene sentido monitorear
         if new_geom.area < 5e4:
@@ -334,7 +332,9 @@ def main() -> None:
 
     print("\n=== Paso 5: resumen áreas finales ===")
     areas_final = (gdf.geometry.area / 1e6).tolist()
-    listado = sorted(zip(gdf["id"].tolist(), areas_final, gdf["n_radios"].tolist()), key=lambda x: -x[1])
+    listado = sorted(
+        zip(gdf["id"].tolist(), areas_final, gdf["n_radios"].tolist()), key=lambda x: -x[1]
+    )
     for idv, a, n in listado:
         print(f"  {idv:42s}  {a:7.3f} km^2  ({n} radios)")
 

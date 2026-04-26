@@ -14,19 +14,20 @@ el límite de getDownloadURL (HTTP 500). Estrategia:
 
 El resumen JSON se actualiza con el nuevo total.
 """
+
 from __future__ import annotations
 
 import json
+import os
+import shutil
+import urllib.request
 from datetime import datetime
 from pathlib import Path
 
 import ee
 import geopandas as gpd
 import pandas as pd
-import urllib.request
-import shutil
 from dotenv import load_dotenv
-import os
 
 RAIZ = Path(__file__).resolve().parent.parent.parent
 GEOJSON_OUT = RAIZ / "data" / "raw" / "google_buildings" / "posadas_buildings.geojson"
@@ -58,10 +59,15 @@ def descargar_bbox(oeste, sur, este, norte):
     n = fc_filt.size().getInfo()
     print(f"    → {n} edificios en bbox")
     if n == 0:
-        return gpd.GeoDataFrame(columns=["building_id", "lat", "lon", "area_m2", "confidence", "geometry"], geometry="geometry", crs="EPSG:4326")
+        return gpd.GeoDataFrame(
+            columns=["building_id", "lat", "lon", "area_m2", "confidence", "geometry"],
+            geometry="geometry",
+            crs="EPSG:4326",
+        )
 
     # Intentar getDownloadURL.
     import tempfile
+
     url = fc_filt.getDownloadURL(filetype="GEOJSON")
     tmp = Path(tempfile.mktemp(suffix=".geojson"))
     with urllib.request.urlopen(url, timeout=600) as resp, tmp.open("wb") as fh:
@@ -135,7 +141,8 @@ def main():
     # Merge final.
     merge = gpd.GeoDataFrame(
         pd.concat([existente, nuevos_filtrados], ignore_index=True),
-        geometry="geometry", crs="EPSG:4326",
+        geometry="geometry",
+        crs="EPSG:4326",
     )
     print(f"Total final: {len(merge)}")
 

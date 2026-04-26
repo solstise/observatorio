@@ -3,9 +3,11 @@
 Mide cuánto se pisan los polígonos del config y reporta los pares
 problemáticos. Output: stdout + CSV en data/processed/_overlap_audit.csv.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
+
 import geopandas as gpd
 import pandas as pd
 
@@ -36,16 +38,18 @@ def main() -> None:
                 continue  # contacto en arista, irrelevante
             pct_a = inter_km2 / a["area_km2"] * 100
             pct_b = inter_km2 / b["area_km2"] * 100
-            rows.append({
-                "id_a": a["id"],
-                "id_b": b["id"],
-                "area_a_km2": round(a["area_km2"], 3),
-                "area_b_km2": round(b["area_km2"], 3),
-                "interseccion_km2": round(inter_km2, 4),
-                "pct_a": round(pct_a, 2),
-                "pct_b": round(pct_b, 2),
-                "max_pct": round(max(pct_a, pct_b), 2),
-            })
+            rows.append(
+                {
+                    "id_a": a["id"],
+                    "id_b": b["id"],
+                    "area_a_km2": round(a["area_km2"], 3),
+                    "area_b_km2": round(b["area_km2"], 3),
+                    "interseccion_km2": round(inter_km2, 4),
+                    "pct_a": round(pct_a, 2),
+                    "pct_b": round(pct_b, 2),
+                    "max_pct": round(max(pct_a, pct_b), 2),
+                }
+            )
 
     if rows:
         df = pd.DataFrame(rows).sort_values("max_pct", ascending=False)

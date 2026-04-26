@@ -40,11 +40,13 @@ Uso
     python scripts/58_alertas_clima.py
     python scripts/58_alertas_clima.py --config config/alertas.yaml
 """
+
 from __future__ import annotations
 
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -58,7 +60,7 @@ import json
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 import click
 import pandas as pd
@@ -191,12 +193,14 @@ def detectar_alerta_temperatura(
             continue
 
         for ini, fin, n in _rachas_consecutivas(sub, "match", min_dias):
-            eventos.append({
-                "poligono_id": str(pid),
-                "fecha_inicio": ini,
-                "fecha_fin": fin,
-                "n_dias": int(n),
-            })
+            eventos.append(
+                {
+                    "poligono_id": str(pid),
+                    "fecha_inicio": ini,
+                    "fecha_fin": fin,
+                    "n_dias": int(n),
+                }
+            )
     return eventos
 
 
@@ -216,16 +220,20 @@ def detectar_alerta_lluvia(df_forecast: pd.DataFrame, cfg_alerta: Dict) -> List[
         sub = sub.sort_values("fecha")
         sub["match"] = sub["precipitation_mm"] > umbral
         for ini, fin, n in _rachas_consecutivas(sub, "match", min_dias):
-            eventos.append({
-                "poligono_id": str(pid),
-                "fecha_inicio": ini,
-                "fecha_fin": fin,
-                "n_dias": int(n),
-            })
+            eventos.append(
+                {
+                    "poligono_id": str(pid),
+                    "fecha_inicio": ini,
+                    "fecha_fin": fin,
+                    "n_dias": int(n),
+                }
+            )
     return eventos
 
 
-def detectar_alerta_aqi(df_aqi: pd.DataFrame, cfg_alerta: Dict, todos_los_barrios: List[str]) -> List[Dict]:
+def detectar_alerta_aqi(
+    df_aqi: pd.DataFrame, cfg_alerta: Dict, todos_los_barrios: List[str]
+) -> List[Dict]:
     """Para AQI, la alerta aplica a todos los barrios (modelo ~10 km)."""
     if df_aqi.empty:
         return []
@@ -237,12 +245,14 @@ def detectar_alerta_aqi(df_aqi: pd.DataFrame, cfg_alerta: Dict, todos_los_barrio
     eventos: List[Dict] = []
     for ini, fin, n in rachas:
         for pid in todos_los_barrios:
-            eventos.append({
-                "poligono_id": str(pid),
-                "fecha_inicio": ini,
-                "fecha_fin": fin,
-                "n_dias": int(n),
-            })
+            eventos.append(
+                {
+                    "poligono_id": str(pid),
+                    "fecha_inicio": ini,
+                    "fecha_fin": fin,
+                    "n_dias": int(n),
+                }
+            )
     return eventos
 
 
@@ -288,19 +298,23 @@ def agregar_alertas(
                 key=lambda b: prio_idx.get(b, 0.0),
                 reverse=True,
             )
-            alertas.append({
-                "tipo": tipo,
-                "severidad": sev,
-                "fecha_inicio": ini,
-                "fecha_fin": fin,
-                "n_dias": n_dias,
-                "n_barrios_afectados": len(barrios),
-                "barrios_afectados": barrios,
-                "barrios_afectados_nombres": [nombres_barrios.get(b, b) for b in barrios],
-                "barrios_prioritarios": barrios_prio,
-                "barrios_prioritarios_nombres": [nombres_barrios.get(b, b) for b in barrios_prio],
-                "descripcion": descripcion,
-            })
+            alertas.append(
+                {
+                    "tipo": tipo,
+                    "severidad": sev,
+                    "fecha_inicio": ini,
+                    "fecha_fin": fin,
+                    "n_dias": n_dias,
+                    "n_barrios_afectados": len(barrios),
+                    "barrios_afectados": barrios,
+                    "barrios_afectados_nombres": [nombres_barrios.get(b, b) for b in barrios],
+                    "barrios_prioritarios": barrios_prio,
+                    "barrios_prioritarios_nombres": [
+                        nombres_barrios.get(b, b) for b in barrios_prio
+                    ],
+                    "descripcion": descripcion,
+                }
+            )
 
     # Orden: severidad desc, luego fecha_inicio asc, luego n_barrios desc.
     alertas.sort(
@@ -422,9 +436,15 @@ def main(
 
     # Detección.
     eventos: Dict[str, List[Dict]] = {
-        "frio_extremo": detectar_alerta_temperatura(df_fc, cfg.get("frio_extremo", {}), "frio_extremo"),
-        "frio_severo": detectar_alerta_temperatura(df_fc, cfg.get("frio_severo", {}), "frio_severo"),
-        "calor_extremo": detectar_alerta_temperatura(df_fc, cfg.get("calor_extremo", {}), "calor_extremo"),
+        "frio_extremo": detectar_alerta_temperatura(
+            df_fc, cfg.get("frio_extremo", {}), "frio_extremo"
+        ),
+        "frio_severo": detectar_alerta_temperatura(
+            df_fc, cfg.get("frio_severo", {}), "frio_severo"
+        ),
+        "calor_extremo": detectar_alerta_temperatura(
+            df_fc, cfg.get("calor_extremo", {}), "calor_extremo"
+        ),
         "lluvia_intensa": detectar_alerta_lluvia(df_fc, cfg.get("lluvia_intensa", {})),
         "aqi_malo": detectar_alerta_aqi(df_aqi, cfg.get("aqi_malo", {}), barrios_universo),
     }
@@ -437,7 +457,8 @@ def main(
             for ev in eventos["frio_extremo"]
         }
         eventos["frio_severo"] = [
-            ev for ev in eventos["frio_severo"]
+            ev
+            for ev in eventos["frio_severo"]
             if not any(
                 ev["poligono_id"] == bloq[0]
                 and not (ev["fecha_fin"] < bloq[1] or ev["fecha_inicio"] > bloq[2])
@@ -454,13 +475,14 @@ def main(
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "script_version": SCRIPT_VERSION,
         "n_alertas": len(alertas),
-        "ventana_dias": int(
-            (
-                pd.to_datetime(df_fc["fecha"]).max() - pd.to_datetime(df_fc["fecha"]).min()
-            ).days + 1
-        )
-        if not df_fc.empty
-        else 0,
+        "ventana_dias": (
+            int(
+                (pd.to_datetime(df_fc["fecha"]).max() - pd.to_datetime(df_fc["fecha"]).min()).days
+                + 1
+            )
+            if not df_fc.empty
+            else 0
+        ),
         "alertas": alertas,
     }
     out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")

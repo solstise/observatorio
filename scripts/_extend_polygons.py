@@ -16,6 +16,7 @@ Estrategia:
    - zona_sensible: ribereños o áreas inundables.
 5. Escribe el GeoJSON ampliado y un changelog Markdown.
 """
+
 from __future__ import annotations
 
 import json
@@ -269,8 +270,7 @@ def main() -> None:
                 "id": slug,
                 "nombre": name,
                 "descripcion": (
-                    f"{meta['desc']} Polígono OSM admin_level=10 "
-                    f"(relation/{proc['rel_id']})."
+                    f"{meta['desc']} Polígono OSM admin_level=10 " f"(relation/{proc['rel_id']})."
                 ),
                 "categoria": meta["cat"],
                 "prioridad": meta["prioridad"],
@@ -348,10 +348,7 @@ def main() -> None:
     md.append("")
     md.append("## Cobertura")
     md.append("")
-    total_km2 = sum(
-        feature["properties"].get("area_km2_aprox", 0)
-        for _, feature, _ in added
-    )
+    total_km2 = sum(feature["properties"].get("area_km2_aprox", 0) for _, feature, _ in added)
     md.append(f"Área total nuevos: ~**{total_km2:.1f} km²**.")
     md.append("")
 

@@ -26,10 +26,8 @@ Uso
 
 from __future__ import annotations
 
-import json
 import signal
 import sys
-from pathlib import Path
 from typing import List, Optional, Tuple
 
 import click
@@ -38,12 +36,12 @@ from loguru import logger
 from tqdm import tqdm
 
 try:
-    import torch  # type: ignore
-    import segmentation_models_pytorch as smp  # type: ignore
+    import geopandas as gpd  # type: ignore
     import rasterio  # type: ignore
+    import segmentation_models_pytorch as smp  # type: ignore
+    import torch  # type: ignore
     from rasterio.features import shapes  # type: ignore
     from rasterio.windows import Window  # type: ignore
-    import geopandas as gpd  # type: ignore
     from shapely.geometry import shape as shp_shape  # type: ignore
 except ImportError:  # pragma: no cover
     torch = None
@@ -59,6 +57,7 @@ except ImportError:  # pragma: no cover
 # `from scripts.utils.X` funcionen al correr este archivo como script.
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -109,9 +108,7 @@ def _prepare_rgb(window_data: np.ndarray) -> Optional[np.ndarray]:
     return rgb.astype(np.uint8)
 
 
-def _ventanas(
-    width: int, height: int, tile_size: int, overlap: int
-) -> List[Tuple[int, int]]:
+def _ventanas(width: int, height: int, tile_size: int, overlap: int) -> List[Tuple[int, int]]:
     """Lista (col, row) tope-izq de las ventanas, con overlap simétrico."""
     step = tile_size - overlap
     cols = list(range(0, max(1, width - tile_size), step)) + [max(0, width - tile_size)]
@@ -205,9 +202,7 @@ def main(
     ensure_parent(output_p)
 
     with rasterio.open(input_p) as src:
-        logger.info(
-            f"Raster: {src.width}x{src.height} {src.count}b CRS={src.crs}"
-        )
+        logger.info(f"Raster: {src.width}x{src.height} {src.count}b CRS={src.crs}")
         prob_sum = np.zeros((src.height, src.width), dtype=np.float32)
         count = np.zeros((src.height, src.width), dtype=np.uint16)
 
@@ -239,9 +234,7 @@ def main(
                 # último tile puede ser menor: lo paddeamos a la derecha/abajo
                 pad_h = tile_size - data.shape[1]
                 pad_w = tile_size - data.shape[2]
-                data = np.pad(
-                    data, ((0, 0), (0, pad_h), (0, pad_w)), mode="edge"
-                )
+                data = np.pad(data, ((0, 0), (0, pad_h), (0, pad_w)), mode="edge")
             rgb = _prepare_rgb(data)
             if rgb is None:
                 continue
@@ -255,13 +248,10 @@ def main(
         if _INTERRUPTED:
             logger.warning("Inferencia interrumpida — salida parcial.")
 
-        prob = np.divide(
-            prob_sum, np.maximum(count, 1), where=(count > 0)
-        ).astype(np.float32)
+        prob = np.divide(prob_sum, np.maximum(count, 1), where=(count > 0)).astype(np.float32)
         mask = (prob >= threshold).astype(np.uint8)
         logger.info(
-            f"Máscara: {mask.sum()} píxeles positivos de {mask.size} "
-            f"({100 * mask.mean():.2f}%)"
+            f"Máscara: {mask.sum()} píxeles positivos de {mask.size} " f"({100 * mask.mean():.2f}%)"
         )
 
         # Vectorización

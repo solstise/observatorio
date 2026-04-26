@@ -50,9 +50,9 @@ from tqdm import tqdm
 try:
     import geopandas as gpd  # type: ignore
     import rasterio  # type: ignore
+    from PIL import Image  # type: ignore
     from rasterio.features import rasterize  # type: ignore
     from rasterio.windows import Window, from_bounds  # type: ignore
-    from PIL import Image  # type: ignore
     from shapely.geometry import box  # type: ignore
 except ImportError:  # pragma: no cover
     gpd = None
@@ -68,6 +68,7 @@ except ImportError:  # pragma: no cover
 # `from scripts.utils.X` funcionen al correr este archivo como script.
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -104,9 +105,7 @@ def _listar_nicfi_tifs(nicfi_dir: Path) -> List[Path]:
     return tifs
 
 
-def _sample_posicion(
-    src, tile_size: int, rng: random.Random
-) -> Optional[Tuple[int, int]]:
+def _sample_posicion(src, tile_size: int, rng: random.Random) -> Optional[Tuple[int, int]]:
     """Muestrea una (col, row) válida dentro del raster (margen por tile_size)."""
     if src.width < tile_size or src.height < tile_size:
         return None
@@ -142,9 +141,7 @@ def _leer_tile_rgb(src, col: int, row: int, tile_size: int) -> Optional[np.ndarr
     return np.transpose(rgb_u8, (1, 2, 0))  # (H, W, 3)
 
 
-def _rasterizar_mask(
-    src, col: int, row: int, tile_size: int, buildings_gdf
-) -> np.ndarray:
+def _rasterizar_mask(src, col: int, row: int, tile_size: int, buildings_gdf) -> np.ndarray:
     """Rasteriza los polígonos de edificios que caen en el tile."""
     window = Window(col, row, tile_size, tile_size)
     transform = rasterio.windows.transform(window, src.transform)
@@ -266,8 +263,7 @@ def main(
     setup_logger(nivel=log_level)
     if any(x is None for x in (gpd, rasterio, rasterize, Image, box)):
         logger.error(
-            "Faltan dependencias. Agregá: "
-            "pip install geopandas rasterio pillow shapely"
+            "Faltan dependencias. Agregá: " "pip install geopandas rasterio pillow shapely"
         )
         sys.exit(1)
 

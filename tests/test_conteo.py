@@ -12,7 +12,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # Helpers — algoritmo simplificado acorde a scripts/20_contar_techos.py
 # ---------------------------------------------------------------------------
@@ -97,8 +96,7 @@ def test_conteo_dataset_sintetico_N_edificios():
     n_detectados = _contar_techos_sinteticos(raster, edificios_pix)
 
     assert 42 <= n_detectados <= 58, (
-        f"Conteo {n_detectados} fuera de banda ±15% "
-        f"sobre {n_edificios_verdadero} reales"
+        f"Conteo {n_detectados} fuera de banda ±15% " f"sobre {n_edificios_verdadero} reales"
     )
 
 
@@ -110,16 +108,21 @@ def test_monotonicidad_creciente(sample_serie_temporal_df: pd.DataFrame):
         ].sort_values("fecha")
         valores = subset["n_edificios_estimado"].to_numpy()
         diffs = np.diff(valores)
-        assert np.all(diffs >= 0), (
-            f"Polígono {pol_id} tiene caída en la serie: {valores}"
-        )
+        assert np.all(diffs >= 0), f"Polígono {pol_id} tiene caída en la serie: {valores}"
 
 
 def test_fecha_aparicion_presente_2018():
     """Edificio visible ya en 2018 → fecha_aparicion = '<2018'."""
     fechas = [
-        "201807", "201907", "202007", "202107", "202207",
-        "202307", "202407", "202507", "202607",
+        "201807",
+        "201907",
+        "202007",
+        "202107",
+        "202207",
+        "202307",
+        "202407",
+        "202507",
+        "202607",
     ]
     # Detectado en todas las fechas, incluido 2018
     ndbi = np.array([0.2] * 9)
@@ -131,8 +134,15 @@ def test_fecha_aparicion_presente_2018():
 def test_edificio_no_detectado():
     """NDBI bajo en todas las fechas → 'desconocida', no cuenta."""
     fechas = [
-        "201807", "201907", "202007", "202107", "202207",
-        "202307", "202407", "202507", "202607",
+        "201807",
+        "201907",
+        "202007",
+        "202107",
+        "202207",
+        "202307",
+        "202407",
+        "202507",
+        "202607",
     ]
     ndbi = np.array([-0.3] * 9)  # siempre debajo del umbral
     ndvi = np.array([0.7] * 9)  # vegetación constante
@@ -143,9 +153,7 @@ def test_edificio_no_detectado():
 def test_filtrado_confidence(sample_buildings_gdf):
     """Con confidence_threshold=0.9 se descartan edificios con conf < 0.9."""
     threshold = 0.9
-    filtrados = sample_buildings_gdf[
-        sample_buildings_gdf["confidence"] >= threshold
-    ].copy()
+    filtrados = sample_buildings_gdf[sample_buildings_gdf["confidence"] >= threshold].copy()
     # Todos los sobrevivientes cumplen
     assert (filtrados["confidence"] >= threshold).all()
     # Y debe haber menos que en el set original (beta distribution da cola bajo 0.9)
@@ -155,8 +163,15 @@ def test_filtrado_confidence(sample_buildings_gdf):
 def test_fecha_aparicion_posterior_detectada():
     """Edificio que aparece recién en 2022 → fecha '2022-07'."""
     fechas = [
-        "201807", "201907", "202007", "202107", "202207",
-        "202307", "202407", "202507", "202607",
+        "201807",
+        "201907",
+        "202007",
+        "202107",
+        "202207",
+        "202307",
+        "202407",
+        "202507",
+        "202607",
     ]
     # No detectado antes de 2022-07 (index 4), sí detectado desde ahí.
     ndbi = np.array([-0.2, -0.2, -0.2, -0.2, 0.15, 0.2, 0.22, 0.21, 0.25])

@@ -68,6 +68,7 @@ from __future__ import annotations
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -80,10 +81,9 @@ while _p != _p.parent:
 import json
 import os
 import sys
-import time
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -92,10 +92,9 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 
-from scripts.utils.io_geo import cache_check, load_geojson
+from scripts.utils.io_geo import load_geojson
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, resolve_path
-
 
 SCRIPT_VERSION = "0.1.0"
 
@@ -151,9 +150,7 @@ def _s3_client():
     from botocore import UNSIGNED
     from botocore.config import Config
 
-    return boto3.client(
-        "s3", config=Config(signature_version=UNSIGNED), region_name=S3_REGION
-    )
+    return boto3.client("s3", config=Config(signature_version=UNSIGNED), region_name=S3_REGION)
 
 
 def listar_escenas_mux() -> List[EscenaMUX]:
@@ -163,9 +160,7 @@ def listar_escenas_mux() -> List[EscenaMUX]:
     out: List[EscenaMUX] = []
     try:
         paginator = s3.get_paginator("list_objects_v2")
-        for page in paginator.paginate(
-            Bucket=S3_BUCKET, Prefix=prefix, Delimiter="/"
-        ):
+        for page in paginator.paginate(Bucket=S3_BUCKET, Prefix=prefix, Delimiter="/"):
             for cp in page.get("CommonPrefixes", []) or []:
                 nombre = cp.get("Prefix", "").rstrip("/").split("/")[-1]
                 parts = nombre.split("_")
@@ -183,7 +178,9 @@ def listar_escenas_mux() -> List[EscenaMUX]:
     return out
 
 
-def calcular_indices_cbers_por_escena(esc: EscenaMUX) -> Optional[Tuple[np.ndarray, np.ndarray, Any, Any]]:
+def calcular_indices_cbers_por_escena(
+    esc: EscenaMUX,
+) -> Optional[Tuple[np.ndarray, np.ndarray, Any, Any]]:
     """Lee RED y NIR recortados al bbox y devuelve (red, nir, transform, crs).
 
     None si falla.
@@ -195,9 +192,7 @@ def calcular_indices_cbers_por_escena(esc: EscenaMUX) -> Optional[Tuple[np.ndarr
     try:
         # Red
         with rasterio.open(esc.url_banda(BAND_RED)) as src:
-            tr = pyproj.Transformer.from_crs(
-                "EPSG:4326", src.crs, always_xy=True
-            )
+            tr = pyproj.Transformer.from_crs("EPSG:4326", src.crs, always_xy=True)
             oeste, sur, este, norte = POSADAS_BBOX_4326
             xs, ys = [], []
             for lon, lat in [
@@ -262,9 +257,7 @@ def stats_por_poligono_cbers(
     poligonos_gdf,
 ) -> Dict[Tuple[str, int], Dict[str, float]]:
     """Para cada (poligono_id, año), promedia NDVI / NDBI proxy del array compuesto."""
-    import geopandas as gpd
     from rasterio.features import geometry_mask
-    from shapely.geometry import shape
 
     resultados: Dict[Tuple[str, int], Dict[str, float]] = {}
     for anio, idxs in indices_por_anio.items():
@@ -480,9 +473,7 @@ def main(
         )
 
     # Stats por polígono
-    cbers_stats = stats_por_poligono_cbers(
-        indices_por_anio, transform_per_anio, crs_per_anio, gdf
-    )
+    cbers_stats = stats_por_poligono_cbers(indices_por_anio, transform_per_anio, crs_per_anio, gdf)
     logger.info(f"CBERS stats: {len(cbers_stats)} (poligono, año)")
 
     # S2 vía EE
@@ -511,11 +502,17 @@ def main(
             {
                 "poligono_id": pid,
                 "anio": anio,
-                "ndbi_cbers": round(c.get("ndbi_cbers"), 4) if c.get("ndbi_cbers") is not None else None,
+                "ndbi_cbers": (
+                    round(c.get("ndbi_cbers"), 4) if c.get("ndbi_cbers") is not None else None
+                ),
                 "ndbi_s2": round(s.get("ndbi_s2"), 4) if s.get("ndbi_s2") is not None else None,
-                "ndvi_cbers": round(c.get("ndvi_cbers"), 4) if c.get("ndvi_cbers") is not None else None,
+                "ndvi_cbers": (
+                    round(c.get("ndvi_cbers"), 4) if c.get("ndvi_cbers") is not None else None
+                ),
                 "ndvi_s2": round(s.get("ndvi_s2"), 4) if s.get("ndvi_s2") is not None else None,
-                "diferencia_relativa_pct_ndvi": round(diff_rel, 1) if diff_rel is not None else None,
+                "diferencia_relativa_pct_ndvi": (
+                    round(diff_rel, 1) if diff_rel is not None else None
+                ),
                 "n_imagenes_cbers_anio": len(por_anio[anio]),
                 "nota_metodologica": "ndbi_cbers es PROXY (NIR-RED) sin SWIR",
             }

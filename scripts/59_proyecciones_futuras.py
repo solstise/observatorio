@@ -61,11 +61,13 @@ Uso
     python scripts/59_proyecciones_futuras.py --poligono itaembe_mini
     python scripts/59_proyecciones_futuras.py --anios 2027,2030,2035
 """
+
 from __future__ import annotations
 
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -80,7 +82,6 @@ import math
 import sys
 from dataclasses import dataclass
 from datetime import datetime
-from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import click
@@ -287,7 +288,7 @@ def _fit_lineal(t: np.ndarray, y: np.ndarray) -> Tuple[float, float, float, floa
     r2 = _r2_score(y, y_pred)
     residuos = y - y_pred
     # Varianza residual (insesgada): SSR / (n - 2).
-    sigma2 = float(np.sum(residuos ** 2) / max(n - 2, 1))
+    sigma2 = float(np.sum(residuos**2) / max(n - 2, 1))
     t_mean = float(np.mean(t))
     sxx = float(np.sum((t - t_mean) ** 2))
     return intercept, slope, r2, sigma2, t_mean, sxx
@@ -311,7 +312,7 @@ def _fit_exp(t: np.ndarray, y: np.ndarray) -> Tuple[float, float, float, float, 
     y_pred = np.exp(log_y_pred)
     r2 = _r2_score(y, y_pred)
     residuos_log = log_y - log_y_pred
-    sigma2 = float(np.sum(residuos_log ** 2) / max(n - 2, 1))  # en log-espacio
+    sigma2 = float(np.sum(residuos_log**2) / max(n - 2, 1))  # en log-espacio
     t_mean = float(np.mean(t))
     sxx = float(np.sum((t - t_mean) ** 2))
     return intercept, slope, r2, sigma2, t_mean, sxx
@@ -372,11 +373,7 @@ def elegir_modelo(
         int_e, slope_e, r2_e, sigma2_e, tm_e, sxx_e = _fit_exp(t, y)
 
     # Decisión: ganador por R², con bonus simplicidad para lineal.
-    use_exp = (
-        not math.isnan(r2_e)
-        and not math.isnan(r2_l)
-        and (r2_e - r2_l) > DELTA_R2_OCCAM
-    )
+    use_exp = not math.isnan(r2_e) and not math.isnan(r2_l) and (r2_e - r2_l) > DELTA_R2_OCCAM
 
     if use_exp:
         modelo = "exp"
@@ -455,9 +452,7 @@ def predecir(
 
     t = float(anio)
     # SE de la predicción para una observación nueva.
-    se_pred = math.sqrt(
-        fit.sigma2 * (1.0 + 1.0 / n + (t - fit.t_mean) ** 2 / fit.sxx)
-    )
+    se_pred = math.sqrt(fit.sigma2 * (1.0 + 1.0 / n + (t - fit.t_mean) ** 2 / fit.sxx))
     t_crit = float(scipy_stats.t.ppf(0.975, df=max(n - 2, 1)))
     margen = t_crit * se_pred
 
@@ -521,9 +516,7 @@ def procesar_metrica(
     if poligonos_filtrados:
         poligonos = [p for p in poligonos if p in poligonos_filtrados]
         if not poligonos:
-            logger.warning(
-                f"  {metrica_key}: ningún polígono coincide con --poligono"
-            )
+            logger.warning(f"  {metrica_key}: ningún polígono coincide con --poligono")
 
     n_lineal, n_exp, n_baja = 0, 0, 0
     for pol_id in poligonos:
@@ -549,18 +542,20 @@ def procesar_metrica(
         for anio in anios_validos:
             valor, lo, hi = predecir(fit, anio, permite_neg, es_porcentaje=es_pct)
             r2_elegido = fit.r2_exp if fit.modelo_elegido == "exp" else fit.r2_lineal
-            resultados.append({
-                "poligono_id": pol_id,
-                "metrica": out_metric_label,
-                "anio_proyeccion": int(anio),
-                "valor_pred": round(float(valor), 3),
-                "ci_inferior": round(float(lo), 3),
-                "ci_superior": round(float(hi), 3),
-                "modelo": fit.modelo_elegido,
-                "r2": round(float(r2_elegido), 4) if not math.isnan(r2_elegido) else None,
-                "confianza": fit.confianza,
-                "n_obs": int(fit.n_obs),
-            })
+            resultados.append(
+                {
+                    "poligono_id": pol_id,
+                    "metrica": out_metric_label,
+                    "anio_proyeccion": int(anio),
+                    "valor_pred": round(float(valor), 3),
+                    "ci_inferior": round(float(lo), 3),
+                    "ci_superior": round(float(hi), 3),
+                    "modelo": fit.modelo_elegido,
+                    "r2": round(float(r2_elegido), 4) if not math.isnan(r2_elegido) else None,
+                    "confianza": fit.confianza,
+                    "n_obs": int(fit.n_obs),
+                }
+            )
 
     logger.info(
         f"  {metrica_key}: {len(resultados)} filas "
@@ -634,7 +629,9 @@ def cli(
         metricas_lista = [m.strip() for m in metricas.split(",") if m.strip()]
     metricas_invalidas = [m for m in metricas_lista if m not in METRICAS_CONFIG]
     if metricas_invalidas:
-        logger.error(f"Métricas no soportadas: {metricas_invalidas}. Disponibles: {list(METRICAS_CONFIG.keys())}")
+        logger.error(
+            f"Métricas no soportadas: {metricas_invalidas}. Disponibles: {list(METRICAS_CONFIG.keys())}"
+        )
         sys.exit(2)
 
     try:
@@ -683,9 +680,11 @@ def cli(
         "confianza",
         "n_obs",
     ]
-    df_out = df_out[cols_order].sort_values(
-        ["metrica", "poligono_id", "anio_proyeccion"]
-    ).reset_index(drop=True)
+    df_out = (
+        df_out[cols_order]
+        .sort_values(["metrica", "poligono_id", "anio_proyeccion"])
+        .reset_index(drop=True)
+    )
 
     csv_path = out_dir / "proyecciones_por_poligono.csv"
     df_out.to_csv(csv_path, index=False, encoding="utf-8")
@@ -725,8 +724,7 @@ def cli(
             "luego se anti-loguea (asimétrico)."
         ),
         "limitaciones_conocidas": [
-            "Series de 8 años (viviendas/población) son cortas para "
-            "extrapolar 10 años a 2035.",
+            "Series de 8 años (viviendas/población) son cortas para " "extrapolar 10 años a 2035.",
             "El IC es solo de la regresión: no incluye epistemic "
             "uncertainty (incertidumbre sobre la elección del modelo).",
             "Cambios estructurales (políticas, eventos climáticos, "

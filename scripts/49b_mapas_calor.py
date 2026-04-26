@@ -24,6 +24,7 @@ Uso::
     python scripts/49b_mapas_calor.py --tipo top          # PNG ranking
     python scripts/49b_mapas_calor.py --tipo todo         # los 3
 """
+
 from __future__ import annotations
 
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
@@ -46,10 +47,10 @@ from typing import Optional
 
 import click
 import matplotlib
+
 matplotlib.use("Agg")  # backend sin GUI
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from loguru import logger
 from matplotlib.colors import Normalize, TwoSlopeNorm
@@ -61,8 +62,8 @@ from scripts.utils.paths import ensure_dir, resolve_path
 SCRIPT_VERSION = "0.3.0"
 
 # Colormaps elegidos (accesibles + profesionales).
-CMAP_LST = "magma"      # secuencial oscuro → claro, transición suave.
-CMAP_UHI = "RdBu_r"     # diverging rojo-azul; negativo azul, positivo rojo.
+CMAP_LST = "magma"  # secuencial oscuro → claro, transición suave.
+CMAP_UHI = "RdBu_r"  # diverging rojo-azul; negativo azul, positivo rojo.
 
 # Paleta institucional (primary/secondary/accent).
 COLOR_BORDE = "#1a3a5c"
@@ -93,20 +94,22 @@ FONT_BOLD_CANDIDATOS = [
 
 def _configurar_matplotlib() -> None:
     """Aplica config global de alta calidad."""
-    plt.rcParams.update({
-        "figure.dpi": 120,
-        "savefig.dpi": 200,
-        "savefig.bbox": "tight",
-        "savefig.facecolor": COLOR_FONDO,
-        "axes.edgecolor": COLOR_TEXTO_SUAVE,
-        "axes.labelcolor": "#222222",
-        "axes.titlecolor": COLOR_BORDE,
-        "axes.titleweight": "bold",
-        "xtick.color": COLOR_TEXTO_SUAVE,
-        "ytick.color": COLOR_TEXTO_SUAVE,
-        "font.family": "sans-serif",
-        "font.sans-serif": ["Inter", "Arial", "DejaVu Sans"],
-    })
+    plt.rcParams.update(
+        {
+            "figure.dpi": 120,
+            "savefig.dpi": 200,
+            "savefig.bbox": "tight",
+            "savefig.facecolor": COLOR_FONDO,
+            "axes.edgecolor": COLOR_TEXTO_SUAVE,
+            "axes.labelcolor": "#222222",
+            "axes.titlecolor": COLOR_BORDE,
+            "axes.titleweight": "bold",
+            "xtick.color": COLOR_TEXTO_SUAVE,
+            "ytick.color": COLOR_TEXTO_SUAVE,
+            "font.family": "sans-serif",
+            "font.sans-serif": ["Inter", "Arial", "DejaVu Sans"],
+        }
+    )
 
 
 def _cargar_datos(
@@ -127,15 +130,18 @@ def _cargar_datos(
 def _footer(fig, fuente_extra: str = "") -> None:
     """Agrega footer de atribución + fecha + versión al pie del figure."""
     now = datetime.now().strftime("%Y-%m-%d")
-    txt = (
-        f"Observatorio Urbano Posadas · v{SCRIPT_VERSION} · generado {now}"
-    )
+    txt = f"Observatorio Urbano Posadas · v{SCRIPT_VERSION} · generado {now}"
     if fuente_extra:
         txt = f"{fuente_extra} · {txt}"
     fig.text(
-        0.5, 0.01, txt,
-        ha="center", va="bottom",
-        fontsize=7, color=COLOR_TEXTO_SUAVE, style="italic",
+        0.5,
+        0.01,
+        txt,
+        ha="center",
+        va="bottom",
+        fontsize=7,
+        color=COLOR_TEXTO_SUAVE,
+        style="italic",
     )
 
 
@@ -146,7 +152,8 @@ def _etiquetar_barrios(ax, gdf, columna_nombre: str = "nombre", fontsize: int = 
         ax.annotate(
             str(row.get(columna_nombre, row.get("id", ""))),
             xy=(pt.x, pt.y),
-            ha="center", va="center",
+            ha="center",
+            va="center",
             fontsize=fontsize,
             color="#111111",
             path_effects=[withStroke(linewidth=2.5, foreground="white")],
@@ -162,12 +169,10 @@ def _etiquetar_barrios(ax, gdf, columna_nombre: str = "nombre", fontsize: int = 
 def _construir_dataset_estacional(
     uhi_est: pd.DataFrame, gdf_poligonos, anio: int, estacion: str
 ) -> "pd.DataFrame":
-    import geopandas as gpd
 
-    sub = uhi_est[
-        (uhi_est["anio"].astype(int) == anio)
-        & (uhi_est["estacion"] == estacion)
-    ][["poligono_id", "uhi_vs_rural_mean", "uhi_vs_ciudad_mean", "lst_mean", "n_meses"]]
+    sub = uhi_est[(uhi_est["anio"].astype(int) == anio) & (uhi_est["estacion"] == estacion)][
+        ["poligono_id", "uhi_vs_rural_mean", "uhi_vs_ciudad_mean", "lst_mean", "n_meses"]
+    ]
     g = gdf_poligonos.merge(sub, left_on="id", right_on="poligono_id", how="left")
     return g
 
@@ -181,7 +186,6 @@ def _plot_mapa_estacional(
     etiquetas: bool = True,
 ) -> bool:
     """Guarda un PNG coroplético estacional para una métrica."""
-    import geopandas as gpd
 
     if metrica == "lst":
         col = "lst_mean"
@@ -201,9 +205,7 @@ def _plot_mapa_estacional(
         titulo_metrica = "UHI vs promedio Posadas (°C)"
 
     if col not in gdf_merged or gdf_merged[col].dropna().empty:
-        logger.warning(
-            f"Sin datos para {metrica} en {anio} {estacion} — salteado."
-        )
+        logger.warning(f"Sin datos para {metrica} en {anio} {estacion} — salteado.")
         return False
 
     fig, ax = plt.subplots(figsize=(9, 7))
@@ -216,8 +218,12 @@ def _plot_mapa_estacional(
 
     con_dato = gdf_merged.dropna(subset=[col])
     con_dato.plot(
-        ax=ax, column=col, cmap=cmap, norm=norm,
-        edgecolor="#222222", linewidth=0.6,
+        ax=ax,
+        column=col,
+        cmap=cmap,
+        norm=norm,
+        edgecolor="#222222",
+        linewidth=0.6,
     )
 
     if etiquetas:
@@ -233,11 +239,18 @@ def _plot_mapa_estacional(
     cbar.outline.set_edgecolor(COLOR_TEXTO_SUAVE)
     cbar.set_label(titulo_metrica, fontsize=9, color="#222222")
 
-    est_legible = {"verano": "Verano", "otono": "Otoño",
-                   "invierno": "Invierno", "primavera": "Primavera"}[estacion]
+    est_legible = {
+        "verano": "Verano",
+        "otono": "Otoño",
+        "invierno": "Invierno",
+        "primavera": "Primavera",
+    }[estacion]
     ax.set_title(
         f"{est_legible} {anio} · {titulo_metrica}",
-        fontsize=13, pad=10, color=COLOR_BORDE, fontweight="bold",
+        fontsize=13,
+        pad=10,
+        color=COLOR_BORDE,
+        fontweight="bold",
     )
     _footer(fig, fuente_extra="Fuente: Landsat 8/9 USGS")
 
@@ -255,26 +268,29 @@ def _plot_mapa_estacional(
 
 def _plot_frame_mensual(gdf, uhi_df, anio: int, mes: int, metrica: str):
     """Genera un frame como array RGB para imageio."""
-    import geopandas as gpd
     import imageio.v3 as iio
 
     col_map = {
-        "uhi_vs_rural": ("uhi_vs_rural", CMAP_UHI,
-                         TwoSlopeNorm(vmin=-5, vcenter=0, vmax=8),
-                         "UHI vs rural (°C)"),
-        "uhi_vs_ciudad": ("uhi_vs_ciudad", CMAP_UHI,
-                          TwoSlopeNorm(vmin=-5, vcenter=0, vmax=8),
-                          "UHI vs ciudad (°C)"),
-        "lst": ("lst_mean", CMAP_LST, Normalize(vmin=20, vmax=45),
-                "LST (°C)"),
+        "uhi_vs_rural": (
+            "uhi_vs_rural",
+            CMAP_UHI,
+            TwoSlopeNorm(vmin=-5, vcenter=0, vmax=8),
+            "UHI vs rural (°C)",
+        ),
+        "uhi_vs_ciudad": (
+            "uhi_vs_ciudad",
+            CMAP_UHI,
+            TwoSlopeNorm(vmin=-5, vcenter=0, vmax=8),
+            "UHI vs ciudad (°C)",
+        ),
+        "lst": ("lst_mean", CMAP_LST, Normalize(vmin=20, vmax=45), "LST (°C)"),
     }
     col, cmap_name, norm, titulo = col_map[metrica]
     cmap = plt.get_cmap(cmap_name)
 
-    sub = uhi_df[
-        (uhi_df["anio"].astype(int) == anio)
-        & (uhi_df["mes"].astype(int) == mes)
-    ][["poligono_id", col]]
+    sub = uhi_df[(uhi_df["anio"].astype(int) == anio) & (uhi_df["mes"].astype(int) == mes)][
+        ["poligono_id", col]
+    ]
     g = gdf.merge(sub, left_on="id", right_on="poligono_id", how="left")
 
     fig, ax = plt.subplots(figsize=(8, 6))
@@ -285,14 +301,26 @@ def _plot_frame_mensual(gdf, uhi_df, anio: int, mes: int, metrica: str):
         sin.plot(ax=ax, color="#e5e7eb", edgecolor="#9ca3af", linewidth=0.3)
     con = g.dropna(subset=[col])
     if len(con):
-        con.plot(ax=ax, column=col, cmap=cmap, norm=norm,
-                 edgecolor="#222222", linewidth=0.5)
+        con.plot(ax=ax, column=col, cmap=cmap, norm=norm, edgecolor="#222222", linewidth=0.5)
     ax.set_axis_off()
 
-    nombre_mes = ["Ene", "Feb", "Mar", "Abr", "May", "Jun",
-                  "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"][mes - 1]
-    ax.set_title(f"{nombre_mes} {anio} · {titulo}",
-                 fontsize=12, color=COLOR_BORDE, fontweight="bold")
+    nombre_mes = [
+        "Ene",
+        "Feb",
+        "Mar",
+        "Abr",
+        "May",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dic",
+    ][mes - 1]
+    ax.set_title(
+        f"{nombre_mes} {anio} · {titulo}", fontsize=12, color=COLOR_BORDE, fontweight="bold"
+    )
 
     # Colorbar más chico en GIF.
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
@@ -311,7 +339,10 @@ def _plot_frame_mensual(gdf, uhi_df, anio: int, mes: int, metrica: str):
 
 
 def _generar_gif_mensual(
-    gdf, uhi_df, out_path: Path, metrica: str,
+    gdf,
+    uhi_df,
+    out_path: Path,
+    metrica: str,
     n_meses_recientes: int = 24,
 ) -> bool:
     """Genera GIF animado con los últimos N meses con dato."""
@@ -334,9 +365,7 @@ def _generar_gif_mensual(
     logger.info(f"GIF: generando {len(meses)} frames para {out_path.name}…")
     frames = []
     for _, row in meses.iterrows():
-        frames.append(_plot_frame_mensual(
-            gdf, uhi_df, int(row["anio"]), int(row["mes"]), metrica
-        ))
+        frames.append(_plot_frame_mensual(gdf, uhi_df, int(row["anio"]), int(row["mes"]), metrica))
     out_path.parent.mkdir(parents=True, exist_ok=True)
     iio.imwrite(out_path, frames, duration=0.6, loop=0)
     logger.info(f"GIF → {out_path.name} ({out_path.stat().st_size / 1024:.0f} KB)")
@@ -348,18 +377,16 @@ def _generar_gif_mensual(
 # ---------------------------------------------------------------------------
 
 
-def _plot_top5(uhi_est: pd.DataFrame, gdf, out_path: Path,
-               estacion: str = "verano",
-               anio: Optional[int] = None) -> bool:
+def _plot_top5(
+    uhi_est: pd.DataFrame, gdf, out_path: Path, estacion: str = "verano", anio: Optional[int] = None
+) -> bool:
     if uhi_est.empty:
         logger.warning("UHI estacional vacío — no hay top5 para generar.")
         return False
     if anio is None:
         anio = int(uhi_est["anio"].max())
 
-    sub = uhi_est[
-        (uhi_est["anio"] == anio) & (uhi_est["estacion"] == estacion)
-    ]
+    sub = uhi_est[(uhi_est["anio"] == anio) & (uhi_est["estacion"] == estacion)]
     if sub.empty:
         logger.warning(f"Sin datos para top5 {estacion} {anio}.")
         return False
@@ -381,7 +408,10 @@ def _plot_top5(uhi_est: pd.DataFrame, gdf, out_path: Path,
     ax.set_xlabel("UHI vs promedio Posadas (°C)", fontsize=10, color="#222222")
     ax.set_title(
         f"Top 5 barrios más calientes · {estacion.capitalize()} {anio}",
-        fontsize=13, fontweight="bold", color=COLOR_BORDE, pad=10,
+        fontsize=13,
+        fontweight="bold",
+        color=COLOR_BORDE,
+        pad=10,
     )
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -389,10 +419,14 @@ def _plot_top5(uhi_est: pd.DataFrame, gdf, out_path: Path,
 
     for bar, val in zip(bars, top["uhi_vs_ciudad_mean"][::-1]):
         ax.text(
-            val + 0.1, bar.get_y() + bar.get_height() / 2,
+            val + 0.1,
+            bar.get_y() + bar.get_height() / 2,
             f"+{val:.1f} °C",
-            va="center", ha="left",
-            fontsize=9, fontweight="bold", color="#222222",
+            va="center",
+            ha="left",
+            fontsize=9,
+            fontweight="bold",
+            color="#222222",
         )
 
     _footer(fig, fuente_extra="Fuente: Landsat 8/9 USGS")
@@ -415,12 +449,12 @@ def _plot_top5(uhi_est: pd.DataFrame, gdf, out_path: Path,
     default="todo",
     show_default=True,
 )
-@click.option("--output-dir", default="data/processed/calor/mapas",
-              show_default=True)
-@click.option("--nivel-log",
-              type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR"],
-                                case_sensitive=False),
-              default="INFO")
+@click.option("--output-dir", default="data/processed/calor/mapas", show_default=True)
+@click.option(
+    "--nivel-log",
+    type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR"], case_sensitive=False),
+    default="INFO",
+)
 def cli(tipo: str, output_dir: str, nivel_log: str) -> None:
     setup_logger(nivel=nivel_log.upper())
     _configurar_matplotlib()
@@ -447,7 +481,10 @@ def cli(tipo: str, output_dir: str, nivel_log: str) -> None:
                     gm = _construir_dataset_estacional(est, gdf, anio, estacion)
                     for metr in ["lst", "uhi_vs_rural", "uhi_vs_ciudad"]:
                         _plot_mapa_estacional(
-                            gm, metr, anio, estacion,
+                            gm,
+                            metr,
+                            anio,
+                            estacion,
                             out / f"{metr}_{anio}_{estacion}.png",
                         )
 
@@ -456,7 +493,9 @@ def cli(tipo: str, output_dir: str, nivel_log: str) -> None:
             logger.warning("UHI mensual vacío — GIF salteado.")
         else:
             _generar_gif_mensual(
-                gdf, uhi, out / "evolucion_uhi_vs_ciudad_24m.gif",
+                gdf,
+                uhi,
+                out / "evolucion_uhi_vs_ciudad_24m.gif",
                 metrica="uhi_vs_ciudad",
             )
 
@@ -467,8 +506,11 @@ def cli(tipo: str, output_dir: str, nivel_log: str) -> None:
             anio_max = int(est["anio"].max())
             for estacion in ["verano", "invierno"]:
                 _plot_top5(
-                    est, gdf, out / f"top5_calientes_{estacion}_{anio_max}.png",
-                    estacion=estacion, anio=anio_max,
+                    est,
+                    gdf,
+                    out / f"top5_calientes_{estacion}_{anio_max}.png",
+                    estacion=estacion,
+                    anio=anio_max,
                 )
 
     logger.info("Mapas calor generados.")

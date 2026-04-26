@@ -1,11 +1,12 @@
 """Setea secrets en GitHub Actions usando PyNaCl sealed boxes."""
+
 from __future__ import annotations
 
 import json
 import os
 import sys
-import urllib.request
 import urllib.error
+import urllib.request
 from base64 import b64encode
 
 from nacl import encoding, public

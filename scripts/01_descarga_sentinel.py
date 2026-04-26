@@ -32,23 +32,24 @@ from __future__ import annotations
 import json
 import shutil
 import sys
+
+# --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------------------
+# Aseguramos que el root del proyecto esté en sys.path para que los imports
+# `from scripts.utils.X` funcionen al correr este archivo como script.
+import sys as _sys
 import tempfile
 import traceback
 import urllib.request
 import zipfile
 from datetime import datetime, timedelta
 from pathlib import Path
+from pathlib import Path as _Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import click
 from loguru import logger
 from tqdm import tqdm
 
-# --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------------------
-# Aseguramos que el root del proyecto esté en sys.path para que los imports
-# `from scripts.utils.X` funcionen al correr este archivo como script.
-import sys as _sys
-from pathlib import Path as _Path
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -68,7 +69,6 @@ from scripts.utils.io_geo import (
 )
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, resolve_path
-
 
 # Versión de este script — se escribe como tag en la metadata de los GeoTIFF.
 SCRIPT_VERSION = "0.1.0"
@@ -140,11 +140,7 @@ def _mask_s2_qa60(image):
     qa = image.select("QA60")
     cloud_bit_mask = 1 << 10
     cirrus_bit_mask = 1 << 11
-    mask = (
-        qa.bitwiseAnd(cloud_bit_mask)
-        .eq(0)
-        .And(qa.bitwiseAnd(cirrus_bit_mask).eq(0))
-    )
+    mask = qa.bitwiseAnd(cloud_bit_mask).eq(0).And(qa.bitwiseAnd(cirrus_bit_mask).eq(0))
     # divide(10000) puede reescalar pero preservamos nombres originales.
     scaled = image.updateMask(mask).divide(10000)
     # ee.Image() asegura que el resultado sea tratado como Image tras copyProperties.
@@ -319,14 +315,18 @@ def _descargar_tile(
         destino: Path final del .tif.
         escala: Resolución en metros/pixel.
     """
-    url = image.select(bandas).clip(geom).getDownloadURL(
-        {
-            "region": geom,
-            "scale": escala,
-            "crs": "EPSG:4326",
-            "format": "GEO_TIFF",
-            "maxPixels": 1e9,
-        }
+    url = (
+        image.select(bandas)
+        .clip(geom)
+        .getDownloadURL(
+            {
+                "region": geom,
+                "scale": escala,
+                "crs": "EPSG:4326",
+                "format": "GEO_TIFF",
+                "maxPixels": 1e9,
+            }
+        )
     )
 
     destino.parent.mkdir(parents=True, exist_ok=True)
@@ -411,7 +411,9 @@ def _descargar_con_tiles(
 # ---------------------------------------------------------------------------
 
 
-def _escalar_a_rgb_8bit(src_tif: Path, dst_tif: Path, metadata_tags: Dict[str, str]) -> Dict[str, float]:
+def _escalar_a_rgb_8bit(
+    src_tif: Path, dst_tif: Path, metadata_tags: Dict[str, str]
+) -> Dict[str, float]:
     """Convierte un .tif de reflectancia 0-1 (B4,B3,B2) a RGB 8-bit 0-255.
 
     Aplica stretch por percentil 2-98 por banda (recomendado sobre min-max,
@@ -610,9 +612,7 @@ def _procesar_poligono_fecha(
 
         tags_multi = dict(tags_base, tipo="multi_16bit", bandas=",".join(BANDAS_MULTI))
         _escalar_a_multi_16bit(tmp_multi, multi_path, tags_multi)
-        logger.info(
-            f"[{poligono_id}|{fecha_target}] MULTI 16-bit exportado → {multi_path.name}"
-        )
+        logger.info(f"[{poligono_id}|{fecha_target}] MULTI 16-bit exportado → {multi_path.name}")
     except Exception as exc:  # noqa: BLE001
         logger.error(f"[{poligono_id}|{fecha_target}] Falló export MULTI: {exc}")
         logger.debug(traceback.format_exc())
@@ -755,9 +755,7 @@ def main(
                             output_dir=out,
                         )
                     except Exception as exc:  # noqa: BLE001
-                        logger.error(
-                            f"[{poligono_id}|{fecha}] Excepción no manejada: {exc}"
-                        )
+                        logger.error(f"[{poligono_id}|{fecha}] Excepción no manejada: {exc}")
                         logger.debug(traceback.format_exc())
                         res = {
                             "poligono_id": poligono_id,
@@ -778,7 +776,9 @@ def main(
     ok = sum(1 for r in resumen if r.get("status") == "ok")
     cache = sum(1 for r in resumen if r.get("status") == "cache_hit")
     sin_datos = sum(1 for r in resumen if r.get("status") == "sin_datos")
-    errores = sum(1 for r in resumen if r.get("status") in ("parcial", "excepcion", "error_geometria"))
+    errores = sum(
+        1 for r in resumen if r.get("status") in ("parcial", "excepcion", "error_geometria")
+    )
     warnings_count = sum(len(r.get("warnings", [])) for r in resumen)
 
     logger.info("=" * 60)

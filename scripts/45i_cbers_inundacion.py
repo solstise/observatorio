@@ -65,6 +65,7 @@ from __future__ import annotations
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -75,13 +76,9 @@ while _p != _p.parent:
 # --- fin del parche ---------------------------------------------------------
 
 import json
-import os
 import sys
-import time
-from collections import defaultdict
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
-from pathlib import Path
+from datetime import date, datetime
 from typing import Any, Dict, List, Optional, Tuple
 
 import click
@@ -89,10 +86,9 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 
-from scripts.utils.io_geo import cache_check, load_geojson
+from scripts.utils.io_geo import load_geojson
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, resolve_path
-
 
 SCRIPT_VERSION = "0.1.0"
 
@@ -151,9 +147,7 @@ def _s3_client():
     from botocore import UNSIGNED
     from botocore.config import Config
 
-    return boto3.client(
-        "s3", config=Config(signature_version=UNSIGNED), region_name=S3_REGION
-    )
+    return boto3.client("s3", config=Config(signature_version=UNSIGNED), region_name=S3_REGION)
 
 
 def listar_awfi(desde: date, hasta: date) -> List[EscenaAWFI]:
@@ -163,9 +157,7 @@ def listar_awfi(desde: date, hasta: date) -> List[EscenaAWFI]:
         prefix = f"CBERS4/{SENSOR}/{path}/{row}/"
         try:
             paginator = s3.get_paginator("list_objects_v2")
-            for page in paginator.paginate(
-                Bucket=S3_BUCKET, Prefix=prefix, Delimiter="/"
-            ):
+            for page in paginator.paginate(Bucket=S3_BUCKET, Prefix=prefix, Delimiter="/"):
                 for cp in page.get("CommonPrefixes", []) or []:
                     nombre = cp.get("Prefix", "").rstrip("/").split("/")[-1]
                     parts = nombre.split("_")
@@ -200,9 +192,7 @@ def calcular_ndwi_awfi(esc: EscenaAWFI) -> Optional[Tuple[np.ndarray, np.ndarray
     try:
         # Green band para bbox
         with rasterio.open(esc.url_banda(BAND_GREEN)) as src:
-            tr = pyproj.Transformer.from_crs(
-                "EPSG:4326", src.crs, always_xy=True
-            )
+            tr = pyproj.Transformer.from_crs("EPSG:4326", src.crs, always_xy=True)
             oeste, sur, este, norte = POSADAS_BBOX_4326
             xs, ys = [], []
             for lon, lat in [
@@ -262,7 +252,11 @@ def detectar_agua_y_poligonos(
     from rasterio.features import geometry_mask
 
     # Máscara de agua: NDWI > 0.3 AND NDVI < 0.1 (descarta vegetación que confunde)
-    mask_agua = np.where(np.isnan(ndwi) | np.isnan(ndvi), False, (ndwi > NDWI_AGUA_THRESHOLD) & (ndvi < NDVI_AGUA_MAX))
+    mask_agua = np.where(
+        np.isnan(ndwi) | np.isnan(ndvi),
+        False,
+        (ndwi > NDWI_AGUA_THRESHOLD) & (ndvi < NDVI_AGUA_MAX),
+    )
     # área pixel: AWFI 64 m → 64*64 m² = 4096 m² = 0.004096 km² por pixel
     pixel_km2 = 0.004096
     area_total_km2 = float(mask_agua.sum() * pixel_km2)
@@ -306,7 +300,11 @@ def buscar_s1_validacion(fecha_awfi: date, s1_df: pd.DataFrame) -> Optional[Dict
     sub = s1_df[s1_df["fecha"] == yyyymm]
     if sub.empty:
         return None
-    delta_mean = float(sub["delta_vv_mean_db"].dropna().mean()) if "delta_vv_mean_db" in sub.columns else None
+    delta_mean = (
+        float(sub["delta_vv_mean_db"].dropna().mean())
+        if "delta_vv_mean_db" in sub.columns
+        else None
+    )
     if delta_mean is None or pd.isna(delta_mean):
         return None
     return {"delta_vv_mean_db": delta_mean, "n_poligonos_s1": int(len(sub))}
@@ -451,7 +449,11 @@ def main(
     # Merge + escribir
     todas = existing_rows + nuevas
     if todas:
-        df_out = pd.DataFrame(todas, columns=CSV_COLUMNS).drop_duplicates(subset=["fecha"]).sort_values("fecha")
+        df_out = (
+            pd.DataFrame(todas, columns=CSV_COLUMNS)
+            .drop_duplicates(subset=["fecha"])
+            .sort_values("fecha")
+        )
     else:
         df_out = pd.DataFrame(columns=CSV_COLUMNS)
     df_out.to_csv(csv_path, index=False, encoding="utf-8")
@@ -463,7 +465,9 @@ def main(
         "fuente_secundaria": "Sentinel-1 SAR (script 43)",
         "ventana": [desde_d.isoformat(), hasta_d.isoformat()],
         "n_eventos_detectados": len(df_out),
-        "n_eventos_alta_confianza": int((df_out["confianza"] == "alta").sum()) if not df_out.empty else 0,
+        "n_eventos_alta_confianza": (
+            int((df_out["confianza"] == "alta").sum()) if not df_out.empty else 0
+        ),
         "umbral_ndwi": NDWI_AGUA_THRESHOLD,
         "umbral_ndvi_max": NDVI_AGUA_MAX,
         "umbral_s1_delta_db": S1_DELTA_DB_THRESHOLD,

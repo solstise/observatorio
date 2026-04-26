@@ -54,7 +54,9 @@ except Exception:
 
         def get_logger(name: str) -> logging.Logger:
             return _setup(name) if callable(_setup) else logging.getLogger(name)
+
     except Exception:
+
         def get_logger(name: str) -> logging.Logger:
             logging.basicConfig(
                 level=logging.INFO,
@@ -88,8 +90,7 @@ class ResumenPipeline:
     def como_markdown(self) -> str:
         if not self.etapas:
             return "_(sin etapas)_"
-        filas = ["| Polígono | Etapa | Estado | Duración | Mensaje |",
-                 "|---|---|---|---|---|"]
+        filas = ["| Polígono | Etapa | Estado | Duración | Mensaje |", "|---|---|---|---|---|"]
         for r in self.etapas:
             estado = "OK" if r.ok else ("SKIP" if r.mensaje.startswith("SKIP") else "FALLO")
             filas.append(
@@ -112,32 +113,41 @@ def _run_subprocess(
     script = PROJECT_ROOT / script_rel
     t0 = time.time()
     if not script.exists():
-        return ResultadoEtapa(etapa, poligono, False, 0.0,
-                              f"FALLO: script no encontrado: {script_rel}")
+        return ResultadoEtapa(
+            etapa, poligono, False, 0.0, f"FALLO: script no encontrado: {script_rel}"
+        )
     cmd = [sys.executable, str(script), *args]
     sufijo = f" ({poligono})" if poligono else ""
     logger.info(f"▶ {etapa}{sufijo}")
     logger.info(f"  cmd: {' '.join(cmd)}")
     try:
         proc = subprocess.run(
-            cmd, cwd=str(PROJECT_ROOT), check=False,
-            capture_output=True, text=True, encoding="utf-8", errors="replace",
+            cmd,
+            cwd=str(PROJECT_ROOT),
+            check=False,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
         )
     except Exception as exc:  # noqa: BLE001
-        return ResultadoEtapa(etapa, poligono, False, time.time() - t0,
-                              f"FALLO: excepción {exc}")
+        return ResultadoEtapa(etapa, poligono, False, time.time() - t0, f"FALLO: excepción {exc}")
     dur = time.time() - t0
     if proc.returncode == 0:
         return ResultadoEtapa(etapa, poligono, True, dur, "OK")
     tail = (proc.stderr or proc.stdout or "").strip().splitlines()[-3:]
     return ResultadoEtapa(
-        etapa, poligono, False, dur,
+        etapa,
+        poligono,
+        False,
+        dur,
         f"FALLO rc={proc.returncode}: {' | '.join(tail)}",
     )
 
 
 def _cargar_poligonos_ids(poligonos_path: Path) -> list[str]:
     import json
+
     with poligonos_path.open("r", encoding="utf-8") as fh:
         data = json.load(fh)
     ids = []
@@ -163,13 +173,19 @@ def _validar_setup(poligonos_path: Path) -> ResultadoEtapa:
 
     if not poligonos_path.exists():
         return ResultadoEtapa(
-            "validar", None, False, time.time() - t0,
+            "validar",
+            None,
+            False,
+            time.time() - t0,
             f"FALLO: no existe {poligonos_path}",
         )
     ids = _cargar_poligonos_ids(poligonos_path)
     if not ids:
         return ResultadoEtapa(
-            "validar", None, False, time.time() - t0,
+            "validar",
+            None,
+            False,
+            time.time() - t0,
             "FALLO: poligonos.geojson sin features válidas",
         )
 
@@ -182,6 +198,7 @@ def _validar_setup(poligonos_path: Path) -> ResultadoEtapa:
         # Cargamos .env para obtener EE_PROJECT_ID.
         try:
             from dotenv import load_dotenv
+
             load_dotenv(PROJECT_ROOT / ".env")
         except ImportError:
             pass
@@ -200,7 +217,10 @@ def _validar_setup(poligonos_path: Path) -> ResultadoEtapa:
         mensajes.append("earthengine-api no instalado")
 
     return ResultadoEtapa(
-        "validar", None, True, time.time() - t0,
+        "validar",
+        None,
+        True,
+        time.time() - t0,
         f"{len(ids)} polígonos; {'; '.join(mensajes) if mensajes else 'OK'}",
     )
 
@@ -215,18 +235,21 @@ def _etapa_test_ee(dry: bool) -> ResultadoEtapa:
     for rel in candidatos:
         if (PROJECT_ROOT / rel).exists():
             return _run_subprocess(rel, [], "test_ee_auth")
-    return ResultadoEtapa("test_ee_auth", None, True, 0.0,
-                          "SKIP: script no encontrado")
+    return ResultadoEtapa("test_ee_auth", None, True, 0.0, "SKIP: script no encontrado")
 
 
 def _etapa_descarga(
-    script_rel: str, etapa: str, poligonos_path: Path, dry: bool,
+    script_rel: str,
+    etapa: str,
+    poligonos_path: Path,
+    dry: bool,
 ) -> ResultadoEtapa:
     if dry:
         return ResultadoEtapa(etapa, None, True, 0.0, "SKIP (dry-run)")
     if not (PROJECT_ROOT / script_rel).exists():
-        return ResultadoEtapa(etapa, None, True, 0.0,
-                              f"SKIP: {script_rel} no existe (lo crea otro agente)")
+        return ResultadoEtapa(
+            etapa, None, True, 0.0, f"SKIP: {script_rel} no existe (lo crea otro agente)"
+        )
     args = ["--poligonos", str(poligonos_path)]
     return _run_subprocess(script_rel, args, etapa)
 
@@ -237,17 +260,17 @@ def _etapa_descarga(
 # y todas las etapas downstream leen de ahí.
 OBS_CSV_DIR = os.environ.get("OBS_CSV_DIR", "data/processed/conteos")
 OBS_SERIE_CSV = f"{OBS_CSV_DIR}/serie_temporal.csv"
-OBS_POB_CSV = os.environ.get(
-    "OBS_POB_CSV", "data/processed/poblacion_estimada.csv"
-)
+OBS_POB_CSV = os.environ.get("OBS_POB_CSV", "data/processed/poblacion_estimada.csv")
 
 
 def _etapa_contar(poligonos_path: Path, dry: bool) -> ResultadoEtapa:
     if dry:
         return ResultadoEtapa("contar_techos", None, True, 0.0, "SKIP (dry-run)")
     args = [
-        "--poligonos", str(poligonos_path),
-        "--output-dir", OBS_CSV_DIR,
+        "--poligonos",
+        str(poligonos_path),
+        "--output-dir",
+        OBS_CSV_DIR,
     ]
     return _run_subprocess("scripts/20_contar_techos.py", args, "contar_techos")
 
@@ -256,9 +279,12 @@ def _etapa_poblacion(poligonos_path: Path, dry: bool) -> ResultadoEtapa:
     if dry:
         return ResultadoEtapa("estimar_poblacion", None, True, 0.0, "SKIP (dry-run)")
     args = [
-        "--poligonos", str(poligonos_path),
-        "--serie-temporal", OBS_SERIE_CSV,
-        "--output", OBS_POB_CSV,
+        "--poligonos",
+        str(poligonos_path),
+        "--serie-temporal",
+        OBS_SERIE_CSV,
+        "--output",
+        OBS_POB_CSV,
     ]
     return _run_subprocess("scripts/30_estimar_poblacion.py", args, "estimar_poblacion")
 
@@ -272,11 +298,15 @@ def _etapa_timelapse(poligono_id: str, dry: bool) -> ResultadoEtapa:
     return _run_subprocess(
         "scripts/50_generar_timelapse.py",
         [
-            "--poligono", poligono_id,
-            "--formato", "both",
-            "--serie-temporal", OBS_SERIE_CSV,
+            "--poligono",
+            poligono_id,
+            "--formato",
+            "both",
+            "--serie-temporal",
+            OBS_SERIE_CSV,
         ],
-        "timelapse", poligono_id,
+        "timelapse",
+        poligono_id,
     )
 
 
@@ -286,11 +316,15 @@ def _etapa_pdf(poligono_id: str, dry: bool) -> ResultadoEtapa:
     return _run_subprocess(
         "scripts/60_generar_pdf.py",
         [
-            "--poligono", poligono_id,
-            "--serie-temporal", OBS_SERIE_CSV,
-            "--poblacion", OBS_POB_CSV,
+            "--poligono",
+            poligono_id,
+            "--serie-temporal",
+            OBS_SERIE_CSV,
+            "--poblacion",
+            OBS_POB_CSV,
         ],
-        "pdf", poligono_id,
+        "pdf",
+        poligono_id,
     )
 
 
@@ -311,9 +345,15 @@ def _ejecutar_por_poligono(
             try:
                 resultados.append(fut.result())
             except Exception as exc:  # noqa: BLE001
-                resultados.append(ResultadoEtapa(
-                    fn.__name__, pid, False, 0.0, f"FALLO excepción: {exc}",
-                ))
+                resultados.append(
+                    ResultadoEtapa(
+                        fn.__name__,
+                        pid,
+                        False,
+                        0.0,
+                        f"FALLO excepción: {exc}",
+                    )
+                )
     return resultados
 
 
@@ -329,17 +369,23 @@ def _ejecutar_por_poligono(
     show_default=True,
 )
 @click.option(
-    "--poligonos-subset", "--polígonos",
+    "--poligonos-subset",
+    "--polígonos",
     "poligonos_subset",
-    type=str, default=None,
+    type=str,
+    default=None,
     help="Subset CSV de IDs, ej: 'itaembe_mini,el_brete'",
 )
 @click.option(
-    "--skip-descargas", is_flag=True, default=False,
+    "--skip-descargas",
+    is_flag=True,
+    default=False,
     help="Saltea etapas 01/03/05/10 y re-procesa a partir del conteo.",
 )
 @click.option(
-    "--dry-run", is_flag=True, default=False,
+    "--dry-run",
+    is_flag=True,
+    default=False,
     help="No ejecuta nada, solo imprime el plan.",
 )
 @click.option("--workers-poligono", type=int, default=3, show_default=True)
@@ -361,9 +407,7 @@ def cli(
     stamp = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
     log_file = log_dir / f"pipeline_{stamp}.log"
     fh = logging.FileHandler(log_file, encoding="utf-8")
-    fh.setFormatter(logging.Formatter(
-        "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
-    ))
+    fh.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(name)s | %(message)s"))
     logging.getLogger().addHandler(fh)
 
     modo = "(DRY-RUN)" if dry_run else ""
@@ -414,9 +458,7 @@ def cli(
             r = _etapa_descarga(script_rel, etapa, poligonos, dry_run)
             resumen.agregar(r)
             if not r.ok and not r.mensaje.startswith("SKIP"):
-                logger.warning(
-                    f"Etapa {etapa} falló: {r.mensaje} (continuamos con lo que haya)"
-                )
+                logger.warning(f"Etapa {etapa} falló: {r.mensaje} (continuamos con lo que haya)")
 
     # 7. Conteo
     r_cont = _etapa_contar(poligonos, dry_run)
@@ -434,15 +476,25 @@ def cli(
 
     # 9. Timelapses (paralelo por polígono, I/O bound)
     logger.info(f"Generando timelapses en paralelo (workers={workers_poligono})...")
-    resumen.etapas.extend(_ejecutar_por_poligono(
-        _etapa_timelapse, poligonos_ids, workers_poligono, dry_run,
-    ))
+    resumen.etapas.extend(
+        _ejecutar_por_poligono(
+            _etapa_timelapse,
+            poligonos_ids,
+            workers_poligono,
+            dry_run,
+        )
+    )
 
     # 10. PDFs
     logger.info(f"Generando PDFs en paralelo (workers={workers_poligono})...")
-    resumen.etapas.extend(_ejecutar_por_poligono(
-        _etapa_pdf, poligonos_ids, workers_poligono, dry_run,
-    ))
+    resumen.etapas.extend(
+        _ejecutar_por_poligono(
+            _etapa_pdf,
+            poligonos_ids,
+            workers_poligono,
+            dry_run,
+        )
+    )
 
     # Resumen final
     total_s = time.time() - t0
@@ -455,8 +507,10 @@ def cli(
 
     # Exit code != 0 si alguna etapa crítica falló.
     criticos_fallados = [
-        r for r in resumen.etapas
-        if not r.ok and not r.mensaje.startswith("SKIP")
+        r
+        for r in resumen.etapas
+        if not r.ok
+        and not r.mensaje.startswith("SKIP")
         and r.nombre in ("contar_techos", "validar")
     ]
     if criticos_fallados:

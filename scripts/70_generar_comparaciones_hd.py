@@ -33,6 +33,7 @@ from __future__ import annotations
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -58,7 +59,6 @@ from rasterio.warp import transform_geom
 from scripts.utils.interrupts import graceful_interrupt
 from scripts.utils.logger import get_logger, setup_logger
 from scripts.utils.paths import ensure_dir, resolve_path
-
 
 logger = get_logger(__name__)
 
@@ -87,9 +87,18 @@ PADDING_LABEL_BOTTOM = 18
 BORDE_POLIGONO_ALPHA = 180
 
 MESES_ES = {
-    "01": "ENERO", "02": "FEBRERO", "03": "MARZO", "04": "ABRIL",
-    "05": "MAYO", "06": "JUNIO", "07": "JULIO", "08": "AGOSTO",
-    "09": "SEPTIEMBRE", "10": "OCTUBRE", "11": "NOVIEMBRE", "12": "DICIEMBRE",
+    "01": "ENERO",
+    "02": "FEBRERO",
+    "03": "MARZO",
+    "04": "ABRIL",
+    "05": "MAYO",
+    "06": "JUNIO",
+    "07": "JULIO",
+    "08": "AGOSTO",
+    "09": "SEPTIEMBRE",
+    "10": "OCTUBRE",
+    "11": "NOVIEMBRE",
+    "12": "DICIEMBRE",
 }
 
 VERSION_OBSERVATORIO = "0.1.0"
@@ -222,6 +231,7 @@ def _coords_a_pixel(geom, transform, dst_w: int, dst_h: int, src_w: int, src_h: 
     Devuelve una lista de anillos, cada uno como lista de ``(x, y)`` en
     coordenadas del canvas destino.
     """
+
     def _un_anillo(ring):
         pts = []
         for x, y in ring:
@@ -377,8 +387,12 @@ def _dibujar_label_debajo(
             anchor="mt",
         )
     except TypeError:
-        draw.text((centro_x - ancho_panel // 2, y), fecha_legible,
-                  font=fuente_fecha, fill=COLOR_ACENTO_RGB)
+        draw.text(
+            (centro_x - ancho_panel // 2, y),
+            fecha_legible,
+            font=fuente_fecha,
+            fill=COLOR_ACENTO_RGB,
+        )
 
     y += ALTO_LABEL_FECHA - PADDING_LABEL_TOP
     try:
@@ -390,8 +404,9 @@ def _dibujar_label_debajo(
             anchor="mt",
         )
     except TypeError:
-        draw.text((centro_x - ancho_panel // 2, y), texto_conteo,
-                  font=fuente_conteo, fill=COLOR_GRIS_SUB)
+        draw.text(
+            (centro_x - ancho_panel // 2, y), texto_conteo, font=fuente_conteo, fill=COLOR_GRIS_SUB
+        )
 
 
 def armar_comparacion(
@@ -421,9 +436,7 @@ def armar_comparacion(
         Imagen PIL en modo RGB lista para guardar.
     """
     logger.info(f"Preparando paneles para '{poligono_id}'...")
-    panel_antes, alto_antes = _preparar_panel_imagen(
-        tiff_antes, poligono_geom_4326, ancho_imagen
-    )
+    panel_antes, alto_antes = _preparar_panel_imagen(tiff_antes, poligono_geom_4326, ancho_imagen)
     panel_despues, alto_despues = _preparar_panel_imagen(
         tiff_despues, poligono_geom_4326, ancho_imagen
     )
@@ -475,10 +488,15 @@ def armar_comparacion(
             anchor="mt",
         )
     except TypeError:
-        draw.text((MARGEN_LATERAL, MARGEN_SUPERIOR), titulo,
-                  font=fuente_titulo, fill=COLOR_ACENTO_RGB)
-        draw.text((MARGEN_LATERAL, MARGEN_SUPERIOR + 62), subtitulo,
-                  font=fuente_subtitulo, fill=COLOR_GRIS_SUB)
+        draw.text(
+            (MARGEN_LATERAL, MARGEN_SUPERIOR), titulo, font=fuente_titulo, fill=COLOR_ACENTO_RGB
+        )
+        draw.text(
+            (MARGEN_LATERAL, MARGEN_SUPERIOR + 62),
+            subtitulo,
+            font=fuente_subtitulo,
+            fill=COLOR_GRIS_SUB,
+        )
 
     # --- Paneles de imágenes ---
     y_imagenes = ALTO_ENCABEZADO
@@ -539,8 +557,7 @@ def armar_comparacion(
             anchor="mm",
         )
     except TypeError:
-        draw.text((MARGEN_LATERAL, y_footer), footer,
-                  font=fuente_footer, fill=COLOR_GRIS_FOOTER)
+        draw.text((MARGEN_LATERAL, y_footer), footer, font=fuente_footer, fill=COLOR_GRIS_FOOTER)
 
     return canvas
 
@@ -553,8 +570,13 @@ def _cargar_serie_temporal(path: Path) -> pd.DataFrame:
     if not path.exists():
         raise FileNotFoundError(f"No existe el CSV de serie temporal: {path}")
     df = pd.read_csv(path)
-    requeridas = {"poligono_id", "fecha", "n_edificios_min",
-                  "n_edificios_estimado", "n_edificios_max"}
+    requeridas = {
+        "poligono_id",
+        "fecha",
+        "n_edificios_min",
+        "n_edificios_estimado",
+        "n_edificios_max",
+    }
     faltan = requeridas - set(df.columns)
     if faltan:
         raise ValueError(f"CSV {path} le faltan columnas: {sorted(faltan)}")
@@ -675,7 +697,9 @@ def generar_comparacion_poligono(
         return None
 
     size_kb = out_path.stat().st_size / 1024
-    logger.info(f"PNG generado -> {out_path} ({size_kb:,.1f} KB, {imagen.size[0]}x{imagen.size[1]} px)")
+    logger.info(
+        f"PNG generado -> {out_path} ({size_kb:,.1f} KB, {imagen.size[0]}x{imagen.size[1]} px)"
+    )
     return out_path
 
 
@@ -805,10 +829,10 @@ def cli(
     fallos: list[str] = []
 
     with graceful_interrupt() as state:
+
         def _resumen_parcial() -> None:
             logger.info(
-                f"Resumen parcial: {len(resultados)} PNG(s) generados, "
-                f"{len(fallos)} fallo(s)."
+                f"Resumen parcial: {len(resultados)} PNG(s) generados, " f"{len(fallos)} fallo(s)."
             )
 
         state.on_interrupt(_resumen_parcial)

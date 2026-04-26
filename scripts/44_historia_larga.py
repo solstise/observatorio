@@ -62,21 +62,22 @@ from __future__ import annotations
 
 import csv
 import sys
+
+# --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------------------
+# Aseguramos que el root del proyecto esté en sys.path para que los imports
+# `from scripts.utils.X` funcionen al correr este archivo como script.
+import sys as _sys
 import traceback
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+from pathlib import Path as _Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import click
 from loguru import logger
 from tqdm import tqdm
 
-# --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------------------
-# Aseguramos que el root del proyecto esté en sys.path para que los imports
-# `from scripts.utils.X` funcionen al correr este archivo como script.
-import sys as _sys
-from pathlib import Path as _Path
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -86,12 +87,11 @@ while _p != _p.parent:
     _p = _p.parent
 # --- fin del parche ---------------------------------------------------------
 
-from scripts.utils.config import Settings, load_settings
+from scripts.utils.config import load_settings
 from scripts.utils.interrupts import graceful_interrupt
 from scripts.utils.io_geo import load_geojson
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, resolve_path
-
 
 SCRIPT_VERSION = "0.1.0"
 
@@ -109,10 +109,7 @@ MAPBIOMAS_ASSET = (
 # Fallback si Argentina no existe o no acepta los términos.
 MAPBIOMAS_FALLBACK_ASSETS = [
     # Chaco cubre el norte argentino y Paraguay — Posadas está sobre el Chaco.
-    (
-        "projects/mapbiomas-chaco/public/collection4/mapbiomas_chaco_collection4_"
-        "integration_v1"
-    ),
+    ("projects/mapbiomas-chaco/public/collection4/mapbiomas_chaco_collection4_" "integration_v1"),
     # Amazonía: lejos de Posadas pero garantiza fallback para testear el código.
     (
         "projects/mapbiomas-workspace/public/collection_3_1/"
@@ -266,9 +263,7 @@ def _resolver_mapbiomas_asset() -> Optional[str]:
             if not bandas:
                 logger.warning(f"MapBiomas asset {asset} sin bandas, saltando.")
                 continue
-            logger.info(
-                f"MapBiomas asset resuelto: {asset} ({len(bandas)} bandas)"
-            )
+            logger.info(f"MapBiomas asset resuelto: {asset} ({len(bandas)} bandas)")
             return asset
         except Exception as exc:  # noqa: BLE001
             logger.warning(f"MapBiomas {asset} no accesible: {exc}")
@@ -297,13 +292,17 @@ def _histograma_clases_mapbiomas(
     """
     import ee
 
-    hist = mb_image.select(band).reduceRegion(
-        reducer=ee.Reducer.frequencyHistogram(),
-        geometry=geom,
-        scale=scale_m,
-        maxPixels=1e10,
-        bestEffort=True,
-    ).getInfo()
+    hist = (
+        mb_image.select(band)
+        .reduceRegion(
+            reducer=ee.Reducer.frequencyHistogram(),
+            geometry=geom,
+            scale=scale_m,
+            maxPixels=1e10,
+            bestEffort=True,
+        )
+        .getInfo()
+    )
 
     raw = hist.get(band) if hist else None
     if not raw:
@@ -432,8 +431,13 @@ def procesar_mapbiomas(
         filas,
         destino_csv,
         columnas=[
-            "poligono_id", "anio", "total_pixeles",
-            "pct_urbano", "pct_vegetacion", "pct_agua", "pct_cultivos",
+            "poligono_id",
+            "anio",
+            "total_pixeles",
+            "pct_urbano",
+            "pct_vegetacion",
+            "pct_agua",
+            "pct_cultivos",
             "clase_dominante",
         ],
     )
@@ -471,13 +475,17 @@ def _reduce_ghsl_sum(
     # El ID directo es `<asset>/<anio>` en la ImageCollection P2023A.
     try:
         image = ee.Image(f"{asset_id}/{anio}")
-        result = image.select(band).reduceRegion(
-            reducer=ee.Reducer.sum(),
-            geometry=geom,
-            scale=GHSL_SCALE_M,
-            maxPixels=1e10,
-            bestEffort=True,
-        ).getInfo()
+        result = (
+            image.select(band)
+            .reduceRegion(
+                reducer=ee.Reducer.sum(),
+                geometry=geom,
+                scale=GHSL_SCALE_M,
+                maxPixels=1e10,
+                bestEffort=True,
+            )
+            .getInfo()
+        )
         if not result:
             return None
         val = result.get(band)
@@ -558,9 +566,13 @@ def procesar_ghsl(
         filas,
         destino_csv,
         columnas=[
-            "poligono_id", "anio",
-            "built_surface_m2", "pop_estimada",
-            "pct_built", "densidad_pop_km2", "area_km2",
+            "poligono_id",
+            "anio",
+            "built_surface_m2",
+            "pop_estimada",
+            "pct_built",
+            "densidad_pop_km2",
+            "area_km2",
         ],
     )
     return True, f"GHSL OK — {len(filas)} filas en {destino_csv.name}"
@@ -680,7 +692,7 @@ def procesar_viirs(
             pbar.update(len(meses))
             continue
 
-        for (anio, mes) in meses:
+        for anio, mes in meses:
             stats = _viirs_mes_avg_rad(geom, anio, mes)
             if stats is None:
                 pbar.update(1)
@@ -697,8 +709,7 @@ def procesar_viirs(
             }
             filas.append(fila)
             logger.debug(
-                f"[{poligono_id}|{fecha_str}] mean={fila['viirs_mean']} "
-                f"sum={fila['viirs_sum']}"
+                f"[{poligono_id}|{fecha_str}] mean={fila['viirs_mean']} " f"sum={fila['viirs_sum']}"
             )
             pbar.update(1)
 
@@ -834,7 +845,9 @@ def cmd_mapbiomas(ctx: click.Context, anio_desde: int, anio_hasta: int) -> None:
         # Guardado parcial (nota: MapBiomas acumula filas en memoria, si llega
         # SIGINT a mitad no hay persistencia incremental — pero el próximo run
         # reusa el CSV ya escrito si el anterior completó).
-        state.on_interrupt(lambda: logger.warning("Interrupción en MapBiomas — CSV puede estar incompleto."))
+        state.on_interrupt(
+            lambda: logger.warning("Interrupción en MapBiomas — CSV puede estar incompleto.")
+        )
         try:
             ok, msg = procesar_mapbiomas(gdf, anio_desde, anio_hasta, destino)
         except Exception as exc:  # noqa: BLE001
@@ -862,7 +875,9 @@ def cmd_ghsl(ctx: click.Context, anios_str: Optional[str]) -> None:
     anios = _parse_anios(anios_str, GHSL_ANIOS_DEFAULT)
 
     with graceful_interrupt() as state:
-        state.on_interrupt(lambda: logger.warning("Interrupción en GHSL — CSV puede estar incompleto."))
+        state.on_interrupt(
+            lambda: logger.warning("Interrupción en GHSL — CSV puede estar incompleto.")
+        )
         try:
             ok, msg = procesar_ghsl(gdf, anios, destino)
         except Exception as exc:  # noqa: BLE001
@@ -887,7 +902,9 @@ def cmd_viirs(ctx: click.Context, desde_anio: int, hasta_anio: Optional[int]) ->
     destino = out / "viirs_por_poligono.csv"
 
     with graceful_interrupt() as state:
-        state.on_interrupt(lambda: logger.warning("Interrupción en VIIRS — CSV puede estar incompleto."))
+        state.on_interrupt(
+            lambda: logger.warning("Interrupción en VIIRS — CSV puede estar incompleto.")
+        )
         try:
             ok, msg = procesar_viirs(gdf, desde_anio, hasta_anio, destino)
         except Exception as exc:  # noqa: BLE001
@@ -920,7 +937,9 @@ def _ejecutar_todo(ctx: click.Context) -> None:
         # VIIRS
         try:
             ok, msg = procesar_viirs(
-                gdf, desde_anio=2014, hasta_anio=datetime.now().year,
+                gdf,
+                desde_anio=2014,
+                hasta_anio=datetime.now().year,
                 destino_csv=out / "viirs_por_poligono.csv",
             )
         except Exception as exc:  # noqa: BLE001
@@ -932,7 +951,8 @@ def _ejecutar_todo(ctx: click.Context) -> None:
         # GHSL
         try:
             ok, msg = procesar_ghsl(
-                gdf, anios=GHSL_ANIOS_DEFAULT,
+                gdf,
+                anios=GHSL_ANIOS_DEFAULT,
                 destino_csv=out / "ghsl_por_poligono.csv",
             )
         except Exception as exc:  # noqa: BLE001
@@ -944,7 +964,9 @@ def _ejecutar_todo(ctx: click.Context) -> None:
         # MapBiomas (el más sensible a permisos de asset)
         try:
             ok, msg = procesar_mapbiomas(
-                gdf, anio_desde=1985, anio_hasta=2023,
+                gdf,
+                anio_desde=1985,
+                anio_hasta=2023,
                 destino_csv=out / "mapbiomas_por_poligono.csv",
             )
         except Exception as exc:  # noqa: BLE001

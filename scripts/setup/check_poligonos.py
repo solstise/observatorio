@@ -1,5 +1,7 @@
 """Muestra áreas y bbox de config/poligonos.geojson."""
+
 from pathlib import Path
+
 import geopandas as gpd
 
 raiz = Path(__file__).resolve().parent.parent.parent

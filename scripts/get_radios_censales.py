@@ -67,6 +67,7 @@ def fetch_radios() -> dict:
     # GeoServer del INDEC tiene cadena TLS incompleta (común en *.gob.ar)
     try:
         import urllib3
+
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     except Exception:
         pass
@@ -100,6 +101,7 @@ def main() -> None:
 
     # Conteo por tipo (Urbano/Rural/Mixto)
     from collections import Counter
+
     by_tro = Counter(f["properties"].get("tro") or "?" for f in fc_capital["features"])
     by_cfn = Counter(f["properties"].get("cfn") or "?" for f in fc_capital["features"])
     print(f"  por tipo (tro): {dict(by_tro)}")

@@ -48,26 +48,25 @@ escribe eventos a ``models/runs/<timestamp>/``.
 from __future__ import annotations
 
 import csv
-import json
 import signal
 import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 import click
 import numpy as np
 from loguru import logger
 
 try:
+    import albumentations as A  # type: ignore
+    import segmentation_models_pytorch as smp  # type: ignore
     import torch  # type: ignore
     import torch.nn as nn  # type: ignore
-    from torch.utils.data import DataLoader, Dataset  # type: ignore
-    import albumentations as A  # type: ignore
     from albumentations.pytorch import ToTensorV2  # type: ignore
     from PIL import Image  # type: ignore
-    import segmentation_models_pytorch as smp  # type: ignore
+    from torch.utils.data import DataLoader, Dataset  # type: ignore
 except ImportError:  # pragma: no cover
     torch = None
     nn = None
@@ -88,6 +87,7 @@ except ImportError:  # pragma: no cover
 # `from scripts.utils.X` funcionen al correr este archivo como script.
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -98,7 +98,7 @@ while _p != _p.parent:
 # --- fin del parche ---------------------------------------------------------
 
 from scripts.utils.logger import setup_logger
-from scripts.utils.paths import ensure_dir, ensure_parent, resolve_path
+from scripts.utils.paths import ensure_parent, resolve_path
 
 _INTERRUPTED = False
 
@@ -303,9 +303,7 @@ def main(
         device = "cuda" if torch.cuda.is_available() else "cpu"
     logger.info(f"Device: {device}")
     if device == "cpu":
-        logger.warning(
-            "Entrenando en CPU — esto tarda días. Se recomienda GPU (RTX 3080 OK)."
-        )
+        logger.warning("Entrenando en CPU — esto tarda días. Se recomienda GPU (RTX 3080 OK).")
 
     data_p = resolve_path(data)
     output_p = resolve_path(output)
@@ -397,9 +395,7 @@ def main(
                 f"val loss={val_loss:.4f} iou={val_iou:.3f} f1={val_f1:.3f} | "
                 f"lr={lr_now:.2e} | {dt:.1f}s"
             )
-            csvw.writerow(
-                [epoch, tr_loss, tr_iou, tr_f1, val_loss, val_iou, val_f1, lr_now, dt]
-            )
+            csvw.writerow([epoch, tr_loss, tr_iou, tr_f1, val_loss, val_iou, val_f1, lr_now, dt])
             fh.flush()
 
             if writer is not None:
@@ -432,9 +428,7 @@ def main(
             else:
                 epochs_sin_mejora += 1
                 if epochs_sin_mejora >= early_stop_patience:
-                    logger.info(
-                        f"Early stopping: {epochs_sin_mejora} epochs sin mejora."
-                    )
+                    logger.info(f"Early stopping: {epochs_sin_mejora} epochs sin mejora.")
                     break
 
     if writer is not None:

@@ -54,11 +54,13 @@ Uso
     python scripts/57_forecast_clima.py --solo-barrios san_isidro,a4_nueva_esperanza
     python scripts/57_forecast_clima.py --dias 7 --skip-aqi
 """
+
 from __future__ import annotations
 
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -81,7 +83,7 @@ import requests
 from loguru import logger
 
 from scripts.utils.logger import setup_logger
-from scripts.utils.paths import ensure_parent, resolve_path
+from scripts.utils.paths import resolve_path
 
 SCRIPT_VERSION = "0.1.0"
 
@@ -121,6 +123,7 @@ def _http_get_json(url: str, params: Dict, timeout: int = 60) -> Dict:
     for intento, espera in enumerate([0] + backoffs, start=1):
         if espera:
             import time as _time
+
             _time.sleep(espera)
         try:
             r = requests.get(url, params=params, timeout=timeout)
@@ -128,9 +131,7 @@ def _http_get_json(url: str, params: Dict, timeout: int = 60) -> Dict:
             return r.json()
         except requests.RequestException as exc:
             ultimo_error = exc
-            logger.warning(
-                f"  intento {intento}/{len(backoffs) + 1} falló: {exc}"
-            )
+            logger.warning(f"  intento {intento}/{len(backoffs) + 1} falló: {exc}")
     raise RuntimeError(f"Open-Meteo no respondió tras {len(backoffs) + 1} intentos: {ultimo_error}")
 
 
@@ -269,32 +270,40 @@ def parsear_ensemble_diario(j: Dict) -> pd.DataFrame:
         from scipy import stats  # type: ignore
 
         try:
-            modes = stats.mode(np.nan_to_num(wc_mx, nan=-1).astype(int), axis=1, keepdims=False).mode
+            modes = stats.mode(
+                np.nan_to_num(wc_mx, nan=-1).astype(int), axis=1, keepdims=False
+            ).mode
             wcode = np.where(modes >= 0, modes, np.nan)
         except Exception:
-            wcode = np.array([
-                pd.Series(row).mode().iloc[0] if pd.Series(row).notna().any() else np.nan
-                for row in wc_mx
-            ])
+            wcode = np.array(
+                [
+                    pd.Series(row).mode().iloc[0] if pd.Series(row).notna().any() else np.nan
+                    for row in wc_mx
+                ]
+            )
     else:
         wcode = np.full(len(fechas), np.nan, dtype=float)
 
     pcts_tmax = _percentiles_por_dia(tmax_mx)
     pcts_tmin = _percentiles_por_dia(tmin_mx)
     # Para precipitación tomamos la mediana (sum es ya por miembro).
-    pp_p50 = np.nanpercentile(pp_mx, 50, axis=1) if pp_mx.shape[1] > 0 else np.full(len(fechas), np.nan)
+    pp_p50 = (
+        np.nanpercentile(pp_mx, 50, axis=1) if pp_mx.shape[1] > 0 else np.full(len(fechas), np.nan)
+    )
 
-    df = pd.DataFrame({
-        "fecha": fechas,
-        "tmax_p10": np.round(pcts_tmax[10], 2),
-        "tmax_p50": np.round(pcts_tmax[50], 2),
-        "tmax_p90": np.round(pcts_tmax[90], 2),
-        "tmin_p10": np.round(pcts_tmin[10], 2),
-        "tmin_p50": np.round(pcts_tmin[50], 2),
-        "tmin_p90": np.round(pcts_tmin[90], 2),
-        "precipitation_mm": np.round(pp_p50, 2),
-        "weather_code": wcode,
-    })
+    df = pd.DataFrame(
+        {
+            "fecha": fechas,
+            "tmax_p10": np.round(pcts_tmax[10], 2),
+            "tmax_p50": np.round(pcts_tmax[50], 2),
+            "tmax_p90": np.round(pcts_tmax[90], 2),
+            "tmin_p10": np.round(pcts_tmin[10], 2),
+            "tmin_p50": np.round(pcts_tmin[50], 2),
+            "tmin_p90": np.round(pcts_tmin[90], 2),
+            "precipitation_mm": np.round(pp_p50, 2),
+            "weather_code": wcode,
+        }
+    )
     df["weather_code"] = df["weather_code"].astype("Int64")
     n_miembros_tmax = tmax_mx.shape[1]
     n_miembros_tmin = tmin_mx.shape[1]
@@ -305,7 +314,9 @@ def parsear_ensemble_diario(j: Dict) -> pd.DataFrame:
     return df
 
 
-def parsear_ensemble_horario(j: Dict, horas_atras: int = 0, horas_adelante: int = FORECAST_HORAS_FINAS) -> pd.DataFrame:
+def parsear_ensemble_horario(
+    j: Dict, horas_atras: int = 0, horas_adelante: int = FORECAST_HORAS_FINAS
+) -> pd.DataFrame:
     """DataFrame horario con la mediana del ensemble + bandas p10/p90.
 
     Solo expone las próximas ``horas_adelante`` horas (más eventualmente
@@ -328,15 +339,17 @@ def parsear_ensemble_horario(j: Dict, horas_atras: int = 0, horas_adelante: int 
     pr_mx = _matriz_horaria("precipitation")
     ws_mx = _matriz_horaria("wind_speed_10m")
 
-    df = pd.DataFrame({
-        "time": times,
-        "temp_p10": np.round(np.nanpercentile(t_mx, 10, axis=1), 2),
-        "temp_p50": np.round(np.nanpercentile(t_mx, 50, axis=1), 2),
-        "temp_p90": np.round(np.nanpercentile(t_mx, 90, axis=1), 2),
-        "rh_p50": np.round(np.nanpercentile(rh_mx, 50, axis=1), 1),
-        "precip_p50": np.round(np.nanpercentile(pr_mx, 50, axis=1), 2),
-        "wind_p50": np.round(np.nanpercentile(ws_mx, 50, axis=1), 2),
-    })
+    df = pd.DataFrame(
+        {
+            "time": times,
+            "temp_p10": np.round(np.nanpercentile(t_mx, 10, axis=1), 2),
+            "temp_p50": np.round(np.nanpercentile(t_mx, 50, axis=1), 2),
+            "temp_p90": np.round(np.nanpercentile(t_mx, 90, axis=1), 2),
+            "rh_p50": np.round(np.nanpercentile(rh_mx, 50, axis=1), 1),
+            "precip_p50": np.round(np.nanpercentile(pr_mx, 50, axis=1), 2),
+            "wind_p50": np.round(np.nanpercentile(ws_mx, 50, axis=1), 2),
+        }
+    )
     # Cortar a las primeras N horas para no llenar el CSV con 14 días horarios.
     return df.head(horas_adelante).copy()
 
@@ -349,26 +362,34 @@ def parsear_aqi(j: Dict) -> pd.DataFrame:
         return pd.DataFrame()
 
     times = pd.to_datetime(hourly["time"])
-    df = pd.DataFrame({
-        "time": times,
-        "pm10": hourly.get("pm10", []),
-        "pm2_5": hourly.get("pm2_5", []),
-        "no2": hourly.get("nitrogen_dioxide", []),
-        "so2": hourly.get("sulphur_dioxide", []),
-        "ozone": hourly.get("ozone", []),
-        "european_aqi": hourly.get("european_aqi", []),
-    })
+    df = pd.DataFrame(
+        {
+            "time": times,
+            "pm10": hourly.get("pm10", []),
+            "pm2_5": hourly.get("pm2_5", []),
+            "no2": hourly.get("nitrogen_dioxide", []),
+            "so2": hourly.get("sulphur_dioxide", []),
+            "ozone": hourly.get("ozone", []),
+            "european_aqi": hourly.get("european_aqi", []),
+        }
+    )
     df["fecha"] = df["time"].dt.date.astype(str)
     # AQI europeo es un máximo diario por convención; los demás también
     # los tomamos como max diario porque interesa el peor momento.
-    grp = df.groupby("fecha").agg({
-        "pm10": "max",
-        "pm2_5": "max",
-        "no2": "max",
-        "so2": "max",
-        "ozone": "max",
-        "european_aqi": "max",
-    }).reset_index()
+    grp = (
+        df.groupby("fecha")
+        .agg(
+            {
+                "pm10": "max",
+                "pm2_5": "max",
+                "no2": "max",
+                "so2": "max",
+                "ozone": "max",
+                "european_aqi": "max",
+            }
+        )
+        .reset_index()
+    )
     for c in ["pm10", "pm2_5", "no2", "so2", "ozone", "european_aqi"]:
         grp[c] = grp[c].round(1)
     return grp
@@ -406,19 +427,23 @@ def calcular_offsets_por_barrio(
         ``poligono_id, offset_calor_c, offset_frio_c, offset_origen``.
     """
     if df_uhi_estacional.empty:
-        return pd.DataFrame(columns=["poligono_id", "offset_calor_c", "offset_frio_c", "offset_origen"])
+        return pd.DataFrame(
+            columns=["poligono_id", "offset_calor_c", "offset_frio_c", "offset_origen"]
+        )
 
     # Factores de calibración LST → aire 2 m. Conservadores y honestos:
     # se sabe que la transferencia es alta y variable, así que la banda
     # p10-p90 ya cubre el ruido residual.
-    K_DIA = 0.33   # 3°C de UHI LST diurno ≈ 1°C diferencial Tmax aire
+    K_DIA = 0.33  # 3°C de UHI LST diurno ≈ 1°C diferencial Tmax aire
     K_NOCHE = 0.20  # 5°C de UHI LST nocturno ≈ 1°C diferencial Tmin aire
 
     # UHI verano más reciente por barrio (proxy diurno).
     df_v = df_uhi_estacional[df_uhi_estacional["estacion"].str.lower() == "verano"].copy()
     if not df_v.empty:
         df_v = df_v.sort_values(["poligono_id", "anio"]).groupby("poligono_id").tail(1)
-    df_v = df_v[["poligono_id", "uhi_vs_rural_mean"]].rename(columns={"uhi_vs_rural_mean": "uhi_verano"})
+    df_v = df_v[["poligono_id", "uhi_vs_rural_mean"]].rename(
+        columns={"uhi_vs_rural_mean": "uhi_verano"}
+    )
 
     # UHI invierno más reciente por barrio (proxy nocturno; en invierno
     # el cielo despejado favorece la pérdida radiativa, y la diferencia
@@ -426,7 +451,9 @@ def calcular_offsets_por_barrio(
     df_i = df_uhi_estacional[df_uhi_estacional["estacion"].str.lower() == "invierno"].copy()
     if not df_i.empty:
         df_i = df_i.sort_values(["poligono_id", "anio"]).groupby("poligono_id").tail(1)
-    df_i = df_i[["poligono_id", "uhi_vs_rural_mean"]].rename(columns={"uhi_vs_rural_mean": "uhi_invierno"})
+    df_i = df_i[["poligono_id", "uhi_vs_rural_mean"]].rename(
+        columns={"uhi_vs_rural_mean": "uhi_invierno"}
+    )
 
     df = df_v.merge(df_i, on="poligono_id", how="outer")
     df["poligono_id"] = df["poligono_id"].astype(str)
@@ -477,22 +504,28 @@ def proyectar_forecast_por_barrio(
             origen = "ninguno"
 
         for _, fc in forecast_centro.iterrows():
-            rows.append({
-                "poligono_id": barrio,
-                "fecha": str(fc["fecha"]),
-                "tmin_p10": round(float(fc["tmin_p10"]) + off_frio, 2),
-                "tmin_p50": round(float(fc["tmin_p50"]) + off_frio, 2),
-                "tmin_p90": round(float(fc["tmin_p90"]) + off_frio, 2),
-                "tmax_p10": round(float(fc["tmax_p10"]) + off_calor, 2),
-                "tmax_p50": round(float(fc["tmax_p50"]) + off_calor, 2),
-                "tmax_p90": round(float(fc["tmax_p90"]) + off_calor, 2),
-                "precipitation_mm": float(fc["precipitation_mm"]) if pd.notna(fc["precipitation_mm"]) else None,
-                "weather_code": int(fc["weather_code"]) if pd.notna(fc["weather_code"]) else None,
-                "offset_calor_c": off_calor,
-                "offset_frio_c": off_frio,
-                "offset_origen": origen,
-                "generated_at": generated_at,
-            })
+            rows.append(
+                {
+                    "poligono_id": barrio,
+                    "fecha": str(fc["fecha"]),
+                    "tmin_p10": round(float(fc["tmin_p10"]) + off_frio, 2),
+                    "tmin_p50": round(float(fc["tmin_p50"]) + off_frio, 2),
+                    "tmin_p90": round(float(fc["tmin_p90"]) + off_frio, 2),
+                    "tmax_p10": round(float(fc["tmax_p10"]) + off_calor, 2),
+                    "tmax_p50": round(float(fc["tmax_p50"]) + off_calor, 2),
+                    "tmax_p90": round(float(fc["tmax_p90"]) + off_calor, 2),
+                    "precipitation_mm": (
+                        float(fc["precipitation_mm"]) if pd.notna(fc["precipitation_mm"]) else None
+                    ),
+                    "weather_code": (
+                        int(fc["weather_code"]) if pd.notna(fc["weather_code"]) else None
+                    ),
+                    "offset_calor_c": off_calor,
+                    "offset_frio_c": off_frio,
+                    "offset_origen": origen,
+                    "generated_at": generated_at,
+                }
+            )
     return pd.DataFrame(rows)
 
 
@@ -614,7 +647,9 @@ def main(
             )
     else:
         logger.warning(f"UHI no encontrado en {uhi_path}; offset = 0 para todos los barrios.")
-        offsets = pd.DataFrame(columns=["poligono_id", "offset_calor_c", "offset_frio_c", "offset_origen"])
+        offsets = pd.DataFrame(
+            columns=["poligono_id", "offset_calor_c", "offset_frio_c", "offset_origen"]
+        )
 
     # Llamadas API.
     try:
@@ -661,9 +696,9 @@ def main(
     else:
         # Aún en caso de skip o error, persistimos un CSV vacío con header
         # para que el sync no rompa.
-        pd.DataFrame(columns=["fecha", "pm10", "pm2_5", "no2", "so2", "ozone", "european_aqi"]).to_csv(
-            f_aqi, index=False, encoding="utf-8"
-        )
+        pd.DataFrame(
+            columns=["fecha", "pm10", "pm2_5", "no2", "so2", "ozone", "european_aqi"]
+        ).to_csv(f_aqi, index=False, encoding="utf-8")
         logger.info(f"aqi_diario.csv -> 0 filas (header only) en {f_aqi}")
 
     metadata = {
@@ -686,22 +721,17 @@ def main(
     )
     logger.info("=" * 60)
     logger.info("Forecast climático listo.")
-    logger.info(f"  diario: {len(df_barrios)} filas, {len(barrios)} barrios x {len(df_centro)} días")
+    logger.info(
+        f"  diario: {len(df_barrios)} filas, {len(barrios)} barrios x {len(df_centro)} días"
+    )
     logger.info(f"  horario: {len(df_horario)} filas")
     logger.info(f"  aqi: {len(df_aqi)} filas")
 
     # Top 3 con Tmin más fría en próximos 7 días para inspección rápida.
     if not df_barrios.empty:
-        proximos_7 = df_barrios[df_barrios["fecha"] <= str(pd.to_datetime(df_barrios["fecha"].max()).date())]
-        # Mejor: ordenamos por fecha asc y tomamos las primeras 7 fechas.
         fechas_7 = sorted(df_barrios["fecha"].unique())[:7]
         sub = df_barrios[df_barrios["fecha"].isin(fechas_7)]
-        top3 = (
-            sub.groupby("poligono_id")["tmin_p50"]
-            .min()
-            .sort_values()
-            .head(3)
-        )
+        top3 = sub.groupby("poligono_id")["tmin_p50"].min().sort_values().head(3)
         logger.info(f"Top 3 barrios con Tmin pronosticada más fría (próx. 7 d):\n{top3}")
 
     logger.info("=" * 60)

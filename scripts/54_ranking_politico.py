@@ -75,16 +75,17 @@ from __future__ import annotations
 
 import math
 import sys
+
+# --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
+import sys as _sys
 from pathlib import Path
-from typing import Dict, Optional
+from pathlib import Path as _Path
+from typing import Dict
 
 import click
 import pandas as pd
 from loguru import logger
 
-# --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
-import sys as _sys
-from pathlib import Path as _Path
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -96,7 +97,6 @@ while _p != _p.parent:
 
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_parent, resolve_path
-
 
 # ---------------------------------------------------------------------------
 # Pesos (ajustables por flag --pesos)
@@ -144,9 +144,7 @@ def _cargar_vulnerabilidad(path: Path) -> pd.DataFrame:
         raise FileNotFoundError(f"No se encontró vulnerabilidad en {path}.")
     df = pd.read_csv(path)
     if "poligono_id" not in df.columns or "score" not in df.columns:
-        raise ValueError(
-            f"CSV vulnerabilidad mal formado: faltan columnas en {path}."
-        )
+        raise ValueError(f"CSV vulnerabilidad mal formado: faltan columnas en {path}.")
     df["poligono_id"] = df["poligono_id"].astype(str)
     df = df[["poligono_id", "score"]].rename(columns={"score": "vulnerabilidad"})
     logger.info(f"  vulnerabilidad: {len(df)} polígonos.")
@@ -352,9 +350,7 @@ def main(
     }
     total = sum(pesos.values())
     if abs(total - 1.0) > 1e-3:
-        logger.warning(
-            f"Pesos suman {total:.3f} ≠ 1.0 — los renormalizo proporcionalmente."
-        )
+        logger.warning(f"Pesos suman {total:.3f} ≠ 1.0 — los renormalizo proporcionalmente.")
         pesos = {k: v / total for k, v in pesos.items()}
     logger.info(f"Pesos efectivos: {pesos}")
 

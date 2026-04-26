@@ -1,7 +1,8 @@
 """Audit de geometrías: detectar polígonos fragmentados, agujeros y cobertura."""
+
 from __future__ import annotations
+
 import geopandas as gpd
-import json
 from shapely.ops import unary_union
 
 g = gpd.read_file("config/poligonos.geojson")
@@ -23,23 +24,31 @@ for i, row in gm.iterrows():
         if n_parts > 1:
             areas = sorted([p.area / 1e6 for p in geom.geoms], reverse=True)
             ratio = areas[1] / areas[0] if areas[0] > 0 else 0
-            problemas.append({
-                "id": row["id"],
-                "tipo": "multipolygon",
-                "n_parts": n_parts,
-                "area_total_km2": round(geom.area / 1e6, 3),
-                "areas_partes": [round(a, 3) for a in areas],
-                "ratio_segundo_primero": round(ratio, 3),
-            })
+            problemas.append(
+                {
+                    "id": row["id"],
+                    "tipo": "multipolygon",
+                    "n_parts": n_parts,
+                    "area_total_km2": round(geom.area / 1e6, 3),
+                    "areas_partes": [round(a, 3) for a in areas],
+                    "ratio_segundo_primero": round(ratio, 3),
+                }
+            )
     if hasattr(geom, "interiors"):
-        n_holes = len(list(geom.interiors)) if geom.geom_type == "Polygon" else sum(len(list(p.interiors)) for p in geom.geoms)
+        n_holes = (
+            len(list(geom.interiors))
+            if geom.geom_type == "Polygon"
+            else sum(len(list(p.interiors)) for p in geom.geoms)
+        )
         if n_holes > 0:
-            problemas.append({
-                "id": row["id"],
-                "tipo": "agujeros",
-                "n_agujeros": n_holes,
-                "area_total_km2": round(geom.area / 1e6, 3),
-            })
+            problemas.append(
+                {
+                    "id": row["id"],
+                    "tipo": "agujeros",
+                    "n_agujeros": n_holes,
+                    "area_total_km2": round(geom.area / 1e6, 3),
+                }
+            )
 
 if problemas:
     for p in problemas:
@@ -52,6 +61,7 @@ print()
 print("2) Cobertura espacial:")
 bbox_oeste, bbox_sur, bbox_este, bbox_norte = -56.05, -27.51, -55.80, -27.30
 from shapely.geometry import box
+
 bbox_poly = box(bbox_oeste, bbox_sur, bbox_este, bbox_norte)
 bbox_gdf = gpd.GeoDataFrame([{"geometry": bbox_poly}], crs="EPSG:4326").to_crs("EPSG:32721")
 bbox_area_km2 = bbox_gdf.geometry.iloc[0].area / 1e6

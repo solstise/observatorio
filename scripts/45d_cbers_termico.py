@@ -73,6 +73,7 @@ from __future__ import annotations
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -86,15 +87,12 @@ import json
 import sys
 import urllib.request
 from datetime import datetime
-from pathlib import Path
-from typing import List
 
 import click
 from loguru import logger
 
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, resolve_path
-
 
 SCRIPT_VERSION = "0.1.0"
 
@@ -145,9 +143,7 @@ def _verificar_aws_irs() -> dict:
         from botocore import UNSIGNED
         from botocore.config import Config
 
-        s3 = boto3.client(
-            "s3", config=Config(signature_version=UNSIGNED), region_name="us-west-2"
-        )
+        s3 = boto3.client("s3", config=Config(signature_version=UNSIGNED), region_name="us-west-2")
         # Hay tres satélites top: AMAZONIA1, CBERS4, CBERS4A. Si IRS apareciera, sería bajo CBERS4/IRS/.
         resp = s3.list_objects_v2(
             Bucket="brazil-eosats", Prefix="CBERS4/IRS/", Delimiter="/", MaxKeys=5

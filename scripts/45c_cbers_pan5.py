@@ -64,6 +64,7 @@ from __future__ import annotations
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -74,7 +75,6 @@ while _p != _p.parent:
 # --- fin del parche ---------------------------------------------------------
 
 import json
-import re
 import shutil
 import sys
 import time
@@ -90,7 +90,6 @@ from loguru import logger
 from scripts.utils.io_geo import cache_check, load_geojson
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, resolve_path
-
 
 SCRIPT_VERSION = "0.1.0"
 
@@ -114,7 +113,7 @@ PATH_ROW_CANDIDATES: List[Tuple[str, str]] = [
 
 # Sensores fallback chain (5m → 10m)
 SENSORES_PRIORIZADOS = [
-    ("PAN5M", "BAND1", 5),    # sensor, banda, resolución_m
+    ("PAN5M", "BAND1", 5),  # sensor, banda, resolución_m
     ("PAN10M", "BAND2", 10),  # PAN10M trae bandas 2/3/4 — usamos BAND2 (verde) como pan
 ]
 
@@ -162,9 +161,7 @@ def _s3_client():
     from botocore import UNSIGNED
     from botocore.config import Config
 
-    return boto3.client(
-        "s3", config=Config(signature_version=UNSIGNED), region_name=S3_REGION
-    )
+    return boto3.client("s3", config=Config(signature_version=UNSIGNED), region_name=S3_REGION)
 
 
 def _listar_escenas_s3(sensor: str, path: str, row: str) -> List[str]:
@@ -174,9 +171,7 @@ def _listar_escenas_s3(sensor: str, path: str, row: str) -> List[str]:
     try:
         paginator = s3.get_paginator("list_objects_v2")
         nombres: List[str] = []
-        for page in paginator.paginate(
-            Bucket=S3_BUCKET, Prefix=prefix, Delimiter="/"
-        ):
+        for page in paginator.paginate(Bucket=S3_BUCKET, Prefix=prefix, Delimiter="/"):
             for cp in page.get("CommonPrefixes", []) or []:
                 nombre = cp.get("Prefix", "").rstrip("/").split("/")[-1]
                 if nombre.endswith("_L2"):
@@ -187,7 +182,9 @@ def _listar_escenas_s3(sensor: str, path: str, row: str) -> List[str]:
         return []
 
 
-def _consultar_stac_cloud(sensor: str, scene_id: str, fecha: str, path: str, row: str) -> Optional[float]:
+def _consultar_stac_cloud(
+    sensor: str, scene_id: str, fecha: str, path: str, row: str
+) -> Optional[float]:
     """Trata de obtener cloud_cover desde STAC INPE para CBERS-4 PAN5M/PAN10M."""
     coleccion = f"CBERS4_{sensor}_L2_DN"
     # ID típico STAC: CBERS4_PAN5M_{path}{row}_{YYYYMMDD}
@@ -246,7 +243,9 @@ def descubrir_candidatos(
                 cand.cobertura_pct = 100.0
                 candidatos.append(cand)
 
-    logger.info(f"Encontrados {len(candidatos)} candidatos PAN5M/PAN10M dentro de {dias_atras} días")
+    logger.info(
+        f"Encontrados {len(candidatos)} candidatos PAN5M/PAN10M dentro de {dias_atras} días"
+    )
 
     # cloud_cover via STAC (best-effort)
     if intentar_stac:
@@ -259,7 +258,9 @@ def descubrir_candidatos(
         c for c in candidatos if c.cloud_cover is None or c.cloud_cover <= cloud_threshold
     ]
     if pre != len(candidatos):
-        logger.info(f"  Filtrados {pre - len(candidatos)} candidatos con cloud_cover > {cloud_threshold}%")
+        logger.info(
+            f"  Filtrados {pre - len(candidatos)} candidatos con cloud_cover > {cloud_threshold}%"
+        )
 
     # Ordenar: PAN5M antes que PAN10M, luego más reciente, luego menos nubes
     def _orden(c: CandidatoPAN) -> tuple:
@@ -285,9 +286,7 @@ def descargar_recortado(cand: CandidatoPAN, destino: Path) -> bool:
     try:
         with rasterio.open(url) as src:
             # Reproyectar bbox a CRS del raster
-            tr = pyproj.Transformer.from_crs(
-                "EPSG:4326", src.crs, always_xy=True
-            )
+            tr = pyproj.Transformer.from_crs("EPSG:4326", src.crs, always_xy=True)
             oeste, sur, este, norte = POSADAS_BBOX_4326
             xs, ys = [], []
             for lon, lat in [
@@ -349,9 +348,9 @@ def recortar_y_pngear_por_poligono(
     import geopandas as gpd
     import numpy as np
     import rasterio
+    from PIL import Image
     from rasterio.mask import mask as rio_mask
     from shapely.geometry import shape
-    from PIL import Image
 
     info: Dict[str, Any] = {"poligono_id": poligono_id, "yyyymm": yyyymm}
     png_dest = out_dir / f"{poligono_id}_pan5_{yyyymm}.png"
@@ -481,7 +480,7 @@ def main(
         )
         sys.exit(0)
 
-    logger.info(f"Top candidatos:")
+    logger.info("Top candidatos:")
     for i, c in enumerate(candidatos[:5]):
         cloud = f"{c.cloud_cover:.0f}%" if c.cloud_cover is not None else "?"
         logger.info(
@@ -496,10 +495,7 @@ def main(
         sys.exit(0)
 
     # Descarga raw
-    pan_tif = (
-        out_raw
-        / f"cbers4_{elegida.fecha}_pan{elegida.resolucion_m}.tif"
-    )
+    pan_tif = out_raw / f"cbers4_{elegida.fecha}_pan{elegida.resolucion_m}.tif"
     if not (cache_check(pan_tif) and not force):
         ok = descargar_recortado(elegida, pan_tif)
         if not ok:
@@ -561,7 +557,9 @@ def main(
     )
 
     logger.info("=" * 60)
-    logger.info(f"PAN5 sync — OK={len(cubiertos)} sin_cobertura={len(sin_cobertura)} err={len(errores)}")
+    logger.info(
+        f"PAN5 sync — OK={len(cubiertos)} sin_cobertura={len(sin_cobertura)} err={len(errores)}"
+    )
     logger.info(f"  Tiempo total: {elapsed:.1f}s")
     sys.exit(0 if not errores else 1)
 

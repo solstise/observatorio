@@ -18,6 +18,7 @@ Salida: sobrescribe config/poligonos.geojson con todos los features
 Uso:
     python scripts/setup/ampliar_observatorio.py
 """
+
 from __future__ import annotations
 
 import json
@@ -26,13 +27,10 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
-from urllib.parse import quote
 
 import requests
 
-HEADERS = {
-    "User-Agent": "ObservatorioUrbanoPosadas/0.1 (contacto: fundile@gmail.com)"
-}
+HEADERS = {"User-Agent": "ObservatorioUrbanoPosadas/0.1 (contacto: fundile@gmail.com)"}
 
 RAIZ = Path(__file__).resolve().parent.parent.parent
 GEOJSON = RAIZ / "config" / "poligonos.geojson"
@@ -218,8 +216,9 @@ def traer_poligono_osm_relation(relation_id: int) -> tuple[dict, float]:
         raise RuntimeError(f"OSM relation {relation_id} sin geojson")
 
     try:
-        from shapely.geometry import shape
         from pyproj import Geod
+        from shapely.geometry import shape
+
         geod = Geod(ellps="WGS84")
         geom_obj = shape(geom)
         area_m2 = abs(geod.geometry_area_perimeter(geom_obj)[0])

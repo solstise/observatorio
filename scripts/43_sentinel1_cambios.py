@@ -67,9 +67,15 @@ from __future__ import annotations
 
 import math
 import sys
+
+# --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------------------
+# Aseguramos que el root del proyecto esté en sys.path para que los imports
+# `from scripts.utils.X` funcionen al correr este archivo como script.
+import sys as _sys
 import traceback
 from datetime import datetime, timedelta
 from pathlib import Path
+from pathlib import Path as _Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import click
@@ -77,11 +83,6 @@ import pandas as pd
 from loguru import logger
 from tqdm import tqdm
 
-# --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------------------
-# Aseguramos que el root del proyecto esté en sys.path para que los imports
-# `from scripts.utils.X` funcionen al correr este archivo como script.
-import sys as _sys
-from pathlib import Path as _Path
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -96,7 +97,6 @@ from scripts.utils.interrupts import graceful_interrupt
 from scripts.utils.io_geo import load_geojson
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, ensure_parent, resolve_path
-
 
 SCRIPT_VERSION = "0.1.0"
 
@@ -143,9 +143,7 @@ def inicializar_ee(project_id: Optional[str]) -> None:
     try:
         import ee
     except ImportError as exc:
-        logger.error(
-            "earthengine-api no está instalado. Corré: pip install earthengine-api"
-        )
+        logger.error("earthengine-api no está instalado. Corré: pip install earthengine-api")
         raise SystemExit(1) from exc
 
     try:
@@ -198,9 +196,7 @@ def _coleccion_s1(geom, fecha_target: str, polarizacion: str) -> Tuple[Any, int]
         .filterDate(inicio, fin)
         .filter(ee.Filter.eq("orbitProperties_pass", ORBIT_PASS))
         .filter(ee.Filter.eq("instrumentMode", INSTRUMENT_MODE))
-        .filter(
-            ee.Filter.listContains("transmitterReceiverPolarisation", polarizacion)
-        )
+        .filter(ee.Filter.listContains("transmitterReceiverPolarisation", polarizacion))
         .select([polarizacion])
     )
     n = int(coleccion.size().getInfo())
@@ -216,7 +212,6 @@ def _db_a_lineal(image):
 
 def _lineal_a_db(image):
     """Convierte una imagen en potencia lineal a dB: 10*log10(lin)."""
-    import ee
 
     return image.log10().multiply(10)
 
@@ -361,9 +356,7 @@ def _procesar(
     base_fila["n_imagenes_vh"] = n_vh
 
     if n_vv == 0 and n_vh == 0:
-        logger.warning(
-            f"[{poligono_id}|{fecha_target}] Sin imágenes S1 disponibles."
-        )
+        logger.warning(f"[{poligono_id}|{fecha_target}] Sin imágenes S1 disponibles.")
         return base_fila
 
     vv_db = _composite_mean_db(col_vv, ee_geom, "VV") if n_vv > 0 else None
@@ -378,9 +371,7 @@ def _procesar(
     vh_str = f"{vh_db:.2f}dB" if vh_db is not None else "NA"
     cross = base_fila["s1_cross_ratio"]
     cross_str = f"{cross:.2f}dB" if cross is not None else "NA"
-    logger.info(
-        f"[{poligono_id}|{fecha_target}] VV={vv_str} | VH={vh_str} | VV-VH={cross_str}"
-    )
+    logger.info(f"[{poligono_id}|{fecha_target}] VV={vv_str} | VH={vh_str} | VV-VH={cross_str}")
 
     return base_fila
 
@@ -402,9 +393,7 @@ def _calcular_deltas(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty:
         return df
     df = df.sort_values(["poligono_id", "fecha"]).reset_index(drop=True)
-    df["delta_vv_mean_db"] = (
-        df.groupby("poligono_id")["s1_vv_mean_db"].diff()
-    )
+    df["delta_vv_mean_db"] = df.groupby("poligono_id")["s1_vv_mean_db"].diff()
     return df
 
 
@@ -511,9 +500,7 @@ def main(
                 lambda r: (str(r["poligono_id"]), str(r["fecha"])) in claves_nuevas,
                 axis=1,
             )
-            df_final = pd.concat(
-                [df_existente[mask_keep], df_nuevo], ignore_index=True
-            )
+            df_final = pd.concat([df_existente[mask_keep], df_nuevo], ignore_index=True)
         else:
             df_final = df_nuevo
         # Recalcular delta_vv sobre toda la serie para mantener consistencia.
@@ -542,9 +529,7 @@ def main(
                         fila = _procesar(poligono_id, geom_geojson, fecha)
                         filas_nuevas.append(fila)
                     except Exception as exc:  # noqa: BLE001
-                        logger.error(
-                            f"[{poligono_id}|{fecha}] Excepción no manejada: {exc}"
-                        )
+                        logger.error(f"[{poligono_id}|{fecha}] Excepción no manejada: {exc}")
                         logger.debug(traceback.format_exc())
                         filas_nuevas.append(
                             {
@@ -557,9 +542,7 @@ def main(
                                 "n_imagenes_vv": 0,
                                 "n_imagenes_vh": 0,
                                 "version_script": SCRIPT_VERSION,
-                                "fecha_calculo": datetime.now().strftime(
-                                    "%Y-%m-%dT%H:%M:%S"
-                                ),
+                                "fecha_calculo": datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
                             }
                         )
                     pbar.update(1)

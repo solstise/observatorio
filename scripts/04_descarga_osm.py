@@ -42,12 +42,11 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 import click
 import requests
 from loguru import logger
-from tqdm import tqdm
 
 try:
     import geopandas as gpd  # type: ignore
@@ -63,6 +62,7 @@ except ImportError:  # pragma: no cover
 # `from scripts.utils.X` funcionen al correr este archivo como script.
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -74,7 +74,7 @@ while _p != _p.parent:
 
 from scripts.utils.config import BBox, load_settings
 from scripts.utils.logger import setup_logger
-from scripts.utils.paths import ensure_dir, ensure_parent, resolve_path
+from scripts.utils.paths import ensure_parent, resolve_path
 
 # ---------------------------------------------------------------------------
 # Constantes
@@ -110,9 +110,7 @@ def _install_sigint_handler() -> None:
 def _normalizar_servicio(tag: str) -> Tuple[str, str]:
     """Parsea 'key=value' a (key, value)."""
     if "=" not in tag:
-        raise click.BadParameter(
-            f"Tag mal formado: '{tag}'. Usá 'key=value' ej. 'amenity=school'."
-        )
+        raise click.BadParameter(f"Tag mal formado: '{tag}'. Usá 'key=value' ej. 'amenity=school'.")
     key, value = tag.split("=", 1)
     return key.strip(), value.strip()
 
@@ -182,9 +180,7 @@ class OverpassClient:
             if _INTERRUPTED:
                 raise KeyboardInterrupt()
             endpoint = self.endpoints[(intento - 1) % len(self.endpoints)]
-            logger.info(
-                f"Overpass intento {intento}/{MAX_RETRIES} → {endpoint}"
-            )
+            logger.info(f"Overpass intento {intento}/{MAX_RETRIES} → {endpoint}")
             try:
                 resp = self.session.post(
                     endpoint,
@@ -195,8 +191,7 @@ class OverpassClient:
                 last_err = exc
                 delay = BACKOFF_BASE_SEC * (2 ** (intento - 1))
                 logger.warning(
-                    f"Error de red ({exc.__class__.__name__}: {exc}). "
-                    f"Backoff {delay:.1f}s."
+                    f"Error de red ({exc.__class__.__name__}: {exc}). " f"Backoff {delay:.1f}s."
                 )
                 time.sleep(delay)
                 continue
@@ -220,21 +215,14 @@ class OverpassClient:
                 continue
             if 500 <= resp.status_code < 600:
                 delay = BACKOFF_BASE_SEC * (2 ** (intento - 1))
-                logger.warning(
-                    f"Overpass {resp.status_code}. Reintento en {delay:.1f}s."
-                )
+                logger.warning(f"Overpass {resp.status_code}. Reintento en {delay:.1f}s.")
                 time.sleep(delay)
                 continue
 
             # Errores 4xx distintos a 429: levantar con detalle
-            raise RuntimeError(
-                f"Overpass respondió {resp.status_code}: "
-                f"{resp.text[:300]}"
-            )
+            raise RuntimeError(f"Overpass respondió {resp.status_code}: " f"{resp.text[:300]}")
 
-        raise RuntimeError(
-            f"Overpass falló tras {MAX_RETRIES} intentos: {last_err}"
-        )
+        raise RuntimeError(f"Overpass falló tras {MAX_RETRIES} intentos: {last_err}")
 
 
 # ---------------------------------------------------------------------------
@@ -242,7 +230,9 @@ class OverpassClient:
 # ---------------------------------------------------------------------------
 
 
-def _coords_way(elem: dict, node_index: Dict[int, Tuple[float, float]]) -> List[Tuple[float, float]]:
+def _coords_way(
+    elem: dict, node_index: Dict[int, Tuple[float, float]]
+) -> List[Tuple[float, float]]:
     """Reconstruye coordenadas de un way a partir del índice de nodes."""
     coords: List[Tuple[float, float]] = []
     for nid in elem.get("nodes", []):
@@ -275,9 +265,7 @@ def _centroide_elem(
     return None
 
 
-def _parse_servicios(
-    data: dict, tags_pedidos: Sequence[str]
-) -> "gpd.GeoDataFrame":
+def _parse_servicios(data: dict, tags_pedidos: Sequence[str]) -> "gpd.GeoDataFrame":
     """Convierte la respuesta Overpass en GeoDataFrame de puntos."""
     if gpd is None or Point is None:
         raise RuntimeError("geopandas/shapely no están instalados.")
@@ -290,9 +278,7 @@ def _parse_servicios(
     keys_interes = {k.split("=")[0] for k in tags_pedidos}
     filas: List[dict] = []
     for e in elems:
-        if e.get("type") == "node" and not any(
-            k in (e.get("tags") or {}) for k in keys_interes
-        ):
+        if e.get("type") == "node" and not any(k in (e.get("tags") or {}) for k in keys_interes):
             # Nodes auxiliares (parte de ways): los salteamos.
             continue
         tags = e.get("tags") or {}
@@ -311,9 +297,7 @@ def _parse_servicios(
         filas.append(
             {
                 "osm_id": f"{e['type']}/{e['id']}",
-                "tipo": tipo or ",".join(
-                    f"{k}={tags[k]}" for k in keys_interes if k in tags
-                ),
+                "tipo": tipo or ",".join(f"{k}={tags[k]}" for k in keys_interes if k in tags),
                 "name": tags.get("name") or tags.get("official_name"),
                 "lon": centroide[0],
                 "lat": centroide[1],
@@ -374,9 +358,7 @@ def _firma(bbox: BBox, items: Sequence[str], flavor: str) -> str:
     return hashlib.sha1(json.dumps(payload, sort_keys=True).encode()).hexdigest()[:16]
 
 
-def _guardar_metadata(
-    destino: Path, bbox: BBox, items: Sequence[str], flavor: str
-) -> None:
+def _guardar_metadata(destino: Path, bbox: BBox, items: Sequence[str], flavor: str) -> None:
     meta = {
         "firma": _firma(bbox, items, flavor),
         "bbox": {
@@ -480,9 +462,7 @@ def main(
         lista_svc = [s.strip() for s in servicios.split(",") if s.strip()]
     else:
         lista_svc = list(settings.servicios_osm.servicios)
-    logger.info(
-        f"Servicios a consultar ({len(lista_svc)}): {', '.join(lista_svc)}"
-    )
+    logger.info(f"Servicios a consultar ({len(lista_svc)}): {', '.join(lista_svc)}")
 
     if gpd is None:
         logger.error("geopandas no está instalado. Agregá 'pip install geopandas shapely'.")
@@ -495,7 +475,11 @@ def main(
     client = OverpassClient.build()
 
     # --- Servicios ---
-    if not force and _metadata_coincide(meta_svc_path, bbox_obj, lista_svc, "servicios") and output_path.exists():
+    if (
+        not force
+        and _metadata_coincide(meta_svc_path, bbox_obj, lista_svc, "servicios")
+        and output_path.exists()
+    ):
         logger.info(f"Servicios en cache: {output_path} (firma coincide).")
     else:
         q_svc = _query_servicios(lista_svc, bbox_obj)
@@ -513,9 +497,11 @@ def main(
         calles_path = resolve_path(calles_output)
         ensure_parent(calles_path)
         meta_calles_path = calles_path.with_suffix(".meta.json")
-        if not force and _metadata_coincide(
-            meta_calles_path, bbox_obj, ["highway=*"], "calles"
-        ) and calles_path.exists():
+        if (
+            not force
+            and _metadata_coincide(meta_calles_path, bbox_obj, ["highway=*"], "calles")
+            and calles_path.exists()
+        ):
             logger.info(f"Calles en cache: {calles_path}.")
         else:
             q_calles = _query_calles(bbox_obj)

@@ -64,18 +64,19 @@ from __future__ import annotations
 
 import csv
 import sys
+
+# --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
+import sys as _sys
 import traceback
 from dataclasses import dataclass
 from pathlib import Path
+from pathlib import Path as _Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import click
 from loguru import logger
 from tqdm import tqdm
 
-# --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
-import sys as _sys
-from pathlib import Path as _Path
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -90,7 +91,6 @@ from scripts.utils.interrupts import graceful_interrupt
 from scripts.utils.io_geo import load_geojson
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, resolve_path
-
 
 SCRIPT_VERSION = "0.1.0"
 
@@ -276,11 +276,7 @@ def _media_anual_gas(
     import ee
 
     try:
-        col = (
-            ee.ImageCollection(gas.asset)
-            .filterDate(inicio, fin)
-            .select(gas.band)
-        )
+        col = ee.ImageCollection(gas.asset).filterDate(inicio, fin).select(gas.band)
         n = int(col.size().getInfo() or 0)
         if n == 0:
             return None, 0
@@ -431,8 +427,7 @@ def procesar_aire_multigas(
     ya_hechas = _claves_poligono_anio(previas)
     if previas:
         logger.info(
-            f"Aire multi-gas — {len(previas)} filas ya existen, se respetan "
-            f"salvo --force."
+            f"Aire multi-gas — {len(previas)} filas ya existen, se respetan " f"salvo --force."
         )
 
     # Cache del NO2 del bbox por año (una sola consulta por año vs N
@@ -529,8 +524,7 @@ def procesar_aire_multigas(
     _write_csv(filas, destino_csv, columnas=columnas)
     return (
         True,
-        f"Aire multi-gas OK — {len(filas)} filas ({agregadas} nuevas) en "
-        f"{destino_csv.name}",
+        f"Aire multi-gas OK — {len(filas)} filas ({agregadas} nuevas) en " f"{destino_csv.name}",
     )
 
 
@@ -620,9 +614,7 @@ def cli(
 
     with graceful_interrupt() as state:
         state.on_interrupt(
-            lambda: logger.warning(
-                "Interrupción — el CSV puede quedar parcial en disco."
-            )
+            lambda: logger.warning("Interrupción — el CSV puede quedar parcial en disco.")
         )
         try:
             ok, msg = procesar_aire_multigas(

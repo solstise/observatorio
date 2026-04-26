@@ -65,7 +65,9 @@ except Exception:
 
         def get_logger(name: str) -> logging.Logger:
             return _setup(name) if callable(_setup) else logging.getLogger(name)
+
     except Exception:
+
         def get_logger(name: str) -> logging.Logger:
             logging.basicConfig(
                 level=logging.INFO,
@@ -73,9 +75,11 @@ except Exception:
             )
             return logging.getLogger(name)
 
+
 try:
     from scripts.utils.config import load_settings  # type: ignore
 except Exception:
+
     def load_settings():  # type: ignore
         return None
 
@@ -86,9 +90,7 @@ BANDA_ERROR_POBLACION = 0.20  # ±20%
 FECHA_BASELINE_WORLDPOP = "2020-07"
 
 
-def _suma_zonal_worldpop(
-    raster_path: Path, poligono_geom
-) -> tuple[float, bool]:
+def _suma_zonal_worldpop(raster_path: Path, poligono_geom) -> tuple[float, bool]:
     """Devuelve (población_baseline, valido_worldpop) para un polígono.
 
     Usa ``rasterio.mask.mask`` con ``crop=True`` y suma los píxeles válidos.
@@ -98,9 +100,7 @@ def _suma_zonal_worldpop(
     try:
         with rasterio.open(raster_path) as ds:
             # Reproyectar polígono si hace falta.
-            out_image, _ = rio_mask(
-                ds, [mapping(poligono_geom)], crop=True, filled=True, nodata=0
-            )
+            out_image, _ = rio_mask(ds, [mapping(poligono_geom)], crop=True, filled=True, nodata=0)
             if out_image.size == 0:
                 return 0.0, False
             arr = out_image[0].astype(np.float64)

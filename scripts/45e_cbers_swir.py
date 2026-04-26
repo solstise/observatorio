@@ -56,6 +56,7 @@ from __future__ import annotations
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -68,7 +69,6 @@ while _p != _p.parent:
 import json
 import sys
 from datetime import datetime
-from pathlib import Path
 from typing import List
 
 import click
@@ -77,7 +77,6 @@ from loguru import logger
 
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, resolve_path
-
 
 SCRIPT_VERSION = "0.1.0"
 
@@ -102,9 +101,7 @@ def _verificar_irs_disponible() -> bool:
         from botocore import UNSIGNED
         from botocore.config import Config
 
-        s3 = boto3.client(
-            "s3", config=Config(signature_version=UNSIGNED), region_name="us-west-2"
-        )
+        s3 = boto3.client("s3", config=Config(signature_version=UNSIGNED), region_name="us-west-2")
         resp = s3.list_objects_v2(
             Bucket="brazil-eosats", Prefix="CBERS4/IRS/", Delimiter="/", MaxKeys=5
         )
@@ -153,9 +150,7 @@ def main(
     # Si IRS no está disponible: producir CSV degenerate consistente con FIRMS.
     firms_path = resolve_path(firms_csv)
     if not firms_path.exists():
-        logger.warning(
-            f"FIRMS CSV no existe en {firms_path}. Escribo CSV vacío (sólo header)."
-        )
+        logger.warning(f"FIRMS CSV no existe en {firms_path}. Escribo CSV vacío (sólo header).")
         out_csv = out_dir / "firms_crossval_anual.csv"
         out_csv.write_text(",".join(CSV_COLUMNS) + "\n", encoding="utf-8")
     else:
@@ -171,9 +166,7 @@ def main(
                     "n_focos_cbers_swir": 0,  # IRS no disponible
                     "n_coincidencias": 0,
                     "agreement_pct": float("nan"),
-                    "fuente_secundaria": (
-                        "cbers_irs_swir" if irs_disp else "no_disponible"
-                    ),
+                    "fuente_secundaria": ("cbers_irs_swir" if irs_disp else "no_disponible"),
                 }
             )
         df_out = pd.DataFrame(rows, columns=CSV_COLUMNS)
@@ -184,7 +177,9 @@ def main(
     metadata = {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "sensor": "CBERS-4 IRS SWIR (3 bandas) + TIR",
-        "estado": "no_disponible_via_api_anonima" if not irs_disp else "disponible_pero_no_implementado",
+        "estado": (
+            "no_disponible_via_api_anonima" if not irs_disp else "disponible_pero_no_implementado"
+        ),
         "razon": (
             "Bucket s3://brazil-eosats no expone CBERS-4 IRS. STAC INPE "
             "tampoco. Sólo PAN5M/PAN10M/MUX/AWFI están en AWS abierto."
@@ -201,7 +196,9 @@ def main(
     (out_dir / "_metadata.json").write_text(
         json.dumps(metadata, ensure_ascii=False, indent=2), encoding="utf-8"
     )
-    logger.info("OK — script terminó. SWIR cross-val permanecerá degenerate hasta que IRS sea accesible.")
+    logger.info(
+        "OK — script terminó. SWIR cross-val permanecerá degenerate hasta que IRS sea accesible."
+    )
     sys.exit(0)
 
 

@@ -28,7 +28,7 @@ import atexit
 import signal
 import sys
 from contextlib import contextmanager
-from typing import Callable, List, Optional
+from typing import Callable, List
 
 from loguru import logger
 
@@ -94,9 +94,7 @@ def graceful_interrupt(exit_code: int = 130):
             logger.warning("Segunda interrupción recibida. Salida inmediata.")
             sys.exit(exit_code)
         state.interrupted = True
-        logger.warning(
-            "Interrupción solicitada (Ctrl+C). Guardando estado parcial..."
-        )
+        logger.warning("Interrupción solicitada (Ctrl+C). Guardando estado parcial...")
         state.run_callbacks()
         logger.info(f"Saliendo con exit code {exit_code}.")
         # Restauramos el handler original antes de salir.

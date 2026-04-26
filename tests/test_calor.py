@@ -28,7 +28,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # Carga del módulo bajo test (no es importable directo por ser CLI click + dataclass).
 # ---------------------------------------------------------------------------
@@ -103,9 +102,9 @@ def test_lst_formula_valor_tipico():
     """ST_B10 = 44000 (DN típico verano Posadas) → LST ~26°C (rango sensato)."""
     lst = _lst_de_st_b10(44000)
     # 44000 * 0.00341802 + 149.0 - 273.15 = 150.39288 + 149.0 - 273.15 ≈ 26.24
-    assert 20.0 <= lst <= 35.0, (
-        f"Para ST_B10=44000 esperaba ~26°C, obtuve {lst:.2f}°C — revisar fórmula."
-    )
+    assert (
+        20.0 <= lst <= 35.0
+    ), f"Para ST_B10=44000 esperaba ~26°C, obtuve {lst:.2f}°C — revisar fórmula."
 
 
 def test_lst_formula_constantes_modulo(calor_module):
@@ -126,9 +125,7 @@ def test_lst_rango_razonable(st_b10: int):
     (`LST_MIN_CELSIUS_VALIDO`), así que esos DN nunca llegan al CSV final.
     """
     lst = _lst_de_st_b10(st_b10)
-    assert -10.0 <= lst <= 100.0, (
-        f"LST fuera de rango para ST_B10={st_b10}: {lst:.2f}°C"
-    )
+    assert -10.0 <= lst <= 100.0, f"LST fuera de rango para ST_B10={st_b10}: {lst:.2f}°C"
 
 
 def test_lst_extremo_bajo_st_b10_30000():
@@ -150,9 +147,7 @@ def test_lst_formula_replica_funcion_modulo(calor_module):
     # deben dar el mismo resultado que nuestra reimplementación.
     for st in (30000, 44000, 60000):
         esperado = (
-            st * calor_module.LST_SCALE
-            + calor_module.LST_OFFSET
-            - calor_module.KELVIN_A_CELSIUS
+            st * calor_module.LST_SCALE + calor_module.LST_OFFSET - calor_module.KELVIN_A_CELSIUS
         )
         assert esperado == pytest.approx(_lst_de_st_b10(st))
 
@@ -207,13 +202,13 @@ def test_mask_qa_pixel_con_ambos_descartado():
 @pytest.mark.parametrize(
     "qa,esperado",
     [
-        (0, True),               # todo apagado
-        (0b00000010, True),      # solo bit dilated_cloud (bit 1) → no es bit 3 ni 4
-        (0b00100000, True),      # solo bit snow (bit 5) → pasa para nuestro filtro
-        (0b00001000, False),     # bit cloud
-        (0b00010000, False),     # bit shadow
-        (0b00011000, False),     # ambos
-        (0xFFFF, False),         # todos los bits → ambos encendidos
+        (0, True),  # todo apagado
+        (0b00000010, True),  # solo bit dilated_cloud (bit 1) → no es bit 3 ni 4
+        (0b00100000, True),  # solo bit snow (bit 5) → pasa para nuestro filtro
+        (0b00001000, False),  # bit cloud
+        (0b00010000, False),  # bit shadow
+        (0b00011000, False),  # ambos
+        (0xFFFF, False),  # todos los bits → ambos encendidos
     ],
 )
 def test_mask_qa_pixel_parametrizado(qa: int, esperado: bool):
@@ -232,22 +227,19 @@ def baseline_rural_gdf():
     if not RUTA_BASELINE_RURAL.exists():
         pytest.skip(f"{RUTA_BASELINE_RURAL} no existe")
     import geopandas as gpd
+
     return gpd.read_file(RUTA_BASELINE_RURAL)
 
 
 def test_baseline_rural_tiene_4_poligonos(baseline_rural_gdf):
     """El baseline rural tiene exactamente 4 polígonos."""
-    assert len(baseline_rural_gdf) == 4, (
-        f"Esperaba 4 polígonos, hay {len(baseline_rural_gdf)}"
-    )
+    assert len(baseline_rural_gdf) == 4, f"Esperaba 4 polígonos, hay {len(baseline_rural_gdf)}"
 
 
 def test_baseline_rural_geometrias_validas(baseline_rural_gdf):
     """Todas las geometrías son topológicamente válidas (no self-intersect)."""
     invalidas = baseline_rural_gdf[~baseline_rural_gdf.geometry.is_valid]
-    assert len(invalidas) == 0, (
-        f"Geometrías inválidas: {invalidas['id'].tolist()}"
-    )
+    assert len(invalidas) == 0, f"Geometrías inválidas: {invalidas['id'].tolist()}"
 
 
 def test_baseline_rural_son_rurales(baseline_rural_gdf):
@@ -268,8 +260,7 @@ def test_baseline_rural_son_rurales(baseline_rural_gdf):
     tipos = set(baseline_rural_gdf["tipo"].unique())
     desconocidos = tipos - tipos_validos
     assert not desconocidos, (
-        f"Tipos no rurales detectados: {desconocidos}. "
-        f"Válidos: {tipos_validos}"
+        f"Tipos no rurales detectados: {desconocidos}. " f"Válidos: {tipos_validos}"
     )
 
 
@@ -282,9 +273,7 @@ def test_baseline_rural_area_minima_1km2(baseline_rural_gdf):
     for idx, area in zip(baseline_rural_gdf["id"], areas_km2):
         if area <= 1.0:
             fallos.append((idx, round(area, 3)))
-    assert not fallos, (
-        f"Polígonos rurales con área <=1 km²: {fallos}"
-    )
+    assert not fallos, f"Polígonos rurales con área <=1 km²: {fallos}"
 
 
 def test_baseline_rural_distancia_centro_max_25km(baseline_rural_gdf):
@@ -296,9 +285,7 @@ def test_baseline_rural_distancia_centro_max_25km(baseline_rural_gdf):
         dist = _haversine_km(POSADAS_LAT, POSADAS_LON, pt.y, pt.x)
         if dist > 25.0:
             fallos.append((row["id"], round(dist, 1)))
-    assert not fallos, (
-        f"Rurales >25 km del centro de Posadas: {fallos}"
-    )
+    assert not fallos, f"Rurales >25 km del centro de Posadas: {fallos}"
 
 
 def test_baseline_rural_ids_unicos(baseline_rural_gdf):
@@ -323,23 +310,55 @@ def _stats_sinteticos_uhi() -> pd.DataFrame:
     """
     filas = []
     # 2023, enero
-    filas.append({"poligono_id": "rur_a", "tipo_poligono": "rural",
-                  "anio": 2023, "mes": 1, "lst_mean": 30.0})
-    filas.append({"poligono_id": "rur_b", "tipo_poligono": "rural",
-                  "anio": 2023, "mes": 1, "lst_mean": 32.0})  # mean rural = 31.0
-    filas.append({"poligono_id": "urb_a", "tipo_poligono": "urbano",
-                  "anio": 2023, "mes": 1, "lst_mean": 36.0})  # uhi_vs_rural=5.0
-    filas.append({"poligono_id": "urb_b", "tipo_poligono": "urbano",
-                  "anio": 2023, "mes": 1, "lst_mean": 34.0})  # mean urb = 35.0
+    filas.append(
+        {"poligono_id": "rur_a", "tipo_poligono": "rural", "anio": 2023, "mes": 1, "lst_mean": 30.0}
+    )
+    filas.append(
+        {"poligono_id": "rur_b", "tipo_poligono": "rural", "anio": 2023, "mes": 1, "lst_mean": 32.0}
+    )  # mean rural = 31.0
+    filas.append(
+        {
+            "poligono_id": "urb_a",
+            "tipo_poligono": "urbano",
+            "anio": 2023,
+            "mes": 1,
+            "lst_mean": 36.0,
+        }
+    )  # uhi_vs_rural=5.0
+    filas.append(
+        {
+            "poligono_id": "urb_b",
+            "tipo_poligono": "urbano",
+            "anio": 2023,
+            "mes": 1,
+            "lst_mean": 34.0,
+        }
+    )  # mean urb = 35.0
     # 2024, enero — los urbanos suben 1°C respecto al año anterior.
-    filas.append({"poligono_id": "rur_a", "tipo_poligono": "rural",
-                  "anio": 2024, "mes": 1, "lst_mean": 30.0})
-    filas.append({"poligono_id": "rur_b", "tipo_poligono": "rural",
-                  "anio": 2024, "mes": 1, "lst_mean": 32.0})
-    filas.append({"poligono_id": "urb_a", "tipo_poligono": "urbano",
-                  "anio": 2024, "mes": 1, "lst_mean": 37.0})  # +1°C vs 2023
-    filas.append({"poligono_id": "urb_b", "tipo_poligono": "urbano",
-                  "anio": 2024, "mes": 1, "lst_mean": 35.0})
+    filas.append(
+        {"poligono_id": "rur_a", "tipo_poligono": "rural", "anio": 2024, "mes": 1, "lst_mean": 30.0}
+    )
+    filas.append(
+        {"poligono_id": "rur_b", "tipo_poligono": "rural", "anio": 2024, "mes": 1, "lst_mean": 32.0}
+    )
+    filas.append(
+        {
+            "poligono_id": "urb_a",
+            "tipo_poligono": "urbano",
+            "anio": 2024,
+            "mes": 1,
+            "lst_mean": 37.0,
+        }
+    )  # +1°C vs 2023
+    filas.append(
+        {
+            "poligono_id": "urb_b",
+            "tipo_poligono": "urbano",
+            "anio": 2024,
+            "mes": 1,
+            "lst_mean": 35.0,
+        }
+    )
     return pd.DataFrame(filas)
 
 
@@ -374,9 +393,7 @@ def test_uhi_anomalia_sin_historico_es_nan(calor_module):
     df = _stats_sinteticos_uhi()
     out = calor_module._calcular_uhi(df)
     fila_2023 = out[(out["poligono_id"] == "urb_a") & (out["anio"] == 2023) & (out["mes"] == 1)]
-    assert pd.isna(fila_2023["uhi_anomalia"].iloc[0]), (
-        "Sin años previos uhi_anomalia debe ser NaN"
-    )
+    assert pd.isna(fila_2023["uhi_anomalia"].iloc[0]), "Sin años previos uhi_anomalia debe ser NaN"
     assert int(fila_2023["n_observaciones_historico"].iloc[0]) == 0
 
 
@@ -396,9 +413,9 @@ def test_uhi_solo_reporta_urbanos(calor_module):
     df = _stats_sinteticos_uhi()
     out = calor_module._calcular_uhi(df)
     # No debe haber filas con poligono_id = "rur_*"
-    assert not any(out["poligono_id"].astype(str).str.startswith("rur_")), (
-        "UHI no debe emitirse para polígonos rurales"
-    )
+    assert not any(
+        out["poligono_id"].astype(str).str.startswith("rur_")
+    ), "UHI no debe emitirse para polígonos rurales"
 
 
 def test_uhi_dataframe_vacio(calor_module):
@@ -440,18 +457,22 @@ def test_estacional_asignacion_hemisferio_sur(
     # Construimos un DF con una fila urbana mínima para el mes/año.
     # _agregar_estacional necesita uhi_df con al menos: poligono_id, anio, mes,
     # uhi_vs_rural, uhi_vs_ciudad, lst_mean.
-    df = pd.DataFrame([{
-        "poligono_id": "urb_test",
-        "anio": anio,
-        "mes": mes,
-        "lst_mean": 30.0,
-        "uhi_vs_rural": 1.5,
-        "uhi_vs_ciudad": 0.5,
-        "uhi_anomalia": np.nan,
-        "lst_rural_baseline": 28.5,
-        "n_observaciones_historico": 0,
-        "std_historico": np.nan,
-    }])
+    df = pd.DataFrame(
+        [
+            {
+                "poligono_id": "urb_test",
+                "anio": anio,
+                "mes": mes,
+                "lst_mean": 30.0,
+                "uhi_vs_rural": 1.5,
+                "uhi_vs_ciudad": 0.5,
+                "uhi_anomalia": np.nan,
+                "lst_rural_baseline": 28.5,
+                "n_observaciones_historico": 0,
+                "std_historico": np.nan,
+            }
+        ]
+    )
     out = calor_module._agregar_estacional(df)
     assert len(out) == 1, f"Esperaba 1 fila estacional, hay {len(out)}"
     assert out["estacion"].iloc[0] == estacion_esp
@@ -464,9 +485,9 @@ def test_estacional_meses_por_estacion_modulo(calor_module):
     for est, meses in calor_module.MESES_POR_ESTACION.items():
         todos.extend(meses)
     # Esperamos los 12 meses exactos
-    assert sorted(todos) == list(range(1, 13)), (
-        f"MESES_POR_ESTACION no cubre los 12 meses: {sorted(todos)}"
-    )
+    assert sorted(todos) == list(
+        range(1, 13)
+    ), f"MESES_POR_ESTACION no cubre los 12 meses: {sorted(todos)}"
 
 
 # ---------------------------------------------------------------------------
@@ -492,9 +513,9 @@ def test_uhi_csv_schema_funcion_modulo(calor_module):
     """`_calcular_uhi` produce las columnas esperadas, en el orden documentado."""
     df = _stats_sinteticos_uhi()
     out = calor_module._calcular_uhi(df)
-    assert list(out.columns) == COLUMNAS_UHI_MENSUAL_ESPERADAS, (
-        f"Columnas inesperadas: {list(out.columns)}"
-    )
+    assert (
+        list(out.columns) == COLUMNAS_UHI_MENSUAL_ESPERADAS
+    ), f"Columnas inesperadas: {list(out.columns)}"
 
 
 def test_uhi_csv_schema_archivo_real():
@@ -521,8 +542,7 @@ def test_uhi_csv_schema_archivo_real():
     extras = set(cols_actuales[n:])
     desconocidas = extras - extras_permitidas
     assert not desconocidas, (
-        f"Columnas inesperadas más allá del schema base + extras CBERS: "
-        f"{desconocidas}"
+        f"Columnas inesperadas más allá del schema base + extras CBERS: " f"{desconocidas}"
     )
 
 
@@ -579,52 +599,128 @@ def _stats_landsat_sinteticos_con_gap() -> pd.DataFrame:
     """Stats Landsat con un gap intencional en mes 6 (urb_a)."""
     filas = [
         # Mes 1, 2, 3 — urb_a tiene Landsat OK.
-        {"poligono_id": "urb_a", "tipo_poligono": "urbano", "anio": 2024, "mes": 1,
-         "pct_validos": 80.0, "count_validos": 100, "lst_mean": 30.0,
-         "lst_median": 30.0, "lst_std": 1.0, "lst_p10": 28.0, "lst_p90": 32.0,
-         "lst_max": 33.0},
-        {"poligono_id": "urb_a", "tipo_poligono": "urbano", "anio": 2024, "mes": 2,
-         "pct_validos": 75.0, "count_validos": 100, "lst_mean": 31.0,
-         "lst_median": 31.0, "lst_std": 1.0, "lst_p10": 29.0, "lst_p90": 33.0,
-         "lst_max": 34.0},
-        {"poligono_id": "urb_a", "tipo_poligono": "urbano", "anio": 2024, "mes": 3,
-         "pct_validos": 70.0, "count_validos": 100, "lst_mean": 28.0,
-         "lst_median": 28.0, "lst_std": 1.0, "lst_p10": 26.0, "lst_p90": 30.0,
-         "lst_max": 31.0},
+        {
+            "poligono_id": "urb_a",
+            "tipo_poligono": "urbano",
+            "anio": 2024,
+            "mes": 1,
+            "pct_validos": 80.0,
+            "count_validos": 100,
+            "lst_mean": 30.0,
+            "lst_median": 30.0,
+            "lst_std": 1.0,
+            "lst_p10": 28.0,
+            "lst_p90": 32.0,
+            "lst_max": 33.0,
+        },
+        {
+            "poligono_id": "urb_a",
+            "tipo_poligono": "urbano",
+            "anio": 2024,
+            "mes": 2,
+            "pct_validos": 75.0,
+            "count_validos": 100,
+            "lst_mean": 31.0,
+            "lst_median": 31.0,
+            "lst_std": 1.0,
+            "lst_p10": 29.0,
+            "lst_p90": 33.0,
+            "lst_max": 34.0,
+        },
+        {
+            "poligono_id": "urb_a",
+            "tipo_poligono": "urbano",
+            "anio": 2024,
+            "mes": 3,
+            "pct_validos": 70.0,
+            "count_validos": 100,
+            "lst_mean": 28.0,
+            "lst_median": 28.0,
+            "lst_std": 1.0,
+            "lst_p10": 26.0,
+            "lst_p90": 30.0,
+            "lst_max": 31.0,
+        },
         # Mes 6 — Landsat fracasó (pct_validos bajo, lst NaN).
-        {"poligono_id": "urb_a", "tipo_poligono": "urbano", "anio": 2024, "mes": 6,
-         "pct_validos": 12.0, "count_validos": 5, "lst_mean": np.nan,
-         "lst_median": np.nan, "lst_std": np.nan, "lst_p10": np.nan,
-         "lst_p90": np.nan, "lst_max": np.nan},
+        {
+            "poligono_id": "urb_a",
+            "tipo_poligono": "urbano",
+            "anio": 2024,
+            "mes": 6,
+            "pct_validos": 12.0,
+            "count_validos": 5,
+            "lst_mean": np.nan,
+            "lst_median": np.nan,
+            "lst_std": np.nan,
+            "lst_p10": np.nan,
+            "lst_p90": np.nan,
+            "lst_max": np.nan,
+        },
         # Polígono rural — solo en mes 1.
-        {"poligono_id": "rur_a", "tipo_poligono": "rural", "anio": 2024, "mes": 1,
-         "pct_validos": 90.0, "count_validos": 200, "lst_mean": 26.0,
-         "lst_median": 26.0, "lst_std": 0.8, "lst_p10": 25.0, "lst_p90": 27.0,
-         "lst_max": 28.0},
+        {
+            "poligono_id": "rur_a",
+            "tipo_poligono": "rural",
+            "anio": 2024,
+            "mes": 1,
+            "pct_validos": 90.0,
+            "count_validos": 200,
+            "lst_mean": 26.0,
+            "lst_median": 26.0,
+            "lst_std": 0.8,
+            "lst_p10": 25.0,
+            "lst_p90": 27.0,
+            "lst_max": 28.0,
+        },
     ]
     return pd.DataFrame(filas)
 
 
 def _cbers_sintetico_para_gap() -> pd.DataFrame:
     """CBERS con dato para mes 6 (gap de Landsat) y overlap en mes 1."""
-    return pd.DataFrame([
-        # Overlap (mes 1) — para validar marca "merged" + confianza alta.
-        {"poligono_id": "urb_a", "anio": 2024, "mes": 1,
-         "lst_mean_cbers": 30.7, "n_pixeles": 80,
-         "fecha_pasada": "2024-01-15", "calidad": "alta"},
-        # Gap real (mes 6) — debería rellenar.
-        {"poligono_id": "urb_a", "anio": 2024, "mes": 6,
-         "lst_mean_cbers": 22.5, "n_pixeles": 75,
-         "fecha_pasada": "2024-06-12", "calidad": "alta"},
-        # Mes 7 — sólo CBERS (no estaba en Landsat). Debería agregar fila nueva.
-        {"poligono_id": "urb_a", "anio": 2024, "mes": 7,
-         "lst_mean_cbers": 21.0, "n_pixeles": 80,
-         "fecha_pasada": "2024-07-10", "calidad": "media"},
-        # Calidad baja — debería ignorarse.
-        {"poligono_id": "urb_a", "anio": 2024, "mes": 8,
-         "lst_mean_cbers": 99.0, "n_pixeles": 5,
-         "fecha_pasada": "2024-08-15", "calidad": "baja"},
-    ])
+    return pd.DataFrame(
+        [
+            # Overlap (mes 1) — para validar marca "merged" + confianza alta.
+            {
+                "poligono_id": "urb_a",
+                "anio": 2024,
+                "mes": 1,
+                "lst_mean_cbers": 30.7,
+                "n_pixeles": 80,
+                "fecha_pasada": "2024-01-15",
+                "calidad": "alta",
+            },
+            # Gap real (mes 6) — debería rellenar.
+            {
+                "poligono_id": "urb_a",
+                "anio": 2024,
+                "mes": 6,
+                "lst_mean_cbers": 22.5,
+                "n_pixeles": 75,
+                "fecha_pasada": "2024-06-12",
+                "calidad": "alta",
+            },
+            # Mes 7 — sólo CBERS (no estaba en Landsat). Debería agregar fila nueva.
+            {
+                "poligono_id": "urb_a",
+                "anio": 2024,
+                "mes": 7,
+                "lst_mean_cbers": 21.0,
+                "n_pixeles": 80,
+                "fecha_pasada": "2024-07-10",
+                "calidad": "media",
+            },
+            # Calidad baja — debería ignorarse.
+            {
+                "poligono_id": "urb_a",
+                "anio": 2024,
+                "mes": 8,
+                "lst_mean_cbers": 99.0,
+                "n_pixeles": 5,
+                "fecha_pasada": "2024-08-15",
+                "calidad": "baja",
+            },
+        ]
+    )
 
 
 def test_fuente_lst_default_es_merged(calor_module):
@@ -632,9 +728,7 @@ def test_fuente_lst_default_es_merged(calor_module):
     stats = _stats_landsat_sinteticos_con_gap()
     cbers = _cbers_sintetico_para_gap()
     out = calor_module._enriquecer_con_cbers(stats, cbers, calor_module.FUENTE_MERGED)
-    assert "fuente_lst" in out.columns, (
-        "fuente_lst debería existir en el output del modo merged"
-    )
+    assert "fuente_lst" in out.columns, "fuente_lst debería existir en el output del modo merged"
     assert "confianza_cross_sensor" in out.columns
     # Mes 1 urb_a: ambos datos disponibles → marca "merged" + alta.
     fila_mes1 = out[(out["poligono_id"] == "urb_a") & (out["mes"] == 1)]
@@ -648,9 +742,7 @@ def test_fuente_landsat_legacy(calor_module):
     cbers = _cbers_sintetico_para_gap()
     out = calor_module._enriquecer_con_cbers(stats, cbers, calor_module.FUENTE_LANDSAT)
     # No debe agregar columnas nuevas.
-    assert "fuente_lst" not in out.columns, (
-        "Modo landsat legacy NO debe inyectar fuente_lst"
-    )
+    assert "fuente_lst" not in out.columns, "Modo landsat legacy NO debe inyectar fuente_lst"
     assert "confianza_cross_sensor" not in out.columns
     # Y NO debe inventar filas nuevas (el mes 7 sólo CBERS no aparece).
     assert len(out) == len(stats)
@@ -667,9 +759,7 @@ def test_merge_solo_donde_landsat_null(calor_module):
 
     # Mes 1: Landsat=30.0, CBERS=30.7. En merged debe ganar Landsat.
     f1 = out[(out["poligono_id"] == "urb_a") & (out["mes"] == 1)].iloc[0]
-    assert f1["lst_mean"] == pytest.approx(30.0), (
-        "Modo merged NO debe sobreescribir Landsat válido"
-    )
+    assert f1["lst_mean"] == pytest.approx(30.0), "Modo merged NO debe sobreescribir Landsat válido"
     assert f1["fuente_lst"] == "merged"
 
     # Mes 6: gap Landsat → CBERS rellena con 22.5°C.
@@ -713,12 +803,24 @@ def test_uhi_propaga_fuente_lst(calor_module):
     """`_calcular_uhi` mantiene la columna ``fuente_lst`` en el output urbano."""
     # Construimos stats con fuente_lst y rurales para que el cálculo funcione.
     filas = [
-        {"poligono_id": "rur_a", "tipo_poligono": "rural",
-         "anio": 2024, "mes": 6, "lst_mean": 18.0,
-         "fuente_lst": "landsat", "confianza_cross_sensor": None},
-        {"poligono_id": "urb_a", "tipo_poligono": "urbano",
-         "anio": 2024, "mes": 6, "lst_mean": 22.0,
-         "fuente_lst": "cbers", "confianza_cross_sensor": "media"},
+        {
+            "poligono_id": "rur_a",
+            "tipo_poligono": "rural",
+            "anio": 2024,
+            "mes": 6,
+            "lst_mean": 18.0,
+            "fuente_lst": "landsat",
+            "confianza_cross_sensor": None,
+        },
+        {
+            "poligono_id": "urb_a",
+            "tipo_poligono": "urbano",
+            "anio": 2024,
+            "mes": 6,
+            "lst_mean": 22.0,
+            "fuente_lst": "cbers",
+            "confianza_cross_sensor": "media",
+        },
     ]
     df = pd.DataFrame(filas)
     out = calor_module._calcular_uhi(df)

@@ -49,13 +49,11 @@ from __future__ import annotations
 import hashlib
 import json
 import signal
-import sys
 import time
-import zipfile
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 from urllib.parse import urlparse
 
 import click
@@ -74,6 +72,7 @@ except ImportError:  # pragma: no cover
 # `from scripts.utils.X` funcionen al correr este archivo como script.
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -207,19 +206,13 @@ IPEC_ARCHIVOS: List[Dict[str, str]] = [
     },
     {
         "nombre": "censo_2022_departamentos_variacion.xlsx",
-        "url": (
-            "https://censo.gob.ar/wp-content/uploads/2023/11/"
-            "c2022_misiones_est_c1_14.xlsx"
-        ),
+        "url": ("https://censo.gob.ar/wp-content/uploads/2023/11/" "c2022_misiones_est_c1_14.xlsx"),
         "tipo": "xlsx",
         "descripcion": "CENSO 2022: población por departamento y variación 2010-2022 (INDEC).",
     },
     {
         "nombre": "censo_2022_departamentos_densidad.xlsx",
-        "url": (
-            "https://censo.gob.ar/wp-content/uploads/2023/11/"
-            "c2022_misiones_est_c2_14.xlsx"
-        ),
+        "url": ("https://censo.gob.ar/wp-content/uploads/2023/11/" "c2022_misiones_est_c2_14.xlsx"),
         "tipo": "xlsx",
         "descripcion": "CENSO 2022: población y densidad por departamento (INDEC).",
     },
@@ -286,6 +279,7 @@ def _build_session() -> requests.Session:
     # verify=False (ya loggeamos nosotros con WARNING la primera vez).
     try:
         import urllib3
+
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     except Exception:
         pass
@@ -362,20 +356,14 @@ def _http_get(
             return resp
         if resp.status_code in (429, 500, 502, 503, 504):
             delay = BACKOFF_BASE_SEC * (2 ** (intento - 1))
-            logger.warning(
-                f"GET {url} → {resp.status_code}. Retry en {delay:.1f}s."
-            )
+            logger.warning(f"GET {url} → {resp.status_code}. Retry en {delay:.1f}s.")
             time.sleep(delay)
             continue
 
         # 4xx distintos a 429 → no reintento, error del cliente o URL rota.
-        raise RuntimeError(
-            f"GET {url} respondió {resp.status_code}: {resp.text[:300]}"
-        )
+        raise RuntimeError(f"GET {url} respondió {resp.status_code}: {resp.text[:300]}")
 
-    raise RuntimeError(
-        f"GET {url} agotó {MAX_RETRIES} intentos. Último error: {last_err}"
-    )
+    raise RuntimeError(f"GET {url} agotó {MAX_RETRIES} intentos. Último error: {last_err}")
 
 
 def _download_to_file(
@@ -526,9 +514,7 @@ def _descargar_wfs(
     features = data.get("features") or []
     n = len(features)
     if n == 0:
-        logger.warning(
-            f"{fuente}/{capa_alias}: 0 features dentro del bbox — borro archivo vacío."
-        )
+        logger.warning(f"{fuente}/{capa_alias}: 0 features dentro del bbox — borro archivo vacío.")
         out_path.unlink(missing_ok=True)
         return None
 
@@ -537,16 +523,18 @@ def _descargar_wfs(
         fuente=fuente,
         licencia=licencia,
         url=f"{endpoint}?{_querystring(params)}",
-        archivo=str(out_path.relative_to(resolve_path("."))) if out_path.is_absolute() else str(out_path),
+        archivo=(
+            str(out_path.relative_to(resolve_path(".")))
+            if out_path.is_absolute()
+            else str(out_path)
+        ),
         bytes=bytes_dl,
         md5=md5,
         fecha_descarga=datetime.now(timezone.utc).isoformat(),
         extras={"n_features": n, "type_name": type_name},
     )
     _write_metadata(meta, out_dir)
-    logger.success(
-        f"{fuente}/{capa_alias}: {n} features, {bytes_dl/1024:.1f} KB → {out_path.name}"
-    )
+    logger.success(f"{fuente}/{capa_alias}: {n} features, {bytes_dl/1024:.1f} KB → {out_path.name}")
     return meta
 
 
@@ -562,9 +550,7 @@ def cmd_ign(settings: Settings, *, force: bool) -> List[CapaMetadata]:
     out_dir = ensure_dir(resolve_path("data/raw/ign"))
     session = _build_session()
     results: List[CapaMetadata] = []
-    licencia = (
-        "Ley 27.275 — Datos públicos IGN (acceso, uso y redistribución libres)."
-    )
+    licencia = "Ley 27.275 — Datos públicos IGN (acceso, uso y redistribución libres)."
     for alias, type_name in IGN_CAPAS.items():
         if _INTERRUPTED:
             logger.warning("IGN: interrumpido por el usuario.")
@@ -819,9 +805,7 @@ def cmd_recortar(settings: Settings) -> List[Path]:
             continue
 
         if clipped.empty:
-            logger.warning(
-                f"{src.name}: sin features tras clip al bbox Posadas — salteo."
-            )
+            logger.warning(f"{src.name}: sin features tras clip al bbox Posadas — salteo.")
             continue
 
         ensure_parent(dest)

@@ -34,6 +34,7 @@ from pathlib import Path
 import click
 import geopandas as gpd
 import matplotlib
+
 matplotlib.use("Agg")  # backend sin GUI, obligatorio en pipelines batch
 import matplotlib.pyplot as plt
 import numpy as np
@@ -50,7 +51,9 @@ except Exception:
 
         def get_logger(name: str) -> logging.Logger:
             return _setup(name) if callable(_setup) else logging.getLogger(name)
+
     except Exception:
+
         def get_logger(name: str) -> logging.Logger:
             logging.basicConfig(
                 level=logging.INFO,
@@ -74,9 +77,18 @@ PALETA = {
 }
 # Nombres de meses en español para formatear fechas (ej. "2018-07" -> "Julio 2018").
 MESES_ES = {
-    "01": "Enero", "02": "Febrero", "03": "Marzo", "04": "Abril",
-    "05": "Mayo", "06": "Junio", "07": "Julio", "08": "Agosto",
-    "09": "Septiembre", "10": "Octubre", "11": "Noviembre", "12": "Diciembre",
+    "01": "Enero",
+    "02": "Febrero",
+    "03": "Marzo",
+    "04": "Abril",
+    "05": "Mayo",
+    "06": "Junio",
+    "07": "Julio",
+    "08": "Agosto",
+    "09": "Septiembre",
+    "10": "Octubre",
+    "11": "Noviembre",
+    "12": "Diciembre",
 }
 
 # Mapeo de slug de categoría (del GeoJSON) a texto humano en español.
@@ -154,9 +166,7 @@ def _buscar_rgb_cerca(sentinel_dir: Path, poligono_id: str, anio: str) -> Path |
         a2 = str(int(anio) + delta)
         c2 = sorted(sentinel_dir.glob(f"{poligono_id}_{a2}*_rgb.tif"))
         if c2:
-            logger.warning(
-                f"No hay RGB para {poligono_id}-{anio}, uso año {a2} como fallback."
-            )
+            logger.warning(f"No hay RGB para {poligono_id}-{anio}, uso año {a2} como fallback.")
             return c2[0]
     return None
 
@@ -200,9 +210,7 @@ def _geotiff_a_png(path_tif: Path, out_png: Path, size: tuple[int, int] = (640, 
 # --- Gráfico crecimiento -----------------------------------------------------
 
 
-def _grafico_crecimiento(
-    serie_pol: pd.DataFrame, nombre_poligono: str, out_png: Path
-) -> bool:
+def _grafico_crecimiento(serie_pol: pd.DataFrame, nombre_poligono: str, out_png: Path) -> bool:
     if serie_pol.empty:
         return False
     serie_pol = serie_pol.sort_values("fecha")
@@ -212,12 +220,19 @@ def _grafico_crecimiento(
     maxv = serie_pol["n_edificios_max"].astype(float)
 
     fig, ax = plt.subplots(figsize=(6.8, 2.4), dpi=150)
-    ax.fill_between(fechas, minv, maxv, color=COLOR_SECUNDARIO, alpha=0.35,
-                    label="Banda ±15%")
-    ax.plot(fechas, est, color=COLOR_PRIMARIO, linewidth=2.2, marker="o",
-            markersize=4, label="Viviendas detectadas")
-    ax.set_title(f"Viviendas detectadas — {nombre_poligono}",
-                 color=COLOR_PRIMARIO, fontsize=12, pad=10)
+    ax.fill_between(fechas, minv, maxv, color=COLOR_SECUNDARIO, alpha=0.35, label="Banda ±15%")
+    ax.plot(
+        fechas,
+        est,
+        color=COLOR_PRIMARIO,
+        linewidth=2.2,
+        marker="o",
+        markersize=4,
+        label="Viviendas detectadas",
+    )
+    ax.set_title(
+        f"Viviendas detectadas — {nombre_poligono}", color=COLOR_PRIMARIO, fontsize=12, pad=10
+    )
     ax.set_xlabel("")
     ax.set_ylabel("Viviendas")
     ax.grid(True, linestyle="--", alpha=0.3)
@@ -315,7 +330,8 @@ def _calor_contexto(
         "color_invierno": color_invierno,
         "signo_verano": "+" if verano["delta"] > 0 else "",
         "signo_invierno": "+" if invierno["delta"] > 0 else "",
-        "ultimo": ultimo_ctx or {
+        "ultimo": ultimo_ctx
+        or {
             "lst_mean": "s/d",
             "uhi_vs_rural": "s/d",
             "fecha_legible": "s/d",
@@ -333,15 +349,16 @@ def _hitos_serie(serie_pol: pd.DataFrame) -> list[dict]:
     for fecha in fechas_hitos:
         fila = serie_pol[serie_pol["fecha"] == fecha].iloc[0]
         est = int(fila["n_edificios_estimado"])
-        delta = max(est - int(fila["n_edificios_min"]),
-                    int(fila["n_edificios_max"]) - est)
-        hitos.append({
-            "fecha": fecha,
-            "fecha_legible": _fecha_legible(fecha),
-            "anio": fecha[:4],
-            "valor": est,
-            "delta": delta,
-        })
+        delta = max(est - int(fila["n_edificios_min"]), int(fila["n_edificios_max"]) - est)
+        hitos.append(
+            {
+                "fecha": fecha,
+                "fecha_legible": _fecha_legible(fecha),
+                "anio": fecha[:4],
+                "valor": est,
+                "delta": delta,
+            }
+        )
     return hitos
 
 
@@ -407,9 +424,14 @@ def _generar_pdf_poligono(
             }
         else:
             pob_ctx = {
-                "central": "s/d", "min": "s/d", "max": "s/d",
-                "metodo": "n/d", "ninos": "s/d",
-                "estimada": "s/d", "minimo": "s/d", "maximo": "s/d",
+                "central": "s/d",
+                "min": "s/d",
+                "max": "s/d",
+                "metodo": "n/d",
+                "ninos": "s/d",
+                "estimada": "s/d",
+                "minimo": "s/d",
+                "maximo": "s/d",
             }
 
         hitos = _hitos_serie(serie_pol)
@@ -484,13 +506,12 @@ def _generar_pdf_poligono(
 
         try:
             from weasyprint import HTML  # import diferido para no reventar si falta
+
             HTML(string=html, base_url=str(tmp)).write_pdf(str(pdf_path))
             logger.info(f"PDF -> {pdf_path}")
             return True
         except Exception as exc:  # noqa: BLE001
-            logger.error(
-                f"WeasyPrint falló generando PDF para '{poligono_id}': {exc}"
-            )
+            logger.error(f"WeasyPrint falló generando PDF para '{poligono_id}': {exc}")
             logger.error(
                 "Ver instrucciones Windows/GTK3: "
                 "https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#windows"
@@ -583,20 +604,24 @@ def cli(
         raise click.UsageError("Indicá --poligono ID o --all")
 
     serie_df = pd.read_csv(serie_temporal) if serie_temporal.exists() else pd.DataFrame()
-    poblacion_df = pd.read_csv(poblacion) if poblacion.exists() else pd.DataFrame(
-        columns=["poligono_id", "fecha", "poblacion_min", "poblacion_estimada",
-                 "poblacion_max", "metodo"]
-    )
-    uhi_mensual_df = (
-        pd.read_csv(uhi_mensual) if uhi_mensual.exists() else pd.DataFrame()
-    )
-    uhi_estacional_df = (
-        pd.read_csv(uhi_estacional) if uhi_estacional.exists() else pd.DataFrame()
-    )
-    if uhi_mensual_df.empty and uhi_estacional_df.empty:
-        logger.info(
-            "Capa de calor no disponible (sin CSVs) — PDFs sin sección UHI."
+    poblacion_df = (
+        pd.read_csv(poblacion)
+        if poblacion.exists()
+        else pd.DataFrame(
+            columns=[
+                "poligono_id",
+                "fecha",
+                "poblacion_min",
+                "poblacion_estimada",
+                "poblacion_max",
+                "metodo",
+            ]
         )
+    )
+    uhi_mensual_df = pd.read_csv(uhi_mensual) if uhi_mensual.exists() else pd.DataFrame()
+    uhi_estacional_df = pd.read_csv(uhi_estacional) if uhi_estacional.exists() else pd.DataFrame()
+    if uhi_mensual_df.empty and uhi_estacional_df.empty:
+        logger.info("Capa de calor no disponible (sin CSVs) — PDFs sin sección UHI.")
     gdf = gpd.read_file(poligonos)
 
     if all_flag:

@@ -49,9 +49,15 @@ Ejemplo de uso::
 from __future__ import annotations
 
 import sys
+
+# --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------------------
+# Aseguramos que el root del proyecto esté en sys.path para que los imports
+# `from scripts.utils.X` funcionen al correr este archivo como script.
+import sys as _sys
 import traceback
 from datetime import datetime, timedelta
 from pathlib import Path
+from pathlib import Path as _Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import click
@@ -59,11 +65,6 @@ import pandas as pd
 from loguru import logger
 from tqdm import tqdm
 
-# --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------------------
-# Aseguramos que el root del proyecto esté en sys.path para que los imports
-# `from scripts.utils.X` funcionen al correr este archivo como script.
-import sys as _sys
-from pathlib import Path as _Path
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -78,7 +79,6 @@ from scripts.utils.interrupts import graceful_interrupt
 from scripts.utils.io_geo import load_geojson
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, ensure_parent, resolve_path
-
 
 # Versión del script — se registra en logs para trazabilidad.
 SCRIPT_VERSION = "0.1.0"
@@ -128,9 +128,7 @@ def inicializar_ee(project_id: Optional[str]) -> None:
     try:
         import ee
     except ImportError as exc:
-        logger.error(
-            "earthengine-api no está instalado. Corré: pip install earthengine-api"
-        )
+        logger.error("earthengine-api no está instalado. Corré: pip install earthengine-api")
         raise SystemExit(1) from exc
 
     try:
@@ -222,10 +220,7 @@ def _calcular_metricas(
 
     # Combinamos mean + median para la banda continua. `mean` de la banda
     # binaria equivale a la fracción de píxeles >= threshold.
-    reducer = (
-        ee.Reducer.mean()
-        .combine(ee.Reducer.median(), sharedInputs=True)
-    )
+    reducer = ee.Reducer.mean().combine(ee.Reducer.median(), sharedInputs=True)
 
     try:
         stats = stack.reduceRegion(
@@ -341,14 +336,10 @@ def _procesar(
         }
 
     coleccion, n = _coleccion_dw(ee_geom, fecha_target)
-    logger.info(
-        f"[{poligono_id}|{fecha_target}] ventana ±{VENTANA_DIAS}d → n_imagenes={n}"
-    )
+    logger.info(f"[{poligono_id}|{fecha_target}] ventana ±{VENTANA_DIAS}d → n_imagenes={n}")
 
     if n == 0:
-        logger.warning(
-            f"[{poligono_id}|{fecha_target}] Dynamic World sin imágenes disponibles."
-        )
+        logger.warning(f"[{poligono_id}|{fecha_target}] Dynamic World sin imágenes disponibles.")
         return {
             "poligono_id": poligono_id,
             "fecha": fecha_target,
@@ -369,9 +360,7 @@ def _procesar(
             f"| pct>=0.5={metricas['dw_built_pct_ge_50']:.4f}"
         )
     else:
-        logger.warning(
-            f"[{poligono_id}|{fecha_target}] Sin métricas válidas tras reduceRegion."
-        )
+        logger.warning(f"[{poligono_id}|{fecha_target}] Sin métricas válidas tras reduceRegion.")
 
     return {
         "poligono_id": poligono_id,
@@ -490,9 +479,7 @@ def main(
                 lambda r: (str(r["poligono_id"]), str(r["fecha"])) in claves_nuevas,
                 axis=1,
             )
-            df_final = pd.concat(
-                [df_existente[mask_keep], df_nuevo], ignore_index=True
-            )
+            df_final = pd.concat([df_existente[mask_keep], df_nuevo], ignore_index=True)
         else:
             df_final = df_nuevo
         df_final = df_final.sort_values(["poligono_id", "fecha"]).reset_index(drop=True)
@@ -520,9 +507,7 @@ def main(
                         fila = _procesar(poligono_id, geom_geojson, fecha)
                         filas_nuevas.append(fila)
                     except Exception as exc:  # noqa: BLE001
-                        logger.error(
-                            f"[{poligono_id}|{fecha}] Excepción no manejada: {exc}"
-                        )
+                        logger.error(f"[{poligono_id}|{fecha}] Excepción no manejada: {exc}")
                         logger.debug(traceback.format_exc())
                         filas_nuevas.append(
                             {
@@ -533,9 +518,7 @@ def main(
                                 "dw_built_pct_ge_50": None,
                                 "n_imagenes": 0,
                                 "version_script": SCRIPT_VERSION,
-                                "fecha_calculo": datetime.now().strftime(
-                                    "%Y-%m-%dT%H:%M:%S"
-                                ),
+                                "fecha_calculo": datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
                             }
                         )
                     pbar.update(1)

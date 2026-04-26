@@ -6,12 +6,12 @@ pipeline. Imprime: nombre, area km2, vertices, bbox.
 Uso:
     python scripts/_build_polygons_step.py
 """
+
 from __future__ import annotations
 
 import json
 import math
 import unicodedata
-from collections import defaultdict
 from pathlib import Path
 
 from shapely.geometry import (
@@ -19,7 +19,6 @@ from shapely.geometry import (
     MultiPolygon,
     Polygon,
     mapping,
-    shape,
 )
 from shapely.ops import linemerge, polygonize, unary_union
 

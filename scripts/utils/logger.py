@@ -40,10 +40,7 @@ def _formato_consola() -> str:
 
 def _formato_archivo() -> str:
     """Formato sin colores para archivo — parsable por humanos y grep."""
-    return (
-        "{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | "
-        "{name}:{function}:{line} - {message}"
-    )
+    return "{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | " "{name}:{function}:{line} - {message}"
 
 
 def setup_logger(

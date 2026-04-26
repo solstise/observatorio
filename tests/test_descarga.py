@@ -16,7 +16,6 @@ from unittest.mock import MagicMock
 
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # Helpers reutilizables por los tests (simulan lógica esperada de scripts)
 # ---------------------------------------------------------------------------
@@ -29,9 +28,7 @@ def _compute_hash(path: Path) -> str:
     return h.hexdigest()
 
 
-def _descargar_con_cache(
-    path_cache: Path, url: str, downloader, *, force: bool = False
-) -> Path:
+def _descargar_con_cache(path_cache: Path, url: str, downloader, *, force: bool = False) -> Path:
     """Emula la función de descarga con cache de los scripts de descarga.
 
     - Si `path_cache` existe y no hay `force`, retorna sin llamar downloader.
@@ -87,9 +84,7 @@ def test_cache_force_redownload(tmp_output_dir: Path):
         dest.write_bytes(b"nuevo")
 
     downloader_mock = MagicMock(side_effect=downloader)
-    _descargar_con_cache(
-        cache_file, "https://ejemplo.com/tif", downloader_mock, force=True
-    )
+    _descargar_con_cache(cache_file, "https://ejemplo.com/tif", downloader_mock, force=True)
 
     downloader_mock.assert_called_once()
     assert cache_file.read_bytes() == b"nuevo"
@@ -107,17 +102,14 @@ def test_manejo_error_401_planet(caplog, mock_requests):
     import requests
 
     url = "https://api.planet.com/basemaps/v1/mosaics"
-    mock_requests.add(
-        mock_requests.GET, url, json={"error": "Unauthorized"}, status=401
-    )
+    mock_requests.add(mock_requests.GET, url, json={"error": "Unauthorized"}, status=401)
 
     def descargar_planet():
         logger = logging.getLogger("descarga_planet")
         resp = requests.get(url, timeout=30)
         if resp.status_code == 401:
             logger.error(
-                "Autenticación Planet NICFI fallida (401). "
-                "Revisá PLANET_API_KEY en .env."
+                "Autenticación Planet NICFI fallida (401). " "Revisá PLANET_API_KEY en .env."
             )
             return 2
         if resp.status_code != 200:
@@ -196,9 +188,7 @@ def test_overpass_query_incluye_tags_esperados(tmp_path, monkeypatch):
     query = construir_query((-56.0, -27.5, -55.8, -27.3))
     for servicio in servicios:
         key, val = servicio.split("=")
-        assert f'"{key}"="{val}"' in query, (
-            f"Query Overpass no incluye {key}={val}"
-        )
+        assert f'"{key}"="{val}"' in query, f"Query Overpass no incluye {key}={val}"
     # Formato JSON + timeout razonable
     assert "[out:json]" in query
     assert "out center" in query
@@ -219,9 +209,7 @@ def test_sentinel_skip_fecha_sin_imagenes(caplog, mock_ee_session):
     def descargar_para_fecha(fecha: str) -> bool:
         n = mock_ee_session.size().getInfo()
         if n == 0:
-            logger.warning(
-                "Sin imágenes Sentinel para %s - se salta fecha.", fecha
-            )
+            logger.warning("Sin imágenes Sentinel para %s - se salta fecha.", fecha)
             return False
         return True
 

@@ -3,9 +3,9 @@
 Reporta polígonos en geojson sin datos, datos huérfanos sin polígono,
 outliers en métricas, etc.
 """
+
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import geopandas as gpd
@@ -17,7 +17,7 @@ BASE = Path("webapp/frontend/public/data")
 def main() -> None:
     g = gpd.read_file(BASE / "poligonos.geojson")
     ids_geo = set(g["id"].astype(str))
-    print(f"\n--- AUDIT SITIO ---")
+    print("\n--- AUDIT SITIO ---")
     print(f"Polígonos en GeoJSON: {len(ids_geo)}")
     print()
 
@@ -39,7 +39,9 @@ def main() -> None:
     }
 
     print("Cobertura de datos por dataset:")
-    print(f"{'dataset':<30s} {'in CSV':>6s} {'en GeoJSON':>12s} {'huérfanos':>10s} {'sin datos':>10s}")
+    print(
+        f"{'dataset':<30s} {'in CSV':>6s} {'en GeoJSON':>12s} {'huérfanos':>10s} {'sin datos':>10s}"
+    )
     for name, rel in csvs.items():
         path = BASE / rel
         if not path.exists():
@@ -53,7 +55,9 @@ def main() -> None:
         huerfanos = ids_csv - ids_geo  # IDs en CSV no en geojson
         sin_datos = ids_geo - ids_csv  # IDs en geojson sin datos
         cobertura = len(ids_geo & ids_csv)
-        print(f"{name:<30s} {len(ids_csv):>6d} {cobertura:>12d} {len(huerfanos):>10d} {len(sin_datos):>10d}")
+        print(
+            f"{name:<30s} {len(ids_csv):>6d} {cobertura:>12d} {len(huerfanos):>10d} {len(sin_datos):>10d}"
+        )
         if huerfanos:
             print(f"  ⚠ huérfanos: {sorted(huerfanos)[:5]}")
         if sin_datos and len(sin_datos) <= 5:
@@ -66,10 +70,18 @@ def main() -> None:
     df_2026 = df[df["anio"] == df["anio"].max()].copy() if "anio" in df.columns else pd.DataFrame()
     if not df_2018.empty and not df_2026.empty:
         m = df_2018.merge(df_2026, on="poligono_id", suffixes=("_2018", "_fin"))
-        m["delta_pct"] = (m["edificios_total_fin"] - m["edificios_total_2018"]) / m["edificios_total_2018"].replace(0, 1) * 100
+        m["delta_pct"] = (
+            (m["edificios_total_fin"] - m["edificios_total_2018"])
+            / m["edificios_total_2018"].replace(0, 1)
+            * 100
+        )
         sorted_m = m.sort_values("delta_pct", ascending=False)
-        print(f"  Top 3 crecimiento: {sorted_m.head(3)[['poligono_id', 'edificios_total_2018', 'edificios_total_fin', 'delta_pct']].to_string(index=False)}")
-        print(f"  Bottom 3:          {sorted_m.tail(3)[['poligono_id', 'edificios_total_2018', 'edificios_total_fin', 'delta_pct']].to_string(index=False)}")
+        print(
+            f"  Top 3 crecimiento: {sorted_m.head(3)[['poligono_id', 'edificios_total_2018', 'edificios_total_fin', 'delta_pct']].to_string(index=False)}"
+        )
+        print(
+            f"  Bottom 3:          {sorted_m.tail(3)[['poligono_id', 'edificios_total_2018', 'edificios_total_fin', 'delta_pct']].to_string(index=False)}"
+        )
 
     print()
     print("Polígonos con n_edificios=0 (probables errores):")

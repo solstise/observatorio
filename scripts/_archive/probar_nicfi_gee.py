@@ -1,4 +1,5 @@
 """Prueba si nuestro proyecto Earth Engine puede acceder al dataset NICFI."""
+
 import os
 import sys
 from pathlib import Path

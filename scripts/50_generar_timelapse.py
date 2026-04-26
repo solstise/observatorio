@@ -33,7 +33,6 @@ import signal
 import sys
 import time
 from pathlib import Path
-from typing import Sequence
 
 import click
 import geopandas as gpd
@@ -41,7 +40,7 @@ import imageio.v2 as imageio
 import numpy as np
 import pandas as pd
 import rasterio
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 from rasterio.warp import transform_geom
 from tqdm import tqdm
 
@@ -53,7 +52,9 @@ except Exception:
 
         def get_logger(name: str) -> logging.Logger:
             return _setup(name) if callable(_setup) else logging.getLogger(name)
+
     except Exception:
+
         def get_logger(name: str) -> logging.Logger:
             logging.basicConfig(
                 level=logging.INFO,
@@ -75,9 +76,18 @@ CAJA_ALPHA = 100
 BORDE_POLIGONO_ALPHA = 180
 
 MESES_ES = {
-    1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril",
-    5: "Mayo", 6: "Junio", 7: "Julio", 8: "Agosto",
-    9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre",
+    1: "Enero",
+    2: "Febrero",
+    3: "Marzo",
+    4: "Abril",
+    5: "Mayo",
+    6: "Junio",
+    7: "Julio",
+    8: "Agosto",
+    9: "Septiembre",
+    10: "Octubre",
+    11: "Noviembre",
+    12: "Diciembre",
 }
 
 
@@ -166,6 +176,7 @@ def _cargar_fuente(size: int, bold: bool = False) -> ImageFont.ImageFont:
 
 def _coords_a_pixel(geom, transform, img_w: int, img_h: int, src_w: int, src_h: int):
     """Transforma coordenadas georreferenciadas a pixeles del frame redimensionado."""
+
     def _one(ring):
         pts = []
         for x, y in ring:
@@ -206,7 +217,10 @@ def _dibujar_caja_con_texto(
     # Sombra sutil (offset +2,+2 negro semi)
     try:
         draw.text(
-            (pos[0] + 2, pos[1] + 2), texto, font=fuente, anchor=anchor,
+            (pos[0] + 2, pos[1] + 2),
+            texto,
+            font=fuente,
+            anchor=anchor,
             fill=(0, 0, 0, 200),
         )
     except TypeError:
@@ -247,6 +261,7 @@ def _dibujar_frame(
         if poligono_geom_4326 is not None and src_crs is not None:
             geom_src = transform_geom("EPSG:4326", src_crs, poligono_geom_4326.__geo_interface__)
             from shapely.geometry import shape as _shape
+
             geom_raster = _shape(geom_src)
             anillos = _coords_a_pixel(geom_raster, transform, new_w, new_h, src_w, src_h)
             for ring in anillos:
@@ -271,13 +286,21 @@ def _dibujar_frame(
     )
     # Viviendas inf-izq
     _dibujar_caja_con_texto(
-        draw, (margen, FRAME_SIZE - margen),
-        viviendas_texto, fuente_viviendas, anchor="lb", padding=10,
+        draw,
+        (margen, FRAME_SIZE - margen),
+        viviendas_texto,
+        fuente_viviendas,
+        anchor="lb",
+        padding=10,
     )
     # Atribución inf-der
     _dibujar_caja_con_texto(
-        draw, (FRAME_SIZE - margen, FRAME_SIZE - margen),
-        atribucion, fuente_atrib, anchor="rb", padding=8,
+        draw,
+        (FRAME_SIZE - margen, FRAME_SIZE - margen),
+        atribucion,
+        fuente_atrib,
+        anchor="rb",
+        padding=8,
     )
 
     canvas = Image.alpha_composite(canvas, overlay)
@@ -339,8 +362,9 @@ def _generar_comparacion_2x2(
 
     titulo = f"Evolución urbana — {nombre_poligono}"
     try:
-        draw.text((ancho // 2, titulo_h // 2), titulo, font=fuente_titulo,
-                  fill=COLOR_ACENTO, anchor="mm")
+        draw.text(
+            (ancho // 2, titulo_h // 2), titulo, font=fuente_titulo, fill=COLOR_ACENTO, anchor="mm"
+        )
     except TypeError:
         draw.text((40, 20), titulo, font=fuente_titulo, fill=COLOR_ACENTO)
 
@@ -354,15 +378,19 @@ def _generar_comparacion_2x2(
         try:
             draw.text(
                 (x + celda // 2, y + celda + sub_h // 2),
-                anio, font=fuente_sub, fill=COLOR_ACENTO, anchor="mm",
+                anio,
+                font=fuente_sub,
+                fill=COLOR_ACENTO,
+                anchor="mm",
             )
         except TypeError:
             draw.text((x, y + celda + 8), anio, font=fuente_sub, fill=COLOR_ACENTO)
 
     footer = "Fuente: Sentinel-2 / ESA Copernicus — Observatorio Urbano Posadas"
     try:
-        draw.text((ancho // 2, alto - 12), footer, font=fuente_footer,
-                  fill=(60, 60, 60), anchor="mb")
+        draw.text(
+            (ancho // 2, alto - 12), footer, font=fuente_footer, fill=(60, 60, 60), anchor="mb"
+        )
     except TypeError:
         draw.text((20, alto - 24), footer, font=fuente_footer, fill=(60, 60, 60))
 
@@ -404,8 +432,7 @@ def _generar_para_poligono(
     tiffs = _listar_geotiffs_rgb(sentinel_dir, poligono_id)
     if len(tiffs) < 2:
         logger.warning(
-            f"Polígono '{poligono_id}' tiene {len(tiffs)} GeoTIFFs RGB — "
-            f"se necesita ≥2. Skip."
+            f"Polígono '{poligono_id}' tiene {len(tiffs)} GeoTIFFs RGB — " f"se necesita ≥2. Skip."
         )
         return
     logger.info(f"Polígono '{poligono_id}': {len(tiffs)} frames base")
@@ -429,8 +456,13 @@ def _generar_para_poligono(
         else:
             viviendas_txt = "Viviendas: s/d"
         frame = _dibujar_frame(
-            rgb, transform, src_crs, poligono_geom,
-            _fecha_humana(yyyymm), viviendas_txt, atribucion,
+            rgb,
+            transform,
+            src_crs,
+            poligono_geom,
+            _fecha_humana(yyyymm),
+            viviendas_txt,
+            atribucion,
         )
         frames.append(frame)
         frames_por_anio[yyyymm[:4]] = frame
@@ -460,7 +492,10 @@ def _generar_para_poligono(
         gif_path = output_dir / f"{poligono_id}.gif"
         try:
             imageio.mimsave(
-                gif_path, arrays, duration=1.0 / max(fps_efectivo, 1), loop=0,
+                gif_path,
+                arrays,
+                duration=1.0 / max(fps_efectivo, 1),
+                loop=0,
             )
             dur_gif = len(arrays) / max(fps_efectivo, 1)
             logger.info(f"GIF -> {gif_path} ({dur_gif:.1f}s)")
@@ -471,13 +506,16 @@ def _generar_para_poligono(
         mp4_path = output_dir / f"{poligono_id}.mp4"
         try:
             imageio.mimsave(
-                mp4_path, arrays, fps=fps_efectivo, codec="h264", quality=8,
+                mp4_path,
+                arrays,
+                fps=fps_efectivo,
+                codec="h264",
+                quality=8,
             )
             logger.info(f"MP4 -> {mp4_path}")
         except Exception as exc:  # noqa: BLE001
             logger.warning(
-                f"Error exportando MP4 (necesitás imageio-ffmpeg / ffmpeg "
-                f"en PATH): {exc}"
+                f"Error exportando MP4 (necesitás imageio-ffmpeg / ffmpeg " f"en PATH): {exc}"
             )
 
     comp_path = output_dir / f"{poligono_id}_comparacion.png"
@@ -515,10 +553,21 @@ def _generar_para_poligono(
     show_default=True,
 )
 @click.option("--formato", type=click.Choice(["gif", "mp4", "both"]), default="both")
-@click.option("--fps", type=int, default=1, show_default=True,
-              help="Frames por segundo en las fechas originales")
-@click.option("--interpolar-frames", "interpolar", type=int, default=4, show_default=True,
-              help="Frames de cross-fade entre cada par de fechas originales")
+@click.option(
+    "--fps",
+    type=int,
+    default=1,
+    show_default=True,
+    help="Frames por segundo en las fechas originales",
+)
+@click.option(
+    "--interpolar-frames",
+    "interpolar",
+    type=int,
+    default=4,
+    show_default=True,
+    help="Frames de cross-fade entre cada par de fechas originales",
+)
 def cli(
     poligono: str | None,
     all_flag: bool,

@@ -60,9 +60,7 @@ def test_poligonos_validos(gdf_poligonos: gpd.GeoDataFrame):
     )
 
 
-def test_poligonos_dentro_bbox_posadas(
-    gdf_poligonos: gpd.GeoDataFrame, settings_dict: dict
-):
+def test_poligonos_dentro_bbox_posadas(gdf_poligonos: gpd.GeoDataFrame, settings_dict: dict):
     """Todos los polígonos intersectan el bbox de Posadas (settings.yaml)."""
     bbox_cfg = settings_dict["geografia"]["bbox"]
     bbox_posadas = box(
@@ -72,9 +70,9 @@ def test_poligonos_dentro_bbox_posadas(
         bbox_cfg["norte"],
     )
     for _, fila in gdf_poligonos.iterrows():
-        assert fila.geometry.intersects(bbox_posadas), (
-            f"Polígono {fila['id']} no intersecta el bbox de Posadas"
-        )
+        assert fila.geometry.intersects(
+            bbox_posadas
+        ), f"Polígono {fila['id']} no intersecta el bbox de Posadas"
 
 
 def test_poligonos_no_solapan(gdf_poligonos: gpd.GeoDataFrame):
@@ -96,22 +94,20 @@ def test_poligonos_no_solapan(gdf_poligonos: gpd.GeoDataFrame):
             frac_i = inter_area / geom_i.area if geom_i.area > 0 else 0
             frac_j = inter_area / geom_j.area if geom_j.area > 0 else 0
             if frac_i > 0.05 or frac_j > 0.05:
-                fallos.append(
-                    (filas[i].id, filas[j].id, round(frac_i, 3), round(frac_j, 3))
-                )
+                fallos.append((filas[i].id, filas[j].id, round(frac_i, 3), round(frac_j, 3)))
             # Idénticos = geometría duplicada -> siempre falla
-            assert not geom_i.equals(geom_j), (
-                f"Polígonos {filas[i].id} y {filas[j].id} son idénticos"
-            )
+            assert not geom_i.equals(
+                geom_j
+            ), f"Polígonos {filas[i].id} y {filas[j].id} son idénticos"
     assert not fallos, f"Solapamientos significativos: {fallos}"
 
 
 def test_poligonos_ids_unicos(gdf_poligonos: gpd.GeoDataFrame):
     """Los IDs son únicos dentro del GeoDataFrame."""
     ids = gdf_poligonos["id"].tolist()
-    assert len(ids) == len(set(ids)), (
-        f"IDs duplicados en poligonos.geojson: {[i for i in ids if ids.count(i) > 1]}"
-    )
+    assert len(ids) == len(
+        set(ids)
+    ), f"IDs duplicados en poligonos.geojson: {[i for i in ids if ids.count(i) > 1]}"
 
 
 def test_poligonos_properties_requeridas(gdf_poligonos: gpd.GeoDataFrame):
@@ -128,6 +124,5 @@ def test_categorias_validas(gdf_poligonos: gpd.GeoDataFrame):
     categorias_encontradas = set(gdf_poligonos["categoria"].unique())
     desconocidas = categorias_encontradas - CATEGORIAS_VALIDAS
     assert not desconocidas, (
-        f"Categorías desconocidas: {desconocidas}. "
-        f"Válidas: {CATEGORIAS_VALIDAS}"
+        f"Categorías desconocidas: {desconocidas}. " f"Válidas: {CATEGORIAS_VALIDAS}"
     )

@@ -3,6 +3,7 @@
 Evita re-descargar el raster global de 1.8GB al usar --force.
 Usa la misma lógica de recorte que 05_descarga_worldpop.py pero saltea el download.
 """
+
 import json
 from datetime import datetime
 from pathlib import Path
@@ -36,11 +37,13 @@ def main():
         geom = [box(*bbox).__geo_interface__]
         recortado, transform = mask(src, geom, crop=True, filled=True, nodata=src.nodata)
         meta = src.meta.copy()
-        meta.update({
-            "height": recortado.shape[1],
-            "width": recortado.shape[2],
-            "transform": transform,
-        })
+        meta.update(
+            {
+                "height": recortado.shape[1],
+                "width": recortado.shape[2],
+                "transform": transform,
+            }
+        )
         RASTER_RECORTE.parent.mkdir(parents=True, exist_ok=True)
         with rasterio.open(RASTER_RECORTE, "w", **meta) as dst:
             dst.write(recortado)

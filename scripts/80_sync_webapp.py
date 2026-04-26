@@ -16,11 +16,13 @@ y copia los recursos multimedia (PDFs, timelapses, comparaciones HD) a
 Uso:
     python scripts/80_sync_webapp.py
 """
+
 from __future__ import annotations
 
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -34,6 +36,7 @@ import json
 import re
 import shutil
 from datetime import datetime
+from pathlib import Path
 
 import click
 import geopandas as gpd
@@ -42,7 +45,6 @@ from loguru import logger
 
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, resolve_path
-
 
 # --- Mappings -----------------------------------------------------------------
 
@@ -129,11 +131,15 @@ def transformar_poligonos(
         if row.get("sensible"):
             props_out["_sensible"] = True
 
-        features_out.append({
-            "type": "Feature",
-            "properties": props_out,
-            "geometry": json.loads(gpd.GeoSeries([row.geometry]).to_json())["features"][0]["geometry"],
-        })
+        features_out.append(
+            {
+                "type": "Feature",
+                "properties": props_out,
+                "geometry": json.loads(gpd.GeoSeries([row.geometry]).to_json())["features"][0][
+                    "geometry"
+                ],
+            }
+        )
 
     return {
         "type": "FeatureCollection",
@@ -178,15 +184,17 @@ def transformar_serie(serie_df: pd.DataFrame, poligonos_gdf: gpd.GeoDataFrame) -
         area_total = areas_km2.get(pid, 0.0)
         sup_construida = round(n_edif * 0.0001, 4)
         sup_vegetacion = round(max(area_total - sup_construida, 0.0), 4)
-        rows.append({
-            "poligono_id": pid,
-            "anio": anio,
-            "superficie_construida_km2": sup_construida,
-            "superficie_vegetacion_km2": sup_vegetacion,
-            "edificios_total": int(n_edif),
-            "confianza_inferior": int(n_min),
-            "confianza_superior": int(n_max),
-        })
+        rows.append(
+            {
+                "poligono_id": pid,
+                "anio": anio,
+                "superficie_construida_km2": sup_construida,
+                "superficie_vegetacion_km2": sup_vegetacion,
+                "edificios_total": int(n_edif),
+                "confianza_inferior": int(n_min),
+                "confianza_superior": int(n_max),
+            }
+        )
     return pd.DataFrame(rows)
 
 
@@ -210,14 +218,16 @@ def transformar_poblacion(pob_df: pd.DataFrame, poligonos_gdf: gpd.GeoDataFrame)
         pob_min = int(float(r.get("poblacion_min") or 0))
         pob_max = int(float(r.get("poblacion_max") or 0))
         area = areas_km2.get(pid, 1.0) or 1.0
-        rows.append({
-            "poligono_id": pid,
-            "anio": anio,
-            "poblacion_estimada": pob,
-            "densidad_hab_km2": round(pob / area, 1),
-            "confianza_inferior": pob_min,
-            "confianza_superior": pob_max,
-        })
+        rows.append(
+            {
+                "poligono_id": pid,
+                "anio": anio,
+                "poblacion_estimada": pob,
+                "densidad_hab_km2": round(pob / area, 1),
+                "confianza_inferior": pob_min,
+                "confianza_superior": pob_max,
+            }
+        )
     return pd.DataFrame(rows)
 
 
@@ -241,13 +251,15 @@ def transformar_servicios(svc_df: pd.DataFrame) -> pd.DataFrame:
             cobertura_pct = 100.0
         else:
             cobertura_pct = 50.0
-        rows.append({
-            "poligono_id": pid,
-            "servicio": nombre,
-            "cobertura_pct": round(cobertura_pct, 1),
-            "fuente": "OpenStreetMap",
-            "anio_referencia": datetime.now().year,
-        })
+        rows.append(
+            {
+                "poligono_id": pid,
+                "servicio": nombre,
+                "cobertura_pct": round(cobertura_pct, 1),
+                "fuente": "OpenStreetMap",
+                "anio_referencia": datetime.now().year,
+            }
+        )
     return pd.DataFrame(rows)
 
 
@@ -267,16 +279,20 @@ def transformar_vulnerabilidad(vuln_df: pd.DataFrame) -> pd.DataFrame:
             c = comp.get(clave, {})
             return float(c.get("norm") or 0.0)
 
-        rows.append({
-            "poligono_id": pid,
-            "indice_vulnerabilidad": round(score_0_100 / 100.0, 3),  # 0-1 como espera frontend
-            "carencia_servicios": round((_norm("distancia_caps") + _norm("distancia_escuela")) / 2, 3),
-            "riesgo_inundacion": round(_norm("inundacion"), 3),
-            "accesibilidad_salud": round(1.0 - _norm("distancia_caps"), 3),
-            "accesibilidad_educacion": round(1.0 - _norm("distancia_escuela"), 3),
-            "confianza_inferior": round(max(score_0_100 - 15, 0) / 100.0, 3),
-            "confianza_superior": round(min(score_0_100 + 15, 100) / 100.0, 3),
-        })
+        rows.append(
+            {
+                "poligono_id": pid,
+                "indice_vulnerabilidad": round(score_0_100 / 100.0, 3),  # 0-1 como espera frontend
+                "carencia_servicios": round(
+                    (_norm("distancia_caps") + _norm("distancia_escuela")) / 2, 3
+                ),
+                "riesgo_inundacion": round(_norm("inundacion"), 3),
+                "accesibilidad_salud": round(1.0 - _norm("distancia_caps"), 3),
+                "accesibilidad_educacion": round(1.0 - _norm("distancia_escuela"), 3),
+                "confianza_inferior": round(max(score_0_100 - 15, 0) / 100.0, 3),
+                "confianza_superior": round(min(score_0_100 + 15, 100) / 100.0, 3),
+            }
+        )
     return pd.DataFrame(rows)
 
 
@@ -290,7 +306,13 @@ def copiar_media(src_outputs: Path, src_processed: Path, dest_media: Path) -> di
         Dict con contadores por tipo copiado.
     """
     ensure_dir(dest_media)
-    contadores: dict[str, int] = {"pdfs": 0, "mp4": 0, "gif": 0, "comparacion_hd": 0, "comparacion_2x2": 0}
+    contadores: dict[str, int] = {
+        "pdfs": 0,
+        "mp4": 0,
+        "gif": 0,
+        "comparacion_hd": 0,
+        "comparacion_2x2": 0,
+    }
 
     # PDFs: copiamos con nombre original (para archivar historial) Y con alias
     # canónico `{poligono_id}.pdf` (para que el frontend los referencie estable).
@@ -384,16 +406,32 @@ def copiar_media(src_outputs: Path, src_processed: Path, dest_media: Path) -> di
 
 @click.command(help="Sincroniza datos reales a webapp/frontend/public/data/.")
 @click.option("--poligonos", type=click.Path(exists=True), default="config/poligonos.geojson")
-@click.option("--serie", type=click.Path(exists=True), default="data/processed/conteos/serie_temporal.csv")
-@click.option("--poblacion", type=click.Path(exists=True), default="data/processed/poblacion_estimada.csv")
-@click.option("--servicios", type=click.Path(exists=True), default="data/processed/servicios_por_poligono.csv")
-@click.option("--vulnerabilidad", type=click.Path(exists=True), default="data/processed/vulnerabilidad_v0.csv")
+@click.option(
+    "--serie", type=click.Path(exists=True), default="data/processed/conteos/serie_temporal.csv"
+)
+@click.option(
+    "--poblacion", type=click.Path(exists=True), default="data/processed/poblacion_estimada.csv"
+)
+@click.option(
+    "--servicios", type=click.Path(exists=True), default="data/processed/servicios_por_poligono.csv"
+)
+@click.option(
+    "--vulnerabilidad", type=click.Path(exists=True), default="data/processed/vulnerabilidad_v0.csv"
+)
 @click.option("--webapp-data", type=click.Path(), default="webapp/frontend/public/data")
 @click.option("--webapp-media", type=click.Path(), default="webapp/frontend/public/data/media")
-@click.option("--nivel-log", type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR"]), default="INFO")
+@click.option(
+    "--nivel-log", type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR"]), default="INFO"
+)
 def cli(
-    poligonos: str, serie: str, poblacion: str, servicios: str,
-    vulnerabilidad: str, webapp_data: str, webapp_media: str, nivel_log: str,
+    poligonos: str,
+    serie: str,
+    poblacion: str,
+    servicios: str,
+    vulnerabilidad: str,
+    webapp_data: str,
+    webapp_media: str,
+    nivel_log: str,
 ) -> None:
     setup_logger(nivel=nivel_log.upper())
     dest_data = ensure_dir(resolve_path(webapp_data))
@@ -409,7 +447,11 @@ def cli(
     pob_df = pd.read_csv(poblacion, comment="#")
     # Los CSVs generados por nuestros scripts no tienen comentarios pero toleramos.
     svc_df = pd.read_csv(servicios, comment="#") if _Path(servicios).exists() else pd.DataFrame()
-    vuln_df = pd.read_csv(vulnerabilidad, comment="#") if _Path(vulnerabilidad).exists() else pd.DataFrame()
+    vuln_df = (
+        pd.read_csv(vulnerabilidad, comment="#")
+        if _Path(vulnerabilidad).exists()
+        else pd.DataFrame()
+    )
 
     # Transformar y guardar.
     fc = transformar_poligonos(_Path(poligonos), serie_df, pob_df, vuln_df)
@@ -426,8 +468,12 @@ def cli(
     pob_out.to_csv(dest_data / "poblacion.csv", index=False, encoding="utf-8")
     logger.info(f"poblacion.csv -> {len(pob_out)} filas")
 
-    svc_out = transformar_servicios(svc_df) if not svc_df.empty else pd.DataFrame(
-        columns=["poligono_id", "servicio", "cobertura_pct", "fuente", "anio_referencia"]
+    svc_out = (
+        transformar_servicios(svc_df)
+        if not svc_df.empty
+        else pd.DataFrame(
+            columns=["poligono_id", "servicio", "cobertura_pct", "fuente", "anio_referencia"]
+        )
     )
     svc_out.to_csv(dest_data / "servicios.csv", index=False, encoding="utf-8")
     logger.info(f"servicios.csv -> {len(svc_out)} filas")
@@ -471,13 +517,19 @@ def cli(
         ("data/processed/forecast/forecast_horario.csv", "forecast/forecast_horario.csv"),
         ("data/processed/forecast/aqi_diario.csv", "forecast/aqi_diario.csv"),
         # Proyecciones a futuro (script 59) — fase 5/6
-        ("data/processed/proyecciones/proyecciones_por_poligono.csv", "proyecciones/proyecciones.csv"),
+        (
+            "data/processed/proyecciones/proyecciones_por_poligono.csv",
+            "proyecciones/proyecciones.csv",
+        ),
         # Capa CBERS extendida (scripts 45c-45i) — pass-through tal cual,
         # cada CSV mantiene su schema documentado en el script origen.
         ("data/processed/cbers_termico/lst_cbers_mensual.csv", "cbers_termico/lst_cbers.csv"),
         ("data/processed/cbers_swir/firms_crossval_anual.csv", "cbers_swir/firms_crossval.csv"),
         ("data/processed/cbers_awfi/cobertura_mensual.csv", "cbers_awfi/cobertura.csv"),
-        ("data/processed/cbers_historico/serie_temporal_extendida.csv", "cbers_historico/serie.csv"),
+        (
+            "data/processed/cbers_historico/serie_temporal_extendida.csv",
+            "cbers_historico/serie.csv",
+        ),
         ("data/processed/cbers_indices/ndbi_ndvi_anual.csv", "cbers_indices/ndbi_ndvi.csv"),
         ("data/processed/cbers_inundacion/eventos_inundacion.csv", "cbers_inundacion/eventos.csv"),
     ]
@@ -491,6 +543,7 @@ def cli(
         shutil.copy2(src, dest_path)
         try:
             import pandas as _pd
+
             n = len(_pd.read_csv(src))
             logger.info(f"{dest_name} -> {n} filas (pass-through)")
         except Exception:

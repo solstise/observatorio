@@ -123,8 +123,15 @@ def sample_serie_temporal_df() -> pd.DataFrame:
     Columnas: poligono_id, fecha, n_edificios_min, n_edificios_estimado, n_edificios_max.
     """
     fechas = [
-        "2018-07", "2019-07", "2020-07", "2021-07", "2022-07",
-        "2023-07", "2024-07", "2025-07", "2026-07",
+        "2018-07",
+        "2019-07",
+        "2020-07",
+        "2021-07",
+        "2022-07",
+        "2023-07",
+        "2024-07",
+        "2025-07",
+        "2026-07",
     ]
     # Crecimiento: polígono A crece fuerte (100 -> 300), B casi estable.
     crecimiento = {

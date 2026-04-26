@@ -66,6 +66,7 @@ Outputs en docs::
 
     docs/metodologia_calor.md                          — sección 15
 """
+
 from __future__ import annotations
 
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
@@ -82,7 +83,6 @@ while _p != _p.parent:
 # --- fin del parche ---------------------------------------------------------
 
 import json
-import math
 import signal
 import sys
 import time
@@ -93,6 +93,7 @@ from typing import Optional
 
 import click
 import matplotlib
+
 matplotlib.use("Agg")  # backend sin GUI
 import matplotlib.pyplot as plt
 import numpy as np
@@ -247,9 +248,7 @@ def _inicializar_ee(project_id: Optional[str]) -> None:
         )
     except Exception as exc:  # noqa: BLE001
         logger.error(f"Falló ee.Initialize(): {exc}")
-        logger.error(
-            "Ayuda: python scripts/test_ee_auth.py para diagnosticar."
-        )
+        logger.error("Ayuda: python scripts/test_ee_auth.py para diagnosticar.")
         raise SystemExit(1) from exc
 
 
@@ -300,11 +299,12 @@ def _descargar_t_aire_era5(ctx: ContextoValidacion, force: bool) -> pd.DataFrame
     ee_geom = ee.Geometry(huella_geom.__geo_interface__)
     area_km2 = (
         gpd.GeoDataFrame(geometry=[huella_geom], crs="EPSG:4326")
-        .to_crs(epsg=32721).geometry.iloc[0].area / 1_000_000.0
+        .to_crs(epsg=32721)
+        .geometry.iloc[0]
+        .area
+        / 1_000_000.0
     )
-    logger.info(
-        f"Huella urbana: {len(gdf)} polígonos disueltos, área≈{area_km2:.1f} km²"
-    )
+    logger.info(f"Huella urbana: {len(gdf)} polígonos disueltos, área≈{area_km2:.1f} km²")
 
     meses = _meses_rango(ctx.anio_mes_desde, ctx.anio_mes_hasta)
     logger.info(
@@ -321,11 +321,7 @@ def _descargar_t_aire_era5(ctx: ContextoValidacion, force: bool) -> pd.DataFrame
     else:
         fin_str = f"{y_h:04d}-{m_h + 1:02d}-01"
 
-    col = (
-        ee.ImageCollection(ERA5_ASSET)
-        .select(ERA5_BAND)
-        .filterDate(inicio_str, fin_str)
-    )
+    col = ee.ImageCollection(ERA5_ASSET).select(ERA5_BAND).filterDate(inicio_str, fin_str)
     n_imgs = col.size().getInfo()
     logger.info(f"ERA5 imágenes en rango: {n_imgs}")
     if n_imgs == 0:
@@ -448,9 +444,7 @@ def _cruzar_series(ctx: ContextoValidacion) -> pd.DataFrame:
 
     lst_df = pd.read_csv(ctx.lst_mensual_csv)
     aire_df = pd.read_csv(ctx.aire_csv)
-    logger.info(
-        f"LST: {len(lst_df)} filas | T_aire: {len(aire_df)} filas"
-    )
+    logger.info(f"LST: {len(lst_df)} filas | T_aire: {len(aire_df)} filas")
 
     lst_agg = _agregar_lst_mensual(lst_df)
     if lst_agg.empty:
@@ -459,26 +453,28 @@ def _cruzar_series(ctx: ContextoValidacion) -> pd.DataFrame:
 
     merged = aire_df.merge(lst_agg, on=["anio", "mes"], how="inner")
     merged["diferencia"] = (merged["lst_promedio"] - merged["t_aire_mean"]).round(2)
-    merged = merged[
-        [
-            "anio",
-            "mes",
-            "t_aire_mean",
-            "lst_promedio",
-            "diferencia",
-            "n_poligonos",
-            "lst_std_inter_pol",
+    merged = (
+        merged[
+            [
+                "anio",
+                "mes",
+                "t_aire_mean",
+                "lst_promedio",
+                "diferencia",
+                "n_poligonos",
+                "lst_std_inter_pol",
+            ]
         ]
-    ].sort_values(["anio", "mes"]).reset_index(drop=True)
+        .sort_values(["anio", "mes"])
+        .reset_index(drop=True)
+    )
 
     if merged.empty:
         logger.error("Cross-join vacío (no hay meses en común).")
         raise SystemExit(2)
 
     merged.to_csv(ctx.validacion_csv, index=False, encoding="utf-8")
-    logger.info(
-        f"Validación: {len(merged)} meses cruzados → {ctx.validacion_csv}"
-    )
+    logger.info(f"Validación: {len(merged)} meses cruzados → {ctx.validacion_csv}")
     return merged
 
 
@@ -504,7 +500,7 @@ def _calcular_metricas(merged: pd.DataFrame) -> dict:
     spearman_r, spearman_p = stats.spearmanr(x, y)
     diferencia = y - x  # LST - T_aire
     sesgo_medio = float(np.mean(diferencia))
-    rmse = float(np.sqrt(np.mean(diferencia ** 2)))
+    rmse = float(np.sqrt(np.mean(diferencia**2)))
     mae = float(np.mean(np.abs(diferencia)))
 
     # Regresión lineal LST = a + b * T_aire (para diagnostico).
@@ -623,24 +619,41 @@ def _plot_scatter(merged: pd.DataFrame, metricas: dict, dest: Path) -> None:
     colors = cmap((merged["mes"].to_numpy() - 1) / 11.0)
 
     ax.scatter(
-        x, y, c=colors, s=56, alpha=0.85,
-        edgecolors=COLOR_BORDE, linewidths=0.6, zorder=3,
+        x,
+        y,
+        c=colors,
+        s=56,
+        alpha=0.85,
+        edgecolors=COLOR_BORDE,
+        linewidths=0.6,
+        zorder=3,
     )
 
     # Recta 1:1.
     lo = float(min(x.min(), y.min())) - 1
     hi = float(max(x.max(), y.max())) + 1
-    ax.plot([lo, hi], [lo, hi], "--", color=COLOR_TEXTO_SUAVE, lw=1.2,
-            label="LST = T_aire (1:1)", zorder=2)
+    ax.plot(
+        [lo, hi],
+        [lo, hi],
+        "--",
+        color=COLOR_TEXTO_SUAVE,
+        lw=1.2,
+        label="LST = T_aire (1:1)",
+        zorder=2,
+    )
 
     # Recta de regresión.
     a = metricas["regresion_pendiente"]
     b = metricas["regresion_ordenada"]
     xs = np.array([lo, hi])
     ax.plot(
-        xs, a * xs + b, "-",
-        color=COLOR_ACENTO, lw=2.2,
-        label=f"LST = {a:.2f}·T_aire + {b:+.2f}", zorder=2,
+        xs,
+        a * xs + b,
+        "-",
+        color=COLOR_ACENTO,
+        lw=2.2,
+        label=f"LST = {a:.2f}·T_aire + {b:+.2f}",
+        zorder=2,
     )
 
     ax.set_xlim(lo, hi)
@@ -650,7 +663,8 @@ def _plot_scatter(merged: pd.DataFrame, metricas: dict, dest: Path) -> None:
     ax.set_ylabel("LST Landsat 8/9 (°C, media mensual urbana)", fontsize=11)
     ax.set_title(
         "Validación capa de calor — LST vs T_aire mensual sobre Posadas urbana",
-        fontsize=12, pad=14,
+        fontsize=12,
+        pad=14,
     )
     ax.grid(True, ls=":", alpha=0.4, color=COLOR_TEXTO_SUAVE)
 
@@ -664,11 +678,18 @@ def _plot_scatter(merged: pd.DataFrame, metricas: dict, dest: Path) -> None:
         f"Sesgo (LST−aire) = {metricas['sesgo_medio_celsius']:+.2f} °C"
     )
     ax.text(
-        0.04, 0.96, txt_metricas,
-        transform=ax.transAxes, fontsize=9.5, va="top", ha="left",
+        0.04,
+        0.96,
+        txt_metricas,
+        transform=ax.transAxes,
+        fontsize=9.5,
+        va="top",
+        ha="left",
         bbox=dict(
-            boxstyle="round,pad=0.5", facecolor="white",
-            edgecolor=COLOR_TEXTO_SUAVE, alpha=0.92,
+            boxstyle="round,pad=0.5",
+            facecolor="white",
+            edgecolor=COLOR_TEXTO_SUAVE,
+            alpha=0.92,
         ),
         family="monospace",
     )
@@ -682,11 +703,16 @@ def _plot_scatter(merged: pd.DataFrame, metricas: dict, dest: Path) -> None:
     cbar.ax.tick_params(labelsize=8)
 
     fig.text(
-        0.5, 0.005,
+        0.5,
+        0.005,
         f"Fuente: ERA5-Land + Landsat 8/9 C2 L2 · "
         f"Observatorio Urbano Posadas · v{SCRIPT_VERSION} · "
         f"{datetime.now().strftime('%Y-%m-%d')}",
-        ha="center", va="bottom", fontsize=7, color=COLOR_TEXTO_SUAVE, style="italic",
+        ha="center",
+        va="bottom",
+        fontsize=7,
+        color=COLOR_TEXTO_SUAVE,
+        style="italic",
     )
 
     dest.parent.mkdir(parents=True, exist_ok=True)
@@ -705,21 +731,34 @@ def _plot_serie(merged: pd.DataFrame, metricas: dict, dest: Path) -> None:
     )
 
     ax.plot(
-        fechas, merged["lst_promedio"], "-o",
-        color=COLOR_ACENTO, lw=1.8, ms=4.5,
-        label="LST Landsat (superficie urbana)", zorder=3,
+        fechas,
+        merged["lst_promedio"],
+        "-o",
+        color=COLOR_ACENTO,
+        lw=1.8,
+        ms=4.5,
+        label="LST Landsat (superficie urbana)",
+        zorder=3,
     )
     ax.plot(
-        fechas, merged["t_aire_mean"], "-s",
-        color=COLOR_BORDE, lw=1.8, ms=4.5,
-        label="T_aire ERA5-Land (a 2 m)", zorder=3,
+        fechas,
+        merged["t_aire_mean"],
+        "-s",
+        color=COLOR_BORDE,
+        lw=1.8,
+        ms=4.5,
+        label="T_aire ERA5-Land (a 2 m)",
+        zorder=3,
     )
 
     # Banda de diferencia para visualizar el offset.
     ax.fill_between(
         fechas,
-        merged["t_aire_mean"], merged["lst_promedio"],
-        color=COLOR_ACENTO, alpha=0.13, zorder=1,
+        merged["t_aire_mean"],
+        merged["lst_promedio"],
+        color=COLOR_ACENTO,
+        alpha=0.13,
+        zorder=1,
         label=f"Δ medio = +{metricas['sesgo_medio_celsius']:.1f} °C",
     )
 
@@ -727,7 +766,8 @@ def _plot_serie(merged: pd.DataFrame, metricas: dict, dest: Path) -> None:
     ax.set_ylabel("Temperatura (°C)", fontsize=11)
     ax.set_title(
         "Serie temporal LST satelital vs temperatura del aire ERA5-Land — Posadas urbana",
-        fontsize=12, pad=12,
+        fontsize=12,
+        pad=12,
     )
     ax.xaxis.set_major_locator(YearLocator(1))
     ax.xaxis.set_major_formatter(DateFormatter("%Y"))
@@ -739,21 +779,33 @@ def _plot_serie(merged: pd.DataFrame, metricas: dict, dest: Path) -> None:
         f"n = {metricas['n_meses']} meses"
     )
     ax.text(
-        0.01, 0.97, txt,
-        transform=ax.transAxes, fontsize=9.5, va="top", ha="left",
+        0.01,
+        0.97,
+        txt,
+        transform=ax.transAxes,
+        fontsize=9.5,
+        va="top",
+        ha="left",
         bbox=dict(
-            boxstyle="round,pad=0.4", facecolor="white",
-            edgecolor=COLOR_TEXTO_SUAVE, alpha=0.92,
+            boxstyle="round,pad=0.4",
+            facecolor="white",
+            edgecolor=COLOR_TEXTO_SUAVE,
+            alpha=0.92,
         ),
         family="monospace",
     )
 
     fig.text(
-        0.5, 0.005,
+        0.5,
+        0.005,
         f"Fuente: ERA5-Land + Landsat 8/9 C2 L2 · "
         f"Observatorio Urbano Posadas · v{SCRIPT_VERSION} · "
         f"{datetime.now().strftime('%Y-%m-%d')}",
-        ha="center", va="bottom", fontsize=7, color=COLOR_TEXTO_SUAVE, style="italic",
+        ha="center",
+        va="bottom",
+        fontsize=7,
+        color=COLOR_TEXTO_SUAVE,
+        style="italic",
     )
 
     dest.parent.mkdir(parents=True, exist_ok=True)
@@ -826,8 +878,8 @@ def _construir_seccion_15(metricas: dict, interpretacion: str) -> str:
         "",
         "### 15.4 Resultados",
         "",
-        f"| Métrica | Valor |",
-        f"|---|---|",
+        "| Métrica | Valor |",
+        "|---|---|",
         f"| n meses cruzados | {n} |",
         f"| Período | {metricas['rango_temporal']} |",
         f"| Pearson **r** | **{r:.3f}** (p = {metricas['pearson_p']:.2g}) |",
@@ -899,7 +951,9 @@ def _construir_seccion_15(metricas: dict, interpretacion: str) -> str:
     return "\n".join(lineas)
 
 
-def _actualizar_metodologia_md(ctx: ContextoValidacion, metricas: dict, interpretacion: str) -> None:
+def _actualizar_metodologia_md(
+    ctx: ContextoValidacion, metricas: dict, interpretacion: str
+) -> None:
     """Inserta o reemplaza la sección 15 en metodologia_calor.md."""
     if not ctx.docs_path.exists():
         logger.warning(f"{ctx.docs_path} no existe, no actualizo metodología.")
@@ -912,7 +966,7 @@ def _actualizar_metodologia_md(ctx: ContextoValidacion, metricas: dict, interpre
         # Reemplazar la sección existente: desde header hasta la próxima
         # sección de nivel 2 (## ) o el separador final --- o EOF.
         idx_inicio = contenido.index(SECCION_15_HEADER)
-        despues = contenido[idx_inicio + len(SECCION_15_HEADER):]
+        despues = contenido[idx_inicio + len(SECCION_15_HEADER) :]
 
         # Buscamos la próxima cabecera ## (sin contar la actual).
         idx_proxima_h2 = -1
@@ -973,10 +1027,15 @@ def _actualizar_metodologia_md(ctx: ContextoValidacion, metricas: dict, interpre
     type=click.Path(),
 )
 @click.option(
-    "--anio-mes-desde", default=ANIO_MES_DESDE_DEFAULT, show_default=True, type=str,
+    "--anio-mes-desde",
+    default=ANIO_MES_DESDE_DEFAULT,
+    show_default=True,
+    type=str,
 )
 @click.option(
-    "--anio-mes-hasta", default=None, type=str,
+    "--anio-mes-hasta",
+    default=None,
+    type=str,
     help="YYYY-MM. Default: mes actual − 2 (lag ERA5-Land).",
 )
 @click.option("--project", "ee_project", default=None, help="EE project ID.")
@@ -1034,7 +1093,8 @@ def cruzar_cmd(ctx_click) -> None:
     merged = _cruzar_series(ctx)
     metricas = _calcular_metricas(merged)
     ctx.metricas_json.write_text(
-        json.dumps(metricas, indent=2, ensure_ascii=False), encoding="utf-8",
+        json.dumps(metricas, indent=2, ensure_ascii=False),
+        encoding="utf-8",
     )
     logger.info(f"Métricas → {ctx.metricas_json}")
     interpretacion = _interpretar_metricas(metricas)
@@ -1047,17 +1107,13 @@ def cruzar_cmd(ctx_click) -> None:
 
     # Anuncio destacado para el revisor académico.
     if metricas["pearson_r"] > 0.85:
-        logger.info(
-            "============================================================"
-        )
+        logger.info("============================================================")
         logger.info(
             f"r = {metricas['pearson_r']:.3f} > 0.85 — la correlación entre LST "
             "satelital y temperatura del aire mensual es ALTA. La capa LST está "
             "validada como proxy ranking del estrés térmico mensual sobre Posadas."
         )
-        logger.info(
-            "============================================================"
-        )
+        logger.info("============================================================")
 
     logger.info(f"OK cruzar ({time.time() - t0:.1f}s)")
 

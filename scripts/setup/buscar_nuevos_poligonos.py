@@ -10,9 +10,9 @@ Cada barrio: imprime tipo de geometría, bbox, área aproximada si hay
 polígono, y un resumen de qué enfoque usar (polígono OSM directo vs
 cuadrado 2×2 km en el centro del nodo).
 """
+
 from __future__ import annotations
 
-import json
 import time
 from urllib.parse import quote
 
@@ -33,9 +33,7 @@ BARRIOS = [
     "Bajada Vieja, Posadas",
 ]
 
-HEADERS = {
-    "User-Agent": "ObservatorioUrbanoPosadas/0.1 (contacto: fundile@gmail.com)"
-}
+HEADERS = {"User-Agent": "ObservatorioUrbanoPosadas/0.1 (contacto: fundile@gmail.com)"}
 
 
 def buscar(nombre: str) -> list[dict]:
@@ -68,8 +66,9 @@ def resumir(nombre: str, resultados: list[dict]) -> None:
         area_km2 = None
         if tipo in ("Polygon", "MultiPolygon"):
             try:
-                from shapely.geometry import shape
                 from pyproj import Geod
+                from shapely.geometry import shape
+
                 geod = Geod(ellps="WGS84")
                 geom_obj = shape(geom)
                 area_m2 = abs(geod.geometry_area_perimeter(geom_obj)[0])

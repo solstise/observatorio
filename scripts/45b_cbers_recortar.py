@@ -44,6 +44,7 @@ from __future__ import annotations
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -68,7 +69,6 @@ from loguru import logger
 from scripts.utils.io_geo import cache_check, load_geojson
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, resolve_path
-
 
 SCRIPT_VERSION = "0.1.0"
 
@@ -144,7 +144,7 @@ def recortar_poligono(
     import numpy as np
     import rasterio
     from rasterio.mask import mask as rio_mask
-    from rasterio.warp import calculate_default_transform, reproject, Resampling
+    from rasterio.warp import Resampling, calculate_default_transform, reproject
     from shapely.geometry import shape
 
     info: Dict[str, Any] = {
@@ -161,12 +161,7 @@ def recortar_poligono(
     png_dest = out_dir / f"{poligono_id}_cbers_{yyyymm}.png"
     latest_png = out_dir / f"{poligono_id}_cbers_latest.png"
 
-    if (
-        cache_check(tif_dest)
-        and cache_check(png_dest)
-        and cache_check(latest_png)
-        and not force
-    ):
+    if cache_check(tif_dest) and cache_check(png_dest) and cache_check(latest_png) and not force:
         logger.debug(f"  {poligono_id}: cache hit → skip")
         info["tif_path"] = str(tif_dest)
         info["png_path"] = str(png_dest)
@@ -207,7 +202,9 @@ def recortar_poligono(
         info["ancho_px"] = int(out_image.shape[2])
         info["alto_px"] = int(out_image.shape[1])
         if n_valid == 0:
-            logger.warning(f"  {poligono_id}: 0 pixels válidos tras recorte (probable fuera de cobertura)")
+            logger.warning(
+                f"  {poligono_id}: 0 pixels válidos tras recorte (probable fuera de cobertura)"
+            )
             return False, info
 
     # Reproyectar a EPSG:4326 para el GeoTIFF final (consistente con conv. del repo)
@@ -327,7 +324,7 @@ def _generar_png_placeholder(
         font_big = ImageFont.load_default()
         font_small = ImageFont.load_default()
 
-    titulo = f"Sin imagen CBERS disponible"
+    titulo = "Sin imagen CBERS disponible"
     sub = f"para {nombre_legible} en {yyyymm[:4]}-{yyyymm[4:]}"
     fuente = "Fuente esperada: CBERS-4A WPM via INPE/AWS"
 
@@ -380,9 +377,7 @@ def actualizar_metadata(
     base["n_poligonos_cubiertos"] = n_poligonos_cubiertos
     base["recortes_actualizados_en"] = datetime.now().isoformat(timespec="seconds")
     metadata_destino.parent.mkdir(parents=True, exist_ok=True)
-    metadata_destino.write_text(
-        json.dumps(base, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    metadata_destino.write_text(json.dumps(base, ensure_ascii=False, indent=2), encoding="utf-8")
     logger.info(f"Metadata actualizada → {metadata_destino}")
 
 
@@ -469,9 +464,7 @@ def main(
 
     # Filtrar polígonos publicables (excluir posadas_completa)
     total_features = len(gdf)
-    gdf_pub = gdf[~gdf["id"].astype(str).isin(POLIGONOS_EXCLUIR)].reset_index(
-        drop=True
-    )
+    gdf_pub = gdf[~gdf["id"].astype(str).isin(POLIGONOS_EXCLUIR)].reset_index(drop=True)
     logger.info(
         f"Polígonos a recortar: {len(gdf_pub)} (de {total_features} totales, "
         f"excluido posadas_completa)"

@@ -16,6 +16,7 @@ Maps que mandó el usuario):
 - Sur:   -27.428  (llega hasta Parque Rural)
 - Norte: -27.388  (llega hasta Escuela 967)
 """
+
 from __future__ import annotations
 
 import json
@@ -27,13 +28,15 @@ from shapely.ops import unary_union
 RAIZ = Path(__file__).resolve().parent.parent.parent
 GEOJSON = RAIZ / "config" / "poligonos.geojson"
 
-EXTENSION_OESTE = Polygon([
-    (-56.012, -27.428),
-    (-55.996, -27.428),
-    (-55.996, -27.388),
-    (-56.012, -27.388),
-    (-56.012, -27.428),
-])
+EXTENSION_OESTE = Polygon(
+    [
+        (-56.012, -27.428),
+        (-55.996, -27.428),
+        (-55.996, -27.388),
+        (-56.012, -27.388),
+        (-56.012, -27.428),
+    ]
+)
 
 
 def main() -> None:
@@ -65,6 +68,7 @@ def main() -> None:
 
         # Tamaño del polígono nuevo en km² (UTM 21S).
         import geopandas as gpd
+
         gdf = gpd.GeoDataFrame(geometry=[simplificado], crs="EPSG:4326")
         area_km2 = gdf.to_crs("EPSG:32721").geometry.area.iloc[0] / 1e6
 
@@ -76,7 +80,7 @@ def main() -> None:
         else:
             n_vert = "?"
 
-        print(f"Polígono itaembe_guazu ampliado:")
+        print("Polígono itaembe_guazu ampliado:")
         print(f"  tipo: {geom_geojson['type']}")
         print(f"  vertices: {n_vert}")
         print(f"  área: {area_km2:.2f} km² (antes: 7.64 km²)")

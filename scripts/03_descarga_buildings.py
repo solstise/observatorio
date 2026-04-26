@@ -33,20 +33,21 @@ from __future__ import annotations
 import json
 import shutil
 import sys
-import traceback
-import urllib.request
-from datetime import datetime
-from pathlib import Path
-from typing import List, Optional, Tuple
-
-import click
-from loguru import logger
 
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------------------
 # Aseguramos que el root del proyecto esté en sys.path para que los imports
 # `from scripts.utils.X` funcionen al correr este archivo como script.
 import sys as _sys
+import traceback
+import urllib.request
+from datetime import datetime
+from pathlib import Path
 from pathlib import Path as _Path
+from typing import Optional, Tuple
+
+import click
+from loguru import logger
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -61,7 +62,6 @@ from scripts.utils.interrupts import graceful_interrupt
 from scripts.utils.io_geo import cache_check, hash_file
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, ensure_parent, resolve_path
-
 
 SCRIPT_VERSION = "0.1.0"
 EE_ASSET = "GOOGLE/Research/open-buildings/v3/polygons"
@@ -128,9 +128,7 @@ def _descargar_url(url: str, destino: Path) -> None:
         shutil.copyfileobj(resp, fh)
 
 
-def _intentar_descarga_directa(
-    fc, destino_geojson: Path, resumen_path: Path
-) -> bool:
+def _intentar_descarga_directa(fc, destino_geojson: Path, resumen_path: Path) -> bool:
     """Intenta bajar la FeatureCollection vía `getDownloadURL` (GeoJSON).
 
     Args:
@@ -185,7 +183,7 @@ def _fallback_export_drive(fc, descripcion: str) -> str:
     logger.warning("=" * 60)
     logger.warning("FALLBACK: export a Google Drive iniciado (asíncrono).")
     logger.warning(f"Task ID: {task_id}")
-    logger.warning(f"Monitoreá el progreso en: https://code.earthengine.google.com/tasks")
+    logger.warning("Monitoreá el progreso en: https://code.earthengine.google.com/tasks")
     logger.warning(
         "Cuando termine, el GeoJSON aparece en tu Google Drive. Bajalo manualmente "
         "y movelo a data/raw/google_buildings/posadas_buildings.geojson"
@@ -205,9 +203,7 @@ def _imprimir_fallback_csv(bbox: Tuple[float, float, float, float]) -> None:
     logger.warning("FALLBACK MANUAL — Descarga directa del CSV de Google:")
     logger.warning(f"  1. Visitá {LINK_OPEN_BUILDINGS_CSV}")
     logger.warning("  2. Buscá el tile S2 que cubre Posadas (usar 'selector' del sitio).")
-    logger.warning(
-        f"  3. BBox de Posadas: oeste={oeste}, sur={sur}, este={este}, norte={norte}"
-    )
+    logger.warning(f"  3. BBox de Posadas: oeste={oeste}, sur={sur}, este={este}, norte={norte}")
     logger.warning("  4. Descargá el CSV (~200 MB para la región LATAM correspondiente).")
     logger.warning("  5. Filtrá con pandas: `df[(df.longitude >= -56) & ...]`")
     logger.warning(
@@ -383,12 +379,11 @@ def main(
     # Prioridad: --bbox explícito > --poligonos derivado > settings.yaml default.
     if bbox_cli is None and poligonos_path is not None:
         import geopandas as gpd
+
         gdf = gpd.read_file(poligonos_path)
         west, south, east, north = gdf.total_bounds
         bbox_cli = f"{west},{south},{east},{north}"
-        logger.info(
-            f"BBox derivado de --poligonos ({poligonos_path}): {bbox_cli}"
-        )
+        logger.info(f"BBox derivado de --poligonos ({poligonos_path}): {bbox_cli}")
     bbox = _parsear_bbox(bbox_cli, settings)
     conf = confidence_min if confidence_min is not None else settings.edificios.confidence_threshold
     output_geojson = ensure_parent(resolve_path(output_path))
@@ -419,9 +414,7 @@ def main(
     marcador_parcial = output_geojson.with_suffix(".parcial.marker")
 
     def _marcar_parcial() -> None:
-        marcador_parcial.write_text(
-            f"Interrupción: {datetime.now().isoformat()}", encoding="utf-8"
-        )
+        marcador_parcial.write_text(f"Interrupción: {datetime.now().isoformat()}", encoding="utf-8")
 
     with graceful_interrupt() as state:
         state.on_interrupt(_marcar_parcial)

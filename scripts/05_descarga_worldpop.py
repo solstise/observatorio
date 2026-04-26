@@ -52,20 +52,21 @@ from __future__ import annotations
 import json
 import shutil
 import sys
-import traceback
-import urllib.request
-from datetime import datetime
-from pathlib import Path
-from typing import Any, Optional, Tuple
-
-import click
-from loguru import logger
 
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------------------
 # Aseguramos que el root del proyecto esté en sys.path para que los imports
 # `from scripts.utils.X` funcionen al correr este archivo como script.
 import sys as _sys
+import traceback
+import urllib.request
+from datetime import datetime
+from pathlib import Path
 from pathlib import Path as _Path
+from typing import Any, Optional, Tuple
+
+import click
+from loguru import logger
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -80,7 +81,6 @@ from scripts.utils.interrupts import graceful_interrupt
 from scripts.utils.io_geo import cache_check, hash_file
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, resolve_path
-
 
 SCRIPT_VERSION = "0.2.0-earthengine"
 
@@ -254,6 +254,7 @@ def _descargar_recorte_ee(
         if magic[:2] == b"PK":
             logger.warning("   EE devolvió un .zip; extrayendo el .tif interno...")
             import zipfile
+
             with zipfile.ZipFile(tmp) as z:
                 tifs = [n for n in z.namelist() if n.lower().endswith((".tif", ".tiff"))]
                 if not tifs:
@@ -264,8 +265,7 @@ def _descargar_recorte_ee(
         else:
             tmp.unlink(missing_ok=True)
             raise RuntimeError(
-                f"Respuesta inesperada de EE (magic bytes={magic!r}). "
-                "No es ni GeoTIFF ni ZIP."
+                f"Respuesta inesperada de EE (magic bytes={magic!r}). " "No es ni GeoTIFF ni ZIP."
             )
     else:
         tmp.rename(destino)
@@ -363,9 +363,7 @@ def _recortar_a_bbox(
                 "transform": transform,
             }
         )
-        bounds_recorte = rasterio.transform.array_bounds(
-            meta["height"], meta["width"], transform
-        )
+        bounds_recorte = rasterio.transform.array_bounds(meta["height"], meta["width"], transform)
         resolucion = (transform.a, -transform.e)
         crs_str = str(src.crs)
 
@@ -496,14 +494,13 @@ def main(
     # Prioridad: --bbox explícito > --poligonos derivado > settings.yaml default.
     if bbox_cli is None and poligonos_path is not None:
         import geopandas as gpd
+
         gdf = gpd.read_file(poligonos_path)
         # Margen pequeño para que el recorte cubra los polígonos con holgura.
         margen = 0.01
         west, south, east, north = gdf.total_bounds
         bbox_cli = f"{west - margen},{south - margen},{east + margen},{north + margen}"
-        logger.info(
-            f"BBox derivado de --poligonos ({poligonos_path}, +margen 0.01°): {bbox_cli}"
-        )
+        logger.info(f"BBox derivado de --poligonos ({poligonos_path}, +margen 0.01°): {bbox_cli}")
     bbox = _parsear_bbox(bbox_cli, settings)
     out_dir = ensure_dir(resolve_path(output_dir))
 
@@ -533,9 +530,7 @@ def main(
     marcador = out_dir / f".parcial_{year}.marker"
 
     def _marcar() -> None:
-        marcador.write_text(
-            f"Interrupción: {datetime.now().isoformat()}", encoding="utf-8"
-        )
+        marcador.write_text(f"Interrupción: {datetime.now().isoformat()}", encoding="utf-8")
 
     info_recorte: dict
     fuente_str: str
@@ -580,9 +575,7 @@ def main(
             else:
                 # --- Camino default: Earth Engine ------------------------------
                 ee_project_resolved = ee_project or settings.env.ee_project_id
-                logger.info(
-                    f"EE project:       {ee_project_resolved or '(default ADC)'}"
-                )
+                logger.info(f"EE project:       {ee_project_resolved or '(default ADC)'}")
                 inicializar_ee(ee_project_resolved)
 
                 t_inicio = datetime.now()

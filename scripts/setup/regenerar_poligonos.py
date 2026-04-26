@@ -12,6 +12,7 @@ Solución:
 
 Este script es idempotente: pisás el GeoJSON existente.
 """
+
 from __future__ import annotations
 
 import json
@@ -20,15 +21,13 @@ from pathlib import Path
 
 import requests
 
-HEADERS = {
-    "User-Agent": "ObservatorioUrbanoPosadas/0.1 (contacto: fundile@gmail.com)"
-}
+HEADERS = {"User-Agent": "ObservatorioUrbanoPosadas/0.1 (contacto: fundile@gmail.com)"}
 
 # Centros OSM confirmados por la query de Nominatim (fase de diagnóstico 2026-04-23).
 CENTROS = {
-    "itaembe_mini": (-27.4117, -55.9563),     # place=suburb, node 2006158237
-    "chacra_32": (-27.3982, -55.9076),        # promedio bbox node 3994246457 (zona Chacra 32/Cristo Rey)
-    "villa_cabello": (-27.3674, -55.9489),    # place=suburb, node 1754063011
+    "itaembe_mini": (-27.4117, -55.9563),  # place=suburb, node 2006158237
+    "chacra_32": (-27.3982, -55.9076),  # promedio bbox node 3994246457 (zona Chacra 32/Cristo Rey)
+    "villa_cabello": (-27.3674, -55.9489),  # place=suburb, node 1754063011
 }
 
 # Para El Brete hacemos un polígono angosto siguiendo la costanera.
@@ -37,11 +36,11 @@ CENTROS = {
 # hacia el oeste/suroeste.
 EL_BRETE_POLIGONO = [
     # lon, lat
-    [-55.921, -27.360],   # O-S
-    [-55.900, -27.354],   # E-S
-    [-55.895, -27.351],   # E-N (cerca del anfiteatro)
-    [-55.918, -27.356],   # O-N
-    [-55.921, -27.360],   # cierra
+    [-55.921, -27.360],  # O-S
+    [-55.900, -27.354],  # E-S
+    [-55.895, -27.351],  # E-N (cerca del anfiteatro)
+    [-55.918, -27.356],  # O-N
+    [-55.921, -27.360],  # cierra
 ]
 
 # Relación OSM del polígono oficial de Itaembé Guazú.
@@ -92,9 +91,16 @@ def traer_poligono_osm_relation(relation_id: int) -> dict:
     return geom
 
 
-def feature(poligono_id: str, nombre: str, descripcion: str, categoria: str,
-            prioridad: int, publicar: bool, sensible: bool,
-            geometry: dict) -> dict:
+def feature(
+    poligono_id: str,
+    nombre: str,
+    descripcion: str,
+    categoria: str,
+    prioridad: int,
+    publicar: bool,
+    sensible: bool,
+    geometry: dict,
+) -> dict:
     return {
         "type": "Feature",
         "properties": {
@@ -106,8 +112,9 @@ def feature(poligono_id: str, nombre: str, descripcion: str, categoria: str,
             "publicar_en_sitio": publicar,
             "sensible": sensible,
             "fecha_creacion_poligono": "2026-04-23",
-            "fuente_poligono": "OSM Nominatim" if "relation" in descripcion.lower()
-                              else "buffer 2x2 km centro OSM",
+            "fuente_poligono": (
+                "OSM Nominatim" if "relation" in descripcion.lower() else "buffer 2x2 km centro OSM"
+            ),
         },
         "geometry": geometry,
     }
@@ -122,14 +129,18 @@ def main() -> None:
     # 1. Itaembé Guazú - polígono OSM oficial.
     print(f"Consultando OSM relation {OSM_RELATION_ITAEMBE_GUAZU} (Itaembé Guazú)...")
     geom_guazu = traer_poligono_osm_relation(OSM_RELATION_ITAEMBE_GUAZU)
-    features.append(feature(
-        "itaembe_guazu",
-        "Itaembé Guazú",
-        f"Barrio del sur de Posadas en expansión. Polígono oficial OSM relation/{OSM_RELATION_ITAEMBE_GUAZU}.",
-        "asentamiento_crecimiento_rapido",
-        1, True, False,
-        geom_guazu,
-    ))
+    features.append(
+        feature(
+            "itaembe_guazu",
+            "Itaembé Guazú",
+            f"Barrio del sur de Posadas en expansión. Polígono oficial OSM relation/{OSM_RELATION_ITAEMBE_GUAZU}.",
+            "asentamiento_crecimiento_rapido",
+            1,
+            True,
+            False,
+            geom_guazu,
+        )
+    )
 
     # 2-4. Cuadrados 2x2 km en centros OSM.
     cuadrados = {
@@ -137,41 +148,57 @@ def main() -> None:
             "Itaembé Miní",
             "Barrio de expansión rápida en el sur de Posadas. Cuadrado 2×2 km en centro OSM (place=suburb).",
             "asentamiento_crecimiento_rapido",
-            1, True, False,
+            1,
+            True,
+            False,
         ),
         "chacra_32": (
             "Chacra 32",
             "Zona de chacras subdivididas sector Cristo Rey. Cuadrado 2×2 km en centro OSM.",
             "consolidado_crecimiento",
-            2, True, False,
+            2,
+            True,
+            False,
         ),
         "villa_cabello": (
             "Villa Cabello",
             "Barrio consolidado, usado como control para validar el modelo. Cuadrado 2×2 km en centro OSM (place=suburb).",
             "control_consolidado",
-            3, True, False,
+            3,
+            True,
+            False,
         ),
     }
     for pid, (nombre, desc, cat, pri, pub, sen) in cuadrados.items():
         lat, lon = CENTROS[pid]
         coords = bbox_cuadrado_km(lat, lon, lado_km=2.0)
-        features.append(feature(
-            pid, nombre, desc, cat, pri, pub, sen,
-            {"type": "Polygon", "coordinates": [coords]},
-        ))
+        features.append(
+            feature(
+                pid,
+                nombre,
+                desc,
+                cat,
+                pri,
+                pub,
+                sen,
+                {"type": "Polygon", "coordinates": [coords]},
+            )
+        )
         print(f"  {pid}: cuadrado 2×2 km centrado en ({lat}, {lon})")
 
     # 5. El Brete - polígono angosto siguiendo costanera.
-    features.append(feature(
-        "el_brete",
-        "El Brete",
-        "Zona costera de Posadas con tensión por inundabilidad. Polígono angosto siguiendo la ribera del Paraná.",
-        "zona_sensible",
-        2,
-        False,   # publicar_en_sitio = False por sensibilidad
-        True,    # sensible = True
-        {"type": "Polygon", "coordinates": [EL_BRETE_POLIGONO]},
-    ))
+    features.append(
+        feature(
+            "el_brete",
+            "El Brete",
+            "Zona costera de Posadas con tensión por inundabilidad. Polígono angosto siguiendo la ribera del Paraná.",
+            "zona_sensible",
+            2,
+            False,  # publicar_en_sitio = False por sensibilidad
+            True,  # sensible = True
+            {"type": "Polygon", "coordinates": [EL_BRETE_POLIGONO]},
+        )
+    )
 
     fc = {
         "type": "FeatureCollection",

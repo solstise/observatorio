@@ -70,6 +70,7 @@ from __future__ import annotations
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -82,11 +83,9 @@ while _p != _p.parent:
 import calendar
 import json
 import sys
-from collections import defaultdict
-from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 import click
 import pandas as pd
@@ -94,7 +93,6 @@ from loguru import logger
 
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, resolve_path
-
 
 SCRIPT_VERSION = "0.1.0"
 
@@ -120,9 +118,7 @@ def _s3_client():
     from botocore import UNSIGNED
     from botocore.config import Config
 
-    return boto3.client(
-        "s3", config=Config(signature_version=UNSIGNED), region_name=S3_REGION
-    )
+    return boto3.client("s3", config=Config(signature_version=UNSIGNED), region_name=S3_REGION)
 
 
 def listar_awfi_fechas(desde: date, hasta: date) -> List[Tuple[str, str, str]]:
@@ -137,9 +133,7 @@ def listar_awfi_fechas(desde: date, hasta: date) -> List[Tuple[str, str, str]]:
         prefix = f"CBERS4/AWFI/{path}/{row}/"
         try:
             paginator = s3.get_paginator("list_objects_v2")
-            for page in paginator.paginate(
-                Bucket=S3_BUCKET, Prefix=prefix, Delimiter="/"
-            ):
+            for page in paginator.paginate(Bucket=S3_BUCKET, Prefix=prefix, Delimiter="/"):
                 for cp in page.get("CommonPrefixes", []) or []:
                     nombre = cp.get("Prefix", "").rstrip("/").split("/")[-1]
                     parts = nombre.split("_")
@@ -179,6 +173,7 @@ def listar_s2_fechas_ee(desde: date, hasta: date) -> List[date]:
     try:
         # Inicializar EE — usamos service account si está definido en env
         import os
+
         sa_key = os.environ.get("EE_SERVICE_ACCOUNT_KEY")
         if sa_key and Path(sa_key).exists():
             credentials = ee.ServiceAccountCredentials(None, sa_key)
@@ -197,9 +192,7 @@ def listar_s2_fechas_ee(desde: date, hasta: date) -> List[date]:
     )
     try:
         # Reduce a una lista de fechas únicas
-        fechas_ms = (
-            col.aggregate_array("system:time_start").getInfo() or []
-        )
+        fechas_ms = col.aggregate_array("system:time_start").getInfo() or []
     except Exception as exc:  # noqa: BLE001
         logger.warning(f"Falló aggregate fechas S2: {exc}")
         return []
@@ -358,7 +351,7 @@ def main(
     if dry_run:
         logger.info("Dry-run: este script consultaría:")
         logger.info(f"  - S3 AWFI {AWFI_PATH_ROWS} entre {desde_d} y {hasta_d}")
-        logger.info(f"  - Earth Engine S2_SR_HARMONIZED para mismas fechas")
+        logger.info("  - Earth Engine S2_SR_HARMONIZED para mismas fechas")
         logger.info(f"  - escribiría → {csv_path}")
         sys.exit(0)
 

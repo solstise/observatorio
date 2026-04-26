@@ -51,7 +51,7 @@ import time
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
-from typing import Iterable, List, Optional, Sequence, Tuple
+from typing import List, Optional, Sequence, Tuple
 
 import click
 import requests
@@ -80,6 +80,7 @@ except ImportError:  # pragma: no cover
 # `from scripts.utils.X` funcionen al correr este archivo como script.
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -91,7 +92,7 @@ while _p != _p.parent:
 
 from scripts.utils.config import BBox, Settings, load_settings
 from scripts.utils.logger import setup_logger
-from scripts.utils.paths import ensure_dir, ensure_parent, project_root, resolve_path
+from scripts.utils.paths import ensure_dir, ensure_parent, resolve_path
 
 # ---------------------------------------------------------------------------
 # Constantes
@@ -231,9 +232,7 @@ class NICFIClient:
 
         for intento in range(1, MAX_RETRIES + 1):
             try:
-                with self.session.get(
-                    url, stream=True, timeout=HTTP_TIMEOUT_SEC
-                ) as resp:
+                with self.session.get(url, stream=True, timeout=HTTP_TIMEOUT_SEC) as resp:
                     if resp.status_code in (401, 403):
                         raise NICFIAuthError(resp.status_code, resp.text)
                     if resp.status_code == 429 or 500 <= resp.status_code < 600:
@@ -247,14 +246,17 @@ class NICFIClient:
                         continue
                     resp.raise_for_status()
                     total = int(resp.headers.get("Content-Length", 0)) or None
-                    with tmp.open("wb") as fh, tqdm(
-                        total=total,
-                        unit="B",
-                        unit_scale=True,
-                        unit_divisor=1024,
-                        leave=False,
-                        desc=desc or destino.name,
-                    ) as pbar:
+                    with (
+                        tmp.open("wb") as fh,
+                        tqdm(
+                            total=total,
+                            unit="B",
+                            unit_scale=True,
+                            unit_divisor=1024,
+                            leave=False,
+                            desc=desc or destino.name,
+                        ) as pbar,
+                    ):
                         for chunk in resp.iter_content(chunk_size=CHUNK_BYTES):
                             if not chunk:
                                 continue
@@ -272,8 +274,7 @@ class NICFIClient:
                 tmp.unlink(missing_ok=True)
                 delay = BACKOFF_BASE_SEC * (2 ** (intento - 1))
                 logger.warning(
-                    f"Error descargando {desc or url}: {exc}. "
-                    f"Reintento en {delay:.1f}s."
+                    f"Error descargando {desc or url}: {exc}. " f"Reintento en {delay:.1f}s."
                 )
                 time.sleep(delay)
 
@@ -317,14 +318,9 @@ def _quads_para_bbox(bbox: BBox) -> List[Tuple[int, int, int]]:
     """Lista los (x, y, z) de los quads NICFI (zoom 15) que cubren un bbox."""
     if mercantile is None:
         raise RuntimeError(
-            "El paquete 'mercantile' no está instalado. Agregá: "
-            "pip install mercantile"
+            "El paquete 'mercantile' no está instalado. Agregá: " "pip install mercantile"
         )
-    tiles = list(
-        mercantile.tiles(
-            bbox.oeste, bbox.sur, bbox.este, bbox.norte, zooms=[NICFI_ZOOM]
-        )
-    )
+    tiles = list(mercantile.tiles(bbox.oeste, bbox.sur, bbox.este, bbox.norte, zooms=[NICFI_ZOOM]))
     return [(t.x, t.y, t.z) for t in tiles]
 
 
@@ -337,9 +333,7 @@ def _quad_id(x: int, y: int, z: int) -> str:
     return f"{z}-{x}-{y}"
 
 
-def _listar_quads_mosaico(
-    client: NICFIClient, mosaic_id: str, bbox: BBox
-) -> List[dict]:
+def _listar_quads_mosaico(client: NICFIClient, mosaic_id: str, bbox: BBox) -> List[dict]:
     """Lista los quads del mosaico que intersectan el bbox (paginando)."""
     url = f"{NICFI_API_BASE}/{mosaic_id}/quads"
     bbox_param = f"{bbox.oeste},{bbox.sur},{bbox.este},{bbox.norte}"
@@ -404,9 +398,7 @@ def _mosaicar_y_recortar(
         Lista de paths recortados generados.
     """
     if rasterio is None or rio_mask is None or rio_merge is None:
-        raise RuntimeError(
-            "rasterio no está instalado. Agregá: pip install rasterio"
-        )
+        raise RuntimeError("rasterio no está instalado. Agregá: pip install rasterio")
     if not tifs:
         logger.warning(f"No hay quads para mosaicar en {mes}.")
         return []
@@ -587,8 +579,7 @@ def main(
     if not solo_quads:
         if gpd is None:
             logger.warning(
-                "geopandas no está instalado — no se podrán hacer recortes. "
-                "Descargo solo quads."
+                "geopandas no está instalado — no se podrán hacer recortes. " "Descargo solo quads."
             )
             solo_quads = True
         else:
@@ -651,9 +642,7 @@ def main(
                 break
 
             if not solo_quads and poligonos_gdf is not None and tifs_mes:
-                _mosaicar_y_recortar(
-                    tifs_mes, poligonos_gdf, mes, recortes_dir_p
-                )
+                _mosaicar_y_recortar(tifs_mes, poligonos_gdf, mes, recortes_dir_p)
 
         logger.info("Descarga NICFI finalizada.")
     except KeyboardInterrupt:

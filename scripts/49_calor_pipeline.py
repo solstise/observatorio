@@ -56,6 +56,7 @@ Fuentes:
 - LANDSAT/LC08/C02/T1_L2 (Landsat 8, 2013-presente), USGS public domain.
 - LANDSAT/LC09/C02/T1_L2 (Landsat 9, 2021-presente), USGS public domain.
 """
+
 from __future__ import annotations
 
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
@@ -82,7 +83,7 @@ import urllib.request
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Optional
 
 import click
 import numpy as np
@@ -210,9 +211,7 @@ def _inicializar_ee(project_id: Optional[str]) -> None:
         )
     except Exception as exc:  # noqa: BLE001
         logger.error(f"Falló ee.Initialize(): {exc}")
-        logger.error(
-            "Ayuda: python scripts/test_ee_auth.py para diagnosticar."
-        )
+        logger.error("Ayuda: python scripts/test_ee_auth.py para diagnosticar.")
         raise SystemExit(1) from exc
 
 
@@ -388,9 +387,7 @@ def _descargar_composite_mensual(
         shutil.move(str(tmp), str(out_path))
     else:
         tmp.unlink(missing_ok=True)
-        raise RuntimeError(
-            f"[{anio}-{mes:02d}] magic bytes inesperados: {magic!r}"
-        )
+        raise RuntimeError(f"[{anio}-{mes:02d}] magic bytes inesperados: {magic!r}")
 
     md5 = _md5_archivo(out_path)
     logger.info(
@@ -420,9 +417,7 @@ def _stats_poligono_sobre_raster(geom_4326, raster_path: Path) -> dict:
 
     with rasterio.open(raster_path) as ds:
         try:
-            arr, _ = rio_mask(
-                ds, [mapping(geom_4326)], crop=True, filled=True, nodata=np.nan
-            )
+            arr, _ = rio_mask(ds, [mapping(geom_4326)], crop=True, filled=True, nodata=np.nan)
         except Exception as exc:  # noqa: BLE001
             return {"error": f"mask: {exc}"}
         data = arr[0].astype(np.float64)
@@ -439,10 +434,16 @@ def _stats_poligono_sobre_raster(geom_4326, raster_path: Path) -> dict:
     pct_validos = validos / total * 100.0
     out: dict = {"pct_validos": round(pct_validos, 1), "count_validos": int(validos)}
     if pct_validos < PCT_VALIDOS_MINIMO:
-        out.update({
-            "lst_mean": np.nan, "lst_median": np.nan, "lst_std": np.nan,
-            "lst_p10": np.nan, "lst_p90": np.nan, "lst_max": np.nan,
-        })
+        out.update(
+            {
+                "lst_mean": np.nan,
+                "lst_median": np.nan,
+                "lst_std": np.nan,
+                "lst_p10": np.nan,
+                "lst_p90": np.nan,
+                "lst_max": np.nan,
+            }
+        )
         return out
     out["lst_mean"] = float(np.nanmean(data))
     out["lst_median"] = float(np.nanmedian(data))
@@ -540,8 +541,7 @@ def _enriquecer_con_cbers(
 
     # Marca filas Landsat que tengan LST válida.
     tiene_landsat = df["lst_mean"].notna() & (
-        df.get("pct_validos", pd.Series([100.0] * len(df))).fillna(0)
-        >= PCT_VALIDOS_MINIMO
+        df.get("pct_validos", pd.Series([100.0] * len(df))).fillna(0) >= PCT_VALIDOS_MINIMO
     )
     df.loc[tiene_landsat, "fuente_lst"] = "landsat"
 
@@ -558,7 +558,9 @@ def _enriquecer_con_cbers(
     overlaps_validos: set[tuple[str, int, int]] = set()
     if tiene_landsat.any():
         ov = df.loc[tiene_landsat, ["poligono_id", "anio", "mes"]]
-        ov_keys = list(zip(ov["poligono_id"].astype(str), ov["anio"].astype(int), ov["mes"].astype(int)))
+        ov_keys = list(
+            zip(ov["poligono_id"].astype(str), ov["anio"].astype(int), ov["mes"].astype(int))
+        )
         for k in ov_keys:
             if k in cb_idx.index:
                 overlaps_validos.add(k)
@@ -567,8 +569,10 @@ def _enriquecer_con_cbers(
     # 'merged' sólo cuando Landsat falló.
     for idx, row in df.iterrows():
         key = (str(row["poligono_id"]), int(row["anio"]), int(row["mes"]))
-        landsat_ok = bool(tiene_landsat.iloc[df.index.get_loc(idx)]) if False else (
-            row["fuente_lst"] == "landsat"
+        landsat_ok = (
+            bool(tiene_landsat.iloc[df.index.get_loc(idx)])
+            if False
+            else (row["fuente_lst"] == "landsat")
         )
         if key not in cb_idx.index:
             continue
@@ -585,9 +589,7 @@ def _enriquecer_con_cbers(
         if fuente == FUENTE_CBERS:
             df.at[idx, "lst_mean"] = round(float(cbers_lst), 2)
             df.at[idx, "fuente_lst"] = "cbers"
-            df.at[idx, "confianza_cross_sensor"] = (
-                "alta" if key in overlaps_validos else "media"
-            )
+            df.at[idx, "confianza_cross_sensor"] = "alta" if key in overlaps_validos else "media"
             continue
 
         # fuente == merged
@@ -599,27 +601,25 @@ def _enriquecer_con_cbers(
         else:
             df.at[idx, "lst_mean"] = round(float(cbers_lst), 2)
             df.at[idx, "fuente_lst"] = "cbers"
-            df.at[idx, "confianza_cross_sensor"] = (
-                "alta" if key in overlaps_validos else "media"
-            )
+            df.at[idx, "confianza_cross_sensor"] = "alta" if key in overlaps_validos else "media"
 
     # Para 'merged': si una tripleta urbana/rural existe sólo en CBERS y no
     # tiene fila Landsat, la agregamos como fila nueva. (Sin esto, los meses
     # 100% perdidos en Landsat no aparecerían en absoluto.)
     if fuente in (FUENTE_MERGED, FUENTE_CBERS):
-        existentes = set(zip(
-            df["poligono_id"].astype(str),
-            df["anio"].astype(int),
-            df["mes"].astype(int),
-        ))
+        existentes = set(
+            zip(
+                df["poligono_id"].astype(str),
+                df["anio"].astype(int),
+                df["mes"].astype(int),
+            )
+        )
         nuevas: list[dict] = []
         # Necesitamos saber el tipo_poligono. Si la tripleta no está en
         # stats Landsat, intentamos heredar el tipo desde otra fila del
         # mismo polígono.
         tipo_por_pol = (
-            df.drop_duplicates("poligono_id")
-            .set_index("poligono_id")["tipo_poligono"]
-            .to_dict()
+            df.drop_duplicates("poligono_id").set_index("poligono_id")["tipo_poligono"].to_dict()
         )
         for (pid, anio, mes), grp in cb.groupby(["poligono_id", "anio", "mes"]):
             cbers_row = grp.iloc[0]
@@ -633,28 +633,29 @@ def _enriquecer_con_cbers(
                 # Sin contexto del polígono: lo saltamos para no introducir
                 # filas huérfanas con tipo desconocido.
                 continue
-            nuevas.append({
-                "poligono_id": str(pid),
-                "tipo_poligono": tipo,
-                "anio": int(anio),
-                "mes": int(mes),
-                "pct_validos": np.nan,
-                "count_validos": int(cbers_row.get("n_pixeles") or 0),
-                "lst_mean": round(float(cbers_lst), 2),
-                "lst_median": np.nan,
-                "lst_std": np.nan,
-                "lst_p10": np.nan,
-                "lst_p90": np.nan,
-                "lst_max": np.nan,
-                "fuente_lst": "cbers",
-                # Sin overlap previo conocido → confianza media.
-                "confianza_cross_sensor": "media",
-            })
+            nuevas.append(
+                {
+                    "poligono_id": str(pid),
+                    "tipo_poligono": tipo,
+                    "anio": int(anio),
+                    "mes": int(mes),
+                    "pct_validos": np.nan,
+                    "count_validos": int(cbers_row.get("n_pixeles") or 0),
+                    "lst_mean": round(float(cbers_lst), 2),
+                    "lst_median": np.nan,
+                    "lst_std": np.nan,
+                    "lst_p10": np.nan,
+                    "lst_p90": np.nan,
+                    "lst_max": np.nan,
+                    "fuente_lst": "cbers",
+                    # Sin overlap previo conocido → confianza media.
+                    "confianza_cross_sensor": "media",
+                }
+            )
         if nuevas:
             df = pd.concat([df, pd.DataFrame(nuevas)], ignore_index=True)
             logger.info(
-                f"CBERS aportó {len(nuevas)} filas extra para meses sin "
-                "registro Landsat."
+                f"CBERS aportó {len(nuevas)} filas extra para meses sin " "registro Landsat."
             )
 
     return df
@@ -672,12 +673,14 @@ def _calcular_stats_por_poligono(ctx: ContextoCalor) -> pd.DataFrame:
     urbanos["tipo_poligono"] = "urbano"
     rurales = gpd.read_file(ctx.poligonos_rurales_path).to_crs(epsg=4326)
     rurales["tipo_poligono"] = "rural"
-    todos = pd.concat([urbanos[["id", "tipo_poligono", "geometry"]],
-                       rurales[["id", "tipo_poligono", "geometry"]]],
-                      ignore_index=True)
-    logger.info(
-        f"Polígonos: {len(urbanos)} urbanos + {len(rurales)} rurales = {len(todos)}"
+    todos = pd.concat(
+        [
+            urbanos[["id", "tipo_poligono", "geometry"]],
+            rurales[["id", "tipo_poligono", "geometry"]],
+        ],
+        ignore_index=True,
     )
+    logger.info(f"Polígonos: {len(urbanos)} urbanos + {len(rurales)} rurales = {len(todos)}")
 
     rasters = sorted(ctx.landsat_raw_dir.glob("lst_*.tif"))
     logger.info(f"Rasters mensuales disponibles: {len(rasters)}")
@@ -701,8 +704,12 @@ def _calcular_stats_por_poligono(ctx: ContextoCalor) -> pd.DataFrame:
                 "anio": anio,
                 "mes": mes,
             }
-            fila.update({k: (round(v, 2) if isinstance(v, float) and not np.isnan(v) else v)
-                         for k, v in st.items()})
+            fila.update(
+                {
+                    k: (round(v, 2) if isinstance(v, float) and not np.isnan(v) else v)
+                    for k, v in st.items()
+                }
+            )
             filas.append(fila)
     df = pd.DataFrame(filas)
 
@@ -734,12 +741,14 @@ def _calcular_uhi(stats_df: pd.DataFrame) -> pd.DataFrame:
     # Promedios mensuales de rurales y urbanos.
     prom_rural = (
         df[df["tipo_poligono"] == "rural"]
-        .groupby(["anio", "mes"])["lst_mean"].mean()
+        .groupby(["anio", "mes"])["lst_mean"]
+        .mean()
         .rename("lst_rural_baseline")
     )
     prom_urbano = (
         df[df["tipo_poligono"] == "urbano"]
-        .groupby(["anio", "mes"])["lst_mean"].mean()
+        .groupby(["anio", "mes"])["lst_mean"]
+        .mean()
         .rename("lst_urbano_mean")
     )
 
@@ -760,9 +769,7 @@ def _calcular_uhi(stats_df: pd.DataFrame) -> pd.DataFrame:
         mes = row["mes"]
         anio_actual = row["anio"]
         historico = urb[
-            (urb["poligono_id"] == pid)
-            & (urb["mes"] == mes)
-            & (urb["anio"] < anio_actual)
+            (urb["poligono_id"] == pid) & (urb["mes"] == mes) & (urb["anio"] < anio_actual)
         ]
         n_hist = len(historico)
         if n_hist >= 1:
@@ -790,9 +797,16 @@ def _calcular_uhi(stats_df: pd.DataFrame) -> pd.DataFrame:
 
     # Seleccionamos y redondeamos columnas de salida.
     cols_base = [
-        "poligono_id", "anio", "mes", "lst_mean",
-        "uhi_vs_rural", "uhi_vs_ciudad", "uhi_anomalia",
-        "lst_rural_baseline", "n_observaciones_historico", "std_historico",
+        "poligono_id",
+        "anio",
+        "mes",
+        "lst_mean",
+        "uhi_vs_rural",
+        "uhi_vs_ciudad",
+        "uhi_anomalia",
+        "lst_rural_baseline",
+        "n_observaciones_historico",
+        "std_historico",
     ]
     # fuente_lst y confianza_cross_sensor se propagan si vinieron del input
     # (modo merged/cbers). En modo landsat legacy no aparecen, manteniendo
@@ -837,8 +851,17 @@ def _agregar_estacional(uhi_df: pd.DataFrame) -> pd.DataFrame:
     )
     for col in ["uhi_vs_rural_mean", "uhi_vs_ciudad_mean", "lst_mean"]:
         agg[col] = agg[col].round(2)
-    return agg[["poligono_id", "anio", "estacion",
-                "uhi_vs_rural_mean", "uhi_vs_ciudad_mean", "lst_mean", "n_meses"]]
+    return agg[
+        [
+            "poligono_id",
+            "anio",
+            "estacion",
+            "uhi_vs_rural_mean",
+            "uhi_vs_ciudad_mean",
+            "lst_mean",
+            "n_meses",
+        ]
+    ]
 
 
 # ---------------------------------------------------------------------------
@@ -1035,9 +1058,7 @@ def uhi_cmd(ctx_click) -> None:
 @click.pass_context
 def todo_cmd(ctx_click, meses: Optional[str], cloud_threshold: int, force: bool) -> None:
     """Corre los 3 subcomandos en orden."""
-    ctx_click.invoke(
-        descargar_landsat, meses=meses, cloud_threshold=cloud_threshold, force=force
-    )
+    ctx_click.invoke(descargar_landsat, meses=meses, cloud_threshold=cloud_threshold, force=force)
     ctx_click.invoke(stats_cmd)
     ctx_click.invoke(uhi_cmd)
 

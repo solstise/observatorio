@@ -1,13 +1,27 @@
 """Lista los polígonos nuevos (sin datos completos en serie/poblacion)."""
+
 from __future__ import annotations
+
 import json
 from pathlib import Path
+
 import geopandas as gpd
 
 EXISTING = {
-    "itaembe_guazu", "itaembe_mini", "chacra_32", "villa_cabello", "el_brete",
-    "miguel_lanus", "villa_sarita", "nemesio_parma", "itaembe_pora",
-    "villa_urquiza", "aguas_corrientes", "centro", "bajada_vieja", "villa_bonita",
+    "itaembe_guazu",
+    "itaembe_mini",
+    "chacra_32",
+    "villa_cabello",
+    "el_brete",
+    "miguel_lanus",
+    "villa_sarita",
+    "nemesio_parma",
+    "itaembe_pora",
+    "villa_urquiza",
+    "aguas_corrientes",
+    "centro",
+    "bajada_vieja",
+    "villa_bonita",
 }
 
 g = gpd.read_file("config/poligonos.geojson")
@@ -25,4 +39,4 @@ for _, row in new.iterrows():
     print(f"  - {row['id']:<35s} {nombre}")
 
 Path("data/raw/_nuevos_ids.json").write_text(json.dumps(ids), encoding="utf-8")
-print(f"\nIDs guardados en data/raw/_nuevos_ids.json")
+print("\nIDs guardados en data/raw/_nuevos_ids.json")

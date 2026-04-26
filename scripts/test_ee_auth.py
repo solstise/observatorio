@@ -23,17 +23,18 @@ Si falla, imprime un mensaje claro con links a la documentación oficial:
 from __future__ import annotations
 
 import sys
-import traceback
-from typing import Optional
-
-import click
-from loguru import logger
 
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------------------
 # Aseguramos que el root del proyecto esté en sys.path para que los imports
 # `from scripts.utils.X` funcionen al correr este archivo como script.
 import sys as _sys
+import traceback
 from pathlib import Path as _Path
+from typing import Optional
+
+import click
+from loguru import logger
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -46,13 +47,10 @@ while _p != _p.parent:
 from scripts.utils.config import load_settings
 from scripts.utils.logger import setup_logger
 
-
 # Links que repetimos en varios mensajes de error.
 LINK_EE_CODE = "https://code.earthengine.google.com/"
 LINK_EE_INSTALL = "https://developers.google.com/earth-engine/guides/python_install"
-LINK_EE_API_CONSOLE = (
-    "https://console.cloud.google.com/apis/library/earthengine.googleapis.com"
-)
+LINK_EE_API_CONSOLE = "https://console.cloud.google.com/apis/library/earthengine.googleapis.com"
 
 
 def inicializar_ee(project_id: Optional[str]) -> None:
@@ -73,8 +71,7 @@ def inicializar_ee(project_id: Optional[str]) -> None:
         import ee  # import diferido para que --help no requiera earthengine-api
     except ImportError as exc:
         logger.error(
-            "No se pudo importar earthengine-api. "
-            "Instalalo con: pip install earthengine-api"
+            "No se pudo importar earthengine-api. " "Instalalo con: pip install earthengine-api"
         )
         logger.error(f"Detalle: {exc}")
         logger.info(f"Docs: {LINK_EE_INSTALL}")
@@ -135,9 +132,7 @@ def query_trivial_misiones() -> None:
     """
     import ee  # import diferido
 
-    logger.info(
-        "Consultando FAO/GAUL/2015/level1 filtrado por ADM1_NAME='Misiones'..."
-    )
+    logger.info("Consultando FAO/GAUL/2015/level1 filtrado por ADM1_NAME='Misiones'...")
     try:
         misiones = ee.FeatureCollection("FAO/GAUL/2015/level1").filter(
             ee.Filter.eq("ADM1_NAME", "Misiones")

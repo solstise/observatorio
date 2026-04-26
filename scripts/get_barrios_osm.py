@@ -38,8 +38,7 @@ OVERPASS_URLS = [
 
 HEADERS = {
     "User-Agent": (
-        "ObservatorioUrbanoPosadas/0.3 "
-        "(github.com/observatorio-posadas; fundile@gmail.com)"
+        "ObservatorioUrbanoPosadas/0.3 " "(github.com/observatorio-posadas; fundile@gmail.com)"
     ),
     "Accept": "application/json",
 }
@@ -64,9 +63,7 @@ def fetch_overpass() -> dict:
     for url in OVERPASS_URLS:
         try:
             print(f"-> POST {url}")
-            r = requests.post(
-                url, data={"data": query}, headers=HEADERS, timeout=180
-            )
+            r = requests.post(url, data={"data": query}, headers=HEADERS, timeout=180)
             print(f"   status={r.status_code} bytes={len(r.content)}")
             if r.status_code == 200 and r.content.startswith(b"{"):
                 return r.json()
