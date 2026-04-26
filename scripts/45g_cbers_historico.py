@@ -212,6 +212,31 @@ def descargar_pan_recortado(esc: EscenaAnual, destino: Path) -> bool:
                 logger.error(f"Ventana vacía para {esc.scene_id}")
                 return False
             arr = src.read(1, window=win)
+            # Validez del recorte: la escena nominalmente cubre Posadas pero
+            # el rectángulo del path/row puede caer en el borde y dejar el
+            # bbox con casi todos píxeles nulos (no-data o agua flat). Si
+            # >97% del área es 0, descartamos la escena para que el retry
+            # pruebe la siguiente.
+            import numpy as np
+            n_total = int(arr.size)
+            n_validos = int((arr > 0).sum())
+            if n_total > 0 and n_validos / n_total < 0.03:
+                logger.warning(
+                    f"  {esc.scene_id}: recorte mayormente vacío ({n_validos}/{n_total} píxeles), descartando"
+                )
+                return False
+            # Filtro de saturación: una escena con >70% de píxeles en el
+            # tope (255) suele ser nube densa o sobre-exposición. El
+            # stretch p2-p98 colapsa a una imagen plana inutilizable, así
+            # que descartamos.
+            if n_validos > 0:
+                validos = arr[arr > 0]
+                pct_saturados = float((validos >= 250).sum()) / float(n_validos)
+                if pct_saturados > 0.7:
+                    logger.warning(
+                        f"  {esc.scene_id}: {pct_saturados*100:.0f}% píxeles saturados (probable nube), descartando"
+                    )
+                    return False
             transform = src.window_transform(win)
             meta = src.meta.copy()
             meta.update(
@@ -333,12 +358,11 @@ def main(
     procesados = 0
 
     for anio in sorted(por_anio):
-        # Tomamos la primera escena del año (la fecha más temprana suele tener menos nubes en invierno SH)
-        esc = por_anio[anio][0]
-        tif_dest = out_raw / f"cbers4_{esc.fecha}_pan10.tif"
         png_dest = out_proc / f"{anio}_posadas_pansharpen.png"
 
+        # Cache hit con cualquier escena del año.
         if cache_check(png_dest) and not force:
+            esc = por_anio[anio][0]
             logger.info(f"  {anio}: cache hit → skip")
             rows.append(
                 {
@@ -351,26 +375,39 @@ def main(
             )
             continue
 
-        if not (cache_check(tif_dest) and not force):
-            ok = descargar_pan_recortado(esc, tif_dest)
-            if not ok:
-                logger.error(f"  {anio}: falló descarga; skip")
-                continue
+        # Probamos hasta 12 escenas del año si la primera 404a o sale
+        # nublada (S3 indexa prefixes que pueden no haber subido los TIFs,
+        # y muchos pasajes invierno SH están saturados).
+        candidatas = por_anio[anio][:12]
+        esc_ok: Optional[EscenaAnual] = None
+        for esc in candidatas:
+            tif_dest = out_raw / f"cbers4_{esc.fecha}_pan10.tif"
+            if cache_check(tif_dest) and not force:
+                esc_ok = esc
+                break
+            if descargar_pan_recortado(esc, tif_dest):
+                esc_ok = esc
+                break
+            logger.warning(f"  {anio}: escena {esc.fecha} no disponible, probando siguiente")
 
-        ok = generar_png_anual(tif_dest, png_dest)
-        if not ok:
+        if esc_ok is None:
+            logger.error(f"  {anio}: ninguna de {len(candidatas)} escenas accesibles; skip")
+            continue
+
+        tif_dest = out_raw / f"cbers4_{esc_ok.fecha}_pan10.tif"
+        if not generar_png_anual(tif_dest, png_dest):
             logger.error(f"  {anio}: falló PNG; skip")
             continue
         procesados += 1
-        logger.info(f"  {anio}: OK → {png_dest.name}")
+        logger.info(f"  {anio}: OK → {png_dest.name} (escena {esc_ok.fecha})")
 
         rows.append(
             {
                 "anio": anio,
-                "fuente_satelite": f"CBERS-4 {esc.sensor}",
-                "fecha_imagen": f"{esc.fecha[:4]}-{esc.fecha[4:6]}-{esc.fecha[6:]}",
+                "fuente_satelite": f"CBERS-4 {esc_ok.sensor}",
+                "fecha_imagen": f"{esc_ok.fecha[:4]}-{esc_ok.fecha[4:6]}-{esc_ok.fecha[6:]}",
                 "n_poligonos_cubiertos": n_poligonos_total,
-                "calidad": "alta",  # CBERS-4 es post-2014, calibración rigurosa
+                "calidad": "alta",
             }
         )
 
