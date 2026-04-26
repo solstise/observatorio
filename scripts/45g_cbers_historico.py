@@ -61,6 +61,7 @@ from __future__ import annotations
 # --- _OBSERVATORIO_PATH_FIX (no borrar) -------------------------------------
 import sys as _sys
 from pathlib import Path as _Path
+
 _p = _Path(__file__).resolve().parent
 while _p != _p.parent:
     if (_p / "pyproject.toml").exists():
@@ -71,14 +72,12 @@ while _p != _p.parent:
 # --- fin del parche ---------------------------------------------------------
 
 import json
-import shutil
 import sys
-import time
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 import click
 import pandas as pd
@@ -87,7 +86,6 @@ from loguru import logger
 from scripts.utils.io_geo import cache_check, load_geojson
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, resolve_path
-
 
 SCRIPT_VERSION = "0.1.0"
 
@@ -136,9 +134,7 @@ def _s3_client():
     from botocore import UNSIGNED
     from botocore.config import Config
 
-    return boto3.client(
-        "s3", config=Config(signature_version=UNSIGNED), region_name=S3_REGION
-    )
+    return boto3.client("s3", config=Config(signature_version=UNSIGNED), region_name=S3_REGION)
 
 
 def listar_escenas_por_anio() -> Dict[int, List[EscenaAnual]]:
@@ -150,9 +146,7 @@ def listar_escenas_por_anio() -> Dict[int, List[EscenaAnual]]:
     por_anio: Dict[int, List[EscenaAnual]] = defaultdict(list)
     try:
         paginator = s3.get_paginator("list_objects_v2")
-        for page in paginator.paginate(
-            Bucket=S3_BUCKET, Prefix=prefix, Delimiter="/"
-        ):
+        for page in paginator.paginate(Bucket=S3_BUCKET, Prefix=prefix, Delimiter="/"):
             for cp in page.get("CommonPrefixes", []) or []:
                 nombre = cp.get("Prefix", "").rstrip("/").split("/")[-1]
                 parts = nombre.split("_")
@@ -186,9 +180,7 @@ def descargar_pan_recortado(esc: EscenaAnual, destino: Path) -> bool:
     destino.parent.mkdir(parents=True, exist_ok=True)
     try:
         with rasterio.open(esc.url_banda) as src:
-            tr = pyproj.Transformer.from_crs(
-                "EPSG:4326", src.crs, always_xy=True
-            )
+            tr = pyproj.Transformer.from_crs("EPSG:4326", src.crs, always_xy=True)
             oeste, sur, este, norte = POSADAS_BBOX_4326
             xs, ys = [], []
             for lon, lat in [
@@ -217,7 +209,7 @@ def descargar_pan_recortado(esc: EscenaAnual, destino: Path) -> bool:
             # bbox con casi todos píxeles nulos (no-data o agua flat). Si
             # >97% del área es 0, descartamos la escena para que el retry
             # pruebe la siguiente.
-            import numpy as np
+
             n_total = int(arr.size)
             n_validos = int((arr > 0).sum())
             if n_total > 0 and n_validos / n_total < 0.03:
@@ -330,9 +322,7 @@ def main(
         logger.info("Dry-run: listo qué intentaría buscar:")
         logger.info("--- CBERS-1/2/2B (1999-2013) ---")
         for anio in range(1999, 2014):
-            logger.info(
-                f"  {anio}: NO accesible vía AWS/STAC. Fuente: INPE CDSR (registro). Skip."
-            )
+            logger.info(f"  {anio}: NO accesible vía AWS/STAC. Fuente: INPE CDSR (registro). Skip.")
         logger.info("--- CBERS-4 PAN10M (2015+) ---")
         por_anio = listar_escenas_por_anio()
         for anio in sorted(por_anio):
@@ -431,7 +421,9 @@ def main(
     df.to_csv(csv_out, index=False, encoding="utf-8")
     logger.info(f"CSV escrito → {csv_out} ({len(df)} filas)")
 
-    primer_anio_real = df[df["calidad"] == "alta"]["anio"].min() if not df[df["calidad"] == "alta"].empty else None
+    primer_anio_real = (
+        df[df["calidad"] == "alta"]["anio"].min() if not df[df["calidad"] == "alta"].empty else None
+    )
     metadata = {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "rango_anios_cubiertos": [
@@ -456,7 +448,7 @@ def main(
 
     logger.info("=" * 60)
     logger.info(f"Procesados: {procesados} años CBERS-4 PAN10M")
-    logger.info(f"No disponibles: 1999-2013 (15 años, fuera de AWS/STAC)")
+    logger.info("No disponibles: 1999-2013 (15 años, fuera de AWS/STAC)")
     sys.exit(0)
 
 
