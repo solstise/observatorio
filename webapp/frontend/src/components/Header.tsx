@@ -32,13 +32,18 @@ const NAV = [
 ];
 
 // Vistas avanzadas — agrupadas en un dropdown "Más vistas" para no saturar
-// la barra principal. Tres rutas que requieren WebGL y que no son la
-// experiencia primaria del observatorio. Si el dropdown crece más de 4
-// items conviene mover a un panel lateral.
+// la barra principal. Originalmente eran las rutas WebGL pesadas; con la
+// extensión CBERS sumamos /historia, /validacion y /eventos también acá
+// porque son vistas verticales (un único tópico) en vez de la experiencia
+// primaria del observatorio. Si el dropdown supera 8 items hay que migrar
+// a un panel lateral con secciones.
 const NAV_MAS = [
   { href: "/densidad", label: "Densidad" },
   { href: "/3d", label: "3D" },
   { href: "/explorar", label: "Explorar" },
+  { href: "/historia", label: "Historia (1999-2026)" },
+  { href: "/validacion", label: "Validación cruzada" },
+  { href: "/eventos", label: "Eventos extremos" },
 ];
 
 export function Header() {

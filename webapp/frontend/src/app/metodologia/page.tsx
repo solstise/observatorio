@@ -251,6 +251,20 @@ export default async function MetodologiaPage() {
           subestimadas en zonas de expansión reciente. Los meses con menos de
           dos escenas Landsat útiles se declaran sin dato — no se interpolan.
         </p>
+        <p className="max-w-3xl text-sm text-neutral-muted dark:text-dk-muted">
+          Donde es posible, validamos los indicadores comparándolos contra
+          un sensor independiente. La{" "}
+          <Link
+            href="/validacion"
+            className="text-primary underline dark:text-dk-primary"
+          >
+            validación cruzada NDBI/NDVI
+          </Link>{" "}
+          (Sentinel-2 vs CBERS-4A) cuantifica cuánto coinciden ambos
+          satélites por barrio: cuando dos sensores distintos llegan al
+          mismo número, la confianza del indicador sube; cuando difieren
+          mucho, hay que investigar antes de tomarlo como verdad.
+        </p>
       </section>
 
       <section aria-labelledby="limites" className="mt-12 space-y-3">

@@ -765,4 +765,153 @@ export const GLOSARIO: TerminoGlosario[] = [
     fuente_label: "EEA European Air Quality Index",
     relacionados: ["cams", "no2", "ozone"],
   },
+  // ──────────────────────────────────────────────────────────────────────────
+  // CBERS / pansharpen / INPE — capa de imagen alta resolución
+  // ──────────────────────────────────────────────────────────────────────────
+  {
+    id: "cbers",
+    termino: "CBERS-4/4A (China-Brazil Earth Resources Satellite)",
+    resumen_corto:
+      "Satélite chino-brasileño que fotografía Sudamérica con resolución de 5 a 16 metros, libre y gratuito desde 1999.",
+    descripcion_larga:
+      "CBERS (China-Brazil Earth Resources Satellite) es un programa cooperativo entre el INPE de Brasil y la CRESDA/CAST de China, vigente desde 1999. La constelación incluyó CBERS-1, 2, 2B, 3 (perdido en lanzamiento), 4 y 4A; los activos en operación son CBERS-4 (lanzado 2014) y CBERS-4A (lanzado 2019). El sensor que aporta valor para escala urbana es la **WPM (Wide Panchromatic and Multispectral camera)** de CBERS-4A: una banda pancromática a 8 m de resolución y cuatro bandas multiespectrales (azul, verde, rojo, NIR) a 16 m, con revisita ~31 días sobre Sudamérica. Aplicando *pansharpen* (ver entrada) sobre el par PAN+MS se obtiene un RGB color con detalle equivalente a 8 m, comparable al producto comercial RapidEye y mejor que Sentinel-2 (10 m) para identificar manzanas y construcciones individuales. El catálogo del INPE distribuye los datos gratis (registro libre) en formato GeoTIFF L2/L4. En el Observatorio Urbano Posadas usamos CBERS-4A WPM como capa de \"alta resolución, baja frecuencia\" complementaria a Sentinel-2 (que es \"resolución media, alta frecuencia\").",
+    categoria: "satelital",
+    alias: [
+      "china brazil earth resources",
+      "cbers-4",
+      "cbers-4a",
+      "cbers4a",
+      "WPM",
+    ],
+    fuente_url: "http://www.cbers.inpe.br/",
+    fuente_label: "INPE: CBERS",
+    relacionados: ["sentinel-2", "landsat", "pansharpen", "inpe"],
+  },
+  {
+    id: "pansharpen",
+    termino: "Pansharpening",
+    resumen_corto:
+      "Técnica que combina una imagen pancromática de alta resolución con bandas a color de menor resolución para producir un RGB nítido.",
+    descripcion_larga:
+      "Pansharpening (a veces escrito *pan-sharpening* o *fusión multiespectral*) es una familia de algoritmos que fusionan una banda pancromática (PAN, alta resolución espacial pero monocromática) con bandas multiespectrales (MS, color real pero menor resolución) para producir una imagen RGB con la resolución espacial del PAN. Algoritmos clásicos: **Brovey** (multiplicación banda-a-banda normalizada por el promedio MS, simple y rápido), **IHS** (transforma RGB→Intensity-Hue-Saturation, reemplaza I por PAN, vuelve a RGB; conserva tinte), **Gram-Schmidt** (descomposición ortogonal, mejor preservación espectral, la más usada en producción). CBERS-4A WPM viene nativo con PAN 8 m + MS 16 m, así que pansharpen produce un RGB color a 8 m de detalle real. **Limitación clave**: el algoritmo asume que la firma espectral del MS de baja resolución se mantiene tras el sharpening — es una aproximación, no una medición. Por eso pansharpen sirve para análisis visual y delimitación, **no** para clasificación espectral cuantitativa (para eso se usa el MS original). En el observatorio mostramos CBERS pansharpen como imagen visual; los índices NDVI/NDBI los calculamos desde Sentinel-2 multiespectral original.",
+    categoria: "satelital",
+    alias: ["pan-sharpening", "fusión multiespectral", "image fusion"],
+    fuente_url: "https://en.wikipedia.org/wiki/Pansharpened_image",
+    fuente_label: "Wikipedia: Pansharpened image",
+    relacionados: ["cbers", "sentinel-2"],
+  },
+  {
+    id: "inpe",
+    termino: "INPE (Instituto Nacional de Pesquisas Espaciais)",
+    resumen_corto:
+      "Agencia espacial de Brasil, opera CBERS y MapBiomas, sus datos son públicos y gratuitos.",
+    descripcion_larga:
+      "El Instituto Nacional de Pesquisas Espaciais (INPE) es la agencia espacial civil de Brasil, fundada en 1961, vinculada al Ministério da Ciência, Tecnologia e Inovação. Su rol es comparable al de NASA (EE.UU.) o ESA (Europa), con foco regional en Sudamérica. Programas clave: **CBERS** (cooperación con China para satélites de observación terrestre, ver entrada), **PRODES** (monitoreo anual de deforestación en la Amazonía desde 1988), **DETER** (alertas casi-tiempo-real de deforestación), participación técnica en **MapBiomas** (mapeo histórico de uso del suelo de toda Sudamérica). Todos los datasets del INPE son **públicos y gratuitos** bajo registro abierto, una excepción notable en el ecosistema satelital — la mayoría de los productos comerciales de resolución similar (Pléiades, WorldView) cuestan miles de dólares por escena. Para un observatorio urbano de presupuesto cero como éste, INPE es una fuente crítica que reduce costos y cierra el gap con sistemas comerciales.",
+    categoria: "datos_publicos",
+    alias: [
+      "instituto nacional de pesquisas espaciais",
+      "inpe brasil",
+      "INPE",
+    ],
+    fuente_url: "https://www.gov.br/inpe/",
+    fuente_label: "INPE official",
+    relacionados: ["cbers", "mapbiomas"],
+  },
+  // ──────────────────────────────────────────────────────────────────────────
+  // CBERS sub-sensores y composites multi-fuente (T1 — capa CBERS extendida)
+  // ──────────────────────────────────────────────────────────────────────────
+  {
+    id: "pan5",
+    termino: "CBERS-4 PAN5 (banda pancromática 5 m)",
+    resumen_corto:
+      "Cámara pancromática del CBERS-4 que produce imágenes en blanco y negro a 5 m de resolución, mejor para identificar construcciones individuales.",
+    descripcion_larga:
+      "PAN5 es la banda pancromática (única banda, sin color) del sensor PanMUX/MUX de CBERS-4 (lanzado 2014), con 5 m de resolución espacial — más fino que Sentinel-2 (10 m) y mejor que el WPM de CBERS-4A en términos de detalle puro. La contrapartida es que PAN5 entrega solamente brillo (escala de grises), por lo que no se puede usar para clasificación espectral. Se usa como capa de **máximo detalle visual** complementaria al WPM color: el operador alterna entre WPM (para color a 8 m) y PAN5 (para detalle a 5 m B&N) según la pregunta — interpretación de cuadras vs. delineación fina de construcciones individuales. La revisita es la misma del CBERS-4 (~26 días sobre Sudamérica). En el observatorio se publica en `/data/media/cbers_pan5/{id}_pan5_latest.png` por polígono y se sirve desde el toggle 3-modos del visor de imágenes alta resolución.",
+    categoria: "satelital",
+    alias: [
+      "PAN5",
+      "CBERS-4 pan",
+      "cbers pan 5m",
+      "pancromatic 5m",
+      "CBERS pancromatic",
+    ],
+    fuente_url: "http://www.cbers.inpe.br/sobre/cameras/cbers04.php",
+    fuente_label: "INPE: cámaras CBERS-4",
+    relacionados: ["cbers", "pansharpen", "sentinel-2"],
+  },
+  {
+    id: "awfi",
+    termino: "AWFI (Advanced Wide Field Imager, CBERS)",
+    resumen_corto:
+      "Cámara de campo amplio del CBERS-4/4A: barre 866 km cada pasada, revisita 5 días, resolución 64 m.",
+    descripcion_larga:
+      "AWFI (Advanced Wide Field Imager) es la cámara de campo amplio del CBERS-4 y CBERS-4A. Tiene cuatro bandas multiespectrales (azul, verde, rojo, NIR) a 64 m de resolución y un swath (ancho de imagen) de 866 km — más del doble que Sentinel-2 (290 km) y siete veces más que el WPM (60 km). La gran ventaja es la **revisita de 5 días** sobre Sudamérica, idéntica a Sentinel-2 pero desde una órbita ligeramente diferente, lo que permite reducir gaps por nubes alternando entre ambas constelaciones. La desventaja es la resolución más gruesa (64 m vs 10 m de S2), lo que limita el análisis intra-urbano. En el observatorio usamos AWFI principalmente como **capa de cobertura complementaria** para verificar continuidad de observaciones y como entrada para composites multi-fuente cuando S2 tiene gaps de nubes prolongados.",
+    categoria: "satelital",
+    alias: [
+      "advanced wide field imager",
+      "cbers awfi",
+      "awfi cbers",
+      "wide field imager",
+    ],
+    fuente_url: "http://www.cbers.inpe.br/sobre/cameras/cbers04a.php",
+    fuente_label: "INPE: cámaras CBERS-4A",
+    relacionados: ["cbers", "sentinel-2", "composite-multifuente"],
+  },
+  {
+    id: "irs-cbers",
+    termino: "IRS (CBERS Infrared System)",
+    resumen_corto:
+      "Sensor infrarrojo del CBERS-4 con banda térmica (40 m) y SWIR (80 m), útil para LST de respaldo y validar incendios.",
+    descripcion_larga:
+      "IRS (Infrared System) es el sensor infrarrojo del CBERS-4 (no presente en CBERS-4A), con dos bandas relevantes: una **térmica (TIR) a 40 m de resolución** — más fina que MODIS (1 km) aunque más gruesa que Landsat (30 m re-muestreada de 100 m) — y una **SWIR (Short-Wave Infrared) a 80 m** útil para detectar focos calientes (incendios, quemas) por contraste térmico. En el observatorio IRS funciona como **backup térmico** de Landsat: cuando un mes determinado no tiene escenas Landsat útiles (por nubosidad sobre la ventana de pasada), el LST mensual se completa con IRS y el badge marca explícitamente la fuente. Para incendios, el SWIR de IRS se cruza con FIRMS (NASA, VIIRS/MODIS) para incrementar confianza por consenso entre satélites independientes. La revisita IRS es ~26 días, lo que limita el uso para series de alta frecuencia pero suficiente para llenado de huecos.",
+    categoria: "satelital",
+    alias: [
+      "cbers irs",
+      "infrared system",
+      "cbers-4 irs",
+      "irs sensor",
+      "cbers tir",
+      "cbers swir",
+    ],
+    fuente_url: "http://www.cbers.inpe.br/sobre/cameras/cbers04.php",
+    fuente_label: "INPE: cámaras CBERS-4",
+    relacionados: ["cbers", "landsat", "modis", "lst"],
+  },
+  {
+    id: "hrc",
+    termino: "HRC (CBERS-2B High Resolution Camera)",
+    resumen_corto:
+      "Cámara pancromática de muy alta resolución (2.7 m) del CBERS-2B. Operó 2007-2010 y luego se descontinuó.",
+    descripcion_larga:
+      "HRC (High Resolution Camera) fue la cámara pancromática de **muy alta resolución (2.7 m)** del CBERS-2B (lanzado en 2007). Operó hasta 2010 y luego se descontinuó: CBERS-3 se perdió en lanzamiento (2013), y CBERS-4 (2014) y 4A (2019) volvieron a la WPM/PAN5 como sensores de alta resolución (8 m y 5 m respectivamente). Para Posadas, el archivo HRC 2007-2010 es valioso como **referencia histórica de máximo detalle** — la única ventana en la que el observatorio puede mostrar la ciudad a ~3 m de detalle real. Las imágenes HRC del catálogo INPE se distribuyen libres y se incorporan al timeline `1999-2026` como capas etiquetadas con la calidad correspondiente para no engañar al lector sobre la frecuencia: HRC fue un experimento corto y su disponibilidad es discontinua.",
+    categoria: "satelital",
+    alias: [
+      "high resolution camera",
+      "cbers-2b hrc",
+      "cbers hrc",
+      "hrc camera",
+    ],
+    fuente_url: "http://www.cbers.inpe.br/sobre/cameras/cbers02b.php",
+    fuente_label: "INPE: cámaras CBERS-2B",
+    relacionados: ["cbers", "pan5"],
+  },
+  {
+    id: "composite-multifuente",
+    termino: "Composite multi-fuente",
+    resumen_corto:
+      "Combinación de observaciones de varios satélites (S2 + CBERS AWFI + Landsat) para mejorar cobertura cuando uno solo no alcanza.",
+    descripcion_larga:
+      "Un composite multi-fuente fusiona observaciones temporalmente cercanas de **dos o más sensores independientes** para producir un único mosaico continuo con menos huecos por nubes/sombra/sensor offline. En el observatorio combinamos típicamente Sentinel-2 (10 m, revisita 5 d), CBERS-4A AWFI (64 m, revisita 5 d) y Landsat 8/9 (30 m, revisita 16 d) según la métrica: para NDVI/NDBI priorizamos S2 por resolución, pero llenamos huecos con AWFI cuando S2 está nublado más de 2 ciclos seguidos. La técnica clave es **armonización radiométrica**: ajustar las firmas espectrales de cada sensor a una referencia común (típicamente S2 SR Harmonized) usando intersecciones temporales y un ajuste lineal por banda. Sin armonización, las diferencias de calibración inter-sensor se propagan al composite y los índices oscilan sin causa real. La calidad de cada composite mensual se reporta junto al producto (n_obs por sensor, gap_dias_max) para que el lector entienda en qué ventanas confiar más o menos.",
+    categoria: "estadistica",
+    alias: [
+      "composite multi-sensor",
+      "multi-source composite",
+      "data fusion",
+      "fusión multi-sensor",
+    ],
+    fuente_url:
+      "https://www.sciencedirect.com/science/article/pii/S0034425720303680",
+    fuente_label: "Roy et al. 2020, Remote Sensing of Environment",
+    relacionados: ["sentinel-2", "awfi", "landsat", "cbers"],
+  },
 ];

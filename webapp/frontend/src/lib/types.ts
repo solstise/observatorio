@@ -257,6 +257,12 @@ export interface CalorMensualRow {
 
 // UHI mensual por polígono urbano: 3 métricas + stats del histórico.
 // uhi_anomalia es null cuando no hay años anteriores del mismo mes.
+//
+// Desde v0.4.0 el pipeline puede agregar dos columnas opcionales cuando
+// se corre con --fuente {merged|cbers}: fuente_lst trazea la procedencia
+// del valor (Landsat puro / CBERS rellenando gaps / ambos disponibles)
+// y confianza_cross_sensor marca si hubo overlap entre sensores. Ambas
+// son opcionales: corridas legacy con --fuente landsat no las emiten.
 export interface UhiMensualRow {
   poligono_id: string;
   anio: number;
@@ -268,6 +274,8 @@ export interface UhiMensualRow {
   lst_rural_baseline: number;
   n_observaciones_historico: number;
   std_historico: number | null;
+  fuente_lst?: "landsat" | "cbers" | "merged" | null;
+  confianza_cross_sensor?: "alta" | "media" | null;
 }
 
 // Agregación estacional (verano DJF, otoño MAM, invierno JJA, primavera SON).
@@ -449,4 +457,84 @@ export interface ProyeccionRow {
   r2: number | null;
   confianza: ProyeccionConfianza;
   n_obs: number;
+}
+
+// ---------------------------------------------------------------------------
+// Capa CBERS (CBERS-4/4A INPE) — agregada por T1 en paralelo
+// ---------------------------------------------------------------------------
+// Los CSV/PNG correspondientes pueden no existir todavía si T1 aún no corrió
+// los pipelines. Todos los getters devuelven [] o null y los componentes
+// degradan a skeleton + mensaje "Datos en preparación".
+
+// LST mensual derivado del sensor IRS de CBERS-4 (40 m TIR) — backup térmico
+// cuando Landsat no tiene cobertura en un mes (ventanas con nubes en banda
+// térmica). Valores en grados Celsius. `calidad` puede ser "alta" / "media"
+// / "baja" según pct_pixeles_validos del recorte por polígono.
+export interface LstCbersRow {
+  poligono_id: string;
+  anio: number;
+  mes: number;
+  lst_mean_cbers: number | null;
+  n_pixeles: number;
+  calidad: "alta" | "media" | "baja";
+}
+
+// Validación cruzada FIRMS (NASA, VIIRS/MODIS, 375 m / 1 km) vs detecciones
+// CBERS-4 SWIR (80 m). Cuando dos satélites independientes coinciden en un
+// foco, la confianza es alta. agreement_pct = focos_compartidos / focos_firms.
+export interface FirmsCrossvalRow {
+  poligono_id: string;
+  anio: number;
+  n_focos_firms: number;
+  n_focos_cbers_swir: number;
+  agreement_pct: number;
+}
+
+// Cobertura satelital mensual: cuántas observaciones limpias entraron al
+// composite. S2 es nuestra fuente primaria (revisita 5 días) y AWFI suma
+// observaciones complementarias (revisita 5 días, swath 866 km, 64 m). El
+// total ayuda a explicar gaps de visibilidad para el lector.
+export interface CoberturaAwfiRow {
+  mes: string; // YYYY-MM
+  n_obs_s2: number;
+  n_obs_awfi: number;
+  n_obs_total: number;
+  gap_dias_max: number;
+}
+
+// Serie histórica de imágenes pansharpen de Posadas — una fila por año
+// 1999-2026. La fuente cambia según el año disponible (CBERS-1/2, CBERS-2B,
+// CBERS-4/4A) y la calidad refleja qué tan estable era la calibración.
+export interface CbersHistoricoRow {
+  anio: number;
+  fuente_satelite: string; // ej "CBERS-2B HRC", "CBERS-4A WPM"
+  fecha_imagen: string; // YYYY-MM-DD aproximada (puede ser composite anual)
+  n_poligonos_cubiertos: number;
+  calidad: "preliminar" | "estandar";
+}
+
+// Validación cruzada de índices urbanos (NDBI/NDVI) entre Sentinel-2 y CBERS.
+// `diferencia_relativa_pct` = |x_s2 - x_cbers| / |x_s2| × 100 (combinado).
+// Cuando dos sensores distintos llegan al mismo número, sube la confianza.
+export interface NdbiNdviCrossvalRow {
+  poligono_id: string;
+  anio: number;
+  ndbi_cbers: number | null;
+  ndbi_s2: number | null;
+  ndvi_cbers: number | null;
+  ndvi_s2: number | null;
+  diferencia_relativa_pct: number | null;
+}
+
+// Eventos de inundación detectados (composite multi-sensor: SAR + ópticos).
+// `confianza` es discreta {alta, media, baja} según número de fuentes que
+// lo confirman y consistencia espacial. `poligonos_afectados` es lista
+// separada por `;` en el CSV (lo parseamos en el componente).
+export interface EventoInundacionRow {
+  fecha: string; // YYYY-MM-DD
+  poligonos_afectados: string; // "id1;id2;id3"
+  area_inundada_km2: number;
+  fuente_principal: string;
+  fuente_validacion: string;
+  confianza: "alta" | "media" | "baja";
 }

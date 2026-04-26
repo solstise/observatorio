@@ -9,6 +9,7 @@ import { Disclaimer } from "@/components/Disclaimer";
 import { TerminoGlosario } from "@/components/TerminoGlosario";
 import {
   getCalorMensual,
+  getEventosInundacion,
   getPoligonosBarrios,
   getUhiEstacional,
   getUhiMensual,
@@ -17,6 +18,11 @@ import { getDatasetFreshness } from "@/lib/data-freshness";
 
 import { ClientCalor } from "./ClientCalor";
 
+// Considera "reciente" un evento ocurrido en los últimos 90 días. El
+// detector multi-sensor publica una semanal, así que 90 días captura el
+// trimestre más reciente sin ser ruidoso.
+const VENTANA_RECIENTE_DIAS = 90;
+
 export const metadata: Metadata = {
   title: "Calor urbano",
   description:
@@ -24,16 +30,32 @@ export const metadata: Metadata = {
 };
 
 export default async function CalorPage() {
-  const [collection, mensuales, uhiRows, estacionales, freshness] =
+  const [collection, mensuales, uhiRows, estacionales, freshness, eventos] =
     await Promise.all([
       getPoligonosBarrios(),
       getCalorMensual(),
       getUhiMensual(),
       getUhiEstacional(),
       getDatasetFreshness("calor_landsat"),
+      // Sumamos eventos de inundación para mostrar (si los hay) un banner
+      // discreto al final del header, conectando calor con eventos
+      // extremos. Si T1 todavía no publicó el CSV, devuelve [] y el
+      // banner simplemente no aparece.
+      getEventosInundacion(),
     ]);
 
   const tieneDatos = uhiRows.length > 0;
+
+  // Detectamos eventos recientes (últimos 90 días) para pintar el banner
+  // hacia /eventos. Lo hacemos del lado server para mantenerlo en SSR.
+  const ahora = Date.now();
+  const ventanaMs = VENTANA_RECIENTE_DIAS * 24 * 60 * 60 * 1000;
+  const eventosRecientes = eventos.filter((e) => {
+    if (!e.fecha) return false;
+    const t = Date.parse(e.fecha);
+    if (Number.isNaN(t)) return false;
+    return ahora - t <= ventanaMs;
+  });
 
   return (
     <>
@@ -85,6 +107,28 @@ export default async function CalorPage() {
             </Link>
             .
           </div>
+
+          {eventosRecientes.length > 0 && (
+            // Banner discreto: solo aparece si hubo eventos en los últimos
+            // 90 días. No interrumpe la lectura de la página de calor —
+            // es una nota lateral que conecta dos vistas relacionadas.
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-md border border-primary/30 bg-primary-50 px-3 py-2 text-sm text-primary dark:border-dk-primary/40 dark:bg-dk-elevated dark:text-dk-primary">
+              <span>
+                <span aria-hidden>{"💧 "}</span>
+                {eventosRecientes.length} evento
+                {eventosRecientes.length === 1 ? "" : "s"} extremo
+                {eventosRecientes.length === 1 ? "" : "s"} detectado
+                {eventosRecientes.length === 1 ? "" : "s"} en los últimos{" "}
+                {VENTANA_RECIENTE_DIAS} días.
+              </span>
+              <Link
+                href="/eventos"
+                className="rounded-md border border-primary px-3 py-1 text-xs font-medium transition-colors hover:bg-primary hover:text-white dark:border-dk-primary dark:hover:bg-dk-primary dark:hover:text-dk-bg"
+              >
+                Ver eventos extremos →
+              </Link>
+            </div>
+          )}
         </header>
 
         {!tieneDatos && (

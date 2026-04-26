@@ -16,6 +16,7 @@ import { DataFreshness } from "@/components/DataFreshness";
 import { Disclaimer } from "@/components/Disclaimer";
 import { FirmsBadge } from "@/components/FirmsBadge";
 import { IslaCalorBadge } from "@/components/IslaCalorBadge";
+import { HiResComparacion } from "@/components/HiResComparacion";
 import { MapaDescriptionImage } from "@/components/MapaDescriptionImage";
 import { RankingPoliticoBadge } from "@/components/RankingPoliticoBadge";
 import { SarDeltaBadge } from "@/components/SarDeltaBadge";
@@ -51,13 +52,22 @@ const AireMultigasCard = dynamic(() =>
     default: m.AireMultigasCard,
   })),
 );
+// Recharts-based CBERS coverage card. Cargado on-demand para no inflar el
+// bundle inicial; el card vive en la sección satelital de cada barrio.
+const CoberturaSatelitalMensual = dynamic(() =>
+  import("@/components/CoberturaSatelitalMensual").then((m) => ({
+    default: m.CoberturaSatelitalMensual,
+  })),
+);
 import {
   getChirps,
+  getCoberturaAwfi,
   getDistanciasSociales,
   getDynamicWorld,
   getFirms,
   getGhsl,
   getLst,
+  getLstCbers,
   getMapBiomas,
   getNo2,
   getPoblacion,
@@ -181,6 +191,8 @@ export default async function PoligonoPage({ params }: PageProps) {
     firms,
     wdpa,
     uhiLandsat,
+    lstCbers,
+    cobertura,
     distancias,
     rankingRows,
     rankingTotal,
@@ -197,6 +209,14 @@ export default async function PoligonoPage({ params }: PageProps) {
     getFirms(properties.id),
     getWdpa(properties.id),
     getUhiMensual(properties.id),
+    // CBERS térmico (T1) — backup para el badge UHI. Si T1 aún no
+    // publicó, devuelve [] y IslaCalorBadge degrada al comportamiento
+    // legacy (Landsat + MODIS).
+    getLstCbers(properties.id),
+    // Cobertura S2 + AWFI mensual (T1). El CSV es global a Posadas, no
+    // se filtra por polígono, pero lo pre-cargamos acá para que el
+    // componente no haga un fetch extra browser-side.
+    getCoberturaAwfi(),
     getDistanciasSociales(properties.id),
     getRankingPolitico(properties.id),
     getRankingPolitico(),
@@ -215,6 +235,10 @@ export default async function PoligonoPage({ params }: PageProps) {
       "mapbiomas",
       "ghsl",
       "viirs",
+      "cbers_pansharpen",
+      "cbers_pan5",
+      "cbers_termico",
+      "cbers_awfi",
     ]),
   ]);
 
@@ -366,6 +390,81 @@ export default async function PoligonoPage({ params }: PageProps) {
                 {ultimoAnio.superficie_construida_km2.toFixed(2)} km².
               </p>
             )}
+          </div>
+        </section>
+
+        {/* Imagen alta resolución: toggle Sentinel-2 (10 m, mensual, color)
+            ↔ CBERS-4A WPM (8 m, color, pansharpen, trimestral) ↔ CBERS-4
+            PAN5 (5 m, blanco/negro, trimestral). Es el "ground truth"
+            visual del crecimiento que muestra el TimelineChart de arriba
+            — por eso lo posicionamos justo después. La pipeline Python
+            (S-A + T1) genera los PNG de CBERS; si aún no corrió alguna
+            de las variantes, el componente degrada y sugiere otra capa. */}
+        <section aria-labelledby="hires" className="mt-10">
+          <div className="mb-2 flex flex-wrap items-center gap-3">
+            <h2
+              id="hires"
+              className="text-xl font-semibold text-primary dark:text-dk-primary"
+            >
+              Imagen satelital alta resolución
+            </h2>
+            <DataFreshness
+              dataset="cbers_pansharpen"
+              lastUpdated={freshness.cbers_pansharpen.lastUpdated}
+              frequency={freshness.cbers_pansharpen.frequency}
+              compact
+            />
+            <DataFreshness
+              dataset="cbers_pan5"
+              lastUpdated={freshness.cbers_pan5.lastUpdated}
+              frequency={freshness.cbers_pan5.frequency}
+              compact
+            />
+          </div>
+          <p className="mb-4 max-w-3xl text-sm text-neutral-muted dark:text-dk-muted">
+            Tres sensores complementarios:{" "}
+            <strong>Sentinel-2</strong> (10 m color, mensual),{" "}
+            <TerminoGlosario id="cbers">CBERS WPM</TerminoGlosario> (8 m
+            color, trimestral) y{" "}
+            <TerminoGlosario id="pan5">CBERS PAN5</TerminoGlosario> (5 m
+            blanco/negro, trimestral). Usá S2 para series temporales,
+            WPM para color a buen detalle, PAN5 para zoom alto sobre
+            cuadras.
+          </p>
+          <HiResComparacion
+            poligonoId={properties.id}
+            nombre={properties.nombre}
+          />
+        </section>
+
+        {/* Cobertura satelital mensual S2 + AWFI. Le explica al lector
+            por qué algunos meses tienen menos datos que otros — la
+            transparencia es parte del producto. T1 publica el CSV en
+            /data/cbers_awfi/cobertura.csv; mientras tanto degrada solo. */}
+        <section aria-labelledby="cobertura" className="mt-10">
+          <div className="mb-2 flex flex-wrap items-center gap-3">
+            <h2
+              id="cobertura"
+              className="text-xl font-semibold text-primary dark:text-dk-primary"
+            >
+              Cobertura satelital mensual
+            </h2>
+            <DataFreshness
+              dataset="cbers_awfi"
+              lastUpdated={freshness.cbers_awfi.lastUpdated}
+              frequency={freshness.cbers_awfi.frequency}
+              compact
+            />
+          </div>
+          <p className="mb-4 max-w-3xl text-sm text-neutral-muted dark:text-dk-muted">
+            Cuántas observaciones limpias entraron en el composite cada mes,
+            combinando <TerminoGlosario id="sentinel-2">Sentinel-2</TerminoGlosario>{" "}
+            (10 m, revisita 5 d) y{" "}
+            <TerminoGlosario id="awfi">CBERS-4A AWFI</TerminoGlosario>{" "}
+            (64 m, swath 866 km). Cuando S2 está nublado, AWFI rellena.
+          </p>
+          <div className="card">
+            <CoberturaSatelitalMensual rows={cobertura} />
           </div>
         </section>
 
@@ -560,7 +659,11 @@ export default async function PoligonoPage({ params }: PageProps) {
           <AreaProtegidaNotice rows={wdpa} variant="banner" />
           <div className="mt-3 grid gap-4 md:grid-cols-2">
             <div className="card">
-              <IslaCalorBadge rows={lst} uhiLandsat={uhiLandsat} />
+              <IslaCalorBadge
+                rows={lst}
+                uhiLandsat={uhiLandsat}
+                lstCbers={lstCbers}
+              />
             </div>
             <div className="card">
               {/* Reemplazo del AireGauge legacy: ahora multi-gas + toggle

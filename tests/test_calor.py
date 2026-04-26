@@ -498,15 +498,31 @@ def test_uhi_csv_schema_funcion_modulo(calor_module):
 
 
 def test_uhi_csv_schema_archivo_real():
-    """Si existe el CSV de producción, sus columnas coinciden con el schema."""
+    """Si existe el CSV de producción, sus columnas incluyen el schema base.
+
+    Desde v0.4.0 (integración CBERS-4 IRS térmico), el CSV puede tener
+    columnas extra opcionales ``fuente_lst`` y ``confianza_cross_sensor``
+    cuando se generó con ``--fuente {merged,cbers}``. Validamos:
+
+    1. Las columnas base aparecen en el orden esperado al inicio.
+    2. Las únicas columnas extra permitidas son las del backup CBERS.
+    """
     if not RUTA_CSV_UHI.exists():
         pytest.skip(f"{RUTA_CSV_UHI} no existe (correr pipeline primero)")
     df = pd.read_csv(RUTA_CSV_UHI)
     cols_actuales = list(df.columns)
-    assert cols_actuales == COLUMNAS_UHI_MENSUAL_ESPERADAS, (
-        f"Schema del CSV no coincide.\n"
+    n = len(COLUMNAS_UHI_MENSUAL_ESPERADAS)
+    assert cols_actuales[:n] == COLUMNAS_UHI_MENSUAL_ESPERADAS, (
+        f"Las primeras {n} columnas del CSV no coinciden con el schema base.\n"
         f"  Esperado: {COLUMNAS_UHI_MENSUAL_ESPERADAS}\n"
-        f"  Actual:   {cols_actuales}"
+        f"  Actual:   {cols_actuales[:n]}"
+    )
+    extras_permitidas = {"fuente_lst", "confianza_cross_sensor"}
+    extras = set(cols_actuales[n:])
+    desconocidas = extras - extras_permitidas
+    assert not desconocidas, (
+        f"Columnas inesperadas más allá del schema base + extras CBERS: "
+        f"{desconocidas}"
     )
 
 
@@ -548,3 +564,187 @@ def test_uhi_csv_no_vacio():
         pytest.skip(f"{RUTA_CSV_UHI} no existe")
     df = pd.read_csv(RUTA_CSV_UHI)
     assert len(df) > 0, f"{RUTA_CSV_UHI} está vacío"
+
+
+# ---------------------------------------------------------------------------
+# 8. Backup térmico CBERS-4 IRS (v0.4.0)
+# ---------------------------------------------------------------------------
+#
+# Tests del merge Landsat + CBERS implementado en `_enriquecer_con_cbers`.
+# Filosofía: Landsat es la fuente primaria, CBERS rellena cuando Landsat
+# tuvo mes nublado. La columna `fuente_lst` traza la procedencia.
+
+
+def _stats_landsat_sinteticos_con_gap() -> pd.DataFrame:
+    """Stats Landsat con un gap intencional en mes 6 (urb_a)."""
+    filas = [
+        # Mes 1, 2, 3 — urb_a tiene Landsat OK.
+        {"poligono_id": "urb_a", "tipo_poligono": "urbano", "anio": 2024, "mes": 1,
+         "pct_validos": 80.0, "count_validos": 100, "lst_mean": 30.0,
+         "lst_median": 30.0, "lst_std": 1.0, "lst_p10": 28.0, "lst_p90": 32.0,
+         "lst_max": 33.0},
+        {"poligono_id": "urb_a", "tipo_poligono": "urbano", "anio": 2024, "mes": 2,
+         "pct_validos": 75.0, "count_validos": 100, "lst_mean": 31.0,
+         "lst_median": 31.0, "lst_std": 1.0, "lst_p10": 29.0, "lst_p90": 33.0,
+         "lst_max": 34.0},
+        {"poligono_id": "urb_a", "tipo_poligono": "urbano", "anio": 2024, "mes": 3,
+         "pct_validos": 70.0, "count_validos": 100, "lst_mean": 28.0,
+         "lst_median": 28.0, "lst_std": 1.0, "lst_p10": 26.0, "lst_p90": 30.0,
+         "lst_max": 31.0},
+        # Mes 6 — Landsat fracasó (pct_validos bajo, lst NaN).
+        {"poligono_id": "urb_a", "tipo_poligono": "urbano", "anio": 2024, "mes": 6,
+         "pct_validos": 12.0, "count_validos": 5, "lst_mean": np.nan,
+         "lst_median": np.nan, "lst_std": np.nan, "lst_p10": np.nan,
+         "lst_p90": np.nan, "lst_max": np.nan},
+        # Polígono rural — solo en mes 1.
+        {"poligono_id": "rur_a", "tipo_poligono": "rural", "anio": 2024, "mes": 1,
+         "pct_validos": 90.0, "count_validos": 200, "lst_mean": 26.0,
+         "lst_median": 26.0, "lst_std": 0.8, "lst_p10": 25.0, "lst_p90": 27.0,
+         "lst_max": 28.0},
+    ]
+    return pd.DataFrame(filas)
+
+
+def _cbers_sintetico_para_gap() -> pd.DataFrame:
+    """CBERS con dato para mes 6 (gap de Landsat) y overlap en mes 1."""
+    return pd.DataFrame([
+        # Overlap (mes 1) — para validar marca "merged" + confianza alta.
+        {"poligono_id": "urb_a", "anio": 2024, "mes": 1,
+         "lst_mean_cbers": 30.7, "n_pixeles": 80,
+         "fecha_pasada": "2024-01-15", "calidad": "alta"},
+        # Gap real (mes 6) — debería rellenar.
+        {"poligono_id": "urb_a", "anio": 2024, "mes": 6,
+         "lst_mean_cbers": 22.5, "n_pixeles": 75,
+         "fecha_pasada": "2024-06-12", "calidad": "alta"},
+        # Mes 7 — sólo CBERS (no estaba en Landsat). Debería agregar fila nueva.
+        {"poligono_id": "urb_a", "anio": 2024, "mes": 7,
+         "lst_mean_cbers": 21.0, "n_pixeles": 80,
+         "fecha_pasada": "2024-07-10", "calidad": "media"},
+        # Calidad baja — debería ignorarse.
+        {"poligono_id": "urb_a", "anio": 2024, "mes": 8,
+         "lst_mean_cbers": 99.0, "n_pixeles": 5,
+         "fecha_pasada": "2024-08-15", "calidad": "baja"},
+    ])
+
+
+def test_fuente_lst_default_es_merged(calor_module):
+    """En modo merged, el output incluye la columna ``fuente_lst``."""
+    stats = _stats_landsat_sinteticos_con_gap()
+    cbers = _cbers_sintetico_para_gap()
+    out = calor_module._enriquecer_con_cbers(stats, cbers, calor_module.FUENTE_MERGED)
+    assert "fuente_lst" in out.columns, (
+        "fuente_lst debería existir en el output del modo merged"
+    )
+    assert "confianza_cross_sensor" in out.columns
+    # Mes 1 urb_a: ambos datos disponibles → marca "merged" + alta.
+    fila_mes1 = out[(out["poligono_id"] == "urb_a") & (out["mes"] == 1)]
+    assert fila_mes1["fuente_lst"].iloc[0] == "merged"
+    assert fila_mes1["confianza_cross_sensor"].iloc[0] == "alta"
+
+
+def test_fuente_landsat_legacy(calor_module):
+    """``--fuente landsat`` reproduce el comportamiento legacy (sin columnas CBERS)."""
+    stats = _stats_landsat_sinteticos_con_gap()
+    cbers = _cbers_sintetico_para_gap()
+    out = calor_module._enriquecer_con_cbers(stats, cbers, calor_module.FUENTE_LANDSAT)
+    # No debe agregar columnas nuevas.
+    assert "fuente_lst" not in out.columns, (
+        "Modo landsat legacy NO debe inyectar fuente_lst"
+    )
+    assert "confianza_cross_sensor" not in out.columns
+    # Y NO debe inventar filas nuevas (el mes 7 sólo CBERS no aparece).
+    assert len(out) == len(stats)
+    # El mes 6 (gap) sigue siendo NaN — Landsat puro no rellena.
+    fila_mes6 = out[(out["poligono_id"] == "urb_a") & (out["mes"] == 6)]
+    assert pd.isna(fila_mes6["lst_mean"].iloc[0])
+
+
+def test_merge_solo_donde_landsat_null(calor_module):
+    """En modo merged, CBERS llena el mes 6 (gap) y no toca mes 1 (Landsat OK)."""
+    stats = _stats_landsat_sinteticos_con_gap()
+    cbers = _cbers_sintetico_para_gap()
+    out = calor_module._enriquecer_con_cbers(stats, cbers, calor_module.FUENTE_MERGED)
+
+    # Mes 1: Landsat=30.0, CBERS=30.7. En merged debe ganar Landsat.
+    f1 = out[(out["poligono_id"] == "urb_a") & (out["mes"] == 1)].iloc[0]
+    assert f1["lst_mean"] == pytest.approx(30.0), (
+        "Modo merged NO debe sobreescribir Landsat válido"
+    )
+    assert f1["fuente_lst"] == "merged"
+
+    # Mes 6: gap Landsat → CBERS rellena con 22.5°C.
+    f6 = out[(out["poligono_id"] == "urb_a") & (out["mes"] == 6)].iloc[0]
+    assert f6["lst_mean"] == pytest.approx(22.5)
+    assert f6["fuente_lst"] == "cbers"
+    # Sin overlap previo en este (poligono, mes) específico → confianza media
+    # (el overlap se mide por tripleta exacta poligono+anio+mes, no por
+    # polígono solamente).
+    assert f6["confianza_cross_sensor"] == "media"
+
+    # Mes 7: sólo CBERS sin fila Landsat — debe agregarse como fila nueva.
+    f7 = out[(out["poligono_id"] == "urb_a") & (out["mes"] == 7)]
+    assert len(f7) == 1, "Mes 7 (sólo CBERS) debe aparecer como fila extra"
+    assert f7["fuente_lst"].iloc[0] == "cbers"
+    assert f7["confianza_cross_sensor"].iloc[0] == "media"
+
+    # Mes 8: calidad baja → debe ignorarse, no aparece.
+    f8 = out[(out["poligono_id"] == "urb_a") & (out["mes"] == 8)]
+    assert f8.empty, "Calidad baja de CBERS debe filtrarse"
+
+
+def test_merge_csv_inexistente_no_rompe(calor_module, tmp_path):
+    """Si T1 no generó el CSV todavía, el merge corre vacío sin error."""
+    inexistente = tmp_path / "no_existe.csv"
+    df_cbers = calor_module._cargar_cbers_termico(inexistente)
+    assert df_cbers.empty
+    # Las columnas vacías están definidas para que el join sea no-op.
+    for c in ("poligono_id", "anio", "mes", "lst_mean_cbers", "calidad"):
+        assert c in df_cbers.columns
+
+    stats = _stats_landsat_sinteticos_con_gap()
+    out = calor_module._enriquecer_con_cbers(stats, df_cbers, calor_module.FUENTE_MERGED)
+    # Modo merged sin CBERS: sólo agrega las columnas con todos los Landsat
+    # marcados como "landsat" (donde el dato es válido) o None.
+    assert "fuente_lst" in out.columns
+    assert (out["fuente_lst"] == "landsat").sum() >= 1
+
+
+def test_uhi_propaga_fuente_lst(calor_module):
+    """`_calcular_uhi` mantiene la columna ``fuente_lst`` en el output urbano."""
+    # Construimos stats con fuente_lst y rurales para que el cálculo funcione.
+    filas = [
+        {"poligono_id": "rur_a", "tipo_poligono": "rural",
+         "anio": 2024, "mes": 6, "lst_mean": 18.0,
+         "fuente_lst": "landsat", "confianza_cross_sensor": None},
+        {"poligono_id": "urb_a", "tipo_poligono": "urbano",
+         "anio": 2024, "mes": 6, "lst_mean": 22.0,
+         "fuente_lst": "cbers", "confianza_cross_sensor": "media"},
+    ]
+    df = pd.DataFrame(filas)
+    out = calor_module._calcular_uhi(df)
+    assert "fuente_lst" in out.columns
+    fila = out[(out["poligono_id"] == "urb_a") & (out["mes"] == 6)]
+    assert fila["fuente_lst"].iloc[0] == "cbers"
+    assert fila["confianza_cross_sensor"].iloc[0] == "media"
+    # UHI cálculo sigue funcionando sobre el lst_mean de origen mixto.
+    assert fila["uhi_vs_rural"].iloc[0] == pytest.approx(4.0)
+
+
+def test_constantes_fuente_modulo(calor_module):
+    """Las constantes de modos de fuente están exportadas y son strings esperados."""
+    assert calor_module.FUENTE_LANDSAT == "landsat"
+    assert calor_module.FUENTE_CBERS == "cbers"
+    assert calor_module.FUENTE_MERGED == "merged"
+    assert set(calor_module.FUENTES_VALIDAS) == {"landsat", "cbers", "merged"}
+    assert calor_module.CBERS_CALIDADES_ACEPTADAS == {"alta", "media"}
+
+
+def test_modo_cbers_puro_reemplaza_landsat(calor_module):
+    """``--fuente cbers`` reemplaza valores Landsat por CBERS donde existen."""
+    stats = _stats_landsat_sinteticos_con_gap()
+    cbers = _cbers_sintetico_para_gap()
+    out = calor_module._enriquecer_con_cbers(stats, cbers, calor_module.FUENTE_CBERS)
+    # Mes 1 urb_a: ahora gana CBERS (30.7).
+    f1 = out[(out["poligono_id"] == "urb_a") & (out["mes"] == 1)].iloc[0]
+    assert f1["lst_mean"] == pytest.approx(30.7)
+    assert f1["fuente_lst"] == "cbers"

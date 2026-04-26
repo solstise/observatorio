@@ -18,14 +18,20 @@ import type {
   AlertasPayload,
   AqiDiarioRow,
   CalorMensualRow,
+  CbersHistoricoRow,
   ChirpsRow,
+  CoberturaAwfiRow,
   DynamicWorldRow,
+  EventoInundacionRow,
+  FirmsCrossvalRow,
   FirmsRow,
   ForecastDiarioRow,
   ForecastHorarioRow,
   GhslRow,
+  LstCbersRow,
   LstRow,
   MapBiomasRow,
+  NdbiNdviCrossvalRow,
   No2Row,
   PoblacionRow,
   PoligonoDetalle,
@@ -382,5 +388,58 @@ export async function getProyecciones(
     (r) =>
       (!poligonoId || r.poligono_id === poligonoId) &&
       (!metrica || r.metrica === metrica),
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Capa CBERS (T1) — espejo server-side. Mismas semánticas que el cliente:
+// si el CSV no existe (T1 aún no terminó), devolvemos [] y degradamos.
+// ---------------------------------------------------------------------------
+
+export async function getLstCbers(
+  poligonoId?: string,
+): Promise<LstCbersRow[]> {
+  const rows = await readStaticCsvOptional<LstCbersRow>(
+    "/data/cbers_termico/lst_cbers.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getFirmsCrossval(
+  poligonoId?: string,
+): Promise<FirmsCrossvalRow[]> {
+  const rows = await readStaticCsvOptional<FirmsCrossvalRow>(
+    "/data/cbers_swir/firms_crossval.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getCoberturaAwfi(): Promise<CoberturaAwfiRow[]> {
+  return readStaticCsvOptional<CoberturaAwfiRow>(
+    "/data/cbers_awfi/cobertura.csv",
+  );
+}
+
+export async function getCbersHistorico(): Promise<CbersHistoricoRow[]> {
+  return readStaticCsvOptional<CbersHistoricoRow>(
+    "/data/cbers_historico/serie.csv",
+  );
+}
+
+export async function getNdbiNdviCrossval(
+  poligonoId?: string,
+): Promise<NdbiNdviCrossvalRow[]> {
+  const rows = await readStaticCsvOptional<NdbiNdviCrossvalRow>(
+    "/data/cbers_indices/ndbi_ndvi.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getEventosInundacion(): Promise<EventoInundacionRow[]> {
+  return readStaticCsvOptional<EventoInundacionRow>(
+    "/data/cbers_inundacion/eventos.csv",
   );
 }

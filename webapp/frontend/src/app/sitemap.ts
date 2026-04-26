@@ -56,6 +56,9 @@ const STATIC_ROUTES: Array<{
   { path: "/densidad", changeFrequency: "weekly", priority: 0.6 },
   { path: "/3d", changeFrequency: "weekly", priority: 0.6 },
   { path: "/explorar", changeFrequency: "weekly", priority: 0.6 },
+  { path: "/historia", changeFrequency: "monthly", priority: 0.6 },
+  { path: "/validacion", changeFrequency: "weekly", priority: 0.6 },
+  { path: "/eventos", changeFrequency: "weekly", priority: 0.6 },
   { path: "/descargas", changeFrequency: "weekly", priority: 0.5 },
   { path: "/metodologia", changeFrequency: "monthly", priority: 0.5 },
 ];

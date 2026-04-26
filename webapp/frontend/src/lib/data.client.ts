@@ -12,14 +12,20 @@ import type {
   AlertasPayload,
   AqiDiarioRow,
   CalorMensualRow,
+  CbersHistoricoRow,
   ChirpsRow,
+  CoberturaAwfiRow,
   DynamicWorldRow,
+  EventoInundacionRow,
+  FirmsCrossvalRow,
   FirmsRow,
   ForecastDiarioRow,
   ForecastHorarioRow,
   GhslRow,
+  LstCbersRow,
   LstRow,
   MapBiomasRow,
+  NdbiNdviCrossvalRow,
   No2Row,
   PoblacionRow,
   PoligonoDetalle,
@@ -426,5 +432,60 @@ export async function getProyecciones(
     (r) =>
       (!poligonoId || r.poligono_id === poligonoId) &&
       (!metrica || r.metrica === metrica),
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Capa CBERS (T1) — backup térmico, cross-val FIRMS, AWFI, histórico,
+// índices NDBI/NDVI, eventos de inundación.
+//
+// Todos los CSV son emitidos por T1 (pipelines paralelos). Si T1 todavía no
+// los publicó, los getters devuelven [] y los componentes degradan a un
+// skeleton + texto "Datos en preparación, primer cron mensual los publicará".
+// ---------------------------------------------------------------------------
+
+export async function getLstCbers(
+  poligonoId?: string,
+): Promise<LstCbersRow[]> {
+  const rows = await fetchCsvOptional<LstCbersRow>(
+    "/data/cbers_termico/lst_cbers.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getFirmsCrossval(
+  poligonoId?: string,
+): Promise<FirmsCrossvalRow[]> {
+  const rows = await fetchCsvOptional<FirmsCrossvalRow>(
+    "/data/cbers_swir/firms_crossval.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getCoberturaAwfi(): Promise<CoberturaAwfiRow[]> {
+  return fetchCsvOptional<CoberturaAwfiRow>("/data/cbers_awfi/cobertura.csv");
+}
+
+export async function getCbersHistorico(): Promise<CbersHistoricoRow[]> {
+  return fetchCsvOptional<CbersHistoricoRow>(
+    "/data/cbers_historico/serie.csv",
+  );
+}
+
+export async function getNdbiNdviCrossval(
+  poligonoId?: string,
+): Promise<NdbiNdviCrossvalRow[]> {
+  const rows = await fetchCsvOptional<NdbiNdviCrossvalRow>(
+    "/data/cbers_indices/ndbi_ndvi.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getEventosInundacion(): Promise<EventoInundacionRow[]> {
+  return fetchCsvOptional<EventoInundacionRow>(
+    "/data/cbers_inundacion/eventos.csv",
   );
 }

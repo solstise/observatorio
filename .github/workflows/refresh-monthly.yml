@@ -143,6 +143,52 @@ jobs:
         run: python scripts/49b_mapas_calor.py --tipo todo
 
       # ----------------------------------------------------------------------
+      # Bloque 3b: CBERS-4A pansharpen (capa "alta resolución, baja
+      # frecuencia"). Los scripts viven en el repo (S-A) y dependen de la
+      # disponibilidad del catálogo INPE / S3 — son los más frágiles del
+      # pipeline, por eso van con `continue-on-error: true`. Si fallan,
+      # el resto del cron mensual sigue normal y el frontend muestra
+      # gracefully "CBERS llegará en el próximo cron".
+      # ----------------------------------------------------------------------
+      - name: CBERS pansharpen download
+        run: python scripts/45_cbers_descarga.py
+        continue-on-error: true
+
+      - name: CBERS recortar por polígono
+        run: python scripts/45b_cbers_recortar.py
+        continue-on-error: true
+
+      # Capa CBERS extendida (scripts 45c-45i): PAN5 (B&N 5 m), térmico
+      # (placeholder hasta que IRS sea accesible), SWIR cross-val FIRMS,
+      # AWFI cobertura multi-fuente, índices NDBI/NDVI cross-val,
+      # detección inundación Paraná. Todos con continue-on-error porque
+      # dependen de S3/STAC INPE que pueden estar caídos sin afectar el
+      # resto del cron.
+      - name: CBERS PAN5 (5m B&N)
+        run: python scripts/45c_cbers_pan5.py
+        continue-on-error: true
+
+      - name: CBERS térmico (backup UHI)
+        run: python scripts/45d_cbers_termico.py
+        continue-on-error: true
+
+      - name: CBERS SWIR (cross-val FIRMS)
+        run: python scripts/45e_cbers_swir.py
+        continue-on-error: true
+
+      - name: CBERS AWFI 5d (composite multi-fuente)
+        run: python scripts/45f_cbers_awfi.py
+        continue-on-error: true
+
+      - name: CBERS índices NDBI/NDVI cross-val
+        run: python scripts/45h_cbers_indices.py
+        continue-on-error: true
+
+      - name: CBERS inundación Paraná
+        run: python scripts/45i_cbers_inundacion.py
+        continue-on-error: true
+
+      # ----------------------------------------------------------------------
       # Bloque 4: Forecast + alertas con datos nuevos. El cron de 6h también
       # corre estos pero acá garantizamos que la base mensual quede coherente.
       # ----------------------------------------------------------------------

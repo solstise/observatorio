@@ -1,6 +1,6 @@
 # Metodología — Capa de calor urbano
 
-Versión: v0.3.0 · Fecha: 2026-04-24 · Observatorio Urbano Posadas.
+Versión: v0.4.0 · Fecha: 2026-04-24 · Observatorio Urbano Posadas.
 
 ## 1. Qué mide esta capa
 
@@ -300,6 +300,87 @@ python scripts/52_validacion_smn.py todo --force
 ```
 
 Esto descarga ERA5-Land vía Earth Engine, cruza con la última versión de `lst_mensual_por_poligono.csv` y reescribe esta sección con las métricas actualizadas.
+
+## 16. Backup térmico CBERS-4 IRS
+
+*Sección agregada en v0.4.0 (2026-04-24) por integración de CBERS-4 IRS térmico como fuente complementaria a Landsat.*
+
+### 16.1 Por qué un backup térmico
+
+El pipeline Landsat 8/9 tiene cobertura nubosa subtropical de ~50% anual sobre Posadas. Sobre los 100 meses 2018-01 a 2026-04 que intentamos descargar, **14 quedaron sin dato Landsat** porque la pasada del satélite cayó sobre cielo cerrado o las dos escenas mensuales mínimas no llegaron a `CLOUD_COVER < 30`. Eso deja huecos que el ranking interanual y la anomalía estacional no pueden tapar.
+
+CBERS-4 (China-Brazil Earth Resources Satellite, lanzado 2014) lleva el sensor **IRS** (Infrared System) con banda térmica TIR a **40 m de resolución**, hora de pasada ~10:30 AM hora solar local — es decir, *idéntica ventana diurna que Landsat*. Como complemento, no reemplazo, llena gaps puntuales sin alterar el contrato metodológico de la capa.
+
+Esta integración la implementa `scripts/45d_cbers_termico.py` (descarga + estadísticas mensuales) y la consume `scripts/49_calor_pipeline.py` mediante el flag `--fuente {landsat|cbers|merged}` (default `merged`).
+
+### 16.2 Cuándo se usa CBERS
+
+Para cada tripleta `(poligono_id, anio, mes)`:
+
+1. Si Landsat tiene `pct_validos ≥ 30%` → se usa Landsat (criterio inalterado de v0.3.0).
+2. Si Landsat falló (`pct_validos < 30%`, LST `NaN`, o el mes entero está ausente) → se busca el valor en `data/processed/cbers_termico/lst_cbers_mensual.csv`.
+3. Sólo se acepta CBERS con `calidad ∈ {alta, media}`. Filas con `calidad="baja"` se descartan (probable nube residual o ruido sensor).
+4. Si Landsat y CBERS están ambos disponibles para una misma tripleta, **gana Landsat** (calibración de referencia) pero la fila queda marcada como cross-validable.
+
+El modo `--fuente landsat` reproduce bit a bit el comportamiento de v0.3.0 sin tocar el CSV CBERS — útil para reproducibilidad histórica.
+
+### 16.3 Diferencia esperada de calibración
+
+Tanto Landsat ST_B10 (USGS C2 L2) como CBERS IRS TIR están calibrados a temperatura de superficie en Kelvin con corrección atmosférica, pero usan **algoritmos de calibración independientes** y bandas espectrales ligeramente distintas (Landsat 10.6-11.19 µm; CBERS 10.4-12.5 µm). En la práctica eso introduce un sesgo absoluto típico de **±1 a ±2 °C** entre sensores para la misma escena.
+
+Implicancia operativa:
+
+- La *correlación temporal* (ranking mensual, anomalías interanuales, tendencias) se preserva con seguridad.
+- El *valor absoluto* de un mes CBERS puede diferir 1-2 °C del que habría reportado Landsat de no haber estado nublado.
+- El cálculo UHI (`lst − lst_rural_baseline`) absorbe parte de ese sesgo si el mismo sensor mide urbano y rural en la misma pasada — lo cual ocurre por construcción (CBERS provee la grilla completa, no sólo el polígono urbano).
+
+Referencias para el orden de magnitud:
+
+- INPE (Instituto Nacional de Pesquisas Espaciais, Brasil), *CBERS-4 IRS Calibration and Validation Report*. Comparativas LST CBERS vs MODIS publicadas en bandas TIR para Brasil tropical: sesgo medio ≤2 °C, RMSE ~1.5-2.5 °C.
+- Voogt J.A., Oke T.R. (2003), *Thermal remote sensing of urban climates*: discusión genérica de sesgos inter-sensor en TIR satelital sobre superficies heterogéneas urbanas.
+- Quian Y. et al. (2020), *Cross-comparison of CBERS-04 IRS and Landsat 8 TIRS over agricultural targets*: sesgos típicos diurnos entre +0.8 y +1.7 °C.
+
+### 16.4 Trazabilidad en el CSV
+
+El archivo `data/processed/calor/lst_mensual_por_poligono.csv` (y por propagación `uhi_por_poligono_mensual.csv`) incluye dos columnas nuevas cuando la corrida usa `--fuente {merged,cbers}`:
+
+| Columna | Valores | Significado |
+|---|---|---|
+| `fuente_lst` | `"landsat"` | Mes resuelto sólo con Landsat (pct_validos ≥ 30%, sin CBERS). |
+| | `"cbers"` | Mes resuelto sólo con CBERS (Landsat fracasó o ausente). |
+| | `"merged"` | Ambos sensores tenían dato; el valor publicado es Landsat, pero la fila es cross-validable. |
+| | vacío | Modo legacy `--fuente landsat`, columna ausente del CSV. |
+| `confianza_cross_sensor` | `"alta"` | Hay overlap Landsat+CBERS en esa tripleta exacta — sesgo entre sensores conocido a ojo. |
+| | `"media"` | Sólo CBERS sin overlap Landsat para esa tripleta — el valor depende exclusivamente de la calibración CBERS. |
+| | vacío | Filas Landsat puras o modo legacy. |
+
+El frontend (`webapp/frontend/src/lib/types.ts:UhiMensualRow`) declara ambos campos como opcionales (`fuente_lst?`, `confianza_cross_sensor?`) para preservar compatibilidad con CSVs anteriores a v0.4.0.
+
+### 16.5 Cómo no reemplazar Landsat
+
+El default (`--fuente merged`) garantiza por construcción que un valor Landsat válido **nunca** se sobreescribe con CBERS, sólo se anota como cross-validado. Esto preserva la calibración USGS como verdad de referencia y reduce el riesgo de introducir saltos artificiales de 1-2 °C en series mensuales puras de Landsat. El cálculo UHI (`lst − lst_rural_baseline`) no cambia: la fórmula es indiferente a la fuente, sólo se nutre del valor agregado.
+
+### 16.6 Limitaciones
+
+1. CBERS IRS tiene revisita ~26 días vs Landsat 16 días — algunos meses muy nublados pueden seguir sin dato aún con CBERS.
+2. La calibración CBERS histórica (2018-2020) tiene menos publicaciones de validación que Landsat C2 L2; los `calidad="baja"` filtrados son una salvaguarda conservadora.
+3. No mezclamos sensores en un mismo composite mediano — siempre se publica la fuente íntegra del sensor primario para esa tripleta. Esto preserva la interpretabilidad del valor pero implica que el sesgo entre sensores aparece como una "rugosidad" potencial en series con muchos meses CBERS.
+4. La columna `confianza_cross_sensor` no implica un análisis estadístico de bias por par sensor en producción todavía — sólo marca *si* hay overlap. Una validación cuantitativa Landsat vs CBERS sobre los meses con ambos datos quedaría como mejora v0.5.
+
+### 16.7 Reproducibilidad
+
+```bash
+# Modo legacy (replica v0.3.0 exacto, sin CBERS):
+python scripts/49_calor_pipeline.py --fuente landsat stats-por-poligono
+
+# Modo nuevo default (Landsat primario + CBERS donde Landsat falla):
+python scripts/49_calor_pipeline.py stats-por-poligono   # equivale a --fuente merged
+
+# Modo CBERS puro (auditoría / sensitivity):
+python scripts/49_calor_pipeline.py --fuente cbers stats-por-poligono
+```
+
+El CSV CBERS de entrada se controla con `--cbers-termico-csv data/processed/cbers_termico/lst_cbers_mensual.csv` (default).
 
 ---
 

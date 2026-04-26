@@ -331,6 +331,51 @@ def copiar_media(src_outputs: Path, src_processed: Path, dest_media: Path) -> di
             shutil.copy2(archivo, mapas_dest / archivo.name)
             contadores["calor_mapas"] += 1
 
+    # CBERS-4A WPM pansharpen recortes por polígono (PNG livianos a 2 m
+    # efectivos). Los .tif quedan en data/processed/cbers/ pero NO se copian
+    # al frontend (sólo PNGs). Se copian:
+    #   - {poligono_id}_cbers_{yyyymm}.png  (histórico por mes)
+    #   - {poligono_id}_cbers_latest.png    (alias estable)
+    #   - _metadata.json                    (freshness para el frontend)
+    contadores["cbers_pngs"] = 0
+    cbers_src = src_processed / "cbers"
+    if cbers_src.exists():
+        cbers_dest = dest_media / "cbers"
+        ensure_dir(cbers_dest)
+        for archivo in cbers_src.glob("*.png"):
+            shutil.copy2(archivo, cbers_dest / archivo.name)
+            contadores["cbers_pngs"] += 1
+        # Metadata JSON (freshness)
+        meta_src = cbers_src / "_metadata.json"
+        if meta_src.exists():
+            shutil.copy2(meta_src, cbers_dest / "_metadata.json")
+
+    # CBERS-4 PAN5 (5 m B&N, 45c). PNGs por polígono + alias _latest.png.
+    contadores["cbers_pan5_pngs"] = 0
+    pan5_src = src_processed / "cbers_pan5"
+    if pan5_src.exists():
+        pan5_dest = dest_media / "cbers_pan5"
+        ensure_dir(pan5_dest)
+        for archivo in pan5_src.glob("*.png"):
+            shutil.copy2(archivo, pan5_dest / archivo.name)
+            contadores["cbers_pan5_pngs"] += 1
+        meta_src = pan5_src / "_metadata.json"
+        if meta_src.exists():
+            shutil.copy2(meta_src, pan5_dest / "_metadata.json")
+
+    # CBERS histórico (45g). PNGs anuales 2015+.
+    contadores["cbers_historico_pngs"] = 0
+    hist_src = src_processed / "cbers_historico"
+    if hist_src.exists():
+        hist_dest = dest_media / "cbers_historico"
+        ensure_dir(hist_dest)
+        for archivo in hist_src.glob("*.png"):
+            shutil.copy2(archivo, hist_dest / archivo.name)
+            contadores["cbers_historico_pngs"] += 1
+        meta_src = hist_src / "_metadata.json"
+        if meta_src.exists():
+            shutil.copy2(meta_src, hist_dest / "_metadata.json")
+
     return contadores
 
 
@@ -427,6 +472,14 @@ def cli(
         ("data/processed/forecast/aqi_diario.csv", "forecast/aqi_diario.csv"),
         # Proyecciones a futuro (script 59) — fase 5/6
         ("data/processed/proyecciones/proyecciones_por_poligono.csv", "proyecciones/proyecciones.csv"),
+        # Capa CBERS extendida (scripts 45c-45i) — pass-through tal cual,
+        # cada CSV mantiene su schema documentado en el script origen.
+        ("data/processed/cbers_termico/lst_cbers_mensual.csv", "cbers_termico/lst_cbers.csv"),
+        ("data/processed/cbers_swir/firms_crossval_anual.csv", "cbers_swir/firms_crossval.csv"),
+        ("data/processed/cbers_awfi/cobertura_mensual.csv", "cbers_awfi/cobertura.csv"),
+        ("data/processed/cbers_historico/serie_temporal_extendida.csv", "cbers_historico/serie.csv"),
+        ("data/processed/cbers_indices/ndbi_ndvi_anual.csv", "cbers_indices/ndbi_ndvi.csv"),
+        ("data/processed/cbers_inundacion/eventos_inundacion.csv", "cbers_inundacion/eventos.csv"),
     ]
     for src_rel, dest_name in extras:
         src = resolve_path(src_rel)
@@ -448,6 +501,13 @@ def cli(
         ("data/processed/forecast/alertas_activas.json", "forecast/alertas_activas.json"),
         ("data/processed/forecast/_metadata.json", "forecast/_metadata.json"),
         ("data/processed/proyecciones/_metadata.json", "proyecciones/_metadata.json"),
+        # Metadata CBERS extendido (45c-45i)
+        ("data/processed/cbers_termico/_metadata.json", "cbers_termico/_metadata.json"),
+        ("data/processed/cbers_swir/_metadata.json", "cbers_swir/_metadata.json"),
+        ("data/processed/cbers_awfi/_metadata.json", "cbers_awfi/_metadata.json"),
+        ("data/processed/cbers_historico/_metadata.json", "cbers_historico/_metadata.json"),
+        ("data/processed/cbers_indices/_metadata.json", "cbers_indices/_metadata.json"),
+        ("data/processed/cbers_inundacion/_metadata.json", "cbers_inundacion/_metadata.json"),
     ]
     for src_rel, dest_name in json_extras:
         src = resolve_path(src_rel)

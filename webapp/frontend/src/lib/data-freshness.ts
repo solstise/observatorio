@@ -29,13 +29,26 @@ import Papa from "papaparse";
 // Frecuencias soportadas. Las strings que no estén acá pasan tal cual al
 // componente y la lógica `freshness()` (en el componente cliente) cae a
 // los umbrales por defecto.
-export type Frequency = "6h" | "diario" | "mensual" | "anual";
+// `trimestral` se sumó para CBERS-4A WPM (revisita real ~31 días pero el
+// cron procesa el último composite "estable" cada 3 meses para amortizar
+// la transferencia de S3 INPE, que es pesada).
+// `semanal` se sumó para eventos de inundación: el detector multi-sensor
+// (SAR + óptico) corre semanalmente para reaccionar a eventos extremos.
+export type Frequency =
+  | "6h"
+  | "diario"
+  | "semanal"
+  | "mensual"
+  | "trimestral"
+  | "anual";
 
 // Etiqueta amigable para mostrar al usuario en el badge de "espera".
 const FREQUENCY_LABEL: Record<Frequency, string> = {
   "6h": "cada 6 horas",
   diario: "diario",
+  semanal: "semanal",
   mensual: "mensual",
+  trimestral: "trimestral",
   anual: "anual",
 };
 
@@ -145,6 +158,82 @@ export const DATASET_INFO: Record<string, DatasetEntry> = {
     source: "data/social/ranking.csv",
     fuente: "Combinación interna (script 54)",
   },
+  // CBERS-4A WPM pansharpen — capa de imagen alta resolución (5-8 m).
+  // El pipeline Python (S-A) genera `_metadata.json` con `generated_at`,
+  // así que la estrategia json-generated-at lo resuelve directo. Si el
+  // archivo aún no existe (S-A todavía no corrió por primera vez),
+  // resolveTimestamp degrada a string vacío → DataFreshness pinta rojo.
+  cbers_pansharpen: {
+    label: "Imagen alta resolución (CBERS)",
+    frequency: "trimestral",
+    source: "data/cbers/_metadata.json",
+    fuente: "INPE/CRESDA CBERS-4A WPM (pan 8 m + MS 16 m, pansharpen)",
+    strategy: "json-generated-at",
+  },
+  // CBERS PAN5 (5 m B&N): la pancromática nativa de CBERS-4 sobre la WPM.
+  // Mayor detalle espacial que el WPM color, sin información cromática.
+  // T1 publica los PNG en `/data/media/cbers_pan5/` y un metadata JSON
+  // sidecar para resolver `generated_at` deterministically.
+  cbers_pan5: {
+    label: "Imagen ultra-detalle (CBERS PAN5)",
+    frequency: "trimestral",
+    source: "data/cbers_pan5/_metadata.json",
+    fuente: "INPE CBERS-4 PAN5 (banda pancromática 5 m B&N)",
+    strategy: "json-generated-at",
+  },
+  // LST térmica derivada del IRS de CBERS-4 (40 m TIR). Backup para
+  // ventanas mensuales sin observación Landsat. El CSV agrega `mes`/`anio`
+  // así que `mtime` del archivo es un proxy razonable de su frescura.
+  cbers_termico: {
+    label: "Calor urbano backup (CBERS IRS)",
+    frequency: "mensual",
+    source: "data/cbers_termico/lst_cbers.csv",
+    fuente: "INPE CBERS-4 IRS (banda térmica 40 m + SWIR 80 m)",
+  },
+  // Validación cruzada FIRMS (NASA) vs CBERS SWIR. Mensual: el comparador
+  // corre tras cada update de FIRMS para mantener el agreement_pct fresco.
+  cbers_swir_firms: {
+    label: "Validación cruzada incendios (CBERS SWIR + FIRMS)",
+    frequency: "mensual",
+    source: "data/cbers_swir/firms_crossval.csv",
+    fuente: "NASA FIRMS + INPE CBERS-4 IRS SWIR",
+  },
+  // Cobertura mensual S2 + AWFI: cuántas observaciones limpias entraron
+  // en cada composite. Útil para explicar al lector por qué un mes tiene
+  // gaps. AWFI agrega un swath de 866 km cada 5 días.
+  cbers_awfi: {
+    label: "Cobertura satelital mensual (S2 + CBERS AWFI)",
+    frequency: "mensual",
+    source: "data/cbers_awfi/cobertura.csv",
+    fuente: "ESA Sentinel-2 + INPE CBERS-4A AWFI (64 m, swath 866 km)",
+  },
+  // Serie histórica 1999-2026 — pansharpen anual de Posadas usando lo
+  // mejor disponible cada año (CBERS-1/2/2B/4/4A). Conceptualmente "anual"
+  // pero el dataset es cuasi-estable: refresca solo cuando T1 reprocesa
+  // un año específico.
+  cbers_historico: {
+    label: "Serie histórica Posadas (CBERS 1999-2026)",
+    frequency: "anual",
+    source: "data/cbers_historico/serie.csv",
+    fuente: "INPE CBERS-1/2/2B/4/4A — composite anual pansharpen",
+  },
+  // Validación cruzada NDBI/NDVI: S2 vs CBERS WPM. Cuando dos sensores
+  // coinciden sube la confianza. Mensual: corre tras cada update de S2.
+  cbers_indices: {
+    label: "Validación cruzada de índices urbanos",
+    frequency: "mensual",
+    source: "data/cbers_indices/ndbi_ndvi.csv",
+    fuente: "ESA Sentinel-2 + INPE CBERS-4A WPM (NDBI, NDVI)",
+  },
+  // Eventos de inundación detectados vía composite multi-sensor (SAR +
+  // óptico). Frecuencia semanal o on-event según severidad. Si no hay
+  // eventos detectados el CSV puede tener 0 filas (válido, no es error).
+  cbers_inundacion: {
+    label: "Eventos de inundación detectados",
+    frequency: "semanal",
+    source: "data/cbers_inundacion/eventos.csv",
+    fuente: "Composite multi-sensor: Sentinel-1 SAR + S2 + CBERS-4A WPM",
+  },
 };
 
 // Datasets a mostrar en el footer compacto. Orden = importancia.
@@ -154,6 +243,7 @@ export const FOOTER_DATASETS: readonly string[] = [
   "calor_landsat",
   "viviendas",
   "ranking",
+  "cbers_pansharpen",
 ] as const;
 
 export interface FreshnessResult {

@@ -8,6 +8,8 @@ Tres subcomandos click + flag ``todo``:
 
 * ``descargar-landsat``: composites mensuales vía Earth Engine (L8+L9 merged).
 * ``stats-por-poligono``: estadísticas LST por polígono (urbanos + rurales).
+  Acepta ``--fuente {landsat|cbers|merged}`` (default ``merged``) para
+  combinar Landsat con CBERS-4 IRS térmico cuando Landsat tuvo gaps.
 * ``calcular-uhi``: tres métricas UHI (vs rural, vs ciudad, anomalía
   estacional) + agregación estacional DJF/MAM/JJA/SON.
 
@@ -92,12 +94,24 @@ from scripts.utils.config import load_settings
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import ensure_dir, resolve_path
 
-SCRIPT_VERSION = "0.3.0"
+SCRIPT_VERSION = "0.4.0"
 
 EE_ASSET_L8 = "LANDSAT/LC08/C02/T1_L2"
 EE_ASSET_L9 = "LANDSAT/LC09/C02/T1_L2"
 EE_BANDA_TERMICA = "ST_B10"
 EE_CRS = "EPSG:4326"
+
+# Fuentes térmicas soportadas por --fuente.
+FUENTE_LANDSAT = "landsat"
+FUENTE_CBERS = "cbers"
+FUENTE_MERGED = "merged"
+FUENTES_VALIDAS = (FUENTE_LANDSAT, FUENTE_CBERS, FUENTE_MERGED)
+
+# Path por defecto del CSV producido por scripts/45d_cbers_termico.py (T1).
+# Schema esperado: poligono_id, anio, mes, lst_mean_cbers, n_pixeles,
+# fecha_pasada, calidad ("alta" | "media" | "baja").
+CBERS_TERMICO_CSV_DEFAULT = "data/processed/cbers_termico/lst_cbers_mensual.csv"
+CBERS_CALIDADES_ACEPTADAS = {"alta", "media"}
 
 # Factores oficiales USGS C2L2 para ST_B10 → Kelvin → Celsius.
 LST_SCALE = 0.00341802
@@ -140,6 +154,8 @@ class ContextoCalor:
     bbox: tuple[float, float, float, float]
     bbox_buffer_km: float
     ee_project: Optional[str]
+    cbers_termico_csv: Path
+    fuente: str = FUENTE_MERGED
 
 
 def _cargar_contexto(
@@ -149,6 +165,8 @@ def _cargar_contexto(
     procesado_dir: Path,
     ee_project: Optional[str],
     buffer_km: float,
+    cbers_termico_csv: Path,
+    fuente: str = FUENTE_MERGED,
 ) -> ContextoCalor:
     """Construye el contexto leyendo settings + paths."""
     settings = load_settings()
@@ -169,6 +187,8 @@ def _cargar_contexto(
         bbox=bbox,
         bbox_buffer_km=buffer_km,
         ee_project=project,
+        cbers_termico_csv=cbers_termico_csv,
+        fuente=fuente,
     )
 
 
@@ -433,8 +453,219 @@ def _stats_poligono_sobre_raster(geom_4326, raster_path: Path) -> dict:
     return out
 
 
+def _cargar_cbers_termico(csv_path: Path) -> pd.DataFrame:
+    """Carga el CSV de CBERS-4 IRS térmico mensual producido por T1.
+
+    Schema esperado (scripts/45d_cbers_termico.py):
+        poligono_id, anio, mes, lst_mean_cbers, n_pixeles, fecha_pasada, calidad
+
+    Returns:
+        DataFrame normalizado con columnas tipadas. Si el archivo no existe
+        o está vacío, devuelve un DF vacío con las columnas esperadas para
+        que el merge sea no-op.
+    """
+    cols = [
+        "poligono_id",
+        "anio",
+        "mes",
+        "lst_mean_cbers",
+        "n_pixeles",
+        "fecha_pasada",
+        "calidad",
+    ]
+    if not csv_path.exists():
+        logger.info(
+            f"CBERS térmico CSV no existe ({csv_path}); merge corre vacío "
+            "(el script de T1 lo generará)."
+        )
+        return pd.DataFrame(columns=cols)
+    try:
+        df = pd.read_csv(csv_path)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning(f"No pude leer {csv_path}: {exc}. Sigo sin CBERS.")
+        return pd.DataFrame(columns=cols)
+    if df.empty:
+        return pd.DataFrame(columns=cols)
+    # Normalizamos tipos para joinear con confianza.
+    for c in ("anio", "mes"):
+        if c in df.columns:
+            df[c] = pd.to_numeric(df[c], errors="coerce").astype("Int64")
+    if "poligono_id" in df.columns:
+        df["poligono_id"] = df["poligono_id"].astype(str)
+    if "calidad" in df.columns:
+        df["calidad"] = df["calidad"].astype(str).str.strip().str.lower()
+    if "lst_mean_cbers" in df.columns:
+        df["lst_mean_cbers"] = pd.to_numeric(df["lst_mean_cbers"], errors="coerce")
+    return df
+
+
+def _enriquecer_con_cbers(
+    stats_df: pd.DataFrame,
+    cbers_df: pd.DataFrame,
+    fuente: str,
+) -> pd.DataFrame:
+    """Aplica la lógica de merge entre stats Landsat y CBERS térmico.
+
+    Reglas según ``fuente``:
+        - "landsat": comportamiento legacy. ``fuente_lst`` no se agrega para
+          mantener compatibilidad bit a bit con outputs anteriores.
+        - "cbers": reemplaza ``lst_mean`` por la versión CBERS cuando existe
+          y ``calidad ∈ {alta, media}``. Marca ``fuente_lst="cbers"``.
+        - "merged" (default): Landsat primario. Donde Landsat falla
+          (``pct_validos < 30%`` o LST nula) y CBERS aporta calidad
+          aceptable, llena con CBERS y marca ``fuente_lst="cbers"``. Donde
+          ambos coexisten, marca ``fuente_lst="merged"`` y deja el valor
+          Landsat (criterio: Landsat es la calibración de referencia).
+
+    También agrega ``confianza_cross_sensor``:
+        - "alta" cuando hay overlap Landsat + CBERS para el mismo
+          (poligono, anio, mes) — es decir, podemos cruzar calibraciones.
+        - "media" cuando la fila depende sólo de CBERS sin overlap previo
+          en ese mismo polígono.
+        - vacío para filas Landsat puras.
+    """
+    if stats_df.empty:
+        return stats_df
+
+    df = stats_df.copy()
+    df["poligono_id"] = df["poligono_id"].astype(str)
+
+    # Modo legacy: no agregamos columnas nuevas — output idéntico al previo.
+    if fuente == FUENTE_LANDSAT:
+        return df
+
+    # Inicializamos las columnas nuevas (siempre en merged/cbers).
+    df["fuente_lst"] = pd.Series([None] * len(df), dtype=object)
+    df["confianza_cross_sensor"] = pd.Series([None] * len(df), dtype=object)
+
+    # Marca filas Landsat que tengan LST válida.
+    tiene_landsat = df["lst_mean"].notna() & (
+        df.get("pct_validos", pd.Series([100.0] * len(df))).fillna(0)
+        >= PCT_VALIDOS_MINIMO
+    )
+    df.loc[tiene_landsat, "fuente_lst"] = "landsat"
+
+    if cbers_df is None or cbers_df.empty:
+        return df
+
+    # Filtramos CBERS por calidad antes del merge.
+    cb = cbers_df[cbers_df["calidad"].isin(CBERS_CALIDADES_ACEPTADAS)].copy()
+    if cb.empty:
+        return df
+    cb_idx = cb.set_index(["poligono_id", "anio", "mes"])
+
+    # Set de overlaps (mismas tripletas presentes en Landsat con dato).
+    overlaps_validos: set[tuple[str, int, int]] = set()
+    if tiene_landsat.any():
+        ov = df.loc[tiene_landsat, ["poligono_id", "anio", "mes"]]
+        ov_keys = list(zip(ov["poligono_id"].astype(str), ov["anio"].astype(int), ov["mes"].astype(int)))
+        for k in ov_keys:
+            if k in cb_idx.index:
+                overlaps_validos.add(k)
+
+    # Para 'cbers' sobreescribimos siempre que CBERS tenga dato; para
+    # 'merged' sólo cuando Landsat falló.
+    for idx, row in df.iterrows():
+        key = (str(row["poligono_id"]), int(row["anio"]), int(row["mes"]))
+        landsat_ok = bool(tiene_landsat.iloc[df.index.get_loc(idx)]) if False else (
+            row["fuente_lst"] == "landsat"
+        )
+        if key not in cb_idx.index:
+            continue
+        cbers_row = cb_idx.loc[key]
+        # Si la fila CBERS está duplicada para la misma tripleta, tomamos la
+        # primera (defensivo).
+        if isinstance(cbers_row, pd.DataFrame):
+            cbers_row = cbers_row.iloc[0]
+
+        cbers_lst = cbers_row.get("lst_mean_cbers")
+        if pd.isna(cbers_lst):
+            continue
+
+        if fuente == FUENTE_CBERS:
+            df.at[idx, "lst_mean"] = round(float(cbers_lst), 2)
+            df.at[idx, "fuente_lst"] = "cbers"
+            df.at[idx, "confianza_cross_sensor"] = (
+                "alta" if key in overlaps_validos else "media"
+            )
+            continue
+
+        # fuente == merged
+        if landsat_ok:
+            # Landsat tiene dato: lo mantenemos, pero anotamos que CBERS
+            # también está disponible (cross-validable) → "merged" + alta.
+            df.at[idx, "fuente_lst"] = "merged"
+            df.at[idx, "confianza_cross_sensor"] = "alta"
+        else:
+            df.at[idx, "lst_mean"] = round(float(cbers_lst), 2)
+            df.at[idx, "fuente_lst"] = "cbers"
+            df.at[idx, "confianza_cross_sensor"] = (
+                "alta" if key in overlaps_validos else "media"
+            )
+
+    # Para 'merged': si una tripleta urbana/rural existe sólo en CBERS y no
+    # tiene fila Landsat, la agregamos como fila nueva. (Sin esto, los meses
+    # 100% perdidos en Landsat no aparecerían en absoluto.)
+    if fuente in (FUENTE_MERGED, FUENTE_CBERS):
+        existentes = set(zip(
+            df["poligono_id"].astype(str),
+            df["anio"].astype(int),
+            df["mes"].astype(int),
+        ))
+        nuevas: list[dict] = []
+        # Necesitamos saber el tipo_poligono. Si la tripleta no está en
+        # stats Landsat, intentamos heredar el tipo desde otra fila del
+        # mismo polígono.
+        tipo_por_pol = (
+            df.drop_duplicates("poligono_id")
+            .set_index("poligono_id")["tipo_poligono"]
+            .to_dict()
+        )
+        for (pid, anio, mes), grp in cb.groupby(["poligono_id", "anio", "mes"]):
+            cbers_row = grp.iloc[0]
+            cbers_lst = cbers_row.get("lst_mean_cbers")
+            if pd.isna(cbers_lst):
+                continue
+            if (str(pid), int(anio), int(mes)) in existentes:
+                continue
+            tipo = tipo_por_pol.get(str(pid))
+            if tipo is None:
+                # Sin contexto del polígono: lo saltamos para no introducir
+                # filas huérfanas con tipo desconocido.
+                continue
+            nuevas.append({
+                "poligono_id": str(pid),
+                "tipo_poligono": tipo,
+                "anio": int(anio),
+                "mes": int(mes),
+                "pct_validos": np.nan,
+                "count_validos": int(cbers_row.get("n_pixeles") or 0),
+                "lst_mean": round(float(cbers_lst), 2),
+                "lst_median": np.nan,
+                "lst_std": np.nan,
+                "lst_p10": np.nan,
+                "lst_p90": np.nan,
+                "lst_max": np.nan,
+                "fuente_lst": "cbers",
+                # Sin overlap previo conocido → confianza media.
+                "confianza_cross_sensor": "media",
+            })
+        if nuevas:
+            df = pd.concat([df, pd.DataFrame(nuevas)], ignore_index=True)
+            logger.info(
+                f"CBERS aportó {len(nuevas)} filas extra para meses sin "
+                "registro Landsat."
+            )
+
+    return df
+
+
 def _calcular_stats_por_poligono(ctx: ContextoCalor) -> pd.DataFrame:
-    """Recorre todos los rasters mensuales y todos los polígonos."""
+    """Recorre todos los rasters mensuales y todos los polígonos.
+
+    Si ``ctx.fuente`` es ``cbers`` o ``merged``, también incorpora datos
+    del CSV CBERS térmico vía :func:`_enriquecer_con_cbers`.
+    """
     import geopandas as gpd
 
     urbanos = gpd.read_file(ctx.poligonos_urbanos_path).to_crs(epsg=4326)
@@ -450,8 +681,8 @@ def _calcular_stats_por_poligono(ctx: ContextoCalor) -> pd.DataFrame:
 
     rasters = sorted(ctx.landsat_raw_dir.glob("lst_*.tif"))
     logger.info(f"Rasters mensuales disponibles: {len(rasters)}")
-    if not rasters:
-        logger.warning("No hay rasters — corré 'descargar-landsat' primero.")
+    if not rasters and ctx.fuente == FUENTE_LANDSAT:
+        logger.warning("No hay rasters Landsat — corré 'descargar-landsat' primero.")
         return pd.DataFrame()
 
     filas: list[dict] = []
@@ -474,6 +705,17 @@ def _calcular_stats_por_poligono(ctx: ContextoCalor) -> pd.DataFrame:
                          for k, v in st.items()})
             filas.append(fila)
     df = pd.DataFrame(filas)
+
+    if ctx.fuente in (FUENTE_CBERS, FUENTE_MERGED):
+        cbers_df = _cargar_cbers_termico(ctx.cbers_termico_csv)
+        n_antes = len(df)
+        df = _enriquecer_con_cbers(df, cbers_df, ctx.fuente)
+        logger.info(
+            f"Merge CBERS ({ctx.fuente}): {n_antes} filas Landsat → "
+            f"{len(df)} filas finales. CBERS aportó "
+            f"{(df['fuente_lst'] == 'cbers').sum() if 'fuente_lst' in df.columns else 0} valores."
+        )
+
     return df
 
 
@@ -547,11 +789,16 @@ def _calcular_uhi(stats_df: pd.DataFrame) -> pd.DataFrame:
         )
 
     # Seleccionamos y redondeamos columnas de salida.
-    out = urb[[
+    cols_base = [
         "poligono_id", "anio", "mes", "lst_mean",
         "uhi_vs_rural", "uhi_vs_ciudad", "uhi_anomalia",
         "lst_rural_baseline", "n_observaciones_historico", "std_historico",
-    ]].copy()
+    ]
+    # fuente_lst y confianza_cross_sensor se propagan si vinieron del input
+    # (modo merged/cbers). En modo landsat legacy no aparecen, manteniendo
+    # el schema histórico.
+    cols_extra = [c for c in ("fuente_lst", "confianza_cross_sensor") if c in urb.columns]
+    out = urb[cols_base + cols_extra].copy()
     for col in ["lst_mean", "uhi_vs_rural", "uhi_vs_ciudad", "lst_rural_baseline"]:
         out[col] = out[col].round(2)
     return out
@@ -633,6 +880,26 @@ def _agregar_estacional(uhi_df: pd.DataFrame) -> pd.DataFrame:
 )
 @click.option("--project", "ee_project", default=None, help="EE project ID.")
 @click.option(
+    "--fuente",
+    type=click.Choice(list(FUENTES_VALIDAS), case_sensitive=False),
+    default=FUENTE_MERGED,
+    show_default=True,
+    help=(
+        "Fuente térmica: solo Landsat (legacy), solo CBERS (alternativa), "
+        "o merged (Landsat primario + CBERS donde Landsat falla)."
+    ),
+)
+@click.option(
+    "--cbers-termico-csv",
+    default=CBERS_TERMICO_CSV_DEFAULT,
+    show_default=True,
+    type=click.Path(),
+    help=(
+        "Ruta al CSV mensual de CBERS-4 IRS térmico generado por "
+        "scripts/45d_cbers_termico.py (T1)."
+    ),
+)
+@click.option(
     "--nivel-log",
     type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR"], case_sensitive=False),
     default="INFO",
@@ -646,6 +913,8 @@ def cli(
     procesado_dir: str,
     bbox_buffer_km: float,
     ee_project: Optional[str],
+    fuente: str,
+    cbers_termico_csv: str,
     nivel_log: str,
 ) -> None:
     setup_logger(nivel=nivel_log.upper())
@@ -658,6 +927,8 @@ def cli(
         resolve_path(procesado_dir),
         ee_project,
         bbox_buffer_km,
+        resolve_path(cbers_termico_csv),
+        fuente=fuente.lower(),
     )
 
 
