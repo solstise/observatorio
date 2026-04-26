@@ -3,6 +3,7 @@
 // Narrativa dinámica para el polígono seleccionado: redacta el dato clave
 // con bandas de confianza explícitas.
 
+import { TerminoGlosario } from "@/components/TerminoGlosario";
 import type { UhiMensualRow } from "@/lib/types";
 
 interface Props {
@@ -91,7 +92,8 @@ export function NarrativaUHI({ poligonoId, nombre, rows }: Props) {
         <strong className="text-primary dark:text-dk-primary">
           {r.lst_mean.toFixed(1)}°C
         </strong>.{" "}
-        Eso representa una intensidad de isla de calor urbana de{" "}
+        Eso representa una intensidad de{" "}
+        <TerminoGlosario id="uhi">isla de calor urbana</TerminoGlosario> de{" "}
         <strong
           className={
             vsRural > 0
@@ -114,17 +116,25 @@ export function NarrativaUHI({ poligonoId, nombre, rows }: Props) {
           {vsCiudad.toFixed(1)}°C
         </strong>{" "}
         respecto del promedio urbano de Posadas.
-        {anomalia !== null && Number.isFinite(anomalia)
-          ? ` La anomalía histórica (comparada con el mismo mes de años anteriores) es ${
-              anomalia > 0 ? "+" : ""
-            }${anomalia.toFixed(1)}°C.`
-          : ""}
+        {anomalia !== null && Number.isFinite(anomalia) ? (
+          <>
+            {" La "}
+            <TerminoGlosario id="uhi-anomalia">
+              anomalía histórica
+            </TerminoGlosario>{" "}
+            (comparada con el mismo mes de años anteriores) es{" "}
+            {anomalia > 0 ? "+" : ""}
+            {anomalia.toFixed(1)}°C.
+          </>
+        ) : null}
       </p>
       <p className="mt-3 text-xs text-neutral-muted dark:text-dk-muted">
-        Dato derivado de {r.n_observaciones_historico + 1} composites Landsat
-        mensuales (medidos a ~10:30 AM hora local). Los valores son{" "}
-        <em>temperatura de superficie</em> (LST), no temperatura del aire
-        ambiente a 1,5 m. Ver metodología para detalles.
+        Dato derivado de {r.n_observaciones_historico + 1} composites{" "}
+        <TerminoGlosario id="landsat">Landsat</TerminoGlosario> mensuales
+        (medidos a ~10:30 AM hora local). Los valores son{" "}
+        <em>temperatura de superficie</em>{" "}
+        (<TerminoGlosario id="lst">LST</TerminoGlosario>), no temperatura del
+        aire ambiente a 1,5 m. Ver metodología para detalles.
       </p>
     </div>
   );

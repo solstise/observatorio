@@ -70,7 +70,7 @@ export function RankingBarrios({
           Ranking
         </h3>
         <p className="mt-2 text-sm text-neutral-muted dark:text-dk-muted">
-          Aún no hay datos de UHI. Corriendo el pipeline Landsat…
+          Sin datos de UHI disponibles para esta selección.
         </p>
       </div>
     );

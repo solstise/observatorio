@@ -5,6 +5,7 @@
 // anual. Para los poligonos urbanos de Posadas lo habitual es 0
 // focos; cualquier valor positivo es una alerta cualitativa.
 
+import { TerminoGlosario } from "@/components/TerminoGlosario";
 import type { FirmsRow } from "@/lib/types";
 
 interface FirmsBadgeProps {
@@ -82,7 +83,9 @@ export function FirmsBadge({ rows }: FirmsBadgeProps) {
               : "Ningún foco superpuesto al polígono."}
           </span>
           <span className="mt-1 text-[10px] italic text-neutral-muted dark:text-dk-muted">
-            Datos: NASA FIRMS (VIIRS / MODIS).
+            Datos: NASA <TerminoGlosario id="firms">FIRMS</TerminoGlosario>{" "}
+            (<TerminoGlosario id="viirs">VIIRS</TerminoGlosario> /{" "}
+            <TerminoGlosario id="modis">MODIS</TerminoGlosario>).
           </span>
         </div>
       </div>

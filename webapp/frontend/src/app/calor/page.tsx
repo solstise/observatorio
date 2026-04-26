@@ -4,13 +4,16 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 
+import { DataFreshness } from "@/components/DataFreshness";
 import { Disclaimer } from "@/components/Disclaimer";
+import { TerminoGlosario } from "@/components/TerminoGlosario";
 import {
   getCalorMensual,
   getPoligonosBarrios,
   getUhiEstacional,
   getUhiMensual,
 } from "@/lib/data.server";
+import { getDatasetFreshness } from "@/lib/data-freshness";
 
 import { ClientCalor } from "./ClientCalor";
 
@@ -21,12 +24,14 @@ export const metadata: Metadata = {
 };
 
 export default async function CalorPage() {
-  const [collection, mensuales, uhiRows, estacionales] = await Promise.all([
-    getPoligonosBarrios(),
-    getCalorMensual(),
-    getUhiMensual(),
-    getUhiEstacional(),
-  ]);
+  const [collection, mensuales, uhiRows, estacionales, freshness] =
+    await Promise.all([
+      getPoligonosBarrios(),
+      getCalorMensual(),
+      getUhiMensual(),
+      getUhiEstacional(),
+      getDatasetFreshness("calor_landsat"),
+    ]);
 
   const tieneDatos = uhiRows.length > 0;
 
@@ -49,11 +54,18 @@ export default async function CalorPage() {
 
         <header className="mb-6 max-w-3xl">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-secondary dark:text-dk-muted">
-            Capa experimental — v0.3
+            Capa de calor urbano
           </p>
           <h1 className="mt-2 font-bold" style={{ fontSize: "var(--fs-h1)" }}>
             Calor urbano de Posadas
           </h1>
+          <div className="mt-3">
+            <DataFreshness
+              dataset="calor_landsat"
+              lastUpdated={freshness.lastUpdated}
+              frequency={freshness.frequency}
+            />
+          </div>
           <p className="mt-3 lead text-neutral-text dark:text-dk-text">
             Mapa que muestra <strong>qué tan caliente está cada barrio</strong>{" "}
             comparado con el campo y con el promedio de la ciudad. Ayuda a
@@ -80,9 +92,11 @@ export default async function CalorPage() {
             role="status"
             className="card border-accent-200 bg-accent-50 text-sm dark:border-amber-700/60 dark:bg-amber-900/30 dark:text-amber-100"
           >
-            La capa de calor está en preparación. Estamos procesando los
-            composites Landsat 2018-2026, puede demorar algunos minutos en la
-            primera corrida. Refrescá en un rato.
+            Sin datos de calor disponibles para mostrar en este momento.
+            Los composites{" "}
+            <TerminoGlosario id="landsat">Landsat</TerminoGlosario>{" "}
+            2018-2026 se actualizan periódicamente; volvé en unos minutos
+            si acabás de regenerar el pipeline.
           </div>
         )}
 
@@ -105,8 +119,9 @@ export default async function CalorPage() {
               con el campo</strong>: identifica dónde faltan árboles y sobra
               cemento.{" "}
               <span className="text-xs text-neutral-muted dark:text-dk-muted">
-                Datos: Landsat 8/9 Collection 2 Level 2 — banda térmica
-                ST_B10, USGS.
+                Datos:{" "}
+                <TerminoGlosario id="landsat">Landsat 8/9</TerminoGlosario>{" "}
+                Collection 2 Level 2 — banda térmica ST_B10, USGS.
               </span>
             </li>
             <li>
@@ -121,8 +136,9 @@ export default async function CalorPage() {
             <li>
               <strong>Captura el calor del mediodía</strong>: el satélite pasa
               cerca de las 10:30 de la mañana hora local. El calor nocturno
-              suele ser más intenso y se mide con MODIS (ver ficha de
-              polígono).{" "}
+              suele ser más intenso y se mide con{" "}
+              <TerminoGlosario id="modis">MODIS</TerminoGlosario> (ver ficha
+              de polígono).{" "}
               <span className="text-xs text-neutral-muted dark:text-dk-muted">
                 Hora local de pasada: ~10:30 AM solar.
               </span>

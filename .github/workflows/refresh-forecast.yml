@@ -48,10 +48,13 @@ on:
           - "true"
           - "false"
 
-# Cancela corridas previas si entra una nueva: no queremos pisar push de data
-# en paralelo y tampoco gastar minutos del runner en jobs obsoletos.
+# Concurrency: serializamos contra los demás refresh workflows (firms-daily,
+# monthly, yearly) usando el mismo grupo `data-branch`. Esto evita race
+# conditions cuando dos crons coinciden (p.ej. el de 6h y el mensual de día
+# 1) y ambos quieren empujar a la rama `data` al mismo tiempo.
+# cancel-in-progress: false → preferimos serializar antes que perder un run.
 concurrency:
-  group: refresh-forecast
+  group: data-branch
   cancel-in-progress: false
 
 permissions:

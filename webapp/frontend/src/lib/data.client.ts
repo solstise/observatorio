@@ -8,6 +8,7 @@
 import Papa from "papaparse";
 
 import type {
+  AireMultigasRow,
   AlertasPayload,
   AqiDiarioRow,
   CalorMensualRow,
@@ -195,6 +196,19 @@ export async function getChirps(poligonoId?: string): Promise<ChirpsRow[]> {
 
 export async function getNo2(poligonoId?: string): Promise<No2Row[]> {
   const rows = await fetchCsvOptional<No2Row>("/data/no2.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+// Aire multi-gas anual (script 48 — TROPOMI NO2/SO2/CO/HCHO/CH4/O3).
+// Si todavía no se generó, devolvemos []; el componente decide caer al
+// CSV legacy `no2.csv` para no dejar la UI vacía.
+export async function getAireMultigas(
+  poligonoId?: string,
+): Promise<AireMultigasRow[]> {
+  const rows = await fetchCsvOptional<AireMultigasRow>(
+    "/data/ambiental/aire_multigas_anual.csv",
+  );
   if (!poligonoId) return rows;
   return rows.filter((r) => r.poligono_id === poligonoId);
 }

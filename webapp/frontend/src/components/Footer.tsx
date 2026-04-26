@@ -1,16 +1,29 @@
 // Footer global del Observatorio Urbano Posadas.
-// Contiene disclaimers permanentes: fuentes, version, fecha de actualizacion y licencias.
+// Contiene disclaimers permanentes: fuentes, version, fecha de actualizacion,
+// licencias y una mini tabla de "frescura" de los 5 datasets más críticos
+// para que el visitante entienda de un vistazo qué tan vivo está cada dato.
 
 import Link from "next/link";
 
+import { DataFreshness } from "@/components/DataFreshness";
+import {
+  DATASET_INFO,
+  FOOTER_DATASETS,
+  getManyFreshness,
+} from "@/lib/data-freshness";
 import { LICENSES, SOURCES, UPDATED_AT_FALLBACK, VERSION } from "@/lib/version";
 
 interface FooterProps {
   updatedAt?: string;
 }
 
-export function Footer({ updatedAt }: FooterProps) {
+// Async porque resuelve frescura desde el filesystem. Como vive en el
+// layout global, se ejecuta una vez por request — coste mínimo (lee 5
+// archivos chicos en paralelo). Mantiene el footer en server-side: no
+// hidratamos JS para algo que es estático por request.
+export async function Footer({ updatedAt }: FooterProps) {
   const fecha = updatedAt || UPDATED_AT_FALLBACK;
+  const freshness = await getManyFreshness(FOOTER_DATASETS);
 
   return (
     <footer
@@ -80,6 +93,14 @@ export function Footer({ updatedAt }: FooterProps) {
               </li>
               <li>
                 <Link
+                  href="/metodologia#frescura"
+                  className="text-primary underline-offset-2 hover:underline dark:text-dk-primary"
+                >
+                  Frescura de datos
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/descargas"
                   className="text-primary underline-offset-2 hover:underline dark:text-dk-primary"
                 >
@@ -99,6 +120,57 @@ export function Footer({ updatedAt }: FooterProps) {
             </ul>
           </section>
         </div>
+
+        {/* Mini tabla de frescura: 5 datasets más críticos para el sitio.
+            Le da al visitante un radar de salud del pipeline sin tener
+            que entrar a /metodologia. Las filas largas hacen wrap natural
+            en mobile gracias al grid responsivo. */}
+        <section
+          aria-labelledby="footer-frescura"
+          className="mt-8 border-t border-neutral-border pt-6 dark:border-dk-border"
+        >
+          <h2
+            id="footer-frescura"
+            className="text-xs font-semibold uppercase tracking-wider text-secondary dark:text-dk-muted"
+          >
+            Salud del pipeline
+          </h2>
+          <p className="mt-1 text-xs text-neutral-muted dark:text-dk-muted">
+            Frescura de los datasets críticos. Verde = al día, amarillo =
+            atrasado, rojo = pipeline detenido.{" "}
+            <Link
+              href="/metodologia#frescura"
+              className="text-primary underline dark:text-dk-primary"
+            >
+              Ver tabla completa
+            </Link>
+            .
+          </p>
+          <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {FOOTER_DATASETS.map((slug) => {
+              const info = DATASET_INFO[slug];
+              const f = freshness[slug];
+              if (!info || !f) return null;
+              return (
+                <li
+                  key={slug}
+                  className="flex items-center justify-between gap-3 rounded-md border border-neutral-border/70 bg-white/60 px-3 py-2 text-xs dark:border-dk-border/70 dark:bg-dk-elevated/40"
+                >
+                  <span className="truncate font-medium text-neutral-text dark:text-dk-text">
+                    {info.label}
+                  </span>
+                  <DataFreshness
+                    dataset={slug}
+                    lastUpdated={f.lastUpdated}
+                    frequency={f.frequency}
+                    compact
+                    showFrequency={false}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        </section>
 
         <p className="mt-8 text-xs leading-relaxed text-neutral-muted dark:text-dk-muted">
           Este observatorio usa datos publicos y gratuitos (Sentinel-2 ESA, Google

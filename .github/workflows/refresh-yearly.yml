@@ -1,0 +1,305 @@
+name: Refresh anual histórico (cron 1 enero)
+
+# ---------------------------------------------------------------------------
+# Pipeline anual del Observatorio Urbano Posadas — datasets que se renuevan
+# o consolidan una vez al año:
+#   - Open Buildings v3 (Google) — re-descarga con nueva versión anual
+#   - Microsoft Buildings + merge con Google
+#   - MapBiomas + GHSL + VIIRS (historia larga)
+#   - Sentinel-2 RGBs nuevos (alimenta timelapses)
+#   - Re-conteo de techos con buildings actualizados (versión bumped a v43)
+#   - Re-estimación poblacional sobre la nueva serie
+#   - Re-validación SMN vs ERA5
+#   - Re-proyección a futuro con base actualizada
+#   - Re-generación de PDFs anuales por polígono
+#
+# Por qué 1 de enero:
+#   - Open Buildings v3 publica refresh anual en Q1.
+#   - MapBiomas Argentina suele liberar Coleccción N en marzo-abril, pero
+#     ejecutamos al inicio de año para detectar cambios cuando estén disponibles
+#     (los scripts son idempotentes y no fuerzan re-descarga si la fuente no
+#     se movió).
+#   - Permite cerrar el "año fiscal" del observatorio con un snapshot consolidado.
+#
+# Tiempo estimado: 1-2 hs (Open Buildings re-descarga es la operación más pesada).
+# ---------------------------------------------------------------------------
+
+on:
+  schedule:
+    # 1 de enero a las 06:00 UTC.
+    - cron: "0 6 1 1 *"
+  workflow_dispatch:
+    inputs:
+      skip_deploy:
+        description: "Saltear el deploy al VPS (solo refrescar datos)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      skip_buildings:
+        description: "Saltear re-descarga de buildings (útil para reruns)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      skip_pdfs:
+        description: "Saltear re-generación de PDFs (los más lentos de los pasos finales)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+# Concurrency: compartimos `data-branch` con los otros refresh.
+concurrency:
+  group: data-branch
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  refresh:
+    name: Pipeline histórico anual
+    runs-on: ubuntu-latest
+    # 180 min: Open Buildings + re-conteo de techos + PDFs son los 3 cuellos
+    # de botella. Con margen para reintentos.
+    timeout-minutes: 180
+    env:
+      TZ: America/Argentina/Cordoba
+      VPS_CONFIGURED: ${{ secrets.VPS_SSH_KEY != '' && 'true' || 'false' }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: System deps (GDAL + Cairo/Pango para PDF rendering)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gdal-bin libgdal-dev \
+            libpango-1.0-0 libpangoft2-1.0-0 libcairo2 libcairo2-dev \
+            libffi-dev shared-mime-info
+
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Configure Earth Engine credentials
+        env:
+          EE_SERVICE_ACCOUNT_JSON: ${{ secrets.EE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [[ -z "$EE_SERVICE_ACCOUNT_JSON" ]]; then
+            echo "::error::EE_SERVICE_ACCOUNT_JSON no seteado. Pipeline anual requiere Earth Engine."
+            exit 1
+          fi
+          mkdir -p "$HOME/.config/earthengine"
+          printf '%s' "$EE_SERVICE_ACCOUNT_JSON" > "$HOME/.config/earthengine/service_account.json"
+          echo "EE_SERVICE_ACCOUNT_KEY=$HOME/.config/earthengine/service_account.json" >> "$GITHUB_ENV"
+
+      # ----------------------------------------------------------------------
+      # Bloque 1: Buildings (Open Buildings + Microsoft + merge).
+      # `--force` en 03 garantiza re-descarga aunque exista cache local.
+      # ----------------------------------------------------------------------
+      - name: Open Buildings re-descarga (script 03 --force)
+        if: github.event.inputs.skip_buildings != 'true'
+        run: python scripts/03_descarga_buildings.py --force
+
+      - name: MS Buildings + merge con Google (script 42)
+        if: github.event.inputs.skip_buildings != 'true'
+        run: python scripts/42_ms_buildings_merge.py
+
+      # ----------------------------------------------------------------------
+      # Bloque 2: Historia larga (MapBiomas + GHSL + VIIRS).
+      # ----------------------------------------------------------------------
+      - name: Historia larga — MapBiomas + GHSL + VIIRS (script 44)
+        run: python scripts/44_historia_larga.py --todo
+
+      # ----------------------------------------------------------------------
+      # Bloque 3: Sentinel-2 RGBs (alimenta timelapses).
+      # ----------------------------------------------------------------------
+      - name: Sentinel-2 RGBs (script 01)
+        run: python scripts/01_descarga_sentinel.py
+
+      # ----------------------------------------------------------------------
+      # Bloque 4: Re-conteo de techos sobre buildings nuevos (versión v43).
+      # `--skip-cache` fuerza recomputación. Output va a un dir versionado para
+      # poder comparar v42 vs v43 si hace falta diagnóstico.
+      # ----------------------------------------------------------------------
+      - name: Re-contar techos con buildings nuevos (script 20, output v43)
+        if: github.event.inputs.skip_buildings != 'true'
+        run: |
+          python scripts/20_contar_techos.py \
+            --output-dir data/processed/conteos_v43 \
+            --buildings data/raw/buildings_merge/posadas_merged_buildings.geojson \
+            --skip-cache
+
+      # ----------------------------------------------------------------------
+      # Bloque 5: Re-estimación poblacional con la nueva serie temporal.
+      # ----------------------------------------------------------------------
+      - name: Re-estimar población v43 (script 30)
+        if: github.event.inputs.skip_buildings != 'true'
+        run: |
+          python scripts/30_estimar_poblacion.py \
+            --serie-temporal data/processed/conteos_v43/serie_temporal.csv \
+            --output data/processed/poblacion_estimada_v43.csv
+
+      # ----------------------------------------------------------------------
+      # Bloque 6: Re-validación SMN vs ERA5 (verifica que los datos del año
+      # cerrado siguen calibrados).
+      # ----------------------------------------------------------------------
+      - name: Validación SMN vs ERA5 (script 52, subcomando todo)
+        run: python scripts/52_validacion_smn.py todo
+
+      # ----------------------------------------------------------------------
+      # Bloque 7: Proyecciones a futuro re-computadas con la nueva base.
+      # ----------------------------------------------------------------------
+      - name: Re-proyectar a futuro (script 59)
+        run: python scripts/59_proyecciones_futuras.py
+
+      # ----------------------------------------------------------------------
+      # Bloque 8: Re-generación de PDFs anuales (uno por polígono).
+      # Es el paso más pesado del bloque final — opcional skip vía dispatch.
+      # ----------------------------------------------------------------------
+      - name: Re-generar PDFs anuales (script 60 --all)
+        if: github.event.inputs.skip_pdfs != 'true'
+        run: python scripts/60_generar_pdf.py --all
+
+      # ----------------------------------------------------------------------
+      # Bloque 9: Sync webapp con los nuevos artefactos.
+      # ----------------------------------------------------------------------
+      - name: Sync webapp data
+        run: |
+          # Si re-corrimos buildings, apuntamos a las versiones v43; sino a las
+          # series por defecto (data/processed/conteos/...).
+          if [[ "${{ github.event.inputs.skip_buildings }}" != "true" ]]; then
+            python scripts/80_sync_webapp.py \
+              --serie data/processed/conteos_v43/serie_temporal.csv \
+              --poblacion data/processed/poblacion_estimada_v43.csv \
+              --vulnerabilidad data/processed/vulnerabilidad_v0.csv
+          else
+            python scripts/80_sync_webapp.py \
+              --serie data/processed/conteos/serie_temporal.csv \
+              --poblacion data/processed/poblacion_estimada.csv \
+              --vulnerabilidad data/processed/vulnerabilidad_v0.csv
+          fi
+
+      - name: Detectar cambios en CSVs derivados
+        id: diff
+        run: |
+          if git diff --quiet HEAD -- webapp/frontend/public/data/ data/processed/; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "Sin cambios. Saltando commit y deploy."
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "Cambios detectados — procederá commit + deploy."
+          fi
+
+      - name: Commit & push a rama data
+        if: steps.diff.outputs.has_changes == 'true'
+        env:
+          GIT_AUTHOR_NAME: observatorio-bot
+          GIT_AUTHOR_EMAIL: bot@observatorio.sistemaswinter.com
+          GIT_COMMITTER_NAME: observatorio-bot
+          GIT_COMMITTER_EMAIL: bot@observatorio.sistemaswinter.com
+        run: |
+          set -e
+          git config user.name  "$GIT_AUTHOR_NAME"
+          git config user.email "$GIT_AUTHOR_EMAIL"
+          git fetch origin data:data || git checkout -b data
+          git checkout data
+          git merge --no-edit origin/main || true
+          # Anual: incluimos data/processed/ completo y el subdir conteos_v43.
+          git add webapp/frontend/public/data/ data/processed/ || true
+          git commit -m "chore(data): refresh histórico anual $(date -u +%Y)" || {
+            echo "Sin cambios staged tras filtros. Saltando push."
+            exit 0
+          }
+          git push origin data
+
+      - name: Setup SSH para VPS
+        if: |
+          steps.diff.outputs.has_changes == 'true' &&
+          github.event.inputs.skip_deploy != 'true' &&
+          env.VPS_CONFIGURED == 'true'
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          if [[ -n "$VPS_KNOWN_HOSTS" ]]; then
+            printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+            chmod 644 ~/.ssh/known_hosts
+          else
+            ssh-keyscan -H 187.77.54.19 >> ~/.ssh/known_hosts 2>/dev/null || true
+          fi
+
+      - name: Deploy al VPS (Hostinger)
+        if: |
+          steps.diff.outputs.has_changes == 'true' &&
+          github.event.inputs.skip_deploy != 'true' &&
+          env.VPS_CONFIGURED == 'true'
+        run: bash deploy-vps.sh
+
+      - name: Resumen
+        if: always()
+        run: |
+          {
+            echo "## Refresh histórico anual — $(date -u +%Y-%m-%dT%H:%MZ)"
+            echo ""
+            echo "- Cambios detectados: ${{ steps.diff.outputs.has_changes || 'unknown' }}"
+            echo "- Deploy ejecutado: ${{ steps.diff.outputs.has_changes == 'true' && github.event.inputs.skip_deploy != 'true' && env.VPS_CONFIGURED == 'true' }}"
+            echo "- Buildings saltados: ${{ github.event.inputs.skip_buildings == 'true' && 'sí' || 'no' }}"
+            echo "- PDFs saltados: ${{ github.event.inputs.skip_pdfs == 'true' && 'sí' || 'no' }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Abrir issue si falló
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `Cron refresh-yearly falló — ${new Date().toISOString()}`;
+            const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+            const body = [
+              "El workflow `refresh-yearly` falló en su corrida automática.",
+              "",
+              `**Run:** ${runUrl}`,
+              `**Trigger:** ${context.eventName}`,
+              `**Branch:** ${context.ref}`,
+              "",
+              "Pasos a revisar:",
+              "1. Identificar qué bloque rompió: Buildings → MS merge → MapBiomas/GHSL/VIIRS → S2 → conteo → población → SMN → proyecciones → PDFs.",
+              "2. El bloque más frágil suele ser Open Buildings (descarga pesada). Reintentar con workflow_dispatch + skip_buildings=true para verificar el resto.",
+              "3. PDFs (60_generar_pdf.py) requieren Cairo/Pango — verificar que los apt deps quedaron instalados.",
+              "4. Si MapBiomas falla, suele ser cambio de ID de asset en GEE — revisar 44_historia_larga.py.",
+              "",
+              "Este issue se abre automáticamente. Cerralo cuando esté resuelto.",
+            ].join("\n");
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body,
+              labels: ["bug", "automation", "cron", "yearly"],
+            });

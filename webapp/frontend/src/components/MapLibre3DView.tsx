@@ -13,8 +13,10 @@
 //   extruidos) y evita una dependencia adicional con MapTiler styles.
 // - Terrain: solo si maptilerKey != "". Si la key existe, agregamos `terrain`
 //   apuntando al source `terrainSource` y exageramos 1.5x.
-// - 3D extrusion de polígonos: FillExtrusion con altura proporcional al score.
-//   El barrio seleccionado sube a 200m y se pinta naranja.
+// - 3D extrusion de polígonos: FillExtrusion con altura proporcional al
+//   valor de la métrica activa (rango 30..800m, normalizado linealmente
+//   contra el máximo del set). El barrio seleccionado sube a +50% sobre
+//   su altura base. Color por score de expansión.
 // - Click handling: usamos onClick del Map para hit-test el layer "polys-3d"
 //   y reportar al padre.
 
@@ -27,12 +29,29 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { useTheme } from "@/hooks/useTheme";
 import type { PoligonosCollection } from "@/lib/types";
 
+// Métrica que define la altura de las columnas extruidas. Cada una
+// cuenta una historia distinta: población = "dónde vive la gente",
+// uhi_verano = "dónde aprieta el calor", score_expansion = "qué tan
+// rápido crece", etc. Los valores se leen del feature.properties; uhi
+// y prioridad vienen de un dict externo poligono_id → valor.
+export type Metrica3D =
+  | "poblacion_estimada"
+  | "edificios_2026"
+  | "score_expansion"
+  | "superficie_km2"
+  | "uhi_verano"
+  | "indice_prioridad";
+
 interface MapLibre3DViewProps {
   collection: PoligonosCollection | null;
   selectedId: string | null;
   onSelect: (id: string | null) => void;
   // Si está vacío, no se monta terrain — el mapa sigue 3D pero plano.
   maptilerKey: string;
+  metrica: Metrica3D;
+  // Valores externos (no en geojson) para uhi/prioridad. Si la métrica
+  // activa no necesita estos datos, se ignora.
+  valoresExternos?: Record<string, number>;
 }
 
 // Centro de Posadas y altura de cámara default.
@@ -43,13 +62,54 @@ export default function MapLibre3DView({
   selectedId,
   onSelect,
   maptilerKey,
+  metrica,
+  valoresExternos,
 }: MapLibre3DViewProps) {
   const { resolved } = useTheme();
   const isDark = resolved === "dark";
   const mapRef = useRef<MapRef | null>(null);
 
-  // Style JSON dinámico — depende del tema (light/dark) y de si tenemos
-  // MapTiler key.
+  // Inyectamos los valores externos (uhi/prioridad) como property dentro
+  // de cada feature ANTES de pasar el geojson al source. Maplibre
+  // expressions sólo pueden leer feature.properties; no hay forma de
+  // hacer lookup contra otra tabla. Esto es 1 mutación por render del
+  // memo, no escapa fuera.
+  const collectionWithExterno = useMemo(() => {
+    if (!collection) return null;
+    if (!valoresExternos || Object.keys(valoresExternos).length === 0) {
+      return collection;
+    }
+    return {
+      ...collection,
+      features: collection.features.map((f) => ({
+        ...f,
+        properties: {
+          ...f.properties,
+          _metrica_externa: valoresExternos[f.properties.id] ?? 0,
+        },
+      })),
+    } as PoligonosCollection;
+  }, [collection, valoresExternos]);
+
+  // Máximo de la métrica activa, para normalizar la altura. Excluye
+  // capas de referencia. Si no hay datos, fallback a 1.
+  const { valorMax, esExterna } = useMemo(() => {
+    const externa = metrica === "uhi_verano" || metrica === "indice_prioridad";
+    if (!collection) return { valorMax: 1, esExterna: externa };
+    const valores = collection.features
+      .filter((f) => f.properties.categoria_original !== "ciudad_completa")
+      .map((f) => {
+        if (externa) {
+          return Number(valoresExternos?.[f.properties.id]) || 0;
+        }
+        const v = (f.properties as unknown as Record<string, unknown>)[metrica];
+        return Number(v) || 0;
+      });
+    return { valorMax: Math.max(1, ...valores), esExterna: externa };
+  }, [collection, valoresExternos, metrica]);
+
+  // Style JSON dinámico — depende del tema (light/dark), MapTiler key y
+  // maxPoblacion (normalización).
   const mapStyle = useMemo(() => {
     const tilesBase = isDark
       ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
@@ -92,11 +152,12 @@ export default function MapLibre3DView({
       };
     }
 
-    // Capa con los polígonos del observatorio.
-    if (collection) {
+    // Capa con los polígonos del observatorio (con métrica externa
+    // inyectada en properties si aplica).
+    if (collectionWithExterno) {
       sources["poligonos"] = {
         type: "geojson",
-        data: collection as unknown as object,
+        data: collectionWithExterno as unknown as object,
       };
       layers.push({
         id: "polys-3d",
@@ -117,16 +178,62 @@ export default function MapLibre3DView({
             1,
             isDark ? "#e0945c" : "#c97d3c",
           ],
-          // Altura: si está seleccionado, 200m; si no, escala 30..120 según
-          // score (más score → más alto).
+          // Altura proporcional a la métrica activa, normalizada contra el
+          // máximo del set (escala lineal, 30m piso). El seleccionado sube
+          // 50% extra. La capa "ciudad_completa" se aplana a 0.
+          // Para uhi/indice_prioridad leemos de `_metrica_externa` (la
+          // pre-inyectamos en collectionWithExterno); para el resto, del
+          // property nativo.
           "fill-extrusion-height": [
             "case",
+            ["==", ["get", "categoria_original"], "ciudad_completa"],
+            0,
             ["==", ["get", "id"], selectedId ?? ""],
-            200,
+            [
+              "*",
+              1.5,
+              [
+                "+",
+                30,
+                [
+                  "*",
+                  770,
+                  [
+                    "/",
+                    [
+                      "max",
+                      0,
+                      [
+                        "coalesce",
+                        ["get", esExterna ? "_metrica_externa" : metrica],
+                        0,
+                      ],
+                    ],
+                    valorMax,
+                  ],
+                ],
+              ],
+            ],
             [
               "+",
               30,
-              ["*", 90, ["coalesce", ["get", "score_expansion"], 0]],
+              [
+                "*",
+                370,
+                [
+                  "/",
+                  [
+                    "max",
+                    0,
+                    [
+                      "coalesce",
+                      ["get", esExterna ? "_metrica_externa" : metrica],
+                      0,
+                    ],
+                  ],
+                  valorMax,
+                ],
+              ],
             ],
           ],
           "fill-extrusion-opacity": 0.78,
@@ -155,7 +262,15 @@ export default function MapLibre3DView({
       };
     }
     return style;
-  }, [isDark, maptilerKey, collection, selectedId]);
+  }, [
+    isDark,
+    maptilerKey,
+    collectionWithExterno,
+    selectedId,
+    valorMax,
+    metrica,
+    esExterna,
+  ]);
 
   const handleClick = useCallback(
     (e: MapLayerMouseEvent) => {

@@ -1,0 +1,238 @@
+name: Refresh FIRMS (cron diario)
+
+# ---------------------------------------------------------------------------
+# Pipeline diario near-real-time del Observatorio Urbano Posadas — FIRMS.
+#
+# Qué hace:
+#   1. Cada día a las 06:00 UTC (03:00 hora local Posadas, antes del horario
+#      operativo de bomberos/Defensa Civil) corre el subcomando FIRMS de
+#      scripts/47_ambiental.py para detectar focos de incendio activos
+#      (VIIRS/MODIS) en los polígonos del observatorio.
+#   2. Sincroniza los CSVs derivados a webapp/frontend/public/data/ vía
+#      scripts/80_sync_webapp.py (extras pass-through como firms.csv).
+#   3. Si firms.csv u otros CSVs derivados cambiaron respecto a baseline,
+#      los commitea a la rama `data` y dispara deploy al VPS.
+#   4. Si algún paso falla, abre un issue automático.
+#
+# Por qué diario:
+#   FIRMS publica detecciones casi en tiempo real (latencia < 3 h desde la
+#   pasada del satélite). Posadas está en zona Paraná con alta incidencia de
+#   incendios estacionales (sept-feb), por eso priorizamos info "fresca cada
+#   24 h" sobre el costo en compute. El run completo de FIRMS es liviano
+#   (no requiere descargas pesadas, solo `reduceRegion` sobre la colección
+#   `FIRMS` de Earth Engine).
+#
+# Cómo se activa:
+#   - schedule (cron) → automático
+#   - workflow_dispatch → manual desde la UI de GitHub Actions
+#
+# Secrets requeridos (Settings → Secrets and variables → Actions):
+#   - VPS_SSH_KEY               : clave privada OpenSSH con acceso a root@187.77.54.19
+#   - VPS_KNOWN_HOSTS           : output de `ssh-keyscan 187.77.54.19`
+#   - EE_SERVICE_ACCOUNT_JSON   : JSON service account Earth Engine (FIRMS está en GEE)
+# ---------------------------------------------------------------------------
+
+on:
+  schedule:
+    # Diario a las 06:00 UTC = 03:00 Posadas (UTC-3). Elegimos esa hora porque
+    # FIRMS suele tener procesadas las pasadas nocturnas para esa hora y deja
+    # los datos listos antes de la jornada operativa de mañana.
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+    inputs:
+      skip_deploy:
+        description: "Saltear el deploy al VPS (solo refrescar datos)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+# Concurrency: compartimos grupo `data-branch` con los otros refresh
+# workflows (forecast 6h, mensual, anual) para evitar race conditions cuando
+# todos quieren empujar a la rama `data` al mismo tiempo. cancel-in-progress
+# es false porque preferimos serializar antes que perder un run.
+concurrency:
+  group: data-branch
+  cancel-in-progress: false
+
+permissions:
+  # Necesario para `git push` a rama data y para abrir issues si falla.
+  contents: write
+  issues: write
+
+jobs:
+  refresh:
+    name: FIRMS diario
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TZ: America/Argentina/Cordoba
+      # Re-exponemos secrets a nivel job para poder usar condicionales en `if:`.
+      VPS_CONFIGURED: ${{ secrets.VPS_SSH_KEY != '' && 'true' || 'false' }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          # Necesitamos historial completo para poder commitear y empujar
+          # a la rama `data` sin conflictos de fast-forward.
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: System deps mínimas (geopandas necesita GDAL para read_file)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gdal-bin libgdal-dev
+
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Configure Earth Engine credentials
+        env:
+          EE_SERVICE_ACCOUNT_JSON: ${{ secrets.EE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          # FIRMS vive en Earth Engine (collection `FIRMS`), así que EE auth
+          # es OBLIGATORIA acá (a diferencia del workflow forecast que tolera
+          # ausencia). Si no está, fallamos limpio para que se vea en el issue.
+          if [[ -z "$EE_SERVICE_ACCOUNT_JSON" ]]; then
+            echo "::error::EE_SERVICE_ACCOUNT_JSON no seteado. FIRMS requiere Earth Engine."
+            exit 1
+          fi
+          mkdir -p "$HOME/.config/earthengine"
+          printf '%s' "$EE_SERVICE_ACCOUNT_JSON" > "$HOME/.config/earthengine/service_account.json"
+          echo "EE_SERVICE_ACCOUNT_KEY=$HOME/.config/earthengine/service_account.json" >> "$GITHUB_ENV"
+
+      - name: Run FIRMS (subcomando del script 47_ambiental)
+        run: |
+          # Subcomando `firms` solamente — los otros (chirps/no2/lst/wdpa)
+          # son mensuales o anuales y los cubren los workflows respectivos.
+          python scripts/47_ambiental.py firms
+
+      - name: Sync webapp data
+        run: |
+          # 80_sync_webapp.py copia firms.csv (y los demás CSVs) a
+          # webapp/frontend/public/data/. Los flags apuntan a los outputs
+          # consolidados estándar del pipeline.
+          python scripts/80_sync_webapp.py \
+            --serie data/processed/conteos/serie_temporal.csv \
+            --poblacion data/processed/poblacion_estimada.csv \
+            --vulnerabilidad data/processed/vulnerabilidad_v0.csv
+
+      - name: Detectar cambios en CSVs derivados
+        id: diff
+        run: |
+          # Solo nos interesan cambios en los datos del frontend y los
+          # processed (firms_anual.csv en data/processed/ambiental/).
+          # Si nada cambió, salteamos commit y deploy.
+          if git diff --quiet HEAD -- webapp/frontend/public/data/ data/processed/; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "Sin cambios en FIRMS/derivados. Saltando commit y deploy."
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "Cambios detectados — procederá commit + deploy."
+          fi
+
+      - name: Commit & push a rama data
+        if: steps.diff.outputs.has_changes == 'true'
+        env:
+          GIT_AUTHOR_NAME: observatorio-bot
+          GIT_AUTHOR_EMAIL: bot@observatorio.sistemaswinter.com
+          GIT_COMMITTER_NAME: observatorio-bot
+          GIT_COMMITTER_EMAIL: bot@observatorio.sistemaswinter.com
+        run: |
+          set -e
+          git config user.name  "$GIT_AUTHOR_NAME"
+          git config user.email "$GIT_AUTHOR_EMAIL"
+          # Trabajamos sobre la rama dedicada `data` para no ensuciar main
+          # con commits automáticos diarios.
+          git fetch origin data:data || git checkout -b data
+          git checkout data
+          # Mergeamos main para mantener los datos sobre la última versión
+          # del código; si hay conflicto continúa (data prevalece).
+          git merge --no-edit origin/main || true
+          git add webapp/frontend/public/data/ data/processed/ambiental/ || true
+          git commit -m "chore(data): refresh FIRMS diario $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]" || {
+            echo "Sin cambios staged tras filtros. Saltando push."
+            exit 0
+          }
+          git push origin data
+
+      - name: Setup SSH para VPS
+        if: |
+          steps.diff.outputs.has_changes == 'true' &&
+          github.event.inputs.skip_deploy != 'true' &&
+          env.VPS_CONFIGURED == 'true'
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          if [[ -n "$VPS_KNOWN_HOSTS" ]]; then
+            printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+            chmod 644 ~/.ssh/known_hosts
+          else
+            ssh-keyscan -H 187.77.54.19 >> ~/.ssh/known_hosts 2>/dev/null || true
+          fi
+
+      - name: Deploy al VPS (Hostinger)
+        if: |
+          steps.diff.outputs.has_changes == 'true' &&
+          github.event.inputs.skip_deploy != 'true' &&
+          env.VPS_CONFIGURED == 'true'
+        run: bash deploy-vps.sh
+
+      - name: Resumen
+        if: always()
+        run: |
+          {
+            echo "## Refresh FIRMS diario — $(date -u +%Y-%m-%dT%H:%MZ)"
+            echo ""
+            echo "- Cambios detectados: ${{ steps.diff.outputs.has_changes || 'unknown' }}"
+            echo "- Deploy ejecutado: ${{ steps.diff.outputs.has_changes == 'true' && github.event.inputs.skip_deploy != 'true' && env.VPS_CONFIGURED == 'true' }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Abrir issue si falló
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `Cron refresh-firms-daily falló — ${new Date().toISOString()}`;
+            const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+            const body = [
+              "El workflow `refresh-firms-daily` falló en su corrida automática.",
+              "",
+              `**Run:** ${runUrl}`,
+              `**Trigger:** ${context.eventName}`,
+              `**Branch:** ${context.ref}`,
+              "",
+              "Pasos a revisar:",
+              "1. Logs del run (link arriba) para identificar qué step rompió.",
+              "2. Verificar que el secret `EE_SERVICE_ACCOUNT_JSON` está vigente (el JSON del service account de Earth Engine puede expirar).",
+              "3. Verificar cuota de Earth Engine — `FIRMS` collection puede tener throttling.",
+              "4. Probar localmente: `python scripts/47_ambiental.py firms`.",
+              "",
+              "Este issue se abre automáticamente. Cerralo cuando esté resuelto.",
+            ].join("\n");
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body,
+              labels: ["bug", "automation", "cron", "firms"],
+            });

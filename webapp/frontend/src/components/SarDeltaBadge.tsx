@@ -6,6 +6,7 @@
 // nueva o modificacion estructural (mas superficies duras que reflejan
 // mejor el radar); valores negativos sugieren perdida o suavizado.
 
+import { TerminoGlosario } from "@/components/TerminoGlosario";
 import type { Sentinel1Row } from "@/lib/types";
 
 interface SarDeltaBadgeProps {
@@ -119,9 +120,11 @@ export function SarDeltaBadge({ rows }: SarDeltaBadgeProps) {
         </div>
       </div>
       <p className="text-[11px] italic text-neutral-muted dark:text-dk-muted">
-        Datos: Sentinel-1 GRD (radar de la ESA, polarización VV). Valores
-        positivos = más construcción / superficies duras; valores &gt; 1 dB
-        son señal estructural fuerte.
+        Datos:{" "}
+        <TerminoGlosario id="sentinel-1">Sentinel-1</TerminoGlosario>{" "}
+        GRD (radar de la ESA, polarización VV). Valores positivos = más
+        construcción / superficies duras; valores &gt; 1 dB son señal
+        estructural fuerte.
       </p>
     </div>
   );

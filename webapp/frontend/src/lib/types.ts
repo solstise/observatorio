@@ -174,6 +174,32 @@ export interface No2Row {
   no2_relativo_bbox: number;
 }
 
+// Sentinel-5P TROPOMI multi-gas anual (output script 48).
+// Cada gas tiene además un n_imagenes_<gas> que cuenta cuántas
+// observaciones diarias L3 entraron en la media. CH4 y O3 vienen con
+// `*_calidad="baja"` siempre (resolución espacial pobre y/o columna
+// total atmosférica respectivamente). Cualquier columna numérica
+// puede llegar como null si TROPOMI no tuvo cobertura ese año.
+export interface AireMultigasRow {
+  poligono_id: string;
+  anio: number;
+  no2_mol_m2: number | null;
+  no2_relativo_bbox: number | null;
+  n_imagenes_no2: number;
+  so2_mol_m2: number | null;
+  n_imagenes_so2: number;
+  co_mol_m2: number | null;
+  n_imagenes_co: number;
+  hcho_mol_m2: number | null;
+  n_imagenes_hcho: number;
+  ch4_ppb: number | null;
+  n_imagenes_ch4: number;
+  ch4_calidad: "alta" | "baja";
+  o3_du: number | null;
+  n_imagenes_o3: number;
+  o3_calidad: "alta" | "baja";
+}
+
 // MODIS Land Surface Temperature (MOD11A2 / MYD11A2): temperatura de
 // superficie dia/noche promedio en verano e invierno, y delta de isla
 // de calor urbana contra el promedio del bbox Posadas. En grados C.

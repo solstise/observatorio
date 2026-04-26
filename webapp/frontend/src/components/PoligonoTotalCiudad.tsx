@@ -12,8 +12,10 @@
 //   - NO se muestran gráficos UHI / clima individuales del polígono ciudad.
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { Disclaimer } from "@/components/Disclaimer";
+import { TerminoGlosario } from "@/components/TerminoGlosario";
 import { formatIndice } from "@/lib/format";
 import type {
   PoblacionRow,
@@ -263,7 +265,7 @@ export function PoligonoTotalCiudad({
               Total ciudad
             </span>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-secondary dark:text-dk-muted">
-              capa de referencia
+              Capa de referencia
             </p>
           </div>
           <h1
@@ -274,10 +276,11 @@ export function PoligonoTotalCiudad({
           </h1>
           <p className="mt-2 max-w-3xl text-sm text-neutral-text dark:text-dk-text">
             Esta vista NO es un barrio: agrega los {barrios.length} polígonos
-            de barrio analizados por el observatorio. Las series UHI, clima
-            y radar del polígono ciudad mezclan zona urbana con zona rural,
-            así que en lugar de gráficos individuales mostramos totales
-            sumados y rankings por categoría.
+            de barrio analizados por el observatorio. Las series{" "}
+            <TerminoGlosario id="uhi">UHI</TerminoGlosario>, clima y radar del
+            polígono ciudad mezclan zona urbana con zona rural, así que en
+            lugar de gráficos individuales mostramos totales sumados y
+            rankings por categoría.
           </p>
           <p className="mt-2 text-sm text-neutral-muted dark:text-dk-muted">
             ID:{" "}
@@ -320,9 +323,13 @@ export function PoligonoTotalCiudad({
                 : "s/d"
             }
             hint={
-              poblacionAgg.anio
-                ? `WorldPop ${poblacionAgg.anio} · ${(poblacionAgg.cobertura * 100).toFixed(0)}% cobertura`
-                : undefined
+              poblacionAgg.anio ? (
+                <>
+                  <TerminoGlosario id="worldpop">WorldPop</TerminoGlosario>{" "}
+                  {poblacionAgg.anio} ·{" "}
+                  {(poblacionAgg.cobertura * 100).toFixed(0)}% cobertura
+                </>
+              ) : undefined
             }
           />
           <KpiCard
@@ -370,7 +377,12 @@ export function PoligonoTotalCiudad({
           </h2>
           <TopList
             titulo="Top 3 más calientes"
-            descripcion="UHI verano más alto vs baseline rural — Landsat 8/9."
+            descripcion={
+              <>
+                UHI verano más alto vs baseline rural —{" "}
+                <TerminoGlosario id="landsat">Landsat 8/9</TerminoGlosario>.
+              </>
+            }
             items={topCalor}
             tipo="calor"
           />
@@ -382,7 +394,15 @@ export function PoligonoTotalCiudad({
           />
           <TopList
             titulo="Top 3 con más viviendas"
-            descripcion="Mayor cantidad de viviendas detectadas en el último año (Open Buildings + MS Buildings)."
+            descripcion={
+              <>
+                Mayor cantidad de viviendas detectadas en el último año{" "}
+                (<TerminoGlosario id="open-buildings">Open Buildings</TerminoGlosario>{" "}
+                +{" "}
+                <TerminoGlosario id="ms-buildings">MS Buildings</TerminoGlosario>
+                ).
+              </>
+            }
             items={topViv}
             tipo="viviendas"
           />
@@ -423,7 +443,7 @@ function KpiCard({
 }: {
   label: string;
   value: string;
-  hint?: string;
+  hint?: ReactNode;
 }) {
   return (
     <div className="card border-l-4 border-accent/60 dark:border-dk-accent/60">
@@ -456,7 +476,7 @@ function TopList({
   tipo,
 }: {
   titulo: string;
-  descripcion: string;
+  descripcion: ReactNode;
   items: TopItem[];
   tipo: keyof typeof TIPO_COLORS;
 }) {

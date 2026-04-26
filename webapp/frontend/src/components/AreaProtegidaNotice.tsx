@@ -15,6 +15,7 @@
 // segun como haya pasado papaparse/dynamicTyping, asi que se normaliza
 // aceptando ambas formas.
 
+import { TerminoGlosario } from "@/components/TerminoGlosario";
 import type { WdpaRow } from "@/lib/types";
 
 interface AreaProtegidaNoticeProps {
@@ -58,7 +59,8 @@ export function AreaProtegidaNotice({
           </span>{" "}
           ({pct.toFixed(1)}% del área).{" "}
           <span className="text-xs text-neutral-muted dark:text-amber-200/80">
-            Datos: WDPA (UNEP-WCMC).
+            Datos: <TerminoGlosario id="wdpa">WDPA</TerminoGlosario>{" "}
+            (UNEP-WCMC).
           </span>
         </p>
       </div>
@@ -104,7 +106,8 @@ export function AreaProtegidaNotice({
               Fuera de áreas protegidas
             </span>
             <span className="text-[11px] text-neutral-muted dark:text-dk-muted">
-              No intersecta ninguna área protegida del registro WDPA.{" "}
+              No intersecta ninguna área protegida del registro{" "}
+              <TerminoGlosario id="wdpa">WDPA</TerminoGlosario>.{" "}
               <em>Datos: WDPA, IUCN / UNEP-WCMC.</em>
             </span>
           </div>
@@ -142,7 +145,10 @@ export function AreaProtegidaNotice({
           </span>
           <span className="text-[11px] text-neutral-muted dark:text-amber-200/80">
             {pct.toFixed(1)}% del polígono dentro del área protegida.{" "}
-            <em>Datos: WDPA, IUCN / UNEP-WCMC.</em>
+            <em>
+              Datos: <TerminoGlosario id="wdpa">WDPA</TerminoGlosario>, IUCN /
+              UNEP-WCMC.
+            </em>
           </span>
         </div>
       </div>

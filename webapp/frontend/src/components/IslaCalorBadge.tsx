@@ -12,6 +12,7 @@
 
 import Link from "next/link";
 
+import { TerminoGlosario } from "@/components/TerminoGlosario";
 import type { LstRow, UhiMensualRow } from "@/lib/types";
 
 interface IslaCalorBadgeProps {
@@ -96,7 +97,7 @@ export function IslaCalorBadge({ rows, uhiLandsat }: IslaCalorBadgeProps) {
     <div className="flex flex-col gap-3">
       <div>
         <h3 className="text-sm font-semibold text-primary dark:text-dk-primary">
-          Isla de calor urbana
+          <TerminoGlosario id="uhi">Isla de calor urbana</TerminoGlosario>
         </h3>
         <p className="mt-1 text-xs text-neutral-text dark:text-dk-text">
           Cuánto más caliente está este barrio que el campo cercano. Identifica
@@ -113,8 +114,8 @@ export function IslaCalorBadge({ rows, uhiLandsat }: IslaCalorBadgeProps) {
       ) : null}
 
       <p className="text-[11px] text-neutral-muted dark:text-dk-muted">
-        Datos: Landsat 8/9 (30 m, mensual) y MODIS (1 km, día/noche).
-        Detalle en{" "}
+        Datos: <TerminoGlosario id="landsat">Landsat 8/9</TerminoGlosario>{" "}
+        (30 m, mensual) y MODIS (1 km, día/noche). Detalle en{" "}
         <Link
           href="/calor"
           className="text-primary underline dark:text-dk-primary"
@@ -160,7 +161,11 @@ function BloqueLandsat({ ultima }: { ultima: UhiMensualRow }) {
         <span className="text-[11px] text-neutral-muted dark:text-dk-muted">
           {mesNombre} {ultima.anio} · campo de referencia a{" "}
           {ultima.lst_rural_baseline.toFixed(1)}°C ·{" "}
-          <em>Datos: Landsat 8/9, 30 m</em>.
+          <em>
+            Datos: <TerminoGlosario id="landsat">Landsat 8/9</TerminoGlosario>,
+            30 m
+          </em>
+          .
         </span>
       </div>
     </div>
@@ -190,7 +195,8 @@ function BloqueModis({
       >
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <span className="font-medium text-primary dark:text-dk-primary">
-            Calor de día y de noche (vista MODIS)
+            Calor de día y de noche (vista{" "}
+            <TerminoGlosario id="modis">MODIS</TerminoGlosario>)
           </span>
           <span className="text-sm font-semibold" style={{ color }}>
             {signo}

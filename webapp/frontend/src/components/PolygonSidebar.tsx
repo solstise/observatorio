@@ -153,12 +153,6 @@ export function PolygonSidebar({
           Reporte PDF
         </a>
       </div>
-
-      {properties._synthetic && (
-        <p className="text-xs italic text-neutral-muted dark:text-dk-muted">
-          Valores sintéticos de prueba.
-        </p>
-      )}
     </aside>
   );
 }

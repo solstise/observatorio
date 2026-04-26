@@ -6,6 +6,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { DataFreshness } from "@/components/DataFreshness";
+import { GlosarioCompleto } from "@/components/GlosarioCompleto";
+import {
+  DATASET_INFO,
+  getManyFreshness,
+  listDatasets,
+} from "@/lib/data-freshness";
+
 export const metadata: Metadata = {
   title: "Metodología",
   description:
@@ -148,7 +156,15 @@ const FUENTES: FuenteEntry[] = [
   },
 ];
 
-export default function MetodologiaPage() {
+export default async function MetodologiaPage() {
+  // Resolvemos frescura de TODOS los datasets registrados para alimentar
+  // la sección "Frescura de datos". Una sola ronda I/O en paralelo —
+  // build cache la maneja con `revalidate=0`/`force-dynamic` si quisiera
+  // actualizarse en cada visit, pero por defecto el build estático ya
+  // sirve para una página de meta-documentación.
+  const slugs = listDatasets();
+  const freshness = await getManyFreshness(slugs);
+
   return (
     <article className="container-obs py-10">
       {/* JSON-LD inline para que Google indexe la página como TechArticle. */}
@@ -287,6 +303,163 @@ export default function MetodologiaPage() {
           </Link>
           .
         </p>
+      </section>
+
+      {/* Frescura de datos: tabla completa con cada dataset, su última
+          actualización, frecuencia esperada y fuente. El destino estable
+          /metodologia#frescura es referenciado desde el footer y desde
+          páginas individuales. `scroll-mt-20` compensa el header sticky. */}
+      <section
+        id="frescura"
+        aria-labelledby="frescura-heading"
+        className="mt-12 scroll-mt-20 border-t border-neutral-border pt-10 dark:border-dk-border"
+      >
+        <h2
+          id="frescura-heading"
+          className="text-2xl font-semibold text-primary dark:text-dk-primary"
+        >
+          Frescura de datos
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm text-neutral-muted dark:text-dk-muted">
+          Cuándo se actualizó por última vez cada dataset y con qué
+          frecuencia se espera que se refresque. El indicador de color
+          señala la salud del pipeline:{" "}
+          <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+            verde
+          </span>{" "}
+          dentro del periodo esperado,{" "}
+          <span className="font-semibold text-amber-600 dark:text-amber-400">
+            amarillo
+          </span>{" "}
+          atrasado entre 1 y 2 periodos,{" "}
+          <span className="font-semibold text-rose-600 dark:text-rose-400">
+            rojo
+          </span>{" "}
+          más de 2 periodos sin actualizar.
+        </p>
+
+        <div className="mt-6 overflow-x-auto rounded-md border border-neutral-border bg-white shadow-sm dark:border-dk-border dark:bg-dk-surface">
+          <table className="w-full text-sm">
+            <caption className="sr-only">
+              Tabla de frescura de datasets: nombre, última actualización,
+              frecuencia esperada, próxima actualización y fuente.
+            </caption>
+            <thead className="border-b border-neutral-border bg-neutral-50 text-left text-xs uppercase tracking-wider text-secondary dark:border-dk-border dark:bg-dk-elevated dark:text-dk-muted">
+              <tr>
+                <th scope="col" className="px-3 py-2">
+                  Dataset
+                </th>
+                <th scope="col" className="px-3 py-2">
+                  Última actualización
+                </th>
+                <th scope="col" className="px-3 py-2">
+                  Frecuencia
+                </th>
+                <th scope="col" className="px-3 py-2">
+                  Estado
+                </th>
+                <th scope="col" className="px-3 py-2">
+                  Fuente
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {slugs.map((slug) => {
+                const info = DATASET_INFO[slug];
+                const f = freshness[slug];
+                if (!info || !f) return null;
+                return (
+                  <tr
+                    key={slug}
+                    className="border-b border-neutral-border/60 last:border-0 hover:bg-neutral-50 dark:border-dk-border/60 dark:hover:bg-dk-elevated/60"
+                  >
+                    <th
+                      scope="row"
+                      className="px-3 py-2 text-left font-medium text-primary dark:text-dk-primary"
+                    >
+                      {info.label}
+                      <p className="font-mono text-[10px] font-normal text-neutral-muted dark:text-dk-muted">
+                        {slug}
+                      </p>
+                    </th>
+                    <td className="px-3 py-2 align-top text-neutral-text dark:text-dk-text">
+                      {f.lastUpdated ? (
+                        <time
+                          dateTime={f.lastUpdated}
+                          title={f.lastUpdated}
+                          className="tabular-nums"
+                        >
+                          {new Date(f.lastUpdated).toLocaleString("es-AR", {
+                            year: "numeric",
+                            month: "short",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            timeZone: "America/Argentina/Cordoba",
+                          })}
+                        </time>
+                      ) : (
+                        <span className="text-rose-600 dark:text-rose-400">
+                          sin datos
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 align-top text-neutral-text dark:text-dk-text">
+                      {f.frequency}
+                    </td>
+                    <td className="px-3 py-2 align-top">
+                      <DataFreshness
+                        dataset={slug}
+                        lastUpdated={f.lastUpdated}
+                        frequency={f.frequency}
+                        compact
+                      />
+                    </td>
+                    <td className="px-3 py-2 align-top text-xs text-neutral-muted dark:text-dk-muted">
+                      {info.fuente}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        <p className="mt-4 max-w-3xl text-xs text-neutral-muted dark:text-dk-muted">
+          La frescura se calcula contra el timestamp embebido en cada
+          dataset (campo <code>generated_at</code> en JSON,{" "}
+          <code>fecha_calculo</code> en CSV) o, si no existe, contra la
+          fecha de modificación del archivo. Los pipelines con frecuencia{" "}
+          <em>cada 6 horas</em> son automáticos vía cron en GitHub Actions;
+          los <em>mensuales</em> y <em>anuales</em> requieren ejecución
+          manual del script correspondiente.
+        </p>
+      </section>
+
+      {/* Glosario de términos técnicos. Se monta en el bottom de la página
+          para que sea el destino estable de los anchors `#glosario-*`
+          generados por <TerminoGlosario> en otras páginas. `scroll-mt-20`
+          compensa la altura del header sticky al saltar al ancla. */}
+      <section
+        id="glosario"
+        aria-labelledby="glosario-heading"
+        className="mt-12 scroll-mt-20 border-t border-neutral-border pt-10 dark:border-dk-border"
+      >
+        <h2
+          id="glosario-heading"
+          className="text-2xl font-semibold text-primary dark:text-dk-primary"
+        >
+          Glosario de términos
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm text-neutral-muted dark:text-dk-muted">
+          Definiciones cortas de los conceptos técnicos que aparecen en el
+          observatorio. Usá la búsqueda o navegá por categorías. Los enlaces{" "}
+          <code className="rounded bg-primary-50 px-1 py-0.5 text-[0.85em] text-primary dark:bg-dk-elevated dark:text-dk-primary">
+            #glosario-uhi
+          </code>{" "}
+          de los tooltips llevan acá.
+        </p>
+        <GlosarioCompleto />
       </section>
     </article>
   );

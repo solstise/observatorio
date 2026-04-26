@@ -32,6 +32,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { TerminoGlosario } from "@/components/TerminoGlosario";
 import { useTheme } from "@/hooks/useTheme";
 import type { ForecastDiarioRow } from "@/lib/types";
 
@@ -209,14 +210,20 @@ export function PronosticoBarrio({
             Pronóstico {dias} días — {nombreBarrio ?? "barrio"}
           </h3>
           <p className="text-xs text-neutral-text dark:text-dk-text">
-            Banda <strong>p10–p90</strong> = rango del ensamble (6 modelos
-            meteorológicos). Cuanto más ancha, más incertidumbre.
+            Banda{" "}
+            <strong>
+              <TerminoGlosario id="percentil">p10–p90</TerminoGlosario>
+            </strong>{" "}
+            = rango del ensamble (6 modelos meteorológicos). Cuanto más ancha,
+            más incertidumbre.
           </p>
         </div>
         <div className="text-right text-[10px] italic text-neutral-muted dark:text-dk-muted">
-          Datos: Open-Meteo Ensemble
+          Datos:{" "}
+          <TerminoGlosario id="open-meteo">Open-Meteo Ensemble</TerminoGlosario>
           <br />
-          + offset Landsat por barrio
+          + offset <TerminoGlosario id="landsat">Landsat</TerminoGlosario> por
+          barrio
         </div>
       </header>
 
@@ -364,7 +371,8 @@ export function PronosticoBarrio({
       <p className="mt-3 text-[11px] italic text-neutral-muted dark:text-dk-muted">
         Offset por barrio (calor diurno {offsetCalor >= 0 ? "+" : ""}
         {offsetCalor.toFixed(2)}°C, frío nocturno {offsetFrio >= 0 ? "+" : ""}
-        {offsetFrio.toFixed(2)}°C) derivado de UHI Landsat —{" "}
+        {offsetFrio.toFixed(2)}°C) derivado de{" "}
+        <TerminoGlosario id="uhi">UHI</TerminoGlosario> Landsat —{" "}
         {offsetOrigen === "ninguno"
           ? "barrio sin UHI calculado, se usa el centro como base"
           : `fuente: ${offsetOrigen}`}

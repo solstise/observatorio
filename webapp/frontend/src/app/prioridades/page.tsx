@@ -16,12 +16,15 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 
+import { DataFreshness } from "@/components/DataFreshness";
 import { Disclaimer } from "@/components/Disclaimer";
+import { TerminoGlosario } from "@/components/TerminoGlosario";
 import {
   getDistanciasSociales,
   getPoligonosBarrios,
   getRankingPolitico,
 } from "@/lib/data.server";
+import { getManyFreshness } from "@/lib/data-freshness";
 import type {
   PoligonoFeature,
   RankingPoliticoRow,
@@ -87,10 +90,14 @@ function formatoNum(n: number | null, fixed = 1): string {
 }
 
 export default async function PrioridadesPage() {
-  const [ranking, distancias, collection] = await Promise.all([
+  const [ranking, distancias, collection, freshness] = await Promise.all([
     getRankingPolitico(),
     getDistanciasSociales(),
     getPoligonosBarrios(),
+    // El ranking depende de UHI verano (calor_landsat) + distancias
+    // (parte de viviendas/servicios). Los chips dejan claro qué dataset
+    // marca el "último update" del ranking.
+    getManyFreshness(["ranking", "calor_landsat", "viviendas"]),
   ]);
 
   const filas = buildFilas(ranking, distancias, collection.features);
@@ -115,7 +122,7 @@ export default async function PrioridadesPage() {
 
         <header className="mb-6 max-w-3xl">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-secondary dark:text-dk-muted">
-            Capa social — fase 3
+            Prioridades de inversión
           </p>
           <h1
             className="mt-2 font-bold text-primary dark:text-dk-primary"
@@ -123,12 +130,34 @@ export default async function PrioridadesPage() {
           >
             Prioridades de inversión política
           </h1>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <DataFreshness
+              dataset="ranking"
+              lastUpdated={freshness.ranking.lastUpdated}
+              frequency={freshness.ranking.frequency}
+            />
+            <DataFreshness
+              dataset="calor_landsat"
+              lastUpdated={freshness.calor_landsat.lastUpdated}
+              frequency={freshness.calor_landsat.frequency}
+              compact
+            />
+            <DataFreshness
+              dataset="viviendas"
+              lastUpdated={freshness.viviendas.lastUpdated}
+              frequency={freshness.viviendas.frequency}
+              compact
+            />
+          </div>
           <p className="mt-3 lead text-neutral-text dark:text-dk-text">
             Ranking de los {total} polígonos monitoreados por su prioridad de
             inversión, combinando tres dimensiones: <strong>vulnerabilidad</strong>{" "}
-            territorial (40%), <strong>isla de calor</strong> de verano (30%) y{" "}
-            <strong>carencia de acceso</strong> a servicios públicos (30%).
-            Mayor posición = mayor prioridad.
+            territorial (40%),{" "}
+            <strong>
+              <TerminoGlosario id="uhi">isla de calor</TerminoGlosario>
+            </strong>{" "}
+            de verano (30%) y <strong>carencia de acceso</strong> a servicios
+            públicos (30%). Mayor posición = mayor prioridad.
           </p>
           <div className="mt-4 rounded-md border border-accent-200 bg-accent-50 p-3 text-sm text-neutral-text dark:border-amber-700/60 dark:bg-amber-900/40 dark:text-amber-100">
             <strong>Importante:</strong> este ranking es un{" "}
@@ -150,9 +179,7 @@ export default async function PrioridadesPage() {
             role="status"
             className="card border-accent-200 bg-accent-50 text-sm dark:border-amber-700/60 dark:bg-amber-900/40 dark:text-amber-100"
           >
-            El ranking está en preparación. Asegurate de haber corrido los
-            scripts <code>53_servicios_distancias.py</code> y{" "}
-            <code>54_ranking_politico.py</code>.
+            Sin datos de ranking disponibles para mostrar en este momento.
           </div>
         ) : (
           <section
@@ -266,8 +293,7 @@ export default async function PrioridadesPage() {
             <li>
               <strong>Vulnerabilidad (40%)</strong>: índice 0-100 que combina
               crecimiento de viviendas, densidad, distancia a CAPS y escuela,
-              cobertura de pavimento y riesgo de inundación. Versión{" "}
-              <code>v0-borrador</code>.{" "}
+              cobertura de pavimento y riesgo de inundación.{" "}
               <span className="text-xs text-neutral-muted dark:text-dk-muted">
                 Script: <code>35_indice_vulnerabilidad.py</code>.
               </span>
@@ -278,7 +304,8 @@ export default async function PrioridadesPage() {
               cercano. Mide cuánto más caliente está el barrio cuando el calor
               importa más para salud.{" "}
               <span className="text-xs text-neutral-muted dark:text-dk-muted">
-                Script: <code>49_calor_pipeline.py</code>, fuente Landsat 8/9.
+                Script: <code>49_calor_pipeline.py</code>, fuente{" "}
+                <TerminoGlosario id="landsat">Landsat 8/9</TerminoGlosario>.
               </span>
             </li>
             <li>

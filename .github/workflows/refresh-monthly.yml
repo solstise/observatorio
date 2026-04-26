@@ -1,0 +1,278 @@
+name: Refresh satelital mensual (cron día 1)
+
+# ---------------------------------------------------------------------------
+# Pipeline mensual del Observatorio Urbano Posadas — datasets satelitales que
+# tienen frecuencia natural de actualización mensual:
+#   - Dynamic World v1 (Google) — composites mensuales de cobertura del suelo
+#   - Sentinel-1 SAR (cambios estructurales / construcción)
+#   - CHIRPS, NO2, LST, FIRMS, WDPA (47_ambiental todo) — datos ambientales
+#   - Landsat LST (49_calor_pipeline) — temperatura superficial UHI
+#   - Mapas de calor estacionales (49b_mapas_calor)
+#   - Forecast clima + alertas (refresh con base nueva)
+#   - Publish Upstash + sync webapp + deploy
+#
+# Por qué día 1:
+#   - GEE consolida composites del mes anterior pasados ~5 días.
+#   - Día 1 garantiza que tomamos el mes completo (M-1) sin riesgo de huecos.
+#   - Hora 06:00 UTC = 03:00 Posadas, hora valle del runner GitHub.
+#
+# Tiempo estimado: 30-60 min (Landsat + mapas estacionales son los más lentos).
+# ---------------------------------------------------------------------------
+
+on:
+  schedule:
+    # Día 1 de cada mes a las 06:00 UTC.
+    - cron: "0 6 1 * *"
+  workflow_dispatch:
+    inputs:
+      skip_deploy:
+        description: "Saltear el deploy al VPS (solo refrescar datos)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      skip_landsat:
+        description: "Saltear pipeline Landsat (49_calor_pipeline) — útil para reruns rápidos"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+# Concurrency: compartimos `data-branch` con los otros refresh para evitar
+# race conditions cuando varios crons coinciden en empujar a `data`.
+concurrency:
+  group: data-branch
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  refresh:
+    name: Pipeline satelital mensual
+    runs-on: ubuntu-latest
+    # 90 min: Landsat puede tardar 20-30 min y los composites mensuales otros
+    # 15-20 min. Margen para reintentos internos de los scripts.
+    timeout-minutes: 90
+    env:
+      TZ: America/Argentina/Cordoba
+      UPSTASH_CONFIGURED: ${{ secrets.UPSTASH_REDIS_REST_URL != '' && secrets.UPSTASH_REDIS_REST_TOKEN != '' && 'true' || 'false' }}
+      VPS_CONFIGURED: ${{ secrets.VPS_SSH_KEY != '' && 'true' || 'false' }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: System deps (GDAL para geopandas/rasterio)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gdal-bin libgdal-dev libpango-1.0-0 libpangoft2-1.0-0 libcairo2
+
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Configure Earth Engine credentials
+        env:
+          EE_SERVICE_ACCOUNT_JSON: ${{ secrets.EE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          # Casi todos los scripts mensuales requieren EE — fallamos hard si
+          # no está configurado.
+          if [[ -z "$EE_SERVICE_ACCOUNT_JSON" ]]; then
+            echo "::error::EE_SERVICE_ACCOUNT_JSON no seteado. Pipeline mensual requiere Earth Engine."
+            exit 1
+          fi
+          mkdir -p "$HOME/.config/earthengine"
+          printf '%s' "$EE_SERVICE_ACCOUNT_JSON" > "$HOME/.config/earthengine/service_account.json"
+          echo "EE_SERVICE_ACCOUNT_KEY=$HOME/.config/earthengine/service_account.json" >> "$GITHUB_ENV"
+
+      # ----------------------------------------------------------------------
+      # Bloque 1: Coberturas y cambios mensuales (Dynamic World + SAR)
+      # ----------------------------------------------------------------------
+      - name: Dynamic World mensual (script 41)
+        run: python scripts/41_dynamic_world.py
+
+      - name: Sentinel-1 cambios SAR mensual (script 43)
+        run: python scripts/43_sentinel1_cambios.py
+
+      # ----------------------------------------------------------------------
+      # Bloque 2: Variables ambientales (CHIRPS + NO2 + LST + FIRMS + WDPA).
+      # `todo` corre los 5 subcomandos. Es idempotente — si los CSV anuales
+      # ya tienen las combinaciones (poligono_id, anio), las saltea.
+      # ----------------------------------------------------------------------
+      - name: Variables ambientales (script 47, subcomando todo)
+        run: python scripts/47_ambiental.py todo
+
+      # ----------------------------------------------------------------------
+      # Bloque 3: UHI Landsat (3 subcomandos secuenciales). Optional skip vía
+      # workflow_dispatch para reruns rápidos cuando solo queremos refrescar
+      # los otros bloques.
+      # ----------------------------------------------------------------------
+      - name: Landsat — descargar
+        if: github.event.inputs.skip_landsat != 'true'
+        run: python scripts/49_calor_pipeline.py descargar-landsat
+
+      - name: Landsat — stats por polígono
+        if: github.event.inputs.skip_landsat != 'true'
+        run: python scripts/49_calor_pipeline.py stats-por-poligono
+
+      - name: Landsat — calcular UHI
+        if: github.event.inputs.skip_landsat != 'true'
+        run: python scripts/49_calor_pipeline.py calcular-uhi
+
+      - name: Mapas de calor estacionales (49b)
+        if: github.event.inputs.skip_landsat != 'true'
+        run: python scripts/49b_mapas_calor.py --tipo todo
+
+      # ----------------------------------------------------------------------
+      # Bloque 4: Forecast + alertas con datos nuevos. El cron de 6h también
+      # corre estos pero acá garantizamos que la base mensual quede coherente.
+      # ----------------------------------------------------------------------
+      - name: Forecast clima (script 57)
+        env:
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+        run: python scripts/57_forecast_clima.py
+
+      - name: Alertas clima (script 58)
+        env:
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+        run: python scripts/58_alertas_clima.py
+
+      - name: Publish Upstash Redis
+        if: env.UPSTASH_CONFIGURED == 'true'
+        env:
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+        run: python scripts/_publish_to_upstash.py --source webapp/frontend/public/data/forecast
+
+      # ----------------------------------------------------------------------
+      # Bloque 5: Sync webapp (copia CSVs derivados a public/data/).
+      # ----------------------------------------------------------------------
+      - name: Sync webapp data
+        run: |
+          python scripts/80_sync_webapp.py \
+            --serie data/processed/conteos/serie_temporal.csv \
+            --poblacion data/processed/poblacion_estimada.csv \
+            --vulnerabilidad data/processed/vulnerabilidad_v0.csv
+
+      - name: Detectar cambios en CSVs derivados
+        id: diff
+        run: |
+          if git diff --quiet HEAD -- webapp/frontend/public/data/ data/processed/; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "Sin cambios. Saltando commit y deploy."
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "Cambios detectados — procederá commit + deploy."
+          fi
+
+      - name: Commit & push a rama data
+        if: steps.diff.outputs.has_changes == 'true'
+        env:
+          GIT_AUTHOR_NAME: observatorio-bot
+          GIT_AUTHOR_EMAIL: bot@observatorio.sistemaswinter.com
+          GIT_COMMITTER_NAME: observatorio-bot
+          GIT_COMMITTER_EMAIL: bot@observatorio.sistemaswinter.com
+        run: |
+          set -e
+          git config user.name  "$GIT_AUTHOR_NAME"
+          git config user.email "$GIT_AUTHOR_EMAIL"
+          git fetch origin data:data || git checkout -b data
+          git checkout data
+          git merge --no-edit origin/main || true
+          # En el mensual incluimos un superset más amplio de processed/ porque
+          # tocamos varios subdirs (ambiental, dynamic_world, sentinel1, calor).
+          git add webapp/frontend/public/data/ data/processed/ || true
+          git commit -m "chore(data): refresh satelital mensual $(date -u +%Y-%m)" || {
+            echo "Sin cambios staged tras filtros. Saltando push."
+            exit 0
+          }
+          git push origin data
+
+      - name: Setup SSH para VPS
+        if: |
+          steps.diff.outputs.has_changes == 'true' &&
+          github.event.inputs.skip_deploy != 'true' &&
+          env.VPS_CONFIGURED == 'true'
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          if [[ -n "$VPS_KNOWN_HOSTS" ]]; then
+            printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+            chmod 644 ~/.ssh/known_hosts
+          else
+            ssh-keyscan -H 187.77.54.19 >> ~/.ssh/known_hosts 2>/dev/null || true
+          fi
+
+      - name: Deploy al VPS (Hostinger)
+        if: |
+          steps.diff.outputs.has_changes == 'true' &&
+          github.event.inputs.skip_deploy != 'true' &&
+          env.VPS_CONFIGURED == 'true'
+        run: bash deploy-vps.sh
+
+      - name: Resumen
+        if: always()
+        run: |
+          {
+            echo "## Refresh satelital mensual — $(date -u +%Y-%m-%dT%H:%MZ)"
+            echo ""
+            echo "- Cambios detectados: ${{ steps.diff.outputs.has_changes || 'unknown' }}"
+            echo "- Deploy ejecutado: ${{ steps.diff.outputs.has_changes == 'true' && github.event.inputs.skip_deploy != 'true' && env.VPS_CONFIGURED == 'true' }}"
+            echo "- Landsat saltado: ${{ github.event.inputs.skip_landsat == 'true' && 'sí' || 'no' }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Abrir issue si falló
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `Cron refresh-monthly falló — ${new Date().toISOString()}`;
+            const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+            const body = [
+              "El workflow `refresh-monthly` falló en su corrida automática.",
+              "",
+              `**Run:** ${runUrl}`,
+              `**Trigger:** ${context.eventName}`,
+              `**Branch:** ${context.ref}`,
+              "",
+              "Pasos a revisar:",
+              "1. Identificar qué bloque rompió (Dynamic World / SAR / Ambiental / Landsat / Forecast).",
+              "2. Si es Landsat (suele ser el más frágil) — re-correr con `workflow_dispatch` y skip_landsat=false para reintentar solo ese bloque.",
+              "3. Verificar cuotas de Earth Engine y Microsoft Planetary Computer (Sentinel-1).",
+              "4. Probar localmente el script que falló (link al log arriba indica cuál).",
+              "",
+              "Este issue se abre automáticamente. Cerralo cuando esté resuelto.",
+            ].join("\n");
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body,
+              labels: ["bug", "automation", "cron", "monthly"],
+            });

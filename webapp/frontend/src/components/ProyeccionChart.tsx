@@ -37,6 +37,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { TerminoGlosario } from "@/components/TerminoGlosario";
 import { useTheme } from "@/hooks/useTheme";
 import type {
   ProyeccionMetrica,
@@ -221,23 +222,37 @@ function ConfianzaBanner({ confianza }: { confianza: "alta" | "media" | "baja" }
   const cfg = {
     alta: {
       label: "Confianza: alta",
-      detalle: "R² ≥ 0.85 sobre el histórico — la tendencia se ajusta bien.",
+      detalle: (
+        <>
+          <TerminoGlosario id="r2">R²</TerminoGlosario> ≥ 0.85 sobre el
+          histórico — la tendencia se ajusta bien.
+        </>
+      ),
       bg: "bg-emerald-50 dark:bg-emerald-900/30",
       border: "border-emerald-200 dark:border-emerald-700/60",
       text: "text-emerald-900 dark:text-emerald-100",
     },
     media: {
       label: "Confianza: media",
-      detalle:
-        "R² entre 0.55 y 0.85 — la proyección es razonable pero con margen.",
+      detalle: (
+        <>
+          <TerminoGlosario id="r2">R²</TerminoGlosario> entre 0.55 y 0.85 — la
+          proyección es razonable pero con margen.
+        </>
+      ),
       bg: "bg-accent-50 dark:bg-amber-900/30",
       border: "border-accent-200 dark:border-amber-700/60",
       text: "text-neutral-text dark:text-amber-100",
     },
     baja: {
       label: "Confianza: baja — preliminar",
-      detalle:
-        "R² < 0.55. Tendencia ruidosa o mal ajustada por modelo lineal/exp. Tomar como hipótesis, no como predicción robusta.",
+      detalle: (
+        <>
+          <TerminoGlosario id="r2">R²</TerminoGlosario> &lt; 0.55. Tendencia
+          ruidosa o mal ajustada por modelo lineal/exp. Tomar como hipótesis,
+          no como predicción robusta.
+        </>
+      ),
       bg: "bg-rose-50 dark:bg-rose-900/30",
       border: "border-rose-200 dark:border-rose-700/60",
       text: "text-rose-900 dark:text-rose-100",
@@ -357,8 +372,9 @@ export function ProyeccionChart({
             {nombreBarrio ? ` — ${nombreBarrio}` : ""}
           </h3>
           <p className="text-xs text-neutral-text dark:text-dk-text">
-            Histórico (azul) + proyección (naranja punteada) con banda de
-            confianza 95 % a 2027 / 2030 / 2035.
+            Histórico (azul) + proyección (naranja punteada) con{" "}
+            <TerminoGlosario id="ci-95">banda de confianza 95 %</TerminoGlosario>{" "}
+            a 2027 / 2030 / 2035.
           </p>
         </div>
         <div className="text-right text-[10px] italic text-neutral-muted dark:text-dk-muted">

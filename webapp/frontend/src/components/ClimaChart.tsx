@@ -21,6 +21,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { TerminoGlosario } from "@/components/TerminoGlosario";
 import { useTheme } from "@/hooks/useTheme";
 import type { ChirpsRow } from "@/lib/types";
 
@@ -140,8 +141,10 @@ export function ClimaChart({ rows, height = 260 }: ClimaChartProps) {
           sequía.
         </p>
         <p className="text-[11px] italic text-neutral-muted dark:text-dk-muted">
-          Datos: CHIRPS (Climate Hazards InfraRed Precipitation, USGS), en
-          milímetros acumulados.
+          Datos:{" "}
+          <TerminoGlosario id="chirps">CHIRPS</TerminoGlosario>{" "}
+          (Climate Hazards InfraRed Precipitation, USGS), en milímetros
+          acumulados.
         </p>
       </div>
       <div

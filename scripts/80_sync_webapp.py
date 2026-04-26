@@ -404,6 +404,13 @@ def cli(
         # Capa ambiental (script 47)
         ("data/processed/ambiental/chirps_anual.csv", "chirps.csv"),
         ("data/processed/ambiental/no2_anual.csv", "no2.csv"),
+        # Aire multi-gas (script 48): NO2 + SO2 + CO + HCHO + CH4 + O3.
+        # Convive con no2.csv (legacy) — el componente AireMultigasCard usa
+        # multi-gas si está y degrada a no2.csv solo si falta.
+        (
+            "data/processed/ambiental/aire_multigas_anual.csv",
+            "ambiental/aire_multigas_anual.csv",
+        ),
         ("data/processed/ambiental/lst_anual.csv", "lst.csv"),
         ("data/processed/ambiental/firms_anual.csv", "firms.csv"),
         ("data/processed/ambiental/wdpa_intersection.csv", "wdpa.csv"),

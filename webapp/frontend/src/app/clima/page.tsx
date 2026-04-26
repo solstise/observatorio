@@ -8,13 +8,16 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 
+import { DataFreshness } from "@/components/DataFreshness";
 import { Disclaimer } from "@/components/Disclaimer";
+import { TerminoGlosario } from "@/components/TerminoGlosario";
 import {
   getAlertasActivas,
   getAqiDiario,
   getForecastDiario,
   getPoligonosBarrios,
 } from "@/lib/data.server";
+import { getDatasetFreshness } from "@/lib/data-freshness";
 
 import { ClientClima } from "./ClientClima";
 
@@ -25,12 +28,15 @@ export const metadata: Metadata = {
 };
 
 export default async function ClimaPage() {
-  const [collection, forecast, aqi, alertas] = await Promise.all([
-    getPoligonosBarrios(),
-    getForecastDiario(),
-    getAqiDiario(),
-    getAlertasActivas(),
-  ]);
+  const [collection, forecast, aqi, alertas, freshForecast, freshAlertas] =
+    await Promise.all([
+      getPoligonosBarrios(),
+      getForecastDiario(),
+      getAqiDiario(),
+      getAlertasActivas(),
+      getDatasetFreshness("forecast"),
+      getDatasetFreshness("alertas"),
+    ]);
 
   const tieneDatos = forecast.length > 0;
   const fechasDisponibles = Array.from(
@@ -54,7 +60,7 @@ export default async function ClimaPage() {
 
         <header className="mb-6 max-w-3xl">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-secondary dark:text-dk-muted">
-            Capa experimental — pronóstico v0.1
+            Pronóstico climático
           </p>
           <h1
             className="mt-2 font-bold text-primary dark:text-dk-primary"
@@ -62,14 +68,32 @@ export default async function ClimaPage() {
           >
             Pronóstico climático por barrio
           </h1>
+          {/* Doble chip: el forecast y las alertas se refrescan ambos
+              cada 6h pero por scripts distintos (57 y 58). Mostramos los
+              dos para que el visitante sepa cuándo cayó cada uno. */}
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <DataFreshness
+              dataset="forecast"
+              lastUpdated={freshForecast.lastUpdated}
+              frequency={freshForecast.frequency}
+            />
+            <DataFreshness
+              dataset="alertas"
+              lastUpdated={freshAlertas.lastUpdated}
+              frequency={freshAlertas.frequency}
+              compact
+            />
+          </div>
           <p className="mt-3 lead text-neutral-text dark:text-dk-text">
             Pronóstico de hasta 14 días con <strong>banda de confianza</strong>{" "}
-            p10–p90 derivada de un ensamble de 6 modelos meteorológicos
-            (ECMWF, GFS, ICON, JMA, GEM, BoM ACCESS). El pronóstico base se
-            ajusta por barrio aplicando un <strong>offset</strong> derivado de
-            la isla de calor urbana (UHI) Landsat: barrios con cemento denso
-            retienen más calor nocturno, los barrios con vegetación abundante
-            son algo más fríos.
+            <TerminoGlosario id="percentil">p10–p90</TerminoGlosario> derivada
+            de un ensamble de 6 modelos meteorológicos (ECMWF, GFS, ICON, JMA,
+            GEM, BoM ACCESS). El pronóstico base se ajusta por barrio aplicando
+            un <strong>offset</strong> derivado de la{" "}
+            <TerminoGlosario id="uhi">isla de calor urbana (UHI)</TerminoGlosario>{" "}
+            <TerminoGlosario id="landsat">Landsat</TerminoGlosario>: barrios
+            con cemento denso retienen más calor nocturno, los barrios con
+            vegetación abundante son algo más fríos.
           </p>
           <div className="mt-4 rounded-md border border-accent-200 bg-accent-50 p-3 text-sm text-neutral-text dark:border-amber-700/60 dark:bg-amber-900/30 dark:text-amber-100">
             <strong>Importante:</strong> el pronóstico operativo lo emite el{" "}
@@ -92,9 +116,8 @@ export default async function ClimaPage() {
             role="status"
             className="card border-accent-200 bg-accent-50 text-sm dark:border-amber-700/60 dark:bg-amber-900/30 dark:text-amber-100"
           >
-            El pronóstico está en preparación. Corré{" "}
-            <code>scripts/57_forecast_clima.py</code> y luego{" "}
-            <code>scripts/80_sync_webapp.py</code> para poblar los datos.
+            Sin datos de pronóstico disponibles para mostrar en este momento.
+            El ensamble se actualiza periódicamente; volvé en unos minutos.
           </div>
         )}
 
@@ -114,11 +137,12 @@ export default async function ClimaPage() {
           </h2>
           <ul className="list-disc space-y-2 pl-5">
             <li>
-              <strong>Ensamble de 6 modelos meteorológicos</strong> (Open-Meteo
-              Ensemble): ECMWF IFS04, GFS Seamless, ICON Global, JMA GSM,
-              GEM Global, BoM ACCESS Global. La banda <strong>p10–p90</strong>{" "}
-              representa el rango entre los miembros del ensemble — cuanto más
-              ancha, más incertidumbre.{" "}
+              <strong>Ensamble de 6 modelos meteorológicos</strong>{" "}
+              (<TerminoGlosario id="open-meteo">Open-Meteo Ensemble</TerminoGlosario>):
+              ECMWF IFS04, GFS Seamless, ICON Global, JMA GSM, GEM Global, BoM
+              ACCESS Global. La banda <strong>p10–p90</strong> representa el
+              rango entre los miembros del ensemble — cuanto más ancha, más
+              incertidumbre.{" "}
               <span className="text-xs text-neutral-muted dark:text-dk-muted">
                 Fuente: ensemble-api.open-meteo.com.
               </span>
@@ -140,7 +164,8 @@ export default async function ClimaPage() {
               54) para destacar barrios prioritarios bajo evento adverso.
             </li>
             <li>
-              <strong>AQI europeo</strong> (PM10, PM2.5, NO₂, SO₂, ozono):
+              <strong>AQI europeo</strong> (PM10, PM2.5,{" "}
+              <TerminoGlosario id="no2">NO₂</TerminoGlosario>, SO₂, ozono):
               fuente Open-Meteo Air Quality. La resolución del modelo es ~10
               km — Posadas entera entra en una sola celda, así que el AQI no
               se desagrega por barrio. Mostrar variación falsa entre barrios

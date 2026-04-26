@@ -6,6 +6,7 @@
 // del bbox de Posadas. Debajo se muestra el valor absoluto en
 // notacion cientifica (mol/m2) y el anio de referencia.
 
+import { TerminoGlosario } from "@/components/TerminoGlosario";
 import type { No2Row } from "@/lib/types";
 
 interface AireGaugeProps {
@@ -108,8 +109,9 @@ export function AireGauge({ rows }: AireGaugeProps) {
           Calidad del aire
         </h3>
         <p className="mt-1 text-xs text-neutral-text dark:text-dk-text">
-          Detecta dióxido de nitrógeno (NO₂), principal contaminante del
-          tránsito vehicular y de la combustión.
+          Detecta dióxido de nitrógeno{" "}
+          (<TerminoGlosario id="no2">NO₂</TerminoGlosario>), principal
+          contaminante del tránsito vehicular y de la combustión.
         </p>
       </div>
       <div className="rounded-md border border-neutral-border p-4 dark:border-dk-border dark:bg-dk-elevated/40">

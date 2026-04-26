@@ -14,6 +14,7 @@
 
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 
+import { TerminoGlosario } from "@/components/TerminoGlosario";
 import { useTheme } from "@/hooks/useTheme";
 import type { DynamicWorldRow } from "@/lib/types";
 
@@ -109,7 +110,12 @@ export function DynamicWorldGauge({
       <p className="text-xs text-neutral-muted dark:text-dk-muted">
         {pct.toFixed(1)}% del polígono clasificado como construcción
         ({ultima.fecha}).{" "}
-        <em>Datos: Dynamic World V1, IA de Google sobre Sentinel-2.</em>
+        <em>
+          Datos:{" "}
+          <TerminoGlosario id="dynamic-world">Dynamic World V1</TerminoGlosario>
+          , IA de Google sobre{" "}
+          <TerminoGlosario id="sentinel-2">Sentinel-2</TerminoGlosario>.
+        </em>
       </p>
     </div>
   );

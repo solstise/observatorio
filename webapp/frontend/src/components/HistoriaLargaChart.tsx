@@ -27,6 +27,7 @@ import {
 } from "recharts";
 
 import { EducationalTooltip } from "@/components/charts/EducationalTooltip";
+import { TerminoGlosario } from "@/components/TerminoGlosario";
 import { useTheme } from "@/hooks/useTheme";
 import type { GhslRow, MapBiomasRow, ViirsRow } from "@/lib/types";
 
@@ -167,8 +168,15 @@ export function HistoriaLargaChart({
           1975 y 2030.
         </p>
         <p className="text-[11px] italic text-neutral-muted dark:text-dk-muted">
-          Datos: MapBiomas Argentina Col.1 (cobertura), GHSL P2023A (huella
-          construida, Comisión Europea), VIIRS NOAA (luces nocturnas).
+          Datos:{" "}
+          <TerminoGlosario id="mapbiomas">
+            MapBiomas Argentina Col.1
+          </TerminoGlosario>{" "}
+          (cobertura),{" "}
+          <TerminoGlosario id="ghsl">GHSL P2023A</TerminoGlosario>{" "}
+          (huella construida, Comisión Europea),{" "}
+          <TerminoGlosario id="viirs">VIIRS</TerminoGlosario>{" "}
+          NOAA (luces nocturnas).
         </p>
       </div>
 

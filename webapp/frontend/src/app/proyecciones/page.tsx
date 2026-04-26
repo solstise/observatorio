@@ -23,6 +23,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 import { Disclaimer } from "@/components/Disclaimer";
+import { TerminoGlosario } from "@/components/TerminoGlosario";
 import {
   getMapBiomas,
   getPoblacion,
@@ -288,11 +289,16 @@ export default async function ProyeccionesPage() {
           <p className="mt-3 lead text-neutral-text dark:text-dk-text">
             Para cada barrio se ajusta una <strong>regresión lineal</strong> y
             otra <strong>exponencial</strong> sobre la serie histórica, y se
-            elige el modelo con mayor R² (con bonus por simplicidad para el
-            lineal cuando la diferencia es menor a 0.05). El intervalo de
-            confianza del 95 % surge de la fórmula analítica de
-            prediction-interval OLS — la banda se ensancha a medida que se
-            extrapola más lejos del histórico.
+            elige el modelo con mayor{" "}
+            <TerminoGlosario id="r2">R²</TerminoGlosario> (con bonus por
+            simplicidad para el lineal cuando la diferencia es menor a 0.05).
+            El{" "}
+            <TerminoGlosario id="ci-95">
+              intervalo de confianza del 95 %
+            </TerminoGlosario>{" "}
+            surge de la fórmula analítica de prediction-interval{" "}
+            <TerminoGlosario id="ols">OLS</TerminoGlosario> — la banda se
+            ensancha a medida que se extrapola más lejos del histórico.
           </p>
           <div className="mt-4 rounded-md border border-accent-200 bg-accent-50 p-3 text-sm text-neutral-text dark:border-amber-700/60 dark:bg-amber-900/30 dark:text-amber-100">
             <strong>Importante:</strong> son proyecciones estadísticas que{" "}
@@ -311,9 +317,9 @@ export default async function ProyeccionesPage() {
             role="status"
             className="card border-accent-200 bg-accent-50 text-sm dark:border-amber-700/60 dark:bg-amber-900/30 dark:text-amber-100"
           >
-            Las proyecciones están en preparación. Corré{" "}
-            <code>scripts/59_proyecciones_futuras.py</code> y luego{" "}
-            <code>scripts/80_sync_webapp.py</code> para poblar los datos.
+            Sin datos de proyecciones disponibles para mostrar en este
+            momento. Las series se actualizan periódicamente; volvé en
+            unos minutos si acabás de regenerar el pipeline.
           </div>
         )}
 
@@ -490,11 +496,17 @@ export default async function ProyeccionesPage() {
           </h2>
           <ul className="list-disc space-y-2 pl-5">
             <li>
-              <strong>Series históricas</strong>: viviendas (2018–2025, Open
-              Buildings + Microsoft + EE), población (estimación
-              poblacional escalada con WorldPop), % cobertura urbana
-              (MapBiomas Argentina Col.1, 1998–2022), UHI verano (Landsat
-              C2L2, 2018–2025).{" "}
+              <strong>Series históricas</strong>: viviendas (2018–2025,{" "}
+              <TerminoGlosario id="open-buildings">Open Buildings</TerminoGlosario>{" "}
+              +{" "}
+              <TerminoGlosario id="ms-buildings">Microsoft</TerminoGlosario>{" "}
+              + EE), población (estimación poblacional escalada con{" "}
+              <TerminoGlosario id="worldpop">WorldPop</TerminoGlosario>),{" "}
+              % cobertura urbana (
+              <TerminoGlosario id="mapbiomas">
+                MapBiomas Argentina Col.1
+              </TerminoGlosario>
+              , 1998–2022), UHI verano (Landsat C2L2, 2018–2025).{" "}
               <span className="text-xs text-neutral-muted dark:text-dk-muted">
                 Script: <code>59_proyecciones_futuras.py</code>.
               </span>

@@ -4,10 +4,15 @@
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
+import type { ReactNode } from "react";
 
 import { AccesoServiciosCard } from "@/components/AccesoServiciosCard";
-import { AireGauge } from "@/components/AireGauge";
+// El card principal de aire ahora es AireMultigasCard (toggle histórico
+// real vs forecast modelado), montado más abajo via dynamic import. El
+// componente legacy `AireGauge` (NO2 únicamente) sigue exportado en
+// `@/components/AireGauge` por si otra página lo necesita.
 import { AreaProtegidaNotice } from "@/components/AreaProtegidaNotice";
+import { DataFreshness } from "@/components/DataFreshness";
 import { Disclaimer } from "@/components/Disclaimer";
 import { FirmsBadge } from "@/components/FirmsBadge";
 import { IslaCalorBadge } from "@/components/IslaCalorBadge";
@@ -16,6 +21,7 @@ import { RankingPoliticoBadge } from "@/components/RankingPoliticoBadge";
 import { SarDeltaBadge } from "@/components/SarDeltaBadge";
 import { PoligonoTotalCiudad } from "@/components/PoligonoTotalCiudad";
 import { ServiceTable } from "@/components/ServiceTable";
+import { TerminoGlosario } from "@/components/TerminoGlosario";
 
 // Charts pesados (Recharts ~80 KB gzipped). Los cargamos dinámicamente
 // para que Next genere chunks async — el HTML llega rápido y los charts
@@ -35,6 +41,14 @@ const ClimaChart = dynamic(() =>
 const DynamicWorldGauge = dynamic(() =>
   import("@/components/DynamicWorldGauge").then((m) => ({
     default: m.DynamicWorldGauge,
+  })),
+);
+// AireMultigasCard es client component (toggle + recharts + fetch
+// browser-side a aqi_diario.csv). Lo cargamos dinámicamente para chunks
+// async y evitar inflar el bundle inicial del servidor.
+const AireMultigasCard = dynamic(() =>
+  import("@/components/AireMultigasCard").then((m) => ({
+    default: m.AireMultigasCard,
   })),
 );
 import {
@@ -58,6 +72,7 @@ import {
   getVulnerabilidad,
   getWdpa,
 } from "@/lib/data.server";
+import { getManyFreshness } from "@/lib/data-freshness";
 import { formatIndice } from "@/lib/format";
 
 interface PageProps {
@@ -169,6 +184,7 @@ export default async function PoligonoPage({ params }: PageProps) {
     distancias,
     rankingRows,
     rankingTotal,
+    freshness,
   ] = await Promise.all([
     getMapBiomas(properties.id),
     getGhsl(properties.id),
@@ -184,6 +200,22 @@ export default async function PoligonoPage({ params }: PageProps) {
     getDistanciasSociales(properties.id),
     getRankingPolitico(properties.id),
     getRankingPolitico(),
+    // Freshness por sección. Pedimos todos los datasets que aparecen en
+    // la ficha y luego los enchufamos al chip de cada sección. Una sola
+    // ronda I/O en paralelo — no impacta TTFB.
+    getManyFreshness([
+      "viviendas",
+      "calor_landsat",
+      "aire_no2",
+      "firms",
+      "chirps",
+      "dynamic_world",
+      "sentinel1",
+      "ranking",
+      "mapbiomas",
+      "ghsl",
+      "viirs",
+    ]),
   ]);
 
   const distanciasRow = distancias[0] ?? null;
@@ -277,7 +309,14 @@ export default async function PoligonoPage({ params }: PageProps) {
                 ? poblacionUltima.poblacion_estimada.toLocaleString("es-AR")
                 : "s/d"
             }
-            hint={poblacionUltima ? `WorldPop ${poblacionUltima.anio}` : undefined}
+            hint={
+              poblacionUltima ? (
+                <>
+                  <TerminoGlosario id="worldpop">WorldPop</TerminoGlosario>{" "}
+                  {poblacionUltima.anio}
+                </>
+              ) : undefined
+            }
           />
           <MetricCard
             label="Vulnerabilidad"
@@ -291,16 +330,32 @@ export default async function PoligonoPage({ params }: PageProps) {
         </section>
 
         <section aria-labelledby="serie" className="mt-10">
-          <h2
-            id="serie"
-            className="mb-2 text-xl font-semibold text-primary dark:text-dk-primary"
-          >
-            Cómo creció la edificación
-          </h2>
+          <div className="mb-2 flex flex-wrap items-center gap-3">
+            <h2
+              id="serie"
+              className="text-xl font-semibold text-primary dark:text-dk-primary"
+            >
+              Cómo creció la edificación
+            </h2>
+            <DataFreshness
+              dataset="viviendas"
+              lastUpdated={freshness.viviendas.lastUpdated}
+              frequency={freshness.viviendas.frequency}
+              compact
+            />
+          </div>
           <p className="mb-4 max-w-3xl text-sm text-neutral-muted dark:text-dk-muted">
             Cantidad de viviendas detectadas por año desde imágenes satelitales,
             con banda de confianza ±15%.{" "}
-            <em>Datos: Google Open Buildings + Microsoft Building Footprints.</em>
+            <em>
+              Datos: Google{" "}
+              <TerminoGlosario id="open-buildings">Open Buildings</TerminoGlosario>{" "}
+              +{" "}
+              <TerminoGlosario id="ms-buildings">
+                Microsoft Building Footprints
+              </TerminoGlosario>
+              .
+            </em>
           </p>
           <div className="card">
             <TimelineChart rows={serie_temporal} />
@@ -332,12 +387,20 @@ export default async function PoligonoPage({ params }: PageProps) {
         </section>
 
         <section aria-labelledby="acceso-servicios" className="mt-10">
-          <h2
-            id="acceso-servicios"
-            className="mb-2 text-xl font-semibold text-primary dark:text-dk-primary"
-          >
-            Acceso a servicios públicos
-          </h2>
+          <div className="mb-2 flex flex-wrap items-center gap-3">
+            <h2
+              id="acceso-servicios"
+              className="text-xl font-semibold text-primary dark:text-dk-primary"
+            >
+              Acceso a servicios públicos
+            </h2>
+            <DataFreshness
+              dataset="ranking"
+              lastUpdated={freshness.ranking.lastUpdated}
+              frequency={freshness.ranking.frequency}
+              compact
+            />
+          </div>
           <p className="mb-4 max-w-3xl text-sm text-neutral-muted dark:text-dk-muted">
             Distancia mínima desde este polígono al servicio más cercano de
             cuatro categorías clave (CAPS, escuela, hospital, transporte) y
@@ -397,12 +460,23 @@ export default async function PoligonoPage({ params }: PageProps) {
         )}
 
         <section aria-labelledby="historia-larga" className="mt-10">
-          <h2
-            id="historia-larga"
-            className="mb-2 text-xl font-semibold text-primary dark:text-dk-primary"
-          >
-            Historia larga (1975–2030)
-          </h2>
+          <div className="mb-2 flex flex-wrap items-center gap-3">
+            <h2
+              id="historia-larga"
+              className="text-xl font-semibold text-primary dark:text-dk-primary"
+            >
+              Historia larga (1975–2030)
+            </h2>
+            {/* Tres datasets distintos alimentan este chart — mostramos
+                el más infrecuente (anual) que es el "cuello de botella"
+                de frescura del bloque. */}
+            <DataFreshness
+              dataset="ghsl"
+              lastUpdated={freshness.ghsl.lastUpdated}
+              frequency={freshness.ghsl.frequency}
+              compact
+            />
+          </div>
           <p className="mb-4 max-w-3xl text-sm text-neutral-muted dark:text-dk-muted">
             Combina cobertura del suelo, huella construida y luces nocturnas.
             Permite ver de un vistazo si el barrio creció más por densificación
@@ -419,12 +493,26 @@ export default async function PoligonoPage({ params }: PageProps) {
         </section>
 
         <section aria-labelledby="indicadores-compl" className="mt-10">
-          <h2
-            id="indicadores-compl"
-            className="mb-2 text-xl font-semibold text-primary dark:text-dk-primary"
-          >
-            Cómo cambia la urbanización
-          </h2>
+          <div className="mb-2 flex flex-wrap items-center gap-3">
+            <h2
+              id="indicadores-compl"
+              className="text-xl font-semibold text-primary dark:text-dk-primary"
+            >
+              Cómo cambia la urbanización
+            </h2>
+            <DataFreshness
+              dataset="dynamic_world"
+              lastUpdated={freshness.dynamic_world.lastUpdated}
+              frequency={freshness.dynamic_world.frequency}
+              compact
+            />
+            <DataFreshness
+              dataset="sentinel1"
+              lastUpdated={freshness.sentinel1.lastUpdated}
+              frequency={freshness.sentinel1.frequency}
+              compact
+            />
+          </div>
           <p className="mb-4 max-w-3xl text-sm text-neutral-muted dark:text-dk-muted">
             Mide qué proporción del polígono es construcción y detecta cambios
             estructurales recientes — incluso cuando el cielo está nublado.
@@ -440,12 +528,30 @@ export default async function PoligonoPage({ params }: PageProps) {
         </section>
 
         <section aria-labelledby="ambiental" className="mt-10">
-          <h2
-            id="ambiental"
-            className="mb-2 text-xl font-semibold text-primary dark:text-dk-primary"
-          >
-            Salud ambiental del barrio
-          </h2>
+          <div className="mb-2 flex flex-wrap items-center gap-3">
+            <h2
+              id="ambiental"
+              className="text-xl font-semibold text-primary dark:text-dk-primary"
+            >
+              Salud ambiental del barrio
+            </h2>
+            {/* La sección agrupa cuatro datasets independientes. Solo
+                mostramos los dos con frecuencia más exigente (calor mensual
+                y firms diario) para no saturar el header — los otros viven
+                en sus respectivas tarjetas y en /metodologia#frescura. */}
+            <DataFreshness
+              dataset="calor_landsat"
+              lastUpdated={freshness.calor_landsat.lastUpdated}
+              frequency={freshness.calor_landsat.frequency}
+              compact
+            />
+            <DataFreshness
+              dataset="firms"
+              lastUpdated={freshness.firms.lastUpdated}
+              frequency={freshness.firms.frequency}
+              compact
+            />
+          </div>
           <p className="mb-4 max-w-3xl text-sm text-neutral-muted dark:text-dk-muted">
             Calor urbano, calidad del aire, riesgo de incendios, lluvias y
             relación con áreas protegidas. Cada tarjeta muestra qué señal
@@ -457,7 +563,17 @@ export default async function PoligonoPage({ params }: PageProps) {
               <IslaCalorBadge rows={lst} uhiLandsat={uhiLandsat} />
             </div>
             <div className="card">
-              <AireGauge rows={no2} />
+              {/* Reemplazo del AireGauge legacy: ahora multi-gas + toggle
+                  histórico (TROPOMI real) vs forecast (CAMS modelado). El
+                  componente trae sus propios datos client-side via
+                  getAireMultigas() y getAqiDiario(); el `no2` server-side
+                  destructurado más arriba se mantiene en el Promise.all
+                  para que sigan calientes los CSV sin agregar requests
+                  duplicados al cliente. */}
+              <AireMultigasCard
+                poligonoId={properties.id}
+                poligonoNombre={properties.nombre}
+              />
             </div>
             <div className="card">
               <FirmsBadge rows={firms} />
@@ -529,7 +645,7 @@ function MetricCard({
 }: {
   label: string;
   value: string;
-  hint?: string;
+  hint?: ReactNode;
 }) {
   return (
     <div className="card">

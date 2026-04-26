@@ -131,7 +131,7 @@ export default function DensidadPage() {
 
         <header className="mb-6 max-w-3xl">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-secondary dark:text-dk-muted">
-            Vista experimental — deck.gl
+            Mapa de densidad
           </p>
           <h1 className="mt-2 font-bold" style={{ fontSize: "var(--fs-h1)" }}>
             Densidad de Posadas (heatmap WebGL)
