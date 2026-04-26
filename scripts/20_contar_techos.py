@@ -475,7 +475,11 @@ class _EstadoParcial:
 @click.option(
     "--buildings",
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
-    default=Path("data/raw/google_buildings/posadas_buildings.geojson"),
+    # Preferimos el merge Google + MS (script 42) porque cubre 100% del bbox
+    # con 217k edificios, mientras que `google_buildings/` históricamente
+    # quedaba acotado al cuadrante NW (cuando se descargó con bbox chico).
+    # Si el merge no existe, fallback al raw de Google.
+    default=Path("data/raw/buildings_merge/posadas_merged_buildings.geojson"),
     show_default=True,
 )
 @click.option(

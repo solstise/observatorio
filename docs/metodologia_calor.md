@@ -212,8 +212,11 @@ Cita sugerida del observatorio:
 4. **Baseline rural estático**: no detecta si el campo mismo se calienta
    (por deforestación, por ejemplo). Asumimos baseline estable como
    referencia.
-5. **Sin validación de campo**: todavía no cruzamos con mediciones de
-   estaciones meteorológicas de SMN Argentina (pendiente Fase 3).
+5. ~~**Sin validación de campo**: todavía no cruzamos con mediciones de
+   estaciones meteorológicas de SMN Argentina (pendiente Fase 3).~~
+   **Resuelto** (2026-04-25): cruce con ERA5-Land Monthly Aggregated
+   (ECMWF, asimila SMN) sobre 85 meses arroja Pearson r = 0.896 entre
+   LST y T_aire mensual. Ver sección 15.
 
 ## 14. Referencias
 
@@ -226,6 +229,77 @@ Cita sugerida del observatorio:
   11(1):48.
 - Tokairin T. et al. (2010). *Study on the urban heat island in Asuncion,
   Paraguay* (ciudad comparable en latitud y clima).
+
+## 15. Validación con datos de campo
+
+*Sección agregada el 2026-04-25 por `scripts/52_validacion_smn.py` v0.1.0. Resuelve el punto 5 de la sección 13.*
+
+### 15.1 Por qué validar
+
+Toda capa derivada de teledetección térmica requiere cruce con una fuente independiente de temperatura del aire para tener credibilidad académica y operativa. Sin este cruce, la LST podría estar correlacionada con cualquier cosa (por ejemplo nubes residuales, sesgo del compositor mediano, deriva del sensor) y no la temperatura real percibida por la ciudadanía.
+
+### 15.2 Fuente utilizada
+
+**ERA5-Land Monthly Aggregated** (ECMWF) — banda `temperature_2m`, asset `ECMWF/ERA5_LAND/MONTHLY_AGGR`. Es un reanálisis con resolución nominal 0.1° (~11 km) que asimila observaciones de estaciones meteorológicas globales (incluyendo SMN Argentina) en un modelo atmosférico de superficie. Cobertura 1950-presente (lag ~2-3 meses).
+
+Comparado con la estación SMN POSADAS AERO directa (NOAA GHCN-Monthly `ARM00087178`), ERA5-Land tiene cobertura completa mientras que la estación pública para 2018-2025 sólo tiene TMIN parcial (~20 meses sobre 84 posibles, sin TAVG ni TMAX consistentes). ERA5-Land es por tanto la fuente más robusta y reproducible.
+
+### 15.3 Método
+
+1. Disolver los polígonos urbanos del observatorio en una huella única (unión de ~14 polígonos).
+2. Para cada mes de 2018-01 al presente, calcular la media espacial de `temperature_2m` ERA5-Land sobre esa huella (1 valor mensual por Posadas urbana).
+3. Convertir a °C (`K - 273.15`).
+4. Promediar la `lst_mean` de los polígonos urbanos para el mismo mes.
+5. Cross-join por `(anio, mes)` y calcular Pearson r, Spearman ρ, RMSE, MAE y sesgo medio (LST − T_aire).
+
+Detalle: el grid ERA5-Land (~11 km) es más grueso que los polígonos, por lo cual no tiene sentido comparar polígono por polígono — un valor por mes representativo de Posadas urbana es la unidad de análisis.
+
+### 15.4 Resultados
+
+| Métrica | Valor |
+|---|---|
+| n meses cruzados | 85 |
+| Período | 2018-02 → 2026-01 |
+| Pearson **r** | **0.896** (p = 0) |
+| Spearman ρ | 0.884 (p = 0) |
+| RMSE | 10.55 °C |
+| MAE | 9.59 °C |
+| Sesgo medio (LST − T_aire) | **+9.47 °C** |
+| Regresión LST = a·T_aire + b | a = 1.762, b = -7.50 °C, R² = 0.803 |
+| Rango T_aire observado | 14.6 a 30.1 °C |
+| Rango LST observada | 13.3 a 45.3 °C |
+
+Plots producidos en `data/outputs/calor/`:
+
+- `validacion_smn_scatter.png` — scatter T_aire vs LST coloreado por mes + recta 1:1 + recta de regresión.
+- `validacion_smn_serie.png` — serie temporal de ambas señales superpuestas con la banda de diferencia.
+
+Datos brutos del cruce en `data/processed/calor/validacion_smn.csv` (columnas: `anio, mes, t_aire_mean, lst_promedio, diferencia, n_poligonos, lst_std_inter_pol`).
+
+### 15.5 Interpretación
+
+Correlación alta (r ≥ 0.85) — la LST satelital refleja con fidelidad la variación estacional del aire. RMSE = 10.6 °C; sesgo medio LST−T_aire = +9.5 °C, dentro del rango típico para sensores satelitales en horario diurno (Voogt & Oke 2003). n = 85 meses (2018-02 → 2026-01).
+
+El sesgo medio positivo entre LST y T_aire es **esperado y físicamente consistente**: Landsat pasa a ~10:30 AM hora local, momento en el que techos, asfalto y suelos descubiertos están sustancialmente más calientes que el aire a 1.5-2 m. La literatura típica reporta diferencias diurnas LST−T_aire de +5 a +15 °C en horario de máxima insolación sobre superficie urbana (Voogt & Oke 2003; Hu et al. 2014).
+
+**Lo que importa para la utilidad de la capa**: la *correlación* alta confirma que el ranking mensual y la dinámica estacional de la LST replican fielmente la temperatura del aire. Es decir, los meses más calurosos en LST coinciden con los más calurosos en aire — la capa sí sirve para **comparar barrios y detectar UHI**, aunque el valor absoluto no se debe leer como temperatura ambiente.
+
+### 15.6 Limitaciones de esta validación
+
+1. ERA5-Land es un reanálisis, no observación pura — incorpora un modelo físico que puede tener errores en regiones con baja densidad de estaciones.
+2. La resolución 11 km de ERA5-Land suaviza variabilidad intraurbana — no podemos validar UHI por barrio individual con esta fuente, sólo el promedio de Posadas urbana.
+3. La validación es a escala mensual; eventos extremos diarios (olas de calor) requieren series diarias horarias, fuera del alcance actual de esta capa.
+4. Idealmente cruzaríamos también con TAVG diaria de POSADAS AERO cuando SMN publique series consistentes en datos.gob.ar.
+
+### 15.7 Reproducibilidad
+
+Para regenerar la validación:
+
+```bash
+python scripts/52_validacion_smn.py todo --force
+```
+
+Esto descarga ERA5-Land vía Earth Engine, cruza con la última versión de `lst_mensual_por_poligono.csv` y reescribe esta sección con las métricas actualizadas.
 
 ---
 

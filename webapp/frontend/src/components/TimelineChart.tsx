@@ -4,6 +4,10 @@
 // confianza ±15%. Mostramos lo que realmente medimos (conteo de edificios)
 // en lugar de m²: las columnas superficie_*_km2 son derivadas y la banda
 // venía en otra escala, lo cual hacía un chart ilegible.
+//
+// Dark mode: alternamos los colores de stroke/grid/tick usando useTheme().
+// Recharts no permite usar variables CSS directamente en sus props, así que
+// resolvemos los hex al momento del render.
 
 import {
   Area,
@@ -17,7 +21,8 @@ import {
   YAxis,
 } from "recharts";
 
-import { COLORS } from "@/lib/colors";
+import { EducationalTooltip } from "@/components/charts/EducationalTooltip";
+import { useTheme } from "@/hooks/useTheme";
 import type { SerieTemporalRow } from "@/lib/types";
 
 interface TimelineChartProps {
@@ -25,10 +30,27 @@ interface TimelineChartProps {
   height?: number;
 }
 
+// Paleta efectiva por tema. Centralizamos acá para no rotar entre seis
+// strings en el JSX según light/dark.
+function palette(isDark: boolean) {
+  return {
+    primary: isDark ? "#7faed8" : "#1a3a5c",
+    secondary: isDark ? "#94a0b8" : "#5a7a9c",
+    grid: isDark ? "#2a3247" : "#e5e7eb",
+    muted: isDark ? "#94a0b8" : "#6b7280",
+    surface: isDark ? "#161d2f" : "#ffffff",
+    border: isDark ? "#2a3247" : "#e5e7eb",
+  };
+}
+
 export function TimelineChart({ rows, height = 320 }: TimelineChartProps) {
+  const { resolved } = useTheme();
+  const isDark = resolved === "dark";
+  const C = palette(isDark);
+
   if (!rows.length) {
     return (
-      <p className="text-sm italic text-neutral-muted">
+      <p className="text-sm italic text-neutral-muted dark:text-dk-muted">
         Sin datos de serie temporal.
       </p>
     );
@@ -58,59 +80,72 @@ export function TimelineChart({ rows, height = 320 }: TimelineChartProps) {
           data={data}
           margin={{ top: 10, right: 16, bottom: 0, left: 16 }}
         >
-          <CartesianGrid stroke={COLORS.border} strokeDasharray="3 3" />
+          <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
           <XAxis
             dataKey="anio"
-            stroke={COLORS.muted}
+            stroke={C.muted}
+            tick={{ fill: C.muted }}
             tickLine={false}
-            axisLine={{ stroke: COLORS.border }}
+            axisLine={{ stroke: C.grid }}
           />
           <YAxis
-            stroke={COLORS.muted}
+            stroke={C.muted}
+            tick={{ fill: C.muted }}
             tickLine={false}
-            axisLine={{ stroke: COLORS.border }}
+            axisLine={{ stroke: C.grid }}
             tickFormatter={formatNumero}
             label={{
               value: "viviendas detectadas",
               angle: -90,
               position: "insideLeft",
               offset: 0,
-              style: { fill: COLORS.muted, fontSize: 12, textAnchor: "middle" },
+              style: { fill: C.muted, fontSize: 12, textAnchor: "middle" },
             }}
             domain={["dataMin - 200", "dataMax + 200"]}
           />
           <Tooltip
-            contentStyle={{
-              backgroundColor: "#ffffff",
-              border: `1px solid ${COLORS.border}`,
-              borderRadius: 4,
-              fontSize: 13,
-            }}
-            labelStyle={{ color: COLORS.primary, fontWeight: 600 }}
-            formatter={(value: unknown, name: string) => {
-              if (Array.isArray(value)) {
-                const [lo, hi] = value as [number, number];
-                return [`${formatNumero(lo)} – ${formatNumero(hi)}`, name];
-              }
-              return [formatNumero(Number(value)), name];
-            }}
+            content={
+              <EducationalTooltip
+                labelFormatter={(label) => `Año ${label}`}
+                formatter={(value, name) => {
+                  if (Array.isArray(value)) {
+                    const [lo, hi] = value as [number, number];
+                    return [
+                      `${formatNumero(lo)} – ${formatNumero(hi)}`,
+                      name,
+                    ];
+                  }
+                  return [
+                    `${formatNumero(Number(value))} viviendas`,
+                    name,
+                  ];
+                }}
+                interpretacion={
+                  "La banda ±15% representa el margen de incertidumbre típico " +
+                  "de Open Buildings (Google) sobre Posadas; los conteos son " +
+                  "centroides detectados desde Sentinel-2/Maxar."
+                }
+              />
+            }
           />
-          <Legend wrapperStyle={{ fontSize: 12 }} />
+          <Legend
+            wrapperStyle={{ fontSize: 12, color: C.muted }}
+          />
           <Area
             type="monotone"
             dataKey="banda"
             stroke="none"
-            fill={COLORS.secondary}
-            fillOpacity={0.22}
+            fill={C.secondary}
+            fillOpacity={isDark ? 0.32 : 0.22}
             name="Banda ±15%"
             isAnimationActive={false}
           />
           <Line
             type="monotone"
             dataKey="edificios"
-            stroke={COLORS.primary}
+            stroke={C.primary}
             strokeWidth={2.4}
-            dot={{ r: 3, fill: COLORS.primary }}
+            dot={{ r: 3, fill: C.primary }}
             activeDot={{ r: 5 }}
             name="Viviendas estimadas"
             isAnimationActive={false}

@@ -31,30 +31,35 @@ export default async function DescargasPage() {
 
   return (
     <article className="container-obs py-10">
-      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-secondary">
+      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-secondary dark:text-dk-muted">
         Datos abiertos
       </p>
-      <h1 className="mt-2 text-3xl md:text-4xl font-bold">Descargas</h1>
-      <p className="mt-3 text-neutral-text">
-        Datasets y reportes listos para descargar. Distribuidos bajo licencia
-        CC BY 4.0.
+      <h1 className="mt-2 font-bold" style={{ fontSize: "var(--fs-h1)" }}>
+        Descargas
+      </h1>
+      <p className="mt-3 lead text-neutral-text dark:text-dk-text">
+        Datasets agregados y reportes listos para descargar. Distribuidos bajo
+        licencia CC BY 4.0 — libre uso citando la fuente.
       </p>
 
       <section aria-labelledby="datasets" className="mt-10">
-        <h2 id="datasets" className="text-2xl font-semibold text-primary">
+        <h2
+          id="datasets"
+          className="text-2xl font-semibold text-primary dark:text-dk-primary"
+        >
           Datasets agregados
         </h2>
         <ul className="mt-4 grid gap-3 md:grid-cols-2">
           <li className="card">
-            <p className="text-sm font-semibold text-primary">
+            <p className="text-sm font-semibold text-primary dark:text-dk-primary">
               Poligonos (GeoJSON)
             </p>
-            <p className="text-xs text-neutral-muted">
+            <p className="text-xs text-neutral-muted dark:text-dk-muted">
               FeatureCollection con propiedades agregadas.
             </p>
             <a
               href="/data/poligonos.geojson"
-              className="mt-3 inline-block text-sm font-medium text-primary underline-offset-2 hover:underline"
+              className="mt-3 inline-block text-sm font-medium text-primary underline-offset-2 hover:underline dark:text-dk-primary"
               download
             >
               Descargar poligonos.geojson
@@ -62,11 +67,15 @@ export default async function DescargasPage() {
           </li>
           {CSV_FILES.map((c) => (
             <li key={c.file} className="card">
-              <p className="text-sm font-semibold text-primary">{c.label}</p>
-              <p className="text-xs text-neutral-muted">{c.file}</p>
+              <p className="text-sm font-semibold text-primary dark:text-dk-primary">
+                {c.label}
+              </p>
+              <p className="text-xs text-neutral-muted dark:text-dk-muted">
+                {c.file}
+              </p>
               <a
                 href={`/data/${c.file}`}
-                className="mt-3 inline-block text-sm font-medium text-primary underline-offset-2 hover:underline"
+                className="mt-3 inline-block text-sm font-medium text-primary underline-offset-2 hover:underline dark:text-dk-primary"
                 download
               >
                 Descargar {c.file}
@@ -77,22 +86,28 @@ export default async function DescargasPage() {
       </section>
 
       <section aria-labelledby="reportes" className="mt-10">
-        <h2 id="reportes" className="text-2xl font-semibold text-primary">
+        <h2
+          id="reportes"
+          className="text-2xl font-semibold text-primary dark:text-dk-primary"
+        >
           Reportes por poligono (PDF)
         </h2>
         {poligonos.length === 0 ? (
-          <p className="mt-2 text-sm italic text-neutral-muted">
+          <p className="mt-2 text-sm italic text-neutral-muted dark:text-dk-muted">
             No hay poligonos cargados.
           </p>
         ) : (
-          <ul className="mt-4 grid gap-2 md:grid-cols-2">
+          <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {poligonos.map((p) => (
-              <li key={p.id} className="card flex items-center justify-between">
-                <span className="font-medium text-primary">{p.nombre}</span>
+              <li key={p.id} className="card flex items-center justify-between gap-3">
+                <span className="font-medium text-primary dark:text-dk-primary">
+                  {p.nombre}
+                </span>
                 <a
                   href={`/data/media/${p.id}.pdf`}
-                  className="text-sm font-medium text-primary underline-offset-2 hover:underline"
+                  className="inline-flex min-h-[36px] items-center rounded px-2 text-sm font-medium text-primary underline-offset-2 hover:underline dark:text-dk-primary"
                   download
+                  aria-label={`Descargar PDF de ${p.nombre}`}
                 >
                   PDF
                 </a>
@@ -102,10 +117,10 @@ export default async function DescargasPage() {
         )}
       </section>
 
-      <p className="mt-10 text-xs text-neutral-muted">
+      <p className="mt-10 text-xs text-neutral-muted dark:text-dk-muted">
         Los datos publicados son agregados por poligono. No se distribuyen datos
         personales. Ver{" "}
-        <a href="/metodologia" className="underline">
+        <a href="/metodologia" className="underline dark:text-dk-primary">
           metodologia
         </a>{" "}
         para detalles de margen de error.

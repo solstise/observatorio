@@ -26,8 +26,8 @@ export function SarDeltaBadge({ rows }: SarDeltaBadgeProps) {
   if (!rows.length) {
     return (
       <div className="flex h-full min-h-[160px] items-center justify-center">
-        <p className="text-sm italic text-neutral-muted">
-          Sentinel-1 sin datos para este poligono.
+        <p className="text-sm italic text-neutral-muted dark:text-dk-muted">
+          Sin datos de detección por radar para este polígono.
         </p>
       </div>
     );
@@ -41,8 +41,8 @@ export function SarDeltaBadge({ rows }: SarDeltaBadgeProps) {
   if (!actual || actual.delta_vv_mean_db == null) {
     return (
       <div className="flex h-full min-h-[160px] items-center justify-center">
-        <p className="text-sm italic text-neutral-muted">
-          Sin delta SAR todavia (serie demasiado corta).
+        <p className="text-sm italic text-neutral-muted dark:text-dk-muted">
+          Aún no hay variación medible (serie demasiado corta).
         </p>
       </div>
     );
@@ -65,27 +65,34 @@ export function SarDeltaBadge({ rows }: SarDeltaBadgeProps) {
       flecha = "↑";
       etiqueta =
         magnitud >= 1
-          ? "Senal fuerte de edificacion / cambio estructural"
-          : "Tendencia a mas superficies reflectantes";
+          ? "Señal fuerte de construcción nueva o cambio estructural"
+          : "Tendencia a más superficies duras (techos, asfalto)";
     } else {
       color = COLOR_NEG;
       flecha = "↓";
       etiqueta =
         magnitud >= 1
-          ? "Perdida de superficies reflectantes"
-          : "Tendencia a suavizado de superficie";
+          ? "Pérdida de superficies duras (demolición / desmonte)"
+          : "Tendencia a suavizado del terreno";
     }
   }
 
   return (
     <div className="flex flex-col gap-2">
-      <h3 className="text-sm font-semibold text-primary">
-        Delta SAR &mdash; Sentinel-1 VV
-      </h3>
+      <div>
+        <h3 className="text-sm font-semibold text-primary dark:text-dk-primary">
+          Detección de construcción nueva (radar)
+        </h3>
+        <p className="mt-1 text-xs text-neutral-text dark:text-dk-text">
+          Detecta cambios estructurales aún cuando hay nubes — el radar
+          atraviesa la cobertura nubosa, ideal para Posadas (clima
+          subtropical húmedo).
+        </p>
+      </div>
       <div
-        className="flex items-center gap-4 rounded-md border border-neutral-border p-4"
-        title="Valores positivos indican edificacion nueva o modificacion estructural; tipicamente |delta| mayor a 1 dB es una senal fuerte."
-        aria-label={`Delta VV: ${delta.toFixed(2)} dB entre ${previa ? previa.fecha : "fecha anterior"} y ${actual.fecha}. ${etiqueta}`}
+        className="flex items-center gap-4 rounded-md border border-neutral-border p-4 dark:border-dk-border dark:bg-dk-elevated/40"
+        title="Valores positivos indican edificación nueva o modificación estructural; típicamente |delta| > 1 dB es señal fuerte."
+        aria-label={`Variación de radar: ${delta.toFixed(2)} dB entre ${previa ? previa.fecha : "fecha anterior"} y ${actual.fecha}. ${etiqueta}`}
       >
         <div
           className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-3xl font-bold text-white"
@@ -102,16 +109,19 @@ export function SarDeltaBadge({ rows }: SarDeltaBadgeProps) {
             {delta > 0 ? "+" : ""}
             {delta.toFixed(2)} dB
           </span>
-          <span className="text-xs font-medium text-primary">{etiqueta}</span>
-          <span className="text-[11px] text-neutral-muted">
-            Cambio estructural detectado por SAR entre
+          <span className="text-xs font-medium text-primary dark:text-dk-primary">
+            {etiqueta}
+          </span>
+          <span className="text-[11px] text-neutral-muted dark:text-dk-muted">
+            Comparación entre
             {previa ? ` ${previa.fecha} y ${actual.fecha}` : ` ${actual.fecha}`}.
           </span>
         </div>
       </div>
-      <p className="text-[11px] italic text-neutral-muted">
-        Valores positivos indican edificacion nueva o modificacion estructural;
-        tipicamente &gt; 1 dB es senal fuerte.
+      <p className="text-[11px] italic text-neutral-muted dark:text-dk-muted">
+        Datos: Sentinel-1 GRD (radar de la ESA, polarización VV). Valores
+        positivos = más construcción / superficies duras; valores &gt; 1 dB
+        son señal estructural fuerte.
       </p>
     </div>
   );

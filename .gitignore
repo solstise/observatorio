@@ -28,8 +28,12 @@ models/*.h5
 # Credenciales
 .env
 .env.local
+.env.production
+.env.production.local
+.env.*.local
 *.key
 service-account*.json
+.gitignore.bak
 
 # Sistema
 .DS_Store
@@ -54,6 +58,13 @@ webapp/frontend/.next/
 webapp/frontend/out/
 webapp/backend/__pycache__/
 webapp/backend/.venv/
+
+# Datos sincronizados al frontend (pesados, regenerables por el pipeline).
+# El cron GitHub Actions los recalcula en cada run; el deploy al VPS los
+# tarea aparte vía scp. No tienen sentido en git (repo crece sin parar).
+webapp/frontend/public/data/
+# Excepto el README explicando cómo se sincronizan
+!webapp/frontend/public/data/README.md
 
 # Logs
 *.log

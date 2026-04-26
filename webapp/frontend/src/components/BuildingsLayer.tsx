@@ -157,6 +157,8 @@ export default function BuildingsLayer() {
 
   // No renderizamos JSX: la capa vive en el mapa Leaflet, no en el DOM React.
   // Si hubo error de carga lo mostramos como banner mínimo, no bloqueante.
+  // Usamos las CSS variables del tema para que el banner sea legible en
+  // ambos modos sin tener que conocer el resolved acá.
   if (loadError) {
     return (
       <div
@@ -165,12 +167,12 @@ export default function BuildingsLayer() {
           bottom: 8,
           left: 8,
           zIndex: 1000,
-          background: "rgba(255,255,255,0.92)",
-          border: "1px solid #c97d3c",
+          background: "var(--color-attribution-bg)",
+          border: "1px solid var(--color-accent)",
           padding: "4px 8px",
           fontSize: 12,
           borderRadius: 4,
-          color: "#444",
+          color: "var(--color-text)",
         }}
       >
         No se pudo cargar la capa de edificios ({loadError}).

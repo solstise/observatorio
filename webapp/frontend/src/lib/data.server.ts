@@ -14,10 +14,14 @@ import path from "node:path";
 import Papa from "papaparse";
 
 import type {
+  AlertasPayload,
+  AqiDiarioRow,
   CalorMensualRow,
   ChirpsRow,
   DynamicWorldRow,
   FirmsRow,
+  ForecastDiarioRow,
+  ForecastHorarioRow,
   GhslRow,
   LstRow,
   MapBiomasRow,
@@ -26,9 +30,13 @@ import type {
   PoligonoDetalle,
   PoligonoFeature,
   PoligonosCollection,
+  ProyeccionMetrica,
+  ProyeccionRow,
+  RankingPoliticoRow,
   SerieTemporalRow,
   Sentinel1Row,
   ServicioRow,
+  SocialDistanciasRow,
   UhiEstacionalRow,
   UhiMensualRow,
   ViirsRow,
@@ -64,6 +72,19 @@ async function readStaticCsv<T>(relativePath: string): Promise<T[]> {
 
 export async function getPoligonos(): Promise<PoligonosCollection> {
   return readStaticJson<PoligonosCollection>("/data/poligonos.geojson");
+}
+
+// Solo los barrios — excluye capas de referencia (`posadas_completa`).
+// Las páginas de ranking, coropleta y comparación deben usar este getter
+// para no incluir el contorno de toda la ciudad como "un barrio más".
+export async function getPoligonosBarrios(): Promise<PoligonosCollection> {
+  const all = await getPoligonos();
+  return {
+    ...all,
+    features: all.features.filter(
+      (f) => f.properties.categoria_original !== "ciudad_completa",
+    ),
+  };
 }
 
 export async function getPoligonoFeature(
@@ -255,4 +276,97 @@ export async function getUhiEstacional(
   );
   if (!poligonoId) return rows;
   return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+// ---------------------------------------------------------------------------
+// Capa social — acceso a servicios y ranking político de prioridad
+// ---------------------------------------------------------------------------
+
+export async function getDistanciasSociales(
+  poligonoId?: string,
+): Promise<SocialDistanciasRow[]> {
+  const rows = await readStaticCsvOptional<SocialDistanciasRow>(
+    "/data/social/distancias.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getRankingPolitico(
+  poligonoId?: string,
+): Promise<RankingPoliticoRow[]> {
+  const rows = await readStaticCsvOptional<RankingPoliticoRow>(
+    "/data/social/ranking.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+// ---------------------------------------------------------------------------
+// Capa de pronóstico climático (paquete A1+A2+A3+A4)
+// ---------------------------------------------------------------------------
+
+export async function getForecastDiario(
+  poligonoId?: string,
+): Promise<ForecastDiarioRow[]> {
+  const rows = await readStaticCsvOptional<ForecastDiarioRow>(
+    "/data/forecast/forecast_diario.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows
+    .filter((r) => r.poligono_id === poligonoId)
+    .sort((a, b) => (a.fecha < b.fecha ? -1 : a.fecha > b.fecha ? 1 : 0));
+}
+
+export async function getForecastHorario(): Promise<ForecastHorarioRow[]> {
+  return readStaticCsvOptional<ForecastHorarioRow>(
+    "/data/forecast/forecast_horario.csv",
+  );
+}
+
+export async function getAqiDiario(): Promise<AqiDiarioRow[]> {
+  return readStaticCsvOptional<AqiDiarioRow>(
+    "/data/forecast/aqi_diario.csv",
+  );
+}
+
+// Alertas: payload JSON. Si falta o es inválido, devolvemos un default
+// vacío (mismo contrato que el cliente) para que la página no rompa.
+export async function getAlertasActivas(): Promise<AlertasPayload> {
+  try {
+    return await readStaticJson<AlertasPayload>(
+      "/data/forecast/alertas_activas.json",
+    );
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn("Alertas no disponibles", err);
+    return {
+      generated_at: "",
+      script_version: "",
+      n_alertas: 0,
+      ventana_dias: 0,
+      alertas: [],
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Capa de proyecciones a futuro (script 59)
+// ---------------------------------------------------------------------------
+
+// Filas de proyección leídas del CSV pass-through. Espejo del client.
+// Si el CSV todavía no se generó, devolvemos [] sin lanzar para que la
+// página /proyecciones pueda mostrar un placeholder informativo.
+export async function getProyecciones(
+  poligonoId?: string,
+  metrica?: ProyeccionMetrica,
+): Promise<ProyeccionRow[]> {
+  const rows = await readStaticCsvOptional<ProyeccionRow>(
+    "/data/proyecciones/proyecciones.csv",
+  );
+  return rows.filter(
+    (r) =>
+      (!poligonoId || r.poligono_id === poligonoId) &&
+      (!metrica || r.metrica === metrica),
+  );
 }

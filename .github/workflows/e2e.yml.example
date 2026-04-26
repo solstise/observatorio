@@ -1,0 +1,145 @@
+# GitHub Actions: Tests E2E Playwright para Observatorio Urbano Posadas.
+#
+# IMPORTANTE: este archivo termina en `.example` para no auto-disparar el
+# workflow al subirlo. Para activarlo:
+#
+#   1. Copiar a `.github/workflows/e2e.yml` (sin el `.example`).
+#   2. Commitear y pushear a la branch que dispara CI.
+#   3. Verificar que la matrix corre las tres engines en paralelo.
+#
+# Estrategia:
+# - Matrix [chromium, firefox, webkit]: cada engine corre en su propio runner.
+#   Si webkit falla pero chromium pasa, el reporte separado ayuda a aislar.
+# - `fail-fast: false`: queremos ver fallos en TODOS los engines, no parar
+#   al primero.
+# - npm ci: install reproducible (lockfile-only, no resoluciones nuevas).
+# - `npx playwright install --with-deps <browser>`: instala el binario y
+#   las libs de sistema necesarias en Ubuntu (libgbm, libnss3, etc.).
+# - Levantamos `next dev` en background, esperamos a que el puerto 3000
+#   responda (con `wait-on` o un loop curl), y recién ahí corremos tests.
+# - Subimos el HTML report como artifact siempre (incluso en fallos), así
+#   el equipo puede descargarlo y abrirlo localmente.
+
+name: E2E Tests
+
+on:
+  # Comentar push si sólo querés correr en PR.
+  push:
+    branches: [main, dev]
+  pull_request:
+  # Permite disparar manualmente desde la UI de GitHub Actions.
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Cada engine en su propio runner. Las versiones de browser las
+        # pinea Playwright via package-lock.json.
+        browser: [chromium, firefox, webkit]
+
+    defaults:
+      run:
+        working-directory: webapp/frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: webapp/frontend/package-lock.json
+
+      - name: Install npm deps
+        run: npm ci
+
+      # Cache de los browsers de Playwright. La key se basa en el lockfile
+      # (que pinea la versión de @playwright/test → versión exacta de
+      # browser bundles), así que se invalida solo cuando hace falta.
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ matrix.browser }}-${{ hashFiles('webapp/frontend/package-lock.json') }}
+
+      - name: Install Playwright browser ${{ matrix.browser }}
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Build app
+        run: npm run build
+
+      - name: Start production server
+        # `npm start` corre en :3000 (siguiente Next 14 default).
+        # Lo lanzamos en background y damos tiempo al puerto.
+        run: |
+          npm start &
+          echo "WAITING_FOR=http://localhost:3000"
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:3000 > /dev/null 2>&1; then
+              echo "Server up after ${i}s"
+              break
+            fi
+            sleep 1
+          done
+
+      - name: Run Playwright tests (${{ matrix.browser }})
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+          CI: "true"
+        run: npx playwright test --project=${{ matrix.browser }}
+
+      - name: Upload HTML report
+        # `if: always()` para tener el reporte también cuando los tests
+        # fallan — es justo cuando más lo necesitás.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: webapp/frontend/playwright-report/
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Upload trace + videos (sólo si falló)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces-${{ matrix.browser }}
+          path: webapp/frontend/test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # Job opcional: smoke contra prod después de cada deploy.
+  # Descomentar y configurar el secret PROD_URL para activar.
+  # smoke-prod:
+  #   if: github.event_name == 'workflow_dispatch'
+  #   timeout-minutes: 10
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: webapp/frontend
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: "22"
+  #         cache: "npm"
+  #         cache-dependency-path: webapp/frontend/package-lock.json
+  #     - run: npm ci
+  #     - run: npx playwright install --with-deps chromium
+  #     - run: npm run test:e2e:smoke
+  #       env:
+  #         PLAYWRIGHT_BASE_URL: https://observatorio.sistemaswinter.com
+  #         CI: "true"
+  #     - if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: playwright-report-smoke
+  #         path: webapp/frontend/playwright-report/

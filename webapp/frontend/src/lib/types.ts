@@ -11,11 +11,19 @@ export interface PoligonoProperties {
   id: string;
   nombre: string;
   categoria: CategoriaPoligono;
+  // Slug original del pipeline (asentamiento_crecimiento_rapido,
+  // consolidado_crecimiento, control_consolidado, zona_sensible o
+  // ciudad_completa). Lo usamos para filtrar el contorno de la ciudad
+  // (`ciudad_completa`) de rankings, coropletas y comparaciones.
+  categoria_original?: string;
   score_expansion: number;
   superficie_km2: number;
   poblacion_estimada: number;
   edificios_2018: number;
   edificios_2026: number;
+  // Flag editorial opcional usado por sitemap.ts para excluir polígonos
+  // del SEO sin removerlos del dataset (default true cuando ausente).
+  publicar_en_sitio?: boolean;
   _synthetic?: boolean;
 }
 
@@ -245,4 +253,174 @@ export interface UhiEstacionalRow {
   uhi_vs_ciudad_mean: number;
   lst_mean: number;
   n_meses: number;
+}
+
+// ---------------------------------------------------------------------------
+// Capa social (acceso a servicios + ranking político de prioridad)
+// ---------------------------------------------------------------------------
+
+// Output de scripts/53_servicios_distancias.py. Para cada polígono, distancia
+// mínima en metros desde el centroide a la categoría correspondiente, y
+// densidad de servicios por km² (puntos dentro del polígono / area_km2).
+// Las distancias pueden venir null cuando la fuente correspondiente no
+// tiene puntos en el bbox de Posadas.
+export interface SocialDistanciasRow {
+  poligono_id: string;
+  area_km2: number;
+  dist_caps_m: number | null;
+  dist_escuela_m: number | null;
+  dist_hospital_m: number | null;
+  dist_transporte_m: number | null;
+  n_caps_dentro: number;
+  n_escuela_dentro: number;
+  n_hospital_dentro: number;
+  n_transporte_dentro: number;
+  densidad_caps_km2: number;
+  densidad_escuela_km2: number;
+  densidad_transporte_km2: number;
+  fuente_caps: string;
+  fuente_hospital: string;
+  fuente_escuela: string;
+  fuente_transporte: string;
+}
+
+// Output de scripts/54_ranking_politico.py. indice_prioridad ∈ [0, 1],
+// mayor = mayor prioridad de inversión política.
+// Si vulnerabilidad o uhi_verano son null, el script los neutraliza a 0.5
+// en el cálculo del componente normalizado pero deja la columna cruda en
+// null para trazabilidad.
+export interface RankingPoliticoRow {
+  poligono_id: string;
+  vulnerabilidad: number | null;
+  uhi_verano: number | null;
+  dist_caps_m: number | null;
+  dist_escuela_m: number | null;
+  dist_hospital_m: number | null;
+  dist_transporte_m: number | null;
+  vulnerabilidad_norm: number;
+  uhi_verano_norm: number;
+  acceso_servicios_norm: number;
+  indice_prioridad: number;
+  ranking: number;
+}
+
+// ---------------------------------------------------------------------------
+// Capa de pronóstico climático (paquete A1 + A2 + A3 + A4)
+// ---------------------------------------------------------------------------
+
+// Output de scripts/57_forecast_clima.py. Una fila por (barrio, fecha).
+// Las columnas p10/p50/p90 son los percentiles del ensemble de 6 modelos
+// meteorológicos (ECMWF/GFS/ICON/JMA/GEM/BoM); cuando los modelos
+// discrepan, la banda p10–p90 se ensancha. weather_code es WMO code.
+export interface ForecastDiarioRow {
+  poligono_id: string;
+  fecha: string; // YYYY-MM-DD
+  tmin_p10: number;
+  tmin_p50: number;
+  tmin_p90: number;
+  tmax_p10: number;
+  tmax_p50: number;
+  tmax_p90: number;
+  precipitation_mm: number | null;
+  weather_code: number | null;
+  offset_calor_c: number;
+  offset_frio_c: number;
+  offset_origen: string;
+  generated_at: string;
+}
+
+// Output de scripts/57_forecast_clima.py — bloque horario para Posadas
+// centro (próximas 72 h por defecto). Útil para gráficos finos.
+export interface ForecastHorarioRow {
+  time: string; // ISO local con timezone America/Argentina/Cordoba
+  temp_p10: number;
+  temp_p50: number;
+  temp_p90: number;
+  rh_p50: number;
+  precip_p50: number;
+  wind_p50: number;
+}
+
+// AQI diario europeo + contaminantes principales. NO se desagrega por
+// barrio (resolución del modelo ≈ 10 km); se aplica a Posadas global.
+export interface AqiDiarioRow {
+  fecha: string;
+  pm10: number;
+  pm2_5: number;
+  no2: number;
+  so2: number;
+  ozone: number;
+  european_aqi: number;
+}
+
+export type AlertaSeveridad = "roja" | "naranja" | "amarilla";
+
+// Una alerta climática activa (output de scripts/58_alertas_clima.py).
+// Las severidades se ordenan: roja > naranja > amarilla. Los nombres
+// legibles vienen pre-resueltos para que el frontend no necesite cruzar
+// con el GeoJSON solo para mostrar la lista.
+export interface AlertaActiva {
+  tipo:
+    | "frio_extremo"
+    | "frio_severo"
+    | "calor_extremo"
+    | "lluvia_intensa"
+    | "aqi_malo";
+  severidad: AlertaSeveridad;
+  fecha_inicio: string;
+  fecha_fin: string;
+  n_dias: number;
+  n_barrios_afectados: number;
+  barrios_afectados: string[];
+  barrios_afectados_nombres: string[];
+  barrios_prioritarios: string[];
+  barrios_prioritarios_nombres: string[];
+  descripcion: string;
+}
+
+export interface AlertasPayload {
+  generated_at: string;
+  script_version: string;
+  n_alertas: number;
+  ventana_dias: number;
+  alertas: AlertaActiva[];
+}
+
+// ---------------------------------------------------------------------------
+// Capa de proyecciones a futuro (script 59)
+// ---------------------------------------------------------------------------
+
+// Métricas soportadas por el motor de proyección. El sufijo `_verano` para
+// UHI viene del script y queda visible al cliente para no perder contexto.
+export type ProyeccionMetrica =
+  | "viviendas"
+  | "poblacion"
+  | "urbano"
+  | "uhi_verano";
+
+// Modelo elegido por el script (mejor R² con bonus de simplicidad para
+// el lineal — Δ R² < 0.05 desempata a favor del lineal).
+export type ProyeccionModelo = "lineal" | "exp";
+
+// Confianza derivada del R² del modelo elegido. Si es "baja" y la métrica
+// es UHI, el script NO emite filas para 2035 (extrapolación demasiado
+// agresiva sobre series cortas y ruidosas).
+export type ProyeccionConfianza = "alta" | "media" | "baja";
+
+// Output de scripts/59_proyecciones_futuras.py — una fila por
+// (polígono × métrica × año_proyección). El IC del 95 % es analítico
+// (prediction-interval OLS con factor Student-t, n-2 g.l.). Para
+// modelos exponenciales el IC se computa en log-espacio y luego se
+// anti-loguea, por lo que puede ser asimétrico.
+export interface ProyeccionRow {
+  poligono_id: string;
+  metrica: ProyeccionMetrica;
+  anio_proyeccion: number;
+  valor_pred: number;
+  ci_inferior: number;
+  ci_superior: number;
+  modelo: ProyeccionModelo;
+  r2: number | null;
+  confianza: ProyeccionConfianza;
+  n_obs: number;
 }

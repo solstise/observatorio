@@ -40,7 +40,7 @@ export function PolygonSidebar({
         className="card h-full min-h-[360px] flex items-center justify-center text-center"
       >
         <div>
-          <p className="text-sm text-neutral-muted">
+          <p className="text-sm text-neutral-muted dark:text-dk-muted">
             Seleccione un poligono en el mapa para ver su informacion.
           </p>
         </div>
@@ -80,43 +80,45 @@ export function PolygonSidebar({
           >
             {CATEGORY_LABEL[properties.categoria] ?? "Sin clasificar"}
           </span>
-          <h2 className="mt-2 text-xl font-bold text-primary">
+          <h2 className="mt-2 text-xl font-bold text-primary dark:text-dk-primary">
             {properties.nombre}
           </h2>
-          <p className="text-xs text-neutral-muted">ID: {properties.id}</p>
+          <p className="text-xs text-neutral-muted dark:text-dk-muted">
+            ID: {properties.id}
+          </p>
         </div>
         <button
           type="button"
           onClick={onClear}
           aria-label="Limpiar seleccion"
-          className="text-xs font-medium text-secondary hover:underline"
+          className="text-xs font-medium text-secondary hover:underline dark:text-dk-muted dark:hover:text-dk-primary"
         >
           Cerrar
         </button>
       </header>
 
       {dwPct != null && dwUltima && (
-        <div className="rounded-md border border-neutral-border bg-primary-50 p-3">
-          <p className="text-[11px] uppercase tracking-wider text-secondary">
-            Superficie construida (Dynamic World)
+        <div className="rounded-md border border-neutral-border bg-primary-50 p-3 dark:border-dk-border dark:bg-dk-elevated">
+          <p className="text-[11px] uppercase tracking-wider text-secondary dark:text-dk-muted">
+            Cuánto del barrio es construcción
           </p>
-          <p className="mt-1 text-xl font-bold text-primary">
+          <p className="mt-1 text-xl font-bold text-primary dark:text-dk-primary">
             {dwPct.toFixed(1)} %
           </p>
-          <p className="text-[11px] text-neutral-muted">
-            Prob. &ge; 0.5 en {dwUltima.fecha}
+          <p className="text-[11px] text-neutral-muted dark:text-dk-muted">
+            Datos: Dynamic World V1, IA de Google sobre Sentinel-2 ({dwUltima.fecha}).
           </p>
         </div>
       )}
 
       <dl className="grid grid-cols-2 gap-3 text-sm">
-        <Metric label="Score expansion" value={properties.score_expansion.toFixed(2)} />
+        <Metric label="Score expansión" value={properties.score_expansion.toFixed(2)} />
         <Metric
           label="Superficie"
-          value={`${properties.superficie_km2.toFixed(1)} km2`}
+          value={`${properties.superficie_km2.toFixed(1)} km²`}
         />
         <Metric
-          label="Poblacion estimada"
+          label="Población estimada"
           value={properties.poblacion_estimada.toLocaleString("es-AR")}
         />
         <Metric
@@ -133,7 +135,7 @@ export function PolygonSidebar({
         />
       </dl>
 
-      <div className="mt-auto flex flex-wrap gap-2">
+      <div className="mt-auto flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         <Link
           href={`/poligono/${properties.id}`}
           className="btn-primary"
@@ -153,8 +155,8 @@ export function PolygonSidebar({
       </div>
 
       {properties._synthetic && (
-        <p className="text-xs italic text-neutral-muted">
-          Valores sinteticos de prueba.
+        <p className="text-xs italic text-neutral-muted dark:text-dk-muted">
+          Valores sintéticos de prueba.
         </p>
       )}
     </aside>
@@ -164,10 +166,12 @@ export function PolygonSidebar({
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs uppercase tracking-wider text-secondary">
+      <dt className="text-xs uppercase tracking-wider text-secondary dark:text-dk-muted">
         {label}
       </dt>
-      <dd className="mt-1 text-base font-semibold text-primary">{value}</dd>
+      <dd className="mt-1 text-base font-semibold text-primary dark:text-dk-primary">
+        {value}
+      </dd>
     </div>
   );
 }

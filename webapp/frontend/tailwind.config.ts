@@ -2,7 +2,13 @@ import type { Config } from "tailwindcss";
 
 // Configuracion Tailwind del Observatorio Urbano Posadas.
 // Paleta sobria inspirada en ONU/BID/Banco Mundial. Sin rojos.
+//
+// `darkMode: "class"` (no "media") permite alternar manualmente entre
+// claro/oscuro/sistema desde la UI. El layout inyecta un <script> en el
+// <head> para setear la clase `dark` antes de la hidratación de React y
+// evitar el flash blanco en SSR.
 const config: Config = {
+  darkMode: "class",
   content: [
     "./src/app/**/*.{ts,tsx,md,mdx}",
     "./src/components/**/*.{ts,tsx}",
@@ -11,7 +17,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Paleta institucional
+        // Paleta institucional (light)
         primary: {
           DEFAULT: "#1a3a5c",
           50: "#f0f4f9",
@@ -44,6 +50,20 @@ const config: Config = {
           text: "#222222",
           muted: "#6b7280",
           border: "#e5e7eb",
+        },
+        // Paleta dark — definida también como tokens con prefijo `dk` para
+        // poder usarlos en componentes que necesitan un valor explícito (por
+        // ejemplo, atributos style en SVG o backgrounds inline). En Tailwind
+        // estándar usamos las utilidades `dark:bg-*` directamente.
+        dk: {
+          bg: "#0e1320", // fondo principal: azul muy oscuro
+          surface: "#161d2f", // cards / superficies elevadas
+          elevated: "#1c2540", // surface más elevada (popovers, hover)
+          border: "#2a3247", // bordes / dividers
+          text: "#e6ebf2", // texto principal (no blanco puro)
+          muted: "#94a0b8", // texto secundario
+          primary: "#7faed8", // azul claro (links, headings)
+          accent: "#e0945c", // naranja cálido (acento)
         },
       },
       fontFamily: {

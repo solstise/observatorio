@@ -12,10 +12,12 @@ geografia:
   centro_lat: -27.3667
   centro_lon: -55.8967
   bbox:
+    # Extendido 2026-04-25 al oeste -56.05 para incluir nemesio_parma e itaembe_guazu
+    # (cuyas geometrías legacy ya excedían -56.00 sin que el test detectara el problema).
     norte: -27.30
-    sur: -27.50
+    sur: -27.51
     este: -55.80
-    oeste: -56.00
+    oeste: -56.05
   crs_metrico: "EPSG:32721"  # UTM 21S, para cálculos en metros
 
 sentinel2:

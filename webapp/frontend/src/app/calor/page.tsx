@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 import { Disclaimer } from "@/components/Disclaimer";
 import {
   getCalorMensual,
-  getPoligonos,
+  getPoligonosBarrios,
   getUhiEstacional,
   getUhiMensual,
 } from "@/lib/data.server";
@@ -17,12 +17,12 @@ import { ClientCalor } from "./ClientCalor";
 export const metadata: Metadata = {
   title: "Calor urbano",
   description:
-    "Mapa de isla de calor urbana (UHI) en Posadas con Landsat 8/9 (LST, 30 m).",
+    "Mapa de calor urbano en Posadas: muestra qué tan caliente está cada barrio comparado con el campo. Datos: Landsat 8/9 (LST, 30 m).",
 };
 
 export default async function CalorPage() {
   const [collection, mensuales, uhiRows, estacionales] = await Promise.all([
-    getPoligonos(),
+    getPoligonosBarrios(),
     getCalorMensual(),
     getUhiMensual(),
     getUhiEstacional(),
@@ -34,33 +34,41 @@ export default async function CalorPage() {
     <>
       <Disclaimer />
       <main className="container-obs py-8">
-        <nav aria-label="Migas" className="mb-4 text-sm text-secondary">
+        <nav
+          aria-label="Migas"
+          className="mb-4 text-sm text-secondary dark:text-dk-muted"
+        >
           <Link href="/" className="hover:underline">
             Mapa
           </Link>{" "}
           <span aria-hidden>/</span>{" "}
-          <span className="text-neutral-muted">Calor urbano</span>
+          <span className="text-neutral-muted dark:text-dk-muted">
+            Calor urbano
+          </span>
         </nav>
 
         <header className="mb-6 max-w-3xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-secondary">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-secondary dark:text-dk-muted">
             Capa experimental — v0.3
           </p>
-          <h1 className="mt-2 text-3xl md:text-4xl font-bold">
+          <h1 className="mt-2 font-bold" style={{ fontSize: "var(--fs-h1)" }}>
             Calor urbano de Posadas
           </h1>
-          <p className="mt-3 text-base text-neutral-text">
-            Mapa de temperatura de superficie (LST) e intensidad de isla de
-            calor urbana (UHI) por barrio, derivado de imágenes Landsat 8 y
-            Landsat 9 (Collection 2 Level 2) a 30 m de resolución, con
-            composites mensuales desde enero 2018.
+          <p className="mt-3 lead text-neutral-text dark:text-dk-text">
+            Mapa que muestra <strong>qué tan caliente está cada barrio</strong>{" "}
+            comparado con el campo y con el promedio de la ciudad. Ayuda a
+            identificar dónde el cemento y la falta de árboles hacen subir la
+            temperatura, y dónde aún queda capacidad de enfriamiento.
           </p>
-          <div className="mt-4 rounded-md border border-accent-200 bg-accent-50 p-3 text-sm text-neutral-text">
-            <strong>Aclaración importante:</strong> la LST (temperatura de
-            superficie) <em>no</em> es igual a la temperatura del aire
-            ambiente. A las 10:30 AM en verano, el asfalto puede estar a 50 °C
-            mientras el aire a 1,5 m está a 32 °C. Ver{" "}
-            <Link href="/metodologia" className="text-primary underline">
+          <div className="mt-4 rounded-md border border-accent-200 bg-accent-50 p-3 text-sm text-neutral-text dark:border-amber-700/60 dark:bg-amber-900/30 dark:text-amber-100">
+            <strong>Importante:</strong> esto mide la temperatura del
+            <em> suelo y los techos</em> vistos desde un satélite, no la del
+            aire que respiramos. A las 10:30 de la mañana en verano, el asfalto
+            puede estar a 50 °C mientras el aire a 1,5 m está a 32 °C. Ver{" "}
+            <Link
+              href="/metodologia"
+              className="text-primary underline dark:text-amber-50"
+            >
               metodología
             </Link>
             .
@@ -70,7 +78,7 @@ export default async function CalorPage() {
         {!tieneDatos && (
           <div
             role="status"
-            className="card border-accent-200 bg-accent-50 text-sm"
+            className="card border-accent-200 bg-accent-50 text-sm dark:border-amber-700/60 dark:bg-amber-900/30 dark:text-amber-100"
           >
             La capa de calor está en preparación. Estamos procesando los
             composites Landsat 2018-2026, puede demorar algunos minutos en la
@@ -87,34 +95,59 @@ export default async function CalorPage() {
           />
         )}
 
-        <section className="mt-10 space-y-3 border-t border-neutral-border pt-6 text-sm text-neutral-muted">
-          <h2 className="text-lg font-semibold text-primary">
-            Sobre estos datos
+        <section className="mt-10 space-y-3 border-t border-neutral-border pt-6 text-sm text-neutral-text dark:border-dk-border dark:text-dk-text">
+          <h2 className="text-lg font-semibold text-primary dark:text-dk-primary">
+            Qué muestra esta capa
           </h2>
-          <ul className="list-disc space-y-1 pl-5">
+          <ul className="list-disc space-y-2 pl-5">
             <li>
-              <strong>Fuente primaria</strong>: Landsat 8/9 Collection 2 Level
-              2, banda térmica ST_B10 (USGS, dominio público).
+              <strong>Mide qué tan caliente está cada barrio comparado
+              con el campo</strong>: identifica dónde faltan árboles y sobra
+              cemento.{" "}
+              <span className="text-xs text-neutral-muted dark:text-dk-muted">
+                Datos: Landsat 8/9 Collection 2 Level 2 — banda térmica
+                ST_B10, USGS.
+              </span>
             </li>
             <li>
-              <strong>Resolución</strong>: 30 m (resampleo nativo Collection 2).
+              <strong>Resolución de barrio (30 m por píxel)</strong>: cada
+              píxel cubre aproximadamente media manzana, suficiente para
+              comparar entre barrios pero no para identificar lotes
+              individuales.{" "}
+              <span className="text-xs text-neutral-muted dark:text-dk-muted">
+                Datos: Collection 2 Landsat, resampleo nativo.
+              </span>
             </li>
             <li>
-              <strong>Hora de pasada</strong>: ~10:30 AM hora solar local; la
-              UHI nocturna es un fenómeno distinto y más intenso.
+              <strong>Captura el calor del mediodía</strong>: el satélite pasa
+              cerca de las 10:30 de la mañana hora local. El calor nocturno
+              suele ser más intenso y se mide con MODIS (ver ficha de
+              polígono).{" "}
+              <span className="text-xs text-neutral-muted dark:text-dk-muted">
+                Hora local de pasada: ~10:30 AM solar.
+              </span>
             </li>
             <li>
-              <strong>Baseline rural</strong>: promedio de cuatro polígonos
-              vegetados o de pasturas dentro de 20 km de Posadas.
+              <strong>Compara contra el campo de Posadas</strong>: la línea de
+              base es el promedio de cuatro polígonos rurales con vegetación o
+              pastura dentro de 20 km.{" "}
+              <span className="text-xs text-neutral-muted dark:text-dk-muted">
+                Baseline: 4 polígonos rurales, radio 20 km.
+              </span>
             </li>
             <li>
-              <strong>Cobertura nubosa</strong>: meses con menos de dos escenas
-              útiles se declaran sin dato, no se interpolan.
+              <strong>No inventamos datos faltantes</strong>: cuando hay menos
+              de dos imágenes útiles en el mes (por nubes), se declara &quot;sin
+              dato&quot; en vez de interpolar.{" "}
+              <span className="text-xs text-neutral-muted dark:text-dk-muted">
+                Cobertura nubosa: descarte sin imputación.
+              </span>
             </li>
             <li>
-              <strong>Limitación comunicacional</strong>: la capa no debe
-              usarse para alertas individuales de salud ni decisiones
-              inmobiliarias automáticas.
+              <strong>Para qué NO sirve</strong>: no es una alerta de salud
+              individual ni una herramienta de decisión inmobiliaria
+              automática. Es información agregada por barrio, para política
+              pública y planificación.
             </li>
           </ul>
         </section>

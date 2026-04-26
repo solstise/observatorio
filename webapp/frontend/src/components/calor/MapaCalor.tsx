@@ -11,6 +11,7 @@ import { GeoJSON, MapContainer, TileLayer } from "react-leaflet";
 import chroma from "chroma-js";
 import type { Feature, Geometry } from "geojson";
 
+import { useTheme } from "@/hooks/useTheme";
 import type {
   PoligonosCollection,
   PoligonoProperties,
@@ -70,6 +71,12 @@ export default function MapaCalor({
   selectedId,
   height = 540,
 }: Props) {
+  // El mapa térmico cambia de tile claro/oscuro según el tema activo. Las
+  // paletas magma/UHI semánticas (LST e isla de calor) NO cambian — están
+  // pensadas para que el lector mantenga la convención cromática.
+  const { resolved } = useTheme();
+  const isDark = resolved === "dark";
+
   const featureCollection = useMemo(
     () => ({
       type: "FeatureCollection" as const,
@@ -88,20 +95,30 @@ export default function MapaCalor({
         const p = feature.properties;
         const isSel = selectedId === p.id;
         const val = valorPoligono(p.id, uhiRows, metrica);
+        // En dark elevamos el contorno seleccionado a un azul claro y el
+        // contorno por defecto a un gris-azul, para que se distingan del
+        // tile oscuro sin romper la lectura del coropleto interior.
+        const strokeSel = isDark ? "#e6ebf2" : "#1a3a5c";
+        const strokeDef = isDark ? "#94a0b8" : "#222222";
         return {
           fillColor: colorDe(metrica, val),
           fillOpacity: isSel ? 0.9 : 0.75,
-          color: isSel ? "#1a3a5c" : "#222222",
+          color: isSel ? strokeSel : strokeDef,
           weight: isSel ? 2.5 : 1,
         };
       },
-    [metrica, uhiRows, selectedId],
+    [metrica, uhiRows, selectedId, isDark],
   );
+
+  // En desktop respetamos `height` (default 540) para no romper layouts
+  // existentes. En mobile tomamos al menos 320 px para que el mapa nunca
+  // colapse a una franja inutilizable; el viewport hace de tope superior.
+  const heightStyle = `clamp(320px, 55vh, ${height}px)`;
 
   return (
     <div
-      className="w-full overflow-hidden rounded-lg border border-neutral-border shadow-sm"
-      style={{ height }}
+      className="w-full overflow-hidden rounded-lg border border-neutral-border shadow-sm dark:border-dk-border"
+      style={{ height: heightStyle }}
     >
       <MapContainer
         center={POSADAS_CENTER}
@@ -109,13 +126,22 @@ export default function MapaCalor({
         scrollWheelZoom
         style={{ height: "100%", width: "100%" }}
       >
+        {/* CARTO Voyager (claro) y CARTO Dark Matter (oscuro). La key
+            fuerza el remount al cambiar el tema, porque react-leaflet no
+            sincroniza la prop url internamente sobre el TileLayer. */}
         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          key={isDark ? "dark" : "light"}
+          url={
+            isDark
+              ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+              : "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          }
           attribution='&copy; <a href="https://carto.com/attributions">CARTO</a> &middot; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           subdomains={["a", "b", "c", "d"]}
           maxZoom={19}
         />
         <GeoJSON
+          key={isDark ? "geo-dark" : "geo-light"}
           data={featureCollection}
           style={styleFn as never}
           onEachFeature={(feature, layer) => {
@@ -138,7 +164,7 @@ export default function MapaCalor({
 }
 
 function metricaLabel(m: MetricaCalor): string {
-  if (m === "lst") return "LST";
-  if (m === "uhi_vs_rural") return "UHI vs rural";
-  return "UHI vs ciudad";
+  if (m === "lst") return "Temperatura del suelo";
+  if (m === "uhi_vs_rural") return "Más caliente que el campo";
+  return "Más que el promedio de la ciudad";
 }

@@ -24,9 +24,9 @@ const ESTACIONES: Array<{ value: Estacion; label: string }> = [
 ];
 
 const METRICAS: Array<{ value: MetricaCalor; label: string }> = [
-  { value: "lst", label: "Temperatura superficie (LST)" },
-  { value: "uhi_vs_rural", label: "UHI vs baseline rural" },
-  { value: "uhi_vs_ciudad", label: "UHI vs promedio Posadas" },
+  { value: "lst", label: "Temperatura del suelo (°C)" },
+  { value: "uhi_vs_rural", label: "Cuánto más caliente que el campo" },
+  { value: "uhi_vs_ciudad", label: "Cuánto más que el promedio de la ciudad" },
 ];
 
 export function SelectorPeriodo({
@@ -38,8 +38,11 @@ export function SelectorPeriodo({
   metrica,
   onMetrica,
 }: Props) {
+  // Grid responsive: 1 columna en mobile (apilado vertical), 2 en sm, 3 en md+.
+  // Esto evita que tres selects con labels largos se aprieten en pantallas
+  // chicas y entrega un objetivo táctil cómodo (44px de alto en cada select).
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
       <Sel label="Estación" value={estacion} onChange={(v) => onEstacion(v as Estacion)}>
         {ESTACIONES.map((o) => (
           <option key={o.value} value={o.value}>
@@ -86,13 +89,13 @@ function Sel({
 }) {
   return (
     <label className="flex flex-col gap-1 text-sm">
-      <span className="text-xs font-medium uppercase tracking-wider text-secondary">
+      <span className="text-xs font-medium uppercase tracking-wider text-secondary dark:text-dk-muted">
         {label}
       </span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="rounded-md border border-neutral-border bg-white px-3 py-2 text-sm text-neutral-text focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+        className="min-h-[44px] w-full rounded-md border border-neutral-border bg-white px-3 py-2 text-sm text-neutral-text focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-dk-border dark:bg-dk-surface dark:text-dk-text dark:focus:border-dk-primary dark:focus:ring-dk-primary"
       >
         {children}
       </select>

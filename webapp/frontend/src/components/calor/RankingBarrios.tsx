@@ -66,8 +66,10 @@ export function RankingBarrios({
   if (sinDatos) {
     return (
       <div className="card">
-        <h3 className="text-sm font-semibold text-primary">Ranking</h3>
-        <p className="mt-2 text-sm text-neutral-muted">
+        <h3 className="text-sm font-semibold text-primary dark:text-dk-primary">
+          Ranking
+        </h3>
+        <p className="mt-2 text-sm text-neutral-muted dark:text-dk-muted">
           Aún no hay datos de UHI. Corriendo el pipeline Landsat…
         </p>
       </div>
@@ -77,13 +79,13 @@ export function RankingBarrios({
   return (
     <div className="space-y-4">
       <Ranking
-        titulo="Top 5 más calientes"
+        titulo="Barrios más calientes"
         filas={top5}
         metrica={metrica}
         onSelect={onSelect}
       />
       <Ranking
-        titulo="Top 5 más frescos"
+        titulo="Barrios más frescos"
         filas={bottom5}
         metrica={metrica}
         onSelect={onSelect}
@@ -108,35 +110,38 @@ function Ranking({
 
   return (
     <div className="card">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-secondary">
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-secondary dark:text-dk-muted">
         {titulo}
       </h3>
-      <ul className="mt-2 space-y-2">
+      <ul className="mt-2 space-y-1.5">
         {filas.map((f) => {
           const ancho = (Math.abs(f.valor) / maxAbs) * 100;
           const color = escala(f.valor).hex();
           return (
-            <li key={f.id} className="flex items-center gap-2 text-sm">
+            <li
+              key={f.id}
+              className="flex items-center gap-2 rounded py-1.5 text-sm transition-colors hover:bg-primary-50/60 dark:hover:bg-dk-elevated/60"
+            >
               <button
                 type="button"
-                className="flex-1 text-left font-medium text-primary hover:underline"
+                className="min-h-[36px] flex-1 truncate rounded text-left font-medium text-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary dark:text-dk-primary dark:focus-visible:outline-dk-primary"
                 onClick={() => onSelect?.(f.id)}
               >
                 {f.nombre}
               </button>
-              <div className="relative h-5 w-32 overflow-hidden rounded bg-neutral-100">
+              <div className="relative h-5 w-20 shrink-0 overflow-hidden rounded bg-neutral-100 dark:bg-dk-elevated sm:w-28">
                 <div
                   className="h-full"
                   style={{ width: `${ancho}%`, background: color }}
                 />
               </div>
-              <span className="w-16 text-right font-mono text-xs text-neutral-text">
+              <span className="w-14 shrink-0 text-right font-mono text-xs text-neutral-text dark:text-dk-text">
                 {f.valor > 0 ? "+" : ""}
                 {f.valor.toFixed(1)}°C
               </span>
               <Link
                 href={`/poligono/${f.id}`}
-                className="text-xs text-secondary hover:underline"
+                className="hidden shrink-0 px-1 text-xs text-secondary hover:underline dark:text-dk-muted dark:hover:text-dk-primary sm:inline"
                 aria-label={`Ver ficha de ${f.nombre}`}
               >
                 ficha

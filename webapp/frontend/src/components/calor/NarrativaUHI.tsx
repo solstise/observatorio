@@ -15,10 +15,18 @@ function confianza(n: number, std: number | null): {
   etiqueta: string;
   clase: string;
 } {
+  // Los colores semafóricos (verde/amarillo/naranja) aclaran su variante
+  // en dark mode para mantener legibilidad sobre fondo oscuro sin perder
+  // la convención cromática.
   const s = std ?? 99;
-  if (n >= 12 && s < 1.5) return { etiqueta: "alta", clase: "text-green-700" };
-  if (n >= 6 && s < 3) return { etiqueta: "media", clase: "text-yellow-700" };
-  return { etiqueta: "preliminar", clase: "text-orange-700" };
+  if (n >= 12 && s < 1.5)
+    return { etiqueta: "alta", clase: "text-green-700 dark:text-green-300" };
+  if (n >= 6 && s < 3)
+    return { etiqueta: "media", clase: "text-yellow-700 dark:text-yellow-300" };
+  return {
+    etiqueta: "preliminar",
+    clase: "text-orange-700 dark:text-orange-300",
+  };
 }
 
 function nombreMes(mes: number): string {
@@ -32,7 +40,7 @@ export function NarrativaUHI({ poligonoId, nombre, rows }: Props) {
   if (!poligonoId || !nombre) {
     return (
       <div className="card">
-        <p className="text-sm italic text-neutral-muted">
+        <p className="text-sm italic text-neutral-muted dark:text-dk-muted">
           Seleccioná un polígono en el mapa para ver su lectura térmica
           detallada.
         </p>
@@ -47,8 +55,10 @@ export function NarrativaUHI({ poligonoId, nombre, rows }: Props) {
   if (!sub.length) {
     return (
       <div className="card">
-        <h3 className="text-sm font-semibold text-primary">{nombre}</h3>
-        <p className="mt-2 text-sm text-neutral-muted">
+        <h3 className="text-sm font-semibold text-primary dark:text-dk-primary">
+          {nombre}
+        </h3>
+        <p className="mt-2 text-sm text-neutral-muted dark:text-dk-muted">
           Aún no hay datos de UHI procesados para este polígono.
         </p>
       </div>
@@ -68,22 +78,38 @@ export function NarrativaUHI({ poligonoId, nombre, rows }: Props) {
   return (
     <div className="card">
       <header className="flex items-baseline justify-between gap-2">
-        <h3 className="text-base font-semibold text-primary">{nombre}</h3>
+        <h3 className="text-base font-semibold text-primary dark:text-dk-primary">
+          {nombre}
+        </h3>
         <span className={`text-xs font-semibold ${conf.clase}`}>
           Confianza: {conf.etiqueta}
         </span>
       </header>
-      <p className="mt-3 text-sm leading-relaxed text-neutral-text">
+      <p className="mt-3 text-sm leading-relaxed text-neutral-text dark:text-dk-text">
         En <strong>{nombreMes(r.mes)} {r.anio}</strong>, la temperatura de
         superficie promedio fue de{" "}
-        <strong className="text-primary">{r.lst_mean.toFixed(1)}°C</strong>.{" "}
+        <strong className="text-primary dark:text-dk-primary">
+          {r.lst_mean.toFixed(1)}°C
+        </strong>.{" "}
         Eso representa una intensidad de isla de calor urbana de{" "}
-        <strong className={vsRural > 0 ? "text-accent" : "text-primary"}>
+        <strong
+          className={
+            vsRural > 0
+              ? "text-accent dark:text-dk-accent"
+              : "text-primary dark:text-dk-primary"
+          }
+        >
           {vsRural > 0 ? "+" : ""}
           {vsRural.toFixed(1)}°C
         </strong>{" "}
         respecto del campo, y{" "}
-        <strong className={vsCiudad > 0 ? "text-accent" : "text-primary"}>
+        <strong
+          className={
+            vsCiudad > 0
+              ? "text-accent dark:text-dk-accent"
+              : "text-primary dark:text-dk-primary"
+          }
+        >
           {vsCiudad > 0 ? "+" : ""}
           {vsCiudad.toFixed(1)}°C
         </strong>{" "}
@@ -94,7 +120,7 @@ export function NarrativaUHI({ poligonoId, nombre, rows }: Props) {
             }${anomalia.toFixed(1)}°C.`
           : ""}
       </p>
-      <p className="mt-3 text-xs text-neutral-muted">
+      <p className="mt-3 text-xs text-neutral-muted dark:text-dk-muted">
         Dato derivado de {r.n_observaciones_historico + 1} composites Landsat
         mensuales (medidos a ~10:30 AM hora local). Los valores son{" "}
         <em>temperatura de superficie</em> (LST), no temperatura del aire

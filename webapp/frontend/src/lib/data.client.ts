@@ -8,10 +8,14 @@
 import Papa from "papaparse";
 
 import type {
+  AlertasPayload,
+  AqiDiarioRow,
   CalorMensualRow,
   ChirpsRow,
   DynamicWorldRow,
   FirmsRow,
+  ForecastDiarioRow,
+  ForecastHorarioRow,
   GhslRow,
   LstRow,
   MapBiomasRow,
@@ -20,9 +24,13 @@ import type {
   PoligonoDetalle,
   PoligonoFeature,
   PoligonosCollection,
+  ProyeccionMetrica,
+  ProyeccionRow,
+  RankingPoliticoRow,
   SerieTemporalRow,
   Sentinel1Row,
   ServicioRow,
+  SocialDistanciasRow,
   UhiEstacionalRow,
   UhiMensualRow,
   ViirsRow,
@@ -70,6 +78,20 @@ export async function getPoligonos(): Promise<PoligonosCollection> {
     return fetchJson<PoligonosCollection>(`${API_BASE}/api/poligonos/geojson`);
   }
   return fetchJson<PoligonosCollection>("/data/poligonos.geojson");
+}
+
+// Devuelve solo los polígonos que son barrios — excluye capas de
+// referencia como `posadas_completa` (categoria_original "ciudad_completa")
+// para que rankings, coropletas y comparaciones operen sobre la unidad
+// correcta de análisis.
+export async function getPoligonosBarrios(): Promise<PoligonosCollection> {
+  const all = await getPoligonos();
+  return {
+    ...all,
+    features: all.features.filter(
+      (f) => f.properties.categoria_original !== "ciudad_completa",
+    ),
+  };
 }
 
 export async function getPoligonoFeature(
@@ -252,4 +274,143 @@ export async function getUhiEstacional(
   );
   if (!poligonoId) return rows;
   return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+// ---------------------------------------------------------------------------
+// Descripciones automáticas de mapas (image-to-text con HF BLIP / placeholder)
+// ---------------------------------------------------------------------------
+
+// Output de scripts/_descripcion_mapas.py. Mapa filename → caption ES/EN.
+// Si el archivo no existe (HF token nunca configurado, script nunca corrió),
+// devolvemos `{}` y los consumidores usan el filename como fallback.
+export interface MapaDescripcion {
+  source: string;
+  caption_en: string;
+  caption_es: string;
+  generated_at: string;
+  method: "hf-blip" | "placeholder";
+}
+
+let descripcionesCache: Record<string, MapaDescripcion> | null = null;
+
+export async function getDescripcionesMapas(): Promise<
+  Record<string, MapaDescripcion>
+> {
+  if (descripcionesCache) return descripcionesCache;
+  try {
+    const data = await fetchJson<Record<string, MapaDescripcion>>(
+      "/data/calor/mapas_descripciones.json",
+    );
+    descripcionesCache = data;
+    return data;
+  } catch {
+    descripcionesCache = {};
+    return {};
+  }
+}
+
+// Helper: resolvé el caption en español de un PNG por filename. Devuelve
+// undefined si no hay descripción registrada — el consumidor decide el
+// fallback (típicamente, derivar uno del filename).
+export async function getDescripcionMapa(
+  filename: string,
+): Promise<MapaDescripcion | undefined> {
+  const all = await getDescripcionesMapas();
+  return all[filename];
+}
+
+// ---------------------------------------------------------------------------
+// Capa social — acceso a servicios y ranking político de prioridad
+// ---------------------------------------------------------------------------
+
+export async function getDistanciasSociales(
+  poligonoId?: string,
+): Promise<SocialDistanciasRow[]> {
+  const rows = await fetchCsvOptional<SocialDistanciasRow>(
+    "/data/social/distancias.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getRankingPolitico(
+  poligonoId?: string,
+): Promise<RankingPoliticoRow[]> {
+  const rows = await fetchCsvOptional<RankingPoliticoRow>(
+    "/data/social/ranking.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+// ---------------------------------------------------------------------------
+// Capa de pronóstico climático (paquete A1+A2+A3+A4)
+// ---------------------------------------------------------------------------
+
+// Pronóstico diario por barrio (14 días por defecto, 6 modelos ensemble,
+// percentiles p10/p50/p90 honestos). Si pasás `poligonoId`, devuelve
+// solo las filas de ese barrio ordenadas por fecha.
+export async function getForecastDiario(
+  poligonoId?: string,
+): Promise<ForecastDiarioRow[]> {
+  const rows = await fetchCsvOptional<ForecastDiarioRow>(
+    "/data/forecast/forecast_diario.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows
+    .filter((r) => r.poligono_id === poligonoId)
+    .sort((a, b) => (a.fecha < b.fecha ? -1 : a.fecha > b.fecha ? 1 : 0));
+}
+
+// Bloque horario (Posadas centro) para gráficos finos próximas 72 h.
+export async function getForecastHorario(): Promise<ForecastHorarioRow[]> {
+  return fetchCsvOptional<ForecastHorarioRow>(
+    "/data/forecast/forecast_horario.csv",
+  );
+}
+
+// AQI diario europeo. Se aplica a Posadas global (no se desagrega).
+export async function getAqiDiario(): Promise<AqiDiarioRow[]> {
+  return fetchCsvOptional<AqiDiarioRow>("/data/forecast/aqi_diario.csv");
+}
+
+// Alertas climáticas activas. Si el JSON falta o es inválido,
+// devolvemos un payload vacío para no romper la UI.
+export async function getAlertasActivas(): Promise<AlertasPayload> {
+  try {
+    return await fetchJson<AlertasPayload>(
+      "/data/forecast/alertas_activas.json",
+    );
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn("Alertas no disponibles", err);
+    return {
+      generated_at: "",
+      script_version: "",
+      n_alertas: 0,
+      ventana_dias: 0,
+      alertas: [],
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Capa de proyecciones a futuro (script 59)
+// ---------------------------------------------------------------------------
+
+// Devuelve las filas de proyección, opcionalmente filtradas por polígono
+// y/o métrica. Si el CSV no existe (primer deploy, script no corrido)
+// devolvemos []. El consumidor decide cómo degradar.
+export async function getProyecciones(
+  poligonoId?: string,
+  metrica?: ProyeccionMetrica,
+): Promise<ProyeccionRow[]> {
+  const rows = await fetchCsvOptional<ProyeccionRow>(
+    "/data/proyecciones/proyecciones.csv",
+  );
+  return rows.filter(
+    (r) =>
+      (!poligonoId || r.poligono_id === poligonoId) &&
+      (!metrica || r.metrica === metrica),
+  );
 }

@@ -191,6 +191,56 @@
       margin-top: 2px;
     }
 
+    .calor-box {
+      background: #f4f6f9;
+      border: 1px solid var(--color-divider);
+      border-left: 4px solid var(--color-acento);
+      padding: 7px 12px;
+      border-radius: 3px;
+    }
+
+    .calor-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .calor-kpi {
+      flex: 1;
+      border-right: 1px solid var(--color-divider);
+      padding-right: 10px;
+    }
+
+    .calor-kpi:last-child {
+      border-right: none;
+    }
+
+    .calor-kpi-valor {
+      font-size: 14pt;
+      font-weight: 700;
+      color: var(--color-primario);
+    }
+
+    .calor-kpi-label {
+      font-size: 8pt;
+      color: var(--color-texto-suave);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-top: 2px;
+    }
+
+    .calor-kpi-sub {
+      font-size: 8pt;
+      color: var(--color-texto);
+      margin-top: 1px;
+    }
+
+    .calor-nota {
+      font-size: 8pt;
+      color: var(--color-texto-suave);
+      margin-top: 6px;
+      line-height: 1.35;
+    }
+
     .metodologia-box {
       font-size: 8pt;
       color: var(--color-texto-suave);
@@ -286,6 +336,40 @@
     </div>
   </section>
 
+  {% if calor and calor.disponible %}
+  <section class="bloque">
+    <h3 class="section-heading">Calor urbano — UHI Landsat 8/9</h3>
+    <div class="calor-box">
+      <div class="calor-row">
+        <div class="calor-kpi">
+          <div class="calor-kpi-valor" style="color: {{ calor.color_verano }};">
+            {{ calor.signo_verano }}{{ calor.verano.uhi_vs_rural }}°C
+          </div>
+          <div class="calor-kpi-label">UHI verano vs rural</div>
+          <div class="calor-kpi-sub">{{ calor.verano.etiqueta }}</div>
+        </div>
+        <div class="calor-kpi">
+          <div class="calor-kpi-valor" style="color: {{ calor.color_invierno }};">
+            {{ calor.signo_invierno }}{{ calor.invierno.uhi_vs_rural }}°C
+          </div>
+          <div class="calor-kpi-label">UHI invierno vs rural</div>
+          <div class="calor-kpi-sub">{{ calor.invierno.etiqueta }}</div>
+        </div>
+        <div class="calor-kpi">
+          <div class="calor-kpi-valor">{{ calor.ultimo.lst_mean }}°C</div>
+          <div class="calor-kpi-label">LST última medición</div>
+          <div class="calor-kpi-sub">{{ calor.ultimo.fecha_legible }}</div>
+        </div>
+      </div>
+      <p class="calor-nota">
+        Landsat 8/9 C2 L2 (30 m) &middot; hora de pasada ≈ 10:30 AM local.
+        Baseline rural: 4 polígonos vegetados en 20 km. Ranking en Posadas:
+        <strong>{{ calor.ranking_texto }}</strong>.
+      </p>
+    </div>
+  </section>
+  {% endif %}
+
   <section class="bloque">
     <h3 class="section-heading">Metodología</h3>
     <div class="metodologia-box">
@@ -307,6 +391,14 @@
         {{ periodo_legible | default(fecha_actual | default("serie en curso")) }}.
         Composite mediano del invierno seco (junio-agosto) de cada año.
       </p>
+      {% if calor and calor.disponible %}
+      <p>
+        <strong>Calor urbano:</strong> Landsat 8/9 Collection 2 Level 2,
+        banda térmica ST_B10, 30 m. LST ≠ temperatura del aire (ver
+        docs/metodologia_calor.md). UHI calculada vs promedio de 4
+        polígonos rurales en 20 km.
+      </p>
+      {% endif %}
       <p>
         <strong>Margen de error de conteo:</strong>
         <span class="margen-error">±15%</span>.&nbsp;Los números se reportan como rango por honestidad estadística.

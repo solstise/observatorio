@@ -2,6 +2,10 @@
 
 // Grafico de evolucion estacional de LST / UHI para un polígono seleccionado
 // o el promedio urbano. Tres líneas: polígono, promedio ciudad, baseline rural.
+//
+// Dark mode: se mantiene la convención cromática de la página /calor (azul
+// para baseline rural, naranja para promedio ciudad, primary para polígono)
+// porque la lectura es semántica. Solo grid/muted/tick se ajustan al fondo.
 
 import { useMemo } from "react";
 import {
@@ -15,6 +19,8 @@ import {
   YAxis,
 } from "recharts";
 
+import { EducationalTooltip } from "@/components/charts/EducationalTooltip";
+import { useTheme } from "@/hooks/useTheme";
 import type {
   CalorMensualRow,
   UhiEstacionalRow,
@@ -39,6 +45,14 @@ export function EvolucionEstacional({
   mensuales,
   height = 320,
 }: Props) {
+  const { resolved } = useTheme();
+  const isDark = resolved === "dark";
+  const colorGrid = isDark ? "#2a3247" : "#e5e7eb";
+  const colorMuted = isDark ? "#94a0b8" : "#6b7280";
+  const colorPoligono = isDark ? "#b3c7df" : "#1a3a5c";
+  const colorCiudad = isDark ? "#e0945c" : "#c97d3c";
+  const colorRural = isDark ? "#7faed8" : "#5a7a9c";
+
   const data = useMemo(() => {
     // Armamos puntos agrupados por (anio, estacion) — promedio LST.
     const filas = mensuales.filter(
@@ -89,7 +103,7 @@ export function EvolucionEstacional({
 
   if (!data.length) {
     return (
-      <p className="text-sm italic text-neutral-muted">
+      <p className="text-sm italic text-neutral-muted dark:text-dk-muted">
         Aún no hay datos suficientes para graficar la evolución estacional.
       </p>
     );
@@ -99,44 +113,55 @@ export function EvolucionEstacional({
     <div style={{ width: "100%", height }}>
       <ResponsiveContainer>
         <LineChart data={data} margin={{ top: 10, right: 16, bottom: 0, left: 10 }}>
-          <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
+          <CartesianGrid stroke={colorGrid} strokeDasharray="3 3" />
           <XAxis
             dataKey="label"
-            stroke="#6b7280"
+            stroke={colorMuted}
+            tick={{ fill: colorMuted, fontSize: 11 }}
             tickLine={false}
-            axisLine={{ stroke: "#e5e7eb" }}
+            axisLine={{ stroke: colorGrid }}
             interval="preserveStartEnd"
             angle={-18}
             height={50}
-            tick={{ fontSize: 11 }}
           />
           <YAxis
-            stroke="#6b7280"
+            stroke={colorMuted}
+            tick={{ fill: colorMuted, fontSize: 11 }}
             tickLine={false}
-            axisLine={{ stroke: "#e5e7eb" }}
+            axisLine={{ stroke: colorGrid }}
             unit="°C"
-            tick={{ fontSize: 11 }}
           />
           <Tooltip
-            formatter={(v: unknown) =>
-              v === null || !Number.isFinite(Number(v))
-                ? ["sin dato", ""]
-                : [`${Number(v).toFixed(1)} °C`, ""]
+            content={
+              <EducationalTooltip
+                formatter={(value, name) => {
+                  if (
+                    value === null ||
+                    value === "" ||
+                    (typeof value === "number" && !Number.isFinite(value))
+                  ) {
+                    return ["s/d", name];
+                  }
+                  const num = typeof value === "number" ? value : Number(value);
+                  return [`${num.toFixed(1)} °C`, name];
+                }}
+                interpretacion={
+                  "UHI = diferencia entre la temperatura del barrio y el campo " +
+                  "rural cercano (mismo radar térmico Landsat 8/9). Valores por " +
+                  "encima de la línea rural indican isla de calor; sobre 2 °C " +
+                  "ya se considera UHI marcada (Voogt & Oke, 2003)."
+                }
+              />
             }
-            contentStyle={{
-              border: "1px solid #e5e7eb",
-              borderRadius: 4,
-              fontSize: 13,
-            }}
           />
-          <Legend wrapperStyle={{ fontSize: 12 }} />
+          <Legend wrapperStyle={{ fontSize: 12, color: colorMuted }} />
           {poligonoId ? (
             <Line
               type="monotone"
               dataKey="polígono"
-              stroke="#1a3a5c"
+              stroke={colorPoligono}
               strokeWidth={2.4}
-              dot={{ r: 3, fill: "#1a3a5c" }}
+              dot={{ r: 3, fill: colorPoligono }}
               name="Polígono"
               connectNulls
             />
@@ -144,7 +169,7 @@ export function EvolucionEstacional({
           <Line
             type="monotone"
             dataKey="ciudad"
-            stroke="#c97d3c"
+            stroke={colorCiudad}
             strokeWidth={2}
             dot={false}
             strokeDasharray="4 3"
@@ -154,7 +179,7 @@ export function EvolucionEstacional({
           <Line
             type="monotone"
             dataKey="rural"
-            stroke="#5a7a9c"
+            stroke={colorRural}
             strokeWidth={2}
             dot={false}
             strokeDasharray="2 2"

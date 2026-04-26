@@ -75,11 +75,11 @@ export function AireGauge({ rows }: AireGaugeProps) {
   if (!ultima) {
     return (
       <div className="flex h-full min-h-[160px] flex-col items-start justify-center">
-        <h3 className="text-sm font-semibold text-primary">
-          Calidad del aire (NO2)
+        <h3 className="text-sm font-semibold text-primary dark:text-dk-primary">
+          Calidad del aire
         </h3>
-        <p className="mt-2 text-sm italic text-neutral-muted">
-          TROPOMI NO2 sin datos para este poligono.
+        <p className="mt-2 text-sm italic text-neutral-muted dark:text-dk-muted">
+          Sin datos de aire para este polígono todavía.
         </p>
       </div>
     );
@@ -95,32 +95,39 @@ export function AireGauge({ rows }: AireGaugeProps) {
   const corte09 = ((0.9 - MIN_RATIO) / (MAX_RATIO - MIN_RATIO)) * 100;
   const corte11 = ((1.1 - MIN_RATIO) / (MAX_RATIO - MIN_RATIO)) * 100;
 
-  const tooltip = `NO2 troposferico (Sentinel-5P TROPOMI) promedio ${ultima.anio}, relativo al promedio del bbox Posadas. Valores > 1 indican mas contaminacion local que el promedio.`;
+  const tooltip = `Dióxido de nitrógeno (NO2) detectado por Sentinel-5P TROPOMI. Promedio ${ultima.anio}, relativo al promedio de Posadas. Valores > 1 indican más contaminación local que el promedio de la ciudad.`;
 
   return (
     <div
       className="flex flex-col gap-2"
       title={tooltip}
-      aria-label={`Calidad del aire: NO2 relativo al bbox Posadas ${ratio.toFixed(2)}. ${etiqueta}.`}
+      aria-label={`Calidad del aire: NO2 relativo al promedio de Posadas ${ratio.toFixed(2)}. ${etiqueta}.`}
     >
-      <h3 className="text-sm font-semibold text-primary">
-        Calidad del aire (NO2)
-      </h3>
-      <div className="rounded-md border border-neutral-border p-4">
+      <div>
+        <h3 className="text-sm font-semibold text-primary dark:text-dk-primary">
+          Calidad del aire
+        </h3>
+        <p className="mt-1 text-xs text-neutral-text dark:text-dk-text">
+          Detecta dióxido de nitrógeno (NO₂), principal contaminante del
+          tránsito vehicular y de la combustión.
+        </p>
+      </div>
+      <div className="rounded-md border border-neutral-border p-4 dark:border-dk-border dark:bg-dk-elevated/40">
         <div className="flex items-baseline justify-between">
           <span className="text-2xl font-bold" style={{ color }}>
             {ratio.toFixed(2)}
             {"×"}
           </span>
-          <span className="text-[11px] uppercase tracking-wider text-secondary">
+          <span className="text-[11px] uppercase tracking-wider text-secondary dark:text-dk-muted">
             vs promedio Posadas
           </span>
         </div>
 
-        {/* Barra con tres zonas de color */}
+        {/* Barra con tres zonas de color. La pista (track) usa un gris en
+            light y un slate oscuro en dark para que las zonas semánticas
+            verde/amarillo/naranja se sigan leyendo bien. */}
         <div
-          className="relative mt-3 h-3 w-full overflow-hidden rounded-full"
-          style={{ backgroundColor: COLOR_GRID }}
+          className="relative mt-3 h-3 w-full overflow-hidden rounded-full bg-neutral-border dark:bg-dk-border"
           aria-hidden="true"
         >
           <div
@@ -149,27 +156,31 @@ export function AireGauge({ rows }: AireGaugeProps) {
               opacity: 0.5,
             }}
           />
-          {/* Marker del valor actual */}
+          {/* Marker del valor actual. El boxShadow blanco se reemplaza
+              en dark por el color de surface oscuro para que el "halo" no
+              destaque como un parche claro sobre el fondo dark. */}
           <div
-            className="absolute top-[-3px] h-[18px] w-[3px] rounded-sm"
+            className="absolute top-[-3px] h-[18px] w-[3px] rounded-sm shadow-[0_0_0_2px_#ffffff] dark:shadow-[0_0_0_2px_#161d2f]"
             style={{
               left: `calc(${posicionPct}% - 1.5px)`,
               backgroundColor: color,
-              boxShadow: "0 0 0 2px #ffffff",
             }}
           />
         </div>
 
-        <div className="mt-1 flex justify-between text-[10px] text-neutral-muted">
+        <div className="mt-1 flex justify-between text-[10px] text-neutral-muted dark:text-dk-muted">
           <span>{MIN_RATIO.toFixed(1)}</span>
           <span>0.9</span>
           <span>1.1</span>
           <span>{MAX_RATIO.toFixed(1)}</span>
         </div>
 
-        <p className="mt-3 text-xs font-medium text-primary">{etiqueta}</p>
-        <p className="mt-1 text-[11px] text-neutral-muted">
-          NO2 absoluto: {formatoCientifico(ultima.no2_mean_mol_m2)} mol/m{"²"} ({ultima.anio}).
+        <p className="mt-3 text-xs font-medium text-primary dark:text-dk-primary">
+          {etiqueta}
+        </p>
+        <p className="mt-1 text-[11px] text-neutral-muted dark:text-dk-muted">
+          Concentración medida: {formatoCientifico(ultima.no2_mean_mol_m2)}{" "}
+          mol/m{"²"} ({ultima.anio}). <em>Datos: Sentinel-5P TROPOMI, ESA</em>.
         </p>
       </div>
     </div>

@@ -5,6 +5,10 @@
 // componentes que suman al total anual: apilarlas hace explicita la
 // lectura "cuanto del total cae en cada semestre" y evita el problema
 // tipico de dos lineas cruzandose en años secos/humedos.
+//
+// Dark mode: la convención de "verano azul / invierno naranja" se
+// mantiene porque es informativa (semestre húmedo / seco). Solo se
+// ajustan grid y muted para legibilidad sobre fondo oscuro.
 
 import {
   Bar,
@@ -17,6 +21,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { useTheme } from "@/hooks/useTheme";
 import type { ChirpsRow } from "@/lib/types";
 
 interface ClimaChartProps {
@@ -24,10 +29,10 @@ interface ClimaChartProps {
   height?: number;
 }
 
-const COLOR_VERANO = "#5a7a9c"; // secondary azul (semestre humedo oct-mar)
-const COLOR_INVIERNO = "#c97d3c"; // accent naranja (semestre seco abr-sep)
-const COLOR_GRID = "#e5e7eb";
-const COLOR_MUTED = "#6b7280";
+const COLOR_VERANO_LIGHT = "#5a7a9c"; // secondary azul
+const COLOR_VERANO_DARK = "#7faed8"; // azul claro dk
+const COLOR_INVIERNO_LIGHT = "#c97d3c"; // accent naranja
+const COLOR_INVIERNO_DARK = "#e0945c"; // naranja cálido dk
 
 // Payload del tooltip de recharts para nuestras series.
 interface TooltipPayloadItem {
@@ -40,36 +45,73 @@ interface ChartTooltipProps {
   active?: boolean;
   payload?: TooltipPayloadItem[];
   label?: string | number;
+  isDark?: boolean;
 }
 
-function ChartTooltip({ active, payload, label }: ChartTooltipProps) {
+// Banda de referencia climática para Posadas (CHIRPS / WRF, ~1981-2020):
+// el promedio anual ronda 1800-2300 mm. Lo usamos para clasificar el año
+// como seco / normal / húmedo en el tooltip.
+const PROMEDIO_POSADAS_MM_MIN = 1800;
+const PROMEDIO_POSADAS_MM_MAX = 2300;
+
+function clasificarLluvia(totalMm: number): string {
+  if (totalMm < PROMEDIO_POSADAS_MM_MIN) {
+    return `año seco (debajo del rango histórico ${PROMEDIO_POSADAS_MM_MIN}-${PROMEDIO_POSADAS_MM_MAX} mm)`;
+  }
+  if (totalMm > PROMEDIO_POSADAS_MM_MAX) {
+    return `año húmedo (sobre el rango histórico ${PROMEDIO_POSADAS_MM_MIN}-${PROMEDIO_POSADAS_MM_MAX} mm)`;
+  }
+  return `dentro del rango normal de Posadas (${PROMEDIO_POSADAS_MM_MIN}-${PROMEDIO_POSADAS_MM_MAX} mm/año)`;
+}
+
+function ChartTooltip({ active, payload, label, isDark }: ChartTooltipProps) {
   if (!active || !payload || !payload.length) return null;
   const verano = payload.find((p) => p.name === "Verano (oct-mar)");
   const invierno = payload.find((p) => p.name === "Invierno (abr-sep)");
   const verNum = typeof verano?.value === "number" ? verano.value : 0;
   const invNum = typeof invierno?.value === "number" ? invierno.value : 0;
   const total = verNum + invNum;
+  const colorVerano = isDark ? COLOR_VERANO_DARK : COLOR_VERANO_LIGHT;
+  const colorInvierno = isDark ? COLOR_INVIERNO_DARK : COLOR_INVIERNO_LIGHT;
+  const interpretacion = clasificarLluvia(total);
   return (
-    <div className="rounded border border-neutral-border bg-white p-2 text-xs shadow-sm">
-      <p className="font-semibold text-primary">Año {label}</p>
-      <p style={{ color: COLOR_VERANO }}>
+    <div
+      className="max-w-xs rounded border border-neutral-border bg-white p-2 text-xs shadow-sm dark:border-dk-border dark:bg-dk-surface dark:text-dk-text"
+      role="tooltip"
+    >
+      <p className="font-semibold text-primary dark:text-dk-primary">
+        Año {label}
+      </p>
+      <p style={{ color: colorVerano }}>
         Verano (oct-mar): {verNum.toFixed(0)} mm
       </p>
-      <p style={{ color: COLOR_INVIERNO }}>
+      <p style={{ color: colorInvierno }}>
         Invierno (abr-sep): {invNum.toFixed(0)} mm
       </p>
-      <p className="mt-1 font-semibold text-primary">
+      <p className="mt-1 font-semibold text-primary dark:text-dk-primary">
         Total anual: {total.toFixed(0)} mm
+      </p>
+      <p className="mt-1.5 border-t border-neutral-border pt-1 text-[11px] italic leading-snug text-neutral-muted dark:border-dk-border dark:text-dk-muted">
+        {interpretacion}.
       </p>
     </div>
   );
 }
 
 export function ClimaChart({ rows, height = 260 }: ClimaChartProps) {
+  const { resolved } = useTheme();
+  const isDark = resolved === "dark";
+
+  const colorVerano = isDark ? COLOR_VERANO_DARK : COLOR_VERANO_LIGHT;
+  const colorInvierno = isDark ? COLOR_INVIERNO_DARK : COLOR_INVIERNO_LIGHT;
+  const colorGrid = isDark ? "#2a3247" : "#e5e7eb";
+  const colorMuted = isDark ? "#94a0b8" : "#6b7280";
+  const colorCursor = isDark ? "#1c2540" : "#f0f4f9";
+
   if (!rows.length) {
     return (
       <div className="flex min-h-[160px] items-center justify-center">
-        <p className="text-sm italic text-neutral-muted">
+        <p className="text-sm italic text-neutral-muted dark:text-dk-muted">
           CHIRPS sin datos de precipitacion para este poligono.
         </p>
       </div>
@@ -89,55 +131,69 @@ export function ClimaChart({ rows, height = 260 }: ClimaChartProps) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-col gap-0.5">
-        <h3 className="text-base font-semibold text-primary">
-          Precipitacion anual por estacion
+        <h3 className="text-base font-semibold text-primary dark:text-dk-primary">
+          Cuánta lluvia recibió el barrio
         </h3>
-        <p className="text-xs text-neutral-muted">
-          Fuente: CHIRPS (Climate Hazards InfraRed Precipitation). Verano
-          oct-mar, invierno abr-sep. Milimetros acumulados.
+        <p className="text-xs text-neutral-text dark:text-dk-text">
+          Lluvia acumulada por año, separada en verano (oct–mar) e invierno
+          (abr–sep). Clave para entender riesgo de inundaciones y patrones de
+          sequía.
+        </p>
+        <p className="text-[11px] italic text-neutral-muted dark:text-dk-muted">
+          Datos: CHIRPS (Climate Hazards InfraRed Precipitation, USGS), en
+          milímetros acumulados.
         </p>
       </div>
       <div
         role="img"
-        aria-label="Grafico de barras apiladas con precipitacion anual dividida en semestres verano e invierno."
-        style={{ width: "100%", height }}
+        aria-label="Gráfico de barras apiladas con precipitación anual dividida en semestres verano e invierno."
+        className="w-full"
+        style={{ height }}
       >
         <ResponsiveContainer>
           <BarChart
             data={data}
-            margin={{ top: 10, right: 16, bottom: 0, left: 0 }}
+            margin={{ top: 10, right: 12, bottom: 0, left: -8 }}
           >
-            <CartesianGrid stroke={COLOR_GRID} strokeDasharray="3 3" />
+            <CartesianGrid stroke={colorGrid} strokeDasharray="3 3" />
             <XAxis
               dataKey="anio"
-              stroke={COLOR_MUTED}
+              stroke={colorMuted}
+              tick={{ fill: colorMuted }}
               tickLine={false}
-              axisLine={{ stroke: COLOR_GRID }}
+              axisLine={{ stroke: colorGrid }}
             />
             <YAxis
-              stroke={COLOR_MUTED}
+              stroke={colorMuted}
+              tick={{ fill: colorMuted }}
               tickLine={false}
-              axisLine={{ stroke: COLOR_GRID }}
+              axisLine={{ stroke: colorGrid }}
               label={{
                 value: "mm",
                 angle: -90,
                 position: "insideLeft",
-                style: { fill: COLOR_MUTED, fontSize: 12 },
+                style: { fill: colorMuted, fontSize: 12 },
               }}
             />
-            <Tooltip content={<ChartTooltip />} cursor={{ fill: "#f0f4f9" }} />
-            <Legend wrapperStyle={{ fontSize: 12, paddingBottom: 8 }} verticalAlign="top" />
+            <Tooltip
+              content={<ChartTooltip isDark={isDark} />}
+              cursor={{ fill: colorCursor }}
+            />
+            <Legend
+              wrapperStyle={{ fontSize: 12, paddingBottom: 8, color: colorMuted }}
+              verticalAlign="top"
+            />
             <Bar
               dataKey="verano"
               stackId="precip"
-              fill={COLOR_VERANO}
+              fill={colorVerano}
               name="Verano (oct-mar)"
               isAnimationActive={false}
             />
             <Bar
               dataKey="invierno"
               stackId="precip"
-              fill={COLOR_INVIERNO}
+              fill={colorInvierno}
               name="Invierno (abr-sep)"
               isAnimationActive={false}
             />

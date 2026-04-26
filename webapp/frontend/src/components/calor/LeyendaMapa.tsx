@@ -15,7 +15,7 @@ export function LeyendaMapa({ metrica }: Props) {
   const config =
     metrica === "lst"
       ? {
-          titulo: "Temperatura de superficie (°C)",
+          titulo: "Temperatura del suelo (°C)",
           min: 20,
           max: 45,
           paleta: chroma
@@ -33,8 +33,8 @@ export function LeyendaMapa({ metrica }: Props) {
       : {
           titulo:
             metrica === "uhi_vs_rural"
-              ? "UHI vs baseline rural (°C)"
-              : "UHI vs promedio Posadas (°C)",
+              ? "Cuánto más caliente que el campo (°C)"
+              : "Cuánto más que el promedio de la ciudad (°C)",
           min: -5,
           max: 8,
           paleta: chroma
@@ -52,13 +52,15 @@ export function LeyendaMapa({ metrica }: Props) {
 
   return (
     <div className="mt-2">
-      <p className="text-xs font-medium text-neutral-muted">{config.titulo}</p>
-      <div className="mt-1 flex h-4 w-full overflow-hidden rounded border border-neutral-border">
+      <p className="text-xs font-medium text-neutral-muted dark:text-dk-muted">
+        {config.titulo}
+      </p>
+      <div className="mt-1 flex h-4 w-full overflow-hidden rounded border border-neutral-border dark:border-dk-border">
         {gradient.map((c, i) => (
           <div key={i} className="flex-1" style={{ background: c }} />
         ))}
       </div>
-      <div className="mt-1 flex justify-between text-[11px] text-neutral-muted">
+      <div className="mt-1 flex justify-between text-[11px] text-neutral-muted dark:text-dk-muted">
         {config.marcas.map((m) => (
           <span key={m}>{m}°</span>
         ))}

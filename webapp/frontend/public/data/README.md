@@ -1,39 +1,52 @@
-# Datos del frontend
+# `public/data/` — datos servidos al frontend
 
-Esta carpeta se sincroniza desde `data/outputs/` del repo raiz. El frontend lee los
-archivos directamente via `fetch('/data/...')`.
+Este directorio **NO se versiona en git**: contiene ~1 GB de CSVs,
+GeoJSONs, PNGs y GIFs derivados del pipeline. Son **regenerables** desde
+`scripts/` corriendo el pipeline completo.
 
-Archivos esperados (todos versionados aca como datos **sinteticos de prueba**):
+## Estructura
 
-- `poligonos.geojson` - FeatureCollection con un Feature por poligono de analisis.
-  Propiedades minimas: `id`, `nombre`, `categoria`, `score_expansion`, `superficie_km2`,
-  `poblacion_estimada`, `edificios_2018`, `edificios_2026`.
-- `serie_temporal.csv` - superficie construida y vegetacion por anio y poligono, con
-  banda de confianza (`confianza_inferior`, `confianza_superior`).
-- `poblacion.csv` - estimaciones de poblacion por poligono y anio.
-- `servicios.csv` - cobertura de servicios por poligono (agua, cloaca, gas, electricidad,
-  alumbrado, transporte).
-- `vulnerabilidad.csv` - indices compuestos (0-1) de vulnerabilidad por poligono.
-- `updated_at.txt` - fecha ISO de ultima actualizacion.
+- `poligonos.geojson` — 44 polígonos de barrios + contorno ciudad
+- `serie_temporal.csv`, `poblacion.csv`, `servicios.csv`, `vulnerabilidad.csv`
+- `dynamic_world.csv`, `sentinel1.csv`, `mapbiomas.csv`, `ghsl.csv`,
+  `viirs.csv`, `chirps.csv`, `no2.csv`, `lst.csv`, `firms.csv`, `wdpa.csv`
+- `calor/` — LST mensual, UHI mensual, UHI estacional + 104 mapas PNG + GIF
+- `social/` — distancias servicios, ranking político
+- `forecast/` — Tmin/Tmax/AQI por barrio + alertas activas + metadata
+- `proyecciones/` — proyecciones 2027/2030/2035 por barrio
+- `media/` — PDFs por barrio, timelapses GIF/MP4, comparaciones HD
+- `updated_at.txt` — timestamp ISO
 
-## Marcado sintetico
-
-Todos los archivos de este directorio estan marcados como **sinteticos** para evitar
-confusiones con datos reales:
-
-- `poligonos.geojson`: campos `_synthetic: true` a nivel raiz y por feature.
-- CSVs: header `# SYNTHETIC - Datos sinteticos de prueba. Observatorio Urbano Posadas.`
-
-## Sincronizacion con el pipeline real
-
-Cuando el pipeline real (ver `scripts/` y `models/` del repo raiz) termine de generar
-los datos en `data/outputs/`, reemplazar este contenido con:
+## Cómo regenerar localmente
 
 ```bash
-# Desde el repo raiz
-cp data/outputs/poligonos.geojson webapp/frontend/public/data/
-cp data/outputs/*.csv webapp/frontend/public/data/
-date -Idate > webapp/frontend/public/data/updated_at.txt
+source venv/bin/activate
+
+# Pipeline completo (toma ~30 min la primera vez)
+python scripts/49_calor_pipeline.py todo
+python scripts/57_forecast_clima.py
+python scripts/58_alertas_clima.py
+python scripts/53_servicios_distancias.py
+python scripts/54_ranking_politico.py --vulnerabilidad data/processed/vulnerabilidad_v43.csv
+python scripts/59_proyecciones_futuras.py
+
+# Sincronizar al frontend
+python scripts/80_sync_webapp.py \
+  --serie data/processed/conteos_v43/serie_temporal.csv \
+  --poblacion data/processed/poblacion_estimada_v43.csv \
+  --vulnerabilidad data/processed/vulnerabilidad_v43.csv
 ```
 
-El campo `_synthetic` desaparece automaticamente al copiar los archivos reales.
+## En CI / cron automático
+
+El workflow `.github/workflows/refresh-forecast.yml` corre cada 6 h:
+descarga forecast, detecta alertas, publica a Upstash Redis, deploya al
+VPS. Genera el contenido de `public/data/forecast/` y `alertas_activas.json`
+en cada run.
+
+## Para deploy al VPS
+
+`bash deploy-vps.sh` tarea el frontend (incluyendo `public/data/`
+generado localmente) y lo extrae en `/opt/apps/observatorio/`. El
+container Docker buildea desde ahí. Los datos viven solo en el VPS, no
+en git.

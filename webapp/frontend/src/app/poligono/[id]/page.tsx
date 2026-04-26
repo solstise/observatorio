@@ -2,33 +2,63 @@
 // Renderiza server-side para buen SEO. Si el id no existe, muestra 404.
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
 
+import { AccesoServiciosCard } from "@/components/AccesoServiciosCard";
 import { AireGauge } from "@/components/AireGauge";
 import { AreaProtegidaNotice } from "@/components/AreaProtegidaNotice";
-import { ClimaChart } from "@/components/ClimaChart";
 import { Disclaimer } from "@/components/Disclaimer";
-import { DynamicWorldGauge } from "@/components/DynamicWorldGauge";
 import { FirmsBadge } from "@/components/FirmsBadge";
-import { HistoriaLargaChart } from "@/components/HistoriaLargaChart";
 import { IslaCalorBadge } from "@/components/IslaCalorBadge";
+import { MapaDescriptionImage } from "@/components/MapaDescriptionImage";
+import { RankingPoliticoBadge } from "@/components/RankingPoliticoBadge";
 import { SarDeltaBadge } from "@/components/SarDeltaBadge";
+import { PoligonoTotalCiudad } from "@/components/PoligonoTotalCiudad";
 import { ServiceTable } from "@/components/ServiceTable";
-import { TimelineChart } from "@/components/TimelineChart";
+
+// Charts pesados (Recharts ~80 KB gzipped). Los cargamos dinámicamente
+// para que Next genere chunks async — el HTML llega rápido y los charts
+// se hidratan después. Mantenemos SSR (default true) porque la ficha de
+// barrio prioriza SEO: los crawlers tienen que ver la serie temporal.
+const TimelineChart = dynamic(() =>
+  import("@/components/TimelineChart").then((m) => ({ default: m.TimelineChart })),
+);
+const HistoriaLargaChart = dynamic(() =>
+  import("@/components/HistoriaLargaChart").then((m) => ({
+    default: m.HistoriaLargaChart,
+  })),
+);
+const ClimaChart = dynamic(() =>
+  import("@/components/ClimaChart").then((m) => ({ default: m.ClimaChart })),
+);
+const DynamicWorldGauge = dynamic(() =>
+  import("@/components/DynamicWorldGauge").then((m) => ({
+    default: m.DynamicWorldGauge,
+  })),
+);
 import {
   getChirps,
+  getDistanciasSociales,
   getDynamicWorld,
   getFirms,
   getGhsl,
   getLst,
   getMapBiomas,
   getNo2,
+  getPoblacion,
   getPoligonoDetalle,
   getPoligonos,
+  getPoligonosBarrios,
+  getRankingPolitico,
   getSentinel1,
+  getSerieTemporal,
+  getUhiMensual,
   getViirs,
+  getVulnerabilidad,
   getWdpa,
 } from "@/lib/data.server";
+import { formatIndice } from "@/lib/format";
 
 interface PageProps {
   params: { id: string };
@@ -48,9 +78,28 @@ export async function generateMetadata({ params }: PageProps) {
   if (!detalle) {
     return { title: "Poligono no encontrado" };
   }
+  const { nombre, categoria, superficie_km2, poblacion_estimada } =
+    detalle.properties;
+  // Subtítulo enriquecido para preview de redes y SERP de Google.
+  const description =
+    `Barrio ${nombre} en Posadas (Misiones, AR) — categoría ${categoria.replace("_", " ")}, ` +
+    `${superficie_km2.toFixed(1)} km², población estimada ${poblacion_estimada.toLocaleString("es-AR")}. ` +
+    `Datos satelitales 2018–2026.`;
   return {
-    title: detalle.properties.nombre,
-    description: `Ficha del poligono ${detalle.properties.nombre} - Observatorio Urbano Posadas.`,
+    title: nombre,
+    description,
+    alternates: { canonical: `/poligono/${params.id}` },
+    openGraph: {
+      title: `${nombre} · Ficha de barrio`,
+      description,
+      type: "article",
+      url: `/poligono/${params.id}`,
+    },
+    twitter: {
+      card: "summary_large_image" as const,
+      title: `${nombre} · Observatorio Urbano Posadas`,
+      description,
+    },
   };
 }
 
@@ -65,6 +114,39 @@ async function safeDetalle(id: string) {
 export default async function PoligonoPage({ params }: PageProps) {
   const detalle = await safeDetalle(params.id);
   if (!detalle) notFound();
+
+  // Branch dedicado para el polígono "posadas_completa": agrega los 43
+  // barrios y muestra una vista de totales en lugar de la ficha barrio
+  // por barrio. Mostrar UHI/clima del polígono "ciudad completa" rompe la
+  // lectura porque mezcla zona urbana y rural.
+  if (params.id === "posadas_completa") {
+    const [
+      barriosCollection,
+      rankingRows,
+      distancias,
+      poblacionAll,
+      serieAllRows,
+      vulnAll,
+    ] = await Promise.all([
+      getPoligonosBarrios(),
+      getRankingPolitico(),
+      getDistanciasSociales(),
+      getPoblacion(),
+      getSerieTemporal(),
+      getVulnerabilidad(),
+    ]);
+    return (
+      <PoligonoTotalCiudad
+        properties={detalle.properties}
+        barrios={barriosCollection.features}
+        ranking={rankingRows}
+        distancias={distancias}
+        poblacion={poblacionAll}
+        serieTemporal={serieAllRows}
+        vulnerabilidad={vulnAll}
+      />
+    );
+  }
 
   const { properties, serie_temporal, poblacion, servicios, vulnerabilidad } =
     detalle;
@@ -83,6 +165,10 @@ export default async function PoligonoPage({ params }: PageProps) {
     lst,
     firms,
     wdpa,
+    uhiLandsat,
+    distancias,
+    rankingRows,
+    rankingTotal,
   ] = await Promise.all([
     getMapBiomas(properties.id),
     getGhsl(properties.id),
@@ -94,7 +180,15 @@ export default async function PoligonoPage({ params }: PageProps) {
     getLst(properties.id),
     getFirms(properties.id),
     getWdpa(properties.id),
+    getUhiMensual(properties.id),
+    getDistanciasSociales(properties.id),
+    getRankingPolitico(properties.id),
+    getRankingPolitico(),
   ]);
+
+  const distanciasRow = distancias[0] ?? null;
+  const rankingRow = rankingRows[0] ?? null;
+  const totalPoligonos = rankingTotal.length || undefined;
 
   const poblacionUltima = [...poblacion].sort((a, b) => b.anio - a.anio)[0];
   const primerAnio = [...serie_temporal].sort((a, b) => a.anio - b.anio)[0];
@@ -104,44 +198,80 @@ export default async function PoligonoPage({ params }: PageProps) {
     <>
       <Disclaimer />
       <article className="container-obs py-8">
-        <nav aria-label="Migas" className="mb-4 text-sm text-secondary">
+        <nav
+          aria-label="Migas"
+          className="mb-4 text-sm text-secondary dark:text-dk-muted"
+        >
           <Link href="/" className="hover:underline">
             Mapa
           </Link>{" "}
           <span aria-hidden>/</span>{" "}
-          <span className="text-neutral-muted">{properties.nombre}</span>
+          <span className="text-neutral-muted dark:text-dk-muted">
+            {properties.nombre}
+          </span>
         </nav>
 
         <header className="mb-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-secondary">
-            {properties.categoria.replace("_", " ")}
-          </p>
-          <h1 className="mt-1 text-3xl md:text-4xl font-bold">
-            {properties.nombre}
-          </h1>
-          <p className="mt-2 text-sm text-neutral-muted">
-            ID: <code className="rounded bg-primary-50 px-1">{properties.id}</code>
-          </p>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-secondary dark:text-dk-muted">
+                {properties.categoria.replace("_", " ")}
+              </p>
+              <h1
+                className="mt-1 font-bold"
+                style={{ fontSize: "var(--fs-h1)" }}
+              >
+                {properties.nombre}
+              </h1>
+              <p className="mt-2 text-sm text-neutral-muted dark:text-dk-muted">
+                ID:{" "}
+                <code className="rounded bg-primary-50 px-1 dark:bg-dk-elevated dark:text-dk-text">
+                  {properties.id}
+                </code>
+              </p>
+            </div>
+            {/* Acceso rápido para comparar este barrio contra el total de la
+                ciudad. Usa query string `ids` (ver app/comparar/page.tsx).
+                Estilo sutil para no competir con la jerarquía del título. */}
+            <Link
+              href={`/comparar?ids=${encodeURIComponent(properties.id)},posadas_completa`}
+              className="mt-1 inline-flex items-center gap-1.5 rounded-md border border-primary/30 bg-primary-50 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary hover:text-white dark:border-dk-primary/40 dark:bg-dk-elevated dark:text-dk-primary dark:hover:bg-dk-primary dark:hover:text-dk-bg"
+              aria-label="Comparar este polígono con el total de Posadas"
+            >
+              <span aria-hidden>{"⊕"}</span>
+              Comparar con Posadas total
+            </Link>
+          </div>
         </header>
 
         <section
           aria-labelledby="resumen"
-          className="grid gap-3 md:grid-cols-4"
+          className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
         >
           <h2 id="resumen" className="sr-only">
-            Resumen de metricas
+            Resumen de métricas
           </h2>
           <MetricCard
-            label="Score expansion"
-            value={properties.score_expansion.toFixed(2)}
-            hint="0 a 1, mayor = mas expansion"
+            label="Score expansión"
+            value={
+              // El score 0 en el geojson para polígonos sin análisis (capas
+              // de referencia como `posadas_completa`) no es un valor real,
+              // por eso lo tratamos como s/d. Para barrios reales el score
+              // siempre es > 0.
+              formatIndice(
+                properties.score_expansion === 0
+                  ? null
+                  : properties.score_expansion,
+              )
+            }
+            hint="0 a 1, mayor = más expansión"
           />
           <MetricCard
             label="Superficie analizada"
-            value={`${properties.superficie_km2.toFixed(1)} km2`}
+            value={`${properties.superficie_km2.toFixed(1)} km²`}
           />
           <MetricCard
-            label="Poblacion estimada"
+            label="Población estimada"
             value={
               poblacionUltima
                 ? poblacionUltima.poblacion_estimada.toLocaleString("es-AR")
@@ -153,27 +283,32 @@ export default async function PoligonoPage({ params }: PageProps) {
             label="Vulnerabilidad"
             value={
               vulnerabilidad
-                ? vulnerabilidad.indice_vulnerabilidad.toFixed(2)
+                ? formatIndice(vulnerabilidad.indice_vulnerabilidad)
                 : "s/d"
             }
-            hint="indice 0 a 1"
+            hint="índice 0 a 1"
           />
         </section>
 
         <section aria-labelledby="serie" className="mt-10">
           <h2
             id="serie"
-            className="mb-4 text-xl font-semibold text-primary"
+            className="mb-2 text-xl font-semibold text-primary dark:text-dk-primary"
           >
-            Serie temporal de superficie
+            Cómo creció la edificación
           </h2>
+          <p className="mb-4 max-w-3xl text-sm text-neutral-muted dark:text-dk-muted">
+            Cantidad de viviendas detectadas por año desde imágenes satelitales,
+            con banda de confianza ±15%.{" "}
+            <em>Datos: Google Open Buildings + Microsoft Building Footprints.</em>
+          </p>
           <div className="card">
             <TimelineChart rows={serie_temporal} />
             {primerAnio && ultimoAnio && (
-              <p className="mt-3 text-sm text-neutral-muted">
+              <p className="mt-3 text-sm text-neutral-muted dark:text-dk-muted">
                 Entre {primerAnio.anio} y {ultimoAnio.anio} la superficie
-                construida paso de {primerAnio.superficie_construida_km2.toFixed(2)} a{" "}
-                {ultimoAnio.superficie_construida_km2.toFixed(2)} km2.
+                construida pasó de {primerAnio.superficie_construida_km2.toFixed(2)} a{" "}
+                {ultimoAnio.superficie_construida_km2.toFixed(2)} km².
               </p>
             )}
           </div>
@@ -182,12 +317,45 @@ export default async function PoligonoPage({ params }: PageProps) {
         <section aria-labelledby="servicios" className="mt-10">
           <h2
             id="servicios"
-            className="mb-4 text-xl font-semibold text-primary"
+            className="mb-2 text-xl font-semibold text-primary dark:text-dk-primary"
           >
-            Cobertura de servicios publicos
+            Cobertura de servicios públicos
           </h2>
+          <p className="mb-4 max-w-3xl text-sm text-neutral-muted dark:text-dk-muted">
+            Porcentaje del polígono cubierto por agua de red, cloacas, gas, luz,
+            alumbrado y transporte. Fuente y año de referencia declarados por
+            servicio.
+          </p>
           <div className="card overflow-x-auto">
             <ServiceTable rows={servicios} />
+          </div>
+        </section>
+
+        <section aria-labelledby="acceso-servicios" className="mt-10">
+          <h2
+            id="acceso-servicios"
+            className="mb-2 text-xl font-semibold text-primary dark:text-dk-primary"
+          >
+            Acceso a servicios públicos
+          </h2>
+          <p className="mb-4 max-w-3xl text-sm text-neutral-muted dark:text-dk-muted">
+            Distancia mínima desde este polígono al servicio más cercano de
+            cuatro categorías clave (CAPS, escuela, hospital, transporte) y
+            posición en el ranking de prioridad de inversión política.{" "}
+            <Link
+              href="/prioridades"
+              className="text-primary underline dark:text-dk-primary"
+            >
+              Ver ranking completo
+            </Link>
+            .
+          </p>
+          <div className="grid gap-4 md:grid-cols-2">
+            <AccesoServiciosCard row={distanciasRow} />
+            <RankingPoliticoBadge
+              row={rankingRow}
+              totalPoligonos={totalPoligonos}
+            />
           </div>
         </section>
 
@@ -195,13 +363,13 @@ export default async function PoligonoPage({ params }: PageProps) {
           <section aria-labelledby="vulnerabilidad" className="mt-10">
             <h2
               id="vulnerabilidad"
-              className="mb-4 text-xl font-semibold text-primary"
+              className="mb-4 text-xl font-semibold text-primary dark:text-dk-primary"
             >
               Vulnerabilidad territorial
             </h2>
-            <div className="card grid gap-3 md:grid-cols-5">
+            <div className="card grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
               <VulnBlock
-                label="Indice general"
+                label="Índice general"
                 value={vulnerabilidad.indice_vulnerabilidad}
               />
               <VulnBlock
@@ -209,7 +377,7 @@ export default async function PoligonoPage({ params }: PageProps) {
                 value={vulnerabilidad.carencia_servicios}
               />
               <VulnBlock
-                label="Riesgo inundacion"
+                label="Riesgo inundación"
                 value={vulnerabilidad.riesgo_inundacion}
               />
               <VulnBlock
@@ -217,11 +385,11 @@ export default async function PoligonoPage({ params }: PageProps) {
                 value={vulnerabilidad.accesibilidad_salud}
               />
               <VulnBlock
-                label="Accesibilidad educacion"
+                label="Accesibilidad educación"
                 value={vulnerabilidad.accesibilidad_educacion}
               />
             </div>
-            <p className="mt-2 text-xs text-neutral-muted">
+            <p className="mt-2 text-xs text-neutral-muted dark:text-dk-muted">
               Banda de confianza: {vulnerabilidad.confianza_inferior.toFixed(2)} a{" "}
               {vulnerabilidad.confianza_superior.toFixed(2)}.
             </p>
@@ -231,10 +399,15 @@ export default async function PoligonoPage({ params }: PageProps) {
         <section aria-labelledby="historia-larga" className="mt-10">
           <h2
             id="historia-larga"
-            className="mb-4 text-xl font-semibold text-primary"
+            className="mb-2 text-xl font-semibold text-primary dark:text-dk-primary"
           >
-            Historia larga
+            Historia larga (1975–2030)
           </h2>
+          <p className="mb-4 max-w-3xl text-sm text-neutral-muted dark:text-dk-muted">
+            Combina cobertura del suelo, huella construida y luces nocturnas.
+            Permite ver de un vistazo si el barrio creció más por densificación
+            o por expansión sobre verde.
+          </p>
           <div className="card">
             <HistoriaLargaChart
               poligonoId={properties.id}
@@ -248,10 +421,14 @@ export default async function PoligonoPage({ params }: PageProps) {
         <section aria-labelledby="indicadores-compl" className="mt-10">
           <h2
             id="indicadores-compl"
-            className="mb-4 text-xl font-semibold text-primary"
+            className="mb-2 text-xl font-semibold text-primary dark:text-dk-primary"
           >
-            Indicadores complementarios
+            Cómo cambia la urbanización
           </h2>
+          <p className="mb-4 max-w-3xl text-sm text-neutral-muted dark:text-dk-muted">
+            Mide qué proporción del polígono es construcción y detecta cambios
+            estructurales recientes — incluso cuando el cielo está nublado.
+          </p>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="card">
               <DynamicWorldGauge rows={dynamicWorld} />
@@ -265,14 +442,19 @@ export default async function PoligonoPage({ params }: PageProps) {
         <section aria-labelledby="ambiental" className="mt-10">
           <h2
             id="ambiental"
-            className="mb-4 text-xl font-semibold text-primary"
+            className="mb-2 text-xl font-semibold text-primary dark:text-dk-primary"
           >
-            Capa ambiental
+            Salud ambiental del barrio
           </h2>
+          <p className="mb-4 max-w-3xl text-sm text-neutral-muted dark:text-dk-muted">
+            Calor urbano, calidad del aire, riesgo de incendios, lluvias y
+            relación con áreas protegidas. Cada tarjeta muestra qué señal
+            entrega y de qué satélite proviene.
+          </p>
           <AreaProtegidaNotice rows={wdpa} variant="banner" />
           <div className="mt-3 grid gap-4 md:grid-cols-2">
             <div className="card">
-              <IslaCalorBadge rows={lst} />
+              <IslaCalorBadge rows={lst} uhiLandsat={uhiLandsat} />
             </div>
             <div className="card">
               <AireGauge rows={no2} />
@@ -289,7 +471,7 @@ export default async function PoligonoPage({ params }: PageProps) {
           </div>
         </section>
 
-        <section className="mt-10 flex flex-wrap gap-3">
+        <section className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <a
             href={`/data/media/${properties.id}.pdf`}
             className="btn-primary"
@@ -320,15 +502,21 @@ export default async function PoligonoPage({ params }: PageProps) {
         </section>
 
         <section className="mt-8">
-          <h3 className="mb-3 text-sm font-bold uppercase tracking-wider text-primary">
+          <h3 className="mb-3 text-sm font-bold uppercase tracking-wider text-primary dark:text-dk-primary">
             Comparación alta resolución (antes / después)
           </h3>
-          <img
+          {/* MapaDescriptionImage agrega alt + tooltip auto-generado por
+              scripts/_descripcion_mapas.py si está disponible. Si el JSON
+              no existe (script aún no corrió), cae al fallback estático. */}
+          <MapaDescriptionImage
             src={`/data/media/${properties.id}_comparacion_hd.png`}
-            alt={`Comparación HD de ${properties.nombre}`}
-            className="w-full rounded-lg border border-neutral-200 shadow-sm"
+            filename={`${properties.id}_comparacion.png`}
+            fallbackAlt={`Comparación HD de ${properties.nombre}`}
+            className="w-full rounded-lg border border-neutral-border shadow-sm dark:border-dk-border"
+            loading="lazy"
           />
         </section>
+
       </article>
     </>
   );
@@ -345,9 +533,17 @@ function MetricCard({
 }) {
   return (
     <div className="card">
-      <p className="text-xs uppercase tracking-wider text-secondary">{label}</p>
-      <p className="mt-1 text-2xl font-bold text-primary">{value}</p>
-      {hint && <p className="mt-1 text-xs text-neutral-muted">{hint}</p>}
+      <p className="text-xs uppercase tracking-wider text-secondary dark:text-dk-muted">
+        {label}
+      </p>
+      <p className="mt-1 text-2xl font-bold text-primary dark:text-dk-primary">
+        {value}
+      </p>
+      {hint && (
+        <p className="mt-1 text-xs text-neutral-muted dark:text-dk-muted">
+          {hint}
+        </p>
+      )}
     </div>
   );
 }
@@ -355,11 +551,15 @@ function MetricCard({
 function VulnBlock({ label, value }: { label: string; value: number }) {
   return (
     <div>
-      <p className="text-xs uppercase tracking-wider text-secondary">{label}</p>
-      <p className="mt-1 text-xl font-bold text-primary">{value.toFixed(2)}</p>
-      <div className="mt-1 h-1.5 w-full rounded-full bg-primary-50">
+      <p className="text-xs uppercase tracking-wider text-secondary dark:text-dk-muted">
+        {label}
+      </p>
+      <p className="mt-1 text-xl font-bold text-primary dark:text-dk-primary">
+        {value.toFixed(2)}
+      </p>
+      <div className="mt-1 h-1.5 w-full rounded-full bg-primary-50 dark:bg-dk-elevated">
         <div
-          className="h-full rounded-full bg-accent"
+          className="h-full rounded-full bg-accent dark:bg-dk-accent"
           style={{ width: `${Math.min(100, value * 100)}%` }}
         />
       </div>

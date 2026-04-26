@@ -62,7 +62,7 @@ except Exception:
 logger = get_logger(__name__)
 
 
-VERSION = "0.1.0"
+VERSION = "0.3.0"
 COLOR_PRIMARIO = "#1a3a5c"
 COLOR_SECUNDARIO = "#5a7a9c"
 PALETA = {
@@ -235,6 +235,95 @@ def _grafico_crecimiento(
 # --- Core PDF ----------------------------------------------------------------
 
 
+def _clasifica_uhi(delta: float) -> tuple[str, str]:
+    """Devuelve (color_hex, etiqueta) usando los umbrales estándar UHI."""
+    if delta > 2:
+        return "#dc2626", "Isla de calor marcada"
+    if delta >= 0:
+        return "#c97d3c", "Isla de calor leve"
+    return "#1a3a5c", "Enfriamiento neto"
+
+
+def _calor_contexto(
+    poligono_id: str,
+    uhi_mensual_df: pd.DataFrame,
+    uhi_estacional_df: pd.DataFrame,
+) -> dict:
+    """Construye el bloque `calor` del contexto Jinja para la capa calor.
+
+    Devuelve ``{"disponible": False}`` si no hay datos del polígono.
+    Si hay datos, agrega UHI verano/invierno promedio (de `uhi_estacional`)
+    y la última medición mensual disponible.
+    """
+    if uhi_mensual_df.empty and uhi_estacional_df.empty:
+        return {"disponible": False}
+
+    men = uhi_mensual_df[uhi_mensual_df["poligono_id"] == poligono_id].copy()
+    est = uhi_estacional_df[uhi_estacional_df["poligono_id"] == poligono_id].copy()
+    if men.empty and est.empty:
+        return {"disponible": False}
+
+    # Último mes disponible del polígono.
+    ultimo_ctx = {}
+    if not men.empty:
+        men["_orden"] = men["anio"].astype(int) * 100 + men["mes"].astype(int)
+        ultima = men.sort_values("_orden").iloc[-1]
+        fecha_iso = f"{int(ultima['anio']):04d}-{int(ultima['mes']):02d}"
+        ultimo_ctx = {
+            "lst_mean": f"{float(ultima['lst_mean']):.1f}",
+            "uhi_vs_rural": f"{float(ultima['uhi_vs_rural']):.1f}",
+            "fecha_legible": _fecha_legible(fecha_iso),
+        }
+
+    # UHI estacional promedio: último año disponible por estación.
+    def _ultima_estacion(df: pd.DataFrame, estacion: str) -> dict:
+        sub = df[df["estacion"] == estacion]
+        if sub.empty:
+            return {"uhi_vs_rural": "s/d", "etiqueta": "sin dato", "delta": 0.0}
+        fila = sub.sort_values("anio").iloc[-1]
+        delta = float(fila["uhi_vs_rural_mean"])
+        _, etiqueta = _clasifica_uhi(delta)
+        return {
+            "uhi_vs_rural": f"{delta:.1f}",
+            "etiqueta": etiqueta,
+            "delta": delta,
+        }
+
+    verano = _ultima_estacion(est, "verano")
+    invierno = _ultima_estacion(est, "invierno")
+    color_verano, _ = _clasifica_uhi(verano["delta"])
+    color_invierno, _ = _clasifica_uhi(invierno["delta"])
+
+    # Ranking dentro de Posadas (por UHI vs rural verano promedio, último año).
+    ranking_texto = "s/d"
+    if not uhi_estacional_df.empty:
+        verano_all = uhi_estacional_df[uhi_estacional_df["estacion"] == "verano"]
+        if not verano_all.empty:
+            ultimo_anio = int(verano_all["anio"].max())
+            top = verano_all[verano_all["anio"] == ultimo_anio].copy()
+            top = top.sort_values("uhi_vs_rural_mean", ascending=False).reset_index(drop=True)
+            if poligono_id in top["poligono_id"].values:
+                pos = int(top.index[top["poligono_id"] == poligono_id][0]) + 1
+                total = len(top)
+                ranking_texto = f"{pos}º de {total} barrios (verano {ultimo_anio})"
+
+    return {
+        "disponible": True,
+        "verano": verano,
+        "invierno": invierno,
+        "color_verano": color_verano,
+        "color_invierno": color_invierno,
+        "signo_verano": "+" if verano["delta"] > 0 else "",
+        "signo_invierno": "+" if invierno["delta"] > 0 else "",
+        "ultimo": ultimo_ctx or {
+            "lst_mean": "s/d",
+            "uhi_vs_rural": "s/d",
+            "fecha_legible": "s/d",
+        },
+        "ranking_texto": ranking_texto,
+    }
+
+
 def _hitos_serie(serie_pol: pd.DataFrame) -> list[dict]:
     """Cuatro hitos equidistantes de la serie temporal real (no hardcodeados)."""
     if serie_pol.empty:
@@ -267,6 +356,8 @@ def _generar_pdf_poligono(
     output_dir: Path,
     template_path: Path,
     personas_por_vivienda: float,
+    uhi_mensual_df: pd.DataFrame,
+    uhi_estacional_df: pd.DataFrame,
 ) -> bool:
     serie_pol = serie_df[serie_df["poligono_id"] == poligono_id].copy()
     pob_pol = poblacion_df[poblacion_df["poligono_id"] == poligono_id].copy()
@@ -337,6 +428,8 @@ def _generar_pdf_poligono(
             for _, row in serie_hitos_df.sort_values("fecha").iterrows()
         ]
 
+        calor_ctx = _calor_contexto(poligono_id, uhi_mensual_df, uhi_estacional_df)
+
         contexto = {
             "poligono": {
                 "id": poligono_id,
@@ -348,6 +441,7 @@ def _generar_pdf_poligono(
             # Para la plantilla del repo:
             "crecimiento": crecimiento_tabla,
             "poblacion": pob_ctx,
+            "calor": calor_ctx,
             "fecha_actual": _fecha_legible(fecha_fin),
             # Variables usadas en mi plantilla alternativa:
             "serie_hitos": hitos,
@@ -454,6 +548,18 @@ def _generar_pdf_poligono(
     default=Path("templates/reporte_poligono.html"),
     show_default=True,
 )
+@click.option(
+    "--uhi-mensual",
+    type=click.Path(dir_okay=False, path_type=Path),
+    default=Path("data/processed/calor/uhi_por_poligono_mensual.csv"),
+    show_default=True,
+)
+@click.option(
+    "--uhi-estacional",
+    type=click.Path(dir_okay=False, path_type=Path),
+    default=Path("data/processed/calor/uhi_estacional.csv"),
+    show_default=True,
+)
 @click.option("--personas-por-vivienda", type=float, default=3.6, show_default=True)
 def cli(
     poligono: str | None,
@@ -464,6 +570,8 @@ def cli(
     sentinel_dir: Path,
     output_dir: Path,
     template: Path,
+    uhi_mensual: Path,
+    uhi_estacional: Path,
     personas_por_vivienda: float,
 ) -> None:
     """Entry point CLI."""
@@ -479,6 +587,16 @@ def cli(
         columns=["poligono_id", "fecha", "poblacion_min", "poblacion_estimada",
                  "poblacion_max", "metodo"]
     )
+    uhi_mensual_df = (
+        pd.read_csv(uhi_mensual) if uhi_mensual.exists() else pd.DataFrame()
+    )
+    uhi_estacional_df = (
+        pd.read_csv(uhi_estacional) if uhi_estacional.exists() else pd.DataFrame()
+    )
+    if uhi_mensual_df.empty and uhi_estacional_df.empty:
+        logger.info(
+            "Capa de calor no disponible (sin CSVs) — PDFs sin sección UHI."
+        )
     gdf = gpd.read_file(poligonos)
 
     if all_flag:
@@ -508,6 +626,8 @@ def cli(
                 output_dir=output_dir,
                 template_path=template,
                 personas_por_vivienda=personas_por_vivienda,
+                uhi_mensual_df=uhi_mensual_df,
+                uhi_estacional_df=uhi_estacional_df,
             )
             if exito:
                 ok += 1

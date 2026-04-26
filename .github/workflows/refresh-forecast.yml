@@ -1,0 +1,257 @@
+name: Refresh forecast (cron 6h)
+
+# ---------------------------------------------------------------------------
+# Pipeline real-time del Observatorio Urbano Posadas (paquete B1).
+#
+# Qué hace:
+#   1. Cada 6h (00:00, 06:00, 12:00, 18:00 UTC) corre los scripts L1:
+#        - scripts/57_forecast_clima.py  → forecast diario por polígono
+#        - scripts/58_alertas_clima.py   → alertas climáticas derivadas
+#   2. Publica los datos a Upstash Redis (TTL 6h) vía
+#      scripts/_publish_to_upstash.py.
+#   3. Si los CSVs cambiaron respecto a baseline, los commitea a la rama
+#      `data` (rama de "datos derivados", separada de `main`).
+#   4. Despliega al VPS (Hostinger) reusando deploy-vps.sh con SSH key
+#      desde GitHub Secrets.
+#   5. Si algún paso falla, abre un issue con la traza para que el operador
+#      humano se entere.
+#
+# Cómo se activa:
+#   - schedule (cron) → automático
+#   - workflow_dispatch → manual desde la UI de GitHub Actions
+#
+# Secrets requeridos (configurar en Settings → Secrets and variables → Actions):
+#   - VPS_SSH_KEY               : clave privada OpenSSH (id_ed25519) con acceso a root@187.77.54.19
+#   - VPS_KNOWN_HOSTS           : output de `ssh-keyscan 187.77.54.19` (evita prompt)
+#   - EE_SERVICE_ACCOUNT_JSON   : JSON del service account de Earth Engine (si los scripts L1 lo requieren)
+#   - UPSTASH_REDIS_REST_URL    : URL REST de Upstash (https://xxx.upstash.io)
+#   - UPSTASH_REDIS_REST_TOKEN  : token REST de Upstash (no exponer en logs)
+#
+# Importante: este workflow asume que el repo está en GitHub. Si el repo
+# todavía no fue empujado, ver docs/setup_real_time.md.
+# ---------------------------------------------------------------------------
+
+on:
+  schedule:
+    # Cada 6h en UTC. Posadas es UTC-3, así que en hora local serían
+    # 21:00, 03:00, 09:00, 15:00. Coincide con horarios de pasada de los
+    # satélites NOAA/Sentinel y deja datos "frescos" para la jornada.
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      skip_deploy:
+        description: "Saltear el deploy al VPS (solo refrescar Upstash)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+# Cancela corridas previas si entra una nueva: no queremos pisar push de data
+# en paralelo y tampoco gastar minutos del runner en jobs obsoletos.
+concurrency:
+  group: refresh-forecast
+  cancel-in-progress: false
+
+permissions:
+  # Necesario para `git push` a rama data y para abrir issues en caso de fallo.
+  contents: write
+  issues: write
+
+jobs:
+  refresh:
+    name: Forecast + alertas + publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TZ: America/Argentina/Cordoba
+      # Re-exponemos secrets a nivel job en env para poder hacer condicionales
+      # `if: env.X != ''` (los secrets crudos no se pueden usar en `if:` por
+      # razones de seguridad de GitHub Actions).
+      UPSTASH_CONFIGURED: ${{ secrets.UPSTASH_REDIS_REST_URL != '' && secrets.UPSTASH_REDIS_REST_TOKEN != '' && 'true' || 'false' }}
+      VPS_CONFIGURED: ${{ secrets.VPS_SSH_KEY != '' && 'true' || 'false' }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          # Necesitamos historial completo para poder commitear y empujar
+          # a la rama `data` sin conflictos de fast-forward.
+          fetch-depth: 0
+          # token con permiso de write (provisto por el job-level permissions).
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: System deps (GDAL para geopandas/rasterio)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gdal-bin libgdal-dev libpango-1.0-0 libpangoft2-1.0-0 libcairo2
+
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Configure Earth Engine credentials
+        env:
+          EE_SERVICE_ACCOUNT_JSON: ${{ secrets.EE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          # Si el secret no está seteado (string vacío), saltamos limpio:
+          # los scripts L1 podrían no necesitar EE en su versión inicial.
+          if [[ -z "$EE_SERVICE_ACCOUNT_JSON" ]]; then
+            echo "::warning::EE_SERVICE_ACCOUNT_JSON no seteado. EE auth saltada."
+            exit 0
+          fi
+          mkdir -p "$HOME/.config/earthengine"
+          # Volcamos el JSON a un archivo y exportamos el path para que los
+          # scripts L1 puedan inicializar EE con service account.
+          printf '%s' "$EE_SERVICE_ACCOUNT_JSON" > "$HOME/.config/earthengine/service_account.json"
+          echo "EE_SERVICE_ACCOUNT_KEY=$HOME/.config/earthengine/service_account.json" >> "$GITHUB_ENV"
+
+      - name: Run forecast clima (script L1 57)
+        env:
+          # Disponibles para el script si los precisa.
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+        run: |
+          if [[ -f scripts/57_forecast_clima.py ]]; then
+            python scripts/57_forecast_clima.py
+          else
+            echo "::warning::scripts/57_forecast_clima.py no existe todavía (lo crea L1). Saltando."
+          fi
+
+      - name: Run alertas clima (script L1 58)
+        env:
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+        run: |
+          if [[ -f scripts/58_alertas_clima.py ]]; then
+            python scripts/58_alertas_clima.py
+          else
+            echo "::warning::scripts/58_alertas_clima.py no existe todavía (lo crea L1). Saltando."
+          fi
+
+      - name: Publish to Upstash Redis
+        if: env.UPSTASH_CONFIGURED == 'true'
+        env:
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+        run: |
+          python scripts/_publish_to_upstash.py --source webapp/frontend/public/data/forecast
+
+      - name: Detectar cambios en CSVs derivados
+        id: diff
+        run: |
+          # Si nada cambió respecto a baseline, no commiteamos: evita ruido
+          # en el historial git y deploys inútiles.
+          if git diff --quiet -- webapp/frontend/public/data/forecast/ webapp/frontend/public/data/alertas/; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No hay cambios en forecast/ ni alertas/. Saltando commit y deploy."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit & push a rama data
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GIT_AUTHOR_NAME: observatorio-bot
+          GIT_AUTHOR_EMAIL: bot@observatorio.sistemaswinter.com
+          GIT_COMMITTER_NAME: observatorio-bot
+          GIT_COMMITTER_EMAIL: bot@observatorio.sistemaswinter.com
+        run: |
+          set -e
+          # Trabajamos sobre una rama dedicada `data` para que la rama main
+          # no se ensucie con commits automáticos de CSVs cada 6h.
+          git config user.name  "$GIT_AUTHOR_NAME"
+          git config user.email "$GIT_AUTHOR_EMAIL"
+          git fetch origin data:data || git checkout -b data
+          git checkout data
+          # Mergeamos main para que los datos vivan sobre la última versión
+          # del código (sin esto, la rama data podría quedar muy atrasada).
+          git merge --no-edit origin/main || true
+          # Solo agregamos los archivos de forecast/alertas — nunca touched
+          # archivos del operador humano.
+          git add webapp/frontend/public/data/forecast/ webapp/frontend/public/data/alertas/ || true
+          git add webapp/frontend/public/data/updated_at.txt || true
+          git commit -m "chore(data): refresh forecast & alertas $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]" || {
+            echo "Sin cambios staged tras filtros. Saltando push."
+            exit 0
+          }
+          git push origin data
+
+      - name: Setup SSH para VPS
+        if: |
+          steps.diff.outputs.changed == 'true' &&
+          github.event.inputs.skip_deploy != 'true' &&
+          env.VPS_CONFIGURED == 'true'
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          if [[ -n "$VPS_KNOWN_HOSTS" ]]; then
+            printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+            chmod 644 ~/.ssh/known_hosts
+          else
+            # Fallback: aceptamos automáticamente la primera vez. Menos seguro
+            # pero evita romper si el operador olvidó VPS_KNOWN_HOSTS.
+            ssh-keyscan -H 187.77.54.19 >> ~/.ssh/known_hosts 2>/dev/null || true
+          fi
+
+      - name: Deploy al VPS (Hostinger)
+        if: |
+          steps.diff.outputs.changed == 'true' &&
+          github.event.inputs.skip_deploy != 'true' &&
+          env.VPS_CONFIGURED == 'true'
+        run: bash deploy-vps.sh
+
+      - name: Resumen
+        if: always()
+        run: |
+          {
+            echo "## Refresh forecast — $(date -u +%Y-%m-%dT%H:%MZ)"
+            echo ""
+            echo "- Cambios detectados: ${{ steps.diff.outputs.changed || 'unknown' }}"
+            echo "- Deploy ejecutado: ${{ steps.diff.outputs.changed == 'true' && github.event.inputs.skip_deploy != 'true' }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Abrir issue si falló
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `Cron refresh-forecast falló — ${new Date().toISOString()}`;
+            const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+            const body = [
+              "El workflow `refresh-forecast` falló en su corrida automática.",
+              "",
+              `**Run:** ${runUrl}`,
+              `**Trigger:** ${context.eventName}`,
+              `**Branch:** ${context.ref}`,
+              "",
+              "Pasos a revisar:",
+              "1. Logs del run (link arriba) para identificar qué step rompió.",
+              "2. Verificar que los secrets siguen vigentes (Upstash, EE, VPS).",
+              "3. Probar localmente: `python scripts/57_forecast_clima.py`.",
+              "",
+              "Este issue se abre automáticamente. Cerralo cuando esté resuelto.",
+            ].join("\n");
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body,
+              labels: ["bug", "automation", "cron"],
+            });

@@ -18,11 +18,11 @@ export function FirmsBadge({ rows }: FirmsBadgeProps) {
   if (!rows.length) {
     return (
       <div className="flex h-full min-h-[160px] flex-col items-start justify-center">
-        <h3 className="text-sm font-semibold text-primary">
-          Focos de calor (FIRMS)
+        <h3 className="text-sm font-semibold text-primary dark:text-dk-primary">
+          Focos de calor / incendios
         </h3>
-        <p className="mt-2 text-sm italic text-neutral-muted">
-          FIRMS sin datos para este poligono.
+        <p className="mt-2 text-sm italic text-neutral-muted dark:text-dk-muted">
+          Sin datos de focos para este polígono.
         </p>
       </div>
     );
@@ -42,11 +42,11 @@ export function FirmsBadge({ rows }: FirmsBadgeProps) {
   const color = tieneFocos ? COLOR_ALERTA : COLOR_OK;
 
   const titulo = tieneFocos
-    ? `Alerta: ${focosTotales} foco${focosTotales === 1 ? "" : "s"} detectado${focosTotales === 1 ? "" : "s"}`
+    ? `${focosTotales} foco${focosTotales === 1 ? "" : "s"} detectado${focosTotales === 1 ? "" : "s"}`
     : "Sin focos de calor detectados";
 
   const tooltip =
-    "Focos de calor detectados por satelites VIIRS/MODIS (NASA FIRMS). Suma anual de detecciones superpuestas al poligono. Las ocurrencias urbanas suelen corresponder a quemas puntuales, no incendios forestales.";
+    "Focos de calor detectados desde el espacio por los satélites VIIRS y MODIS (NASA FIRMS). Suma anual de detecciones superpuestas al polígono. En zona urbana suele tratarse de quemas puntuales, no de incendios forestales.";
 
   return (
     <div
@@ -54,10 +54,16 @@ export function FirmsBadge({ rows }: FirmsBadgeProps) {
       title={tooltip}
       aria-label={titulo}
     >
-      <h3 className="text-sm font-semibold text-primary">
-        Focos de calor (FIRMS)
-      </h3>
-      <div className="flex items-center gap-4 rounded-md border border-neutral-border p-4">
+      <div>
+        <h3 className="text-sm font-semibold text-primary dark:text-dk-primary">
+          Focos de calor / incendios
+        </h3>
+        <p className="mt-1 text-xs text-neutral-text dark:text-dk-text">
+          Alerta de incendios y quemas detectados desde el espacio. Cualquier
+          dato positivo en zona urbana es señal de inspección.
+        </p>
+      </div>
+      <div className="flex items-center gap-4 rounded-md border border-neutral-border p-4 dark:border-dk-border dark:bg-dk-elevated/40">
         <div
           className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-xl font-bold text-white"
           style={{ backgroundColor: color }}
@@ -69,11 +75,14 @@ export function FirmsBadge({ rows }: FirmsBadgeProps) {
           <span className="text-base font-semibold" style={{ color }}>
             {titulo}
           </span>
-          <span className="text-[11px] text-neutral-muted">
-            {rangoAnios ? `Rango ${rangoAnios}.` : null}
+          <span className="text-[11px] text-neutral-muted dark:text-dk-muted">
+            {rangoAnios ? `Período analizado: ${rangoAnios}. ` : null}
             {tieneFocos
-              ? ` Pico de ${pctMax.toFixed(1)}% del area afectada en el peor año.`
-              : " Ningun foco superpuesto al poligono."}
+              ? `Pico de ${pctMax.toFixed(1)}% del área afectada en el peor año.`
+              : "Ningún foco superpuesto al polígono."}
+          </span>
+          <span className="mt-1 text-[10px] italic text-neutral-muted dark:text-dk-muted">
+            Datos: NASA FIRMS (VIIRS / MODIS).
           </span>
         </div>
       </div>

@@ -38,6 +38,7 @@ import {
 } from "react-leaflet";
 
 import { colorFromScore } from "@/lib/colors";
+import { useTheme } from "@/hooks/useTheme";
 import type { PoligonoProperties, PoligonosCollection } from "@/lib/types";
 
 import BuildingsLayer from "./BuildingsLayer";
@@ -107,6 +108,12 @@ export default function MapView({
   zoom = 12,
 }: MapViewProps) {
   const geoJsonRef = useRef<LeafletGeoJSON | null>(null);
+  // Hook de tema para alternar tile layer y los estilos del GeoJSON.
+  // El hook escucha la clase del <html>, así que cualquier cambio (toggle
+  // del header, sincronización entre pestañas, prefers-color-scheme cuando
+  // mode==system) re-renderiza el mapa con el tile correcto.
+  const { resolved } = useTheme();
+  const isDark = resolved === "dark";
 
   const data = useMemo<FeatureCollection>(
     () => ({
@@ -148,7 +155,10 @@ export default function MapView({
     };
   }, []);
 
-  // Re-stylear cuando cambia la seleccion.
+  // Re-stylear cuando cambia la seleccion o el tema. En dark usamos un
+  // azul claro para el contorno seleccionado y un gris-azulado más
+  // luminoso para el contorno no seleccionado; ambos diseñados para
+  // mantener AA sobre los tiles oscuros de CARTO Dark Matter.
   useEffect(() => {
     if (!geoJsonRef.current) return;
     geoJsonRef.current.eachLayer((layer) => {
@@ -157,9 +167,9 @@ export default function MapView({
       const props = feature.properties as PoligonoProperties;
       const isSelected = props.id === selectedId;
       // @ts-expect-error - setStyle existe en capas de path Leaflet.
-      layer.setStyle(styleFor(props, isSelected));
+      layer.setStyle(styleFor(props, isSelected, isDark));
     });
-  }, [selectedId]);
+  }, [selectedId, isDark]);
 
   function onEachFeature(feature: Feature, layer: Layer) {
     const props = feature.properties as PoligonoProperties;
@@ -181,15 +191,31 @@ export default function MapView({
       style={{ height: "100%", width: "100%" }}
       attributionControl
     >
+      {/* Basemap dependiente del tema. En light usamos OSM clásico (mejor
+          legibilidad de calles/etiquetas que el voyager para esta vista
+          general); en dark usamos CARTO Dark Matter, que mantiene jerarquía
+          visual sin quemar el ojo. La key={isDark} fuerza un remount del
+          TileLayer cuando cambia el tema; sin ella, react-leaflet no
+          actualiza el url internamente. */}
       <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · Edificios: &copy; <a href="https://sites.research.google/open-buildings/" target="_blank" rel="noopener noreferrer">Google Open Buildings</a> &amp; <a href="https://github.com/microsoft/GlobalMLBuildingFootprints" target="_blank" rel="noopener noreferrer">Microsoft Building Footprints</a>'
+        key={isDark ? "dark" : "light"}
+        url={
+          isDark
+            ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        }
+        subdomains={isDark ? ["a", "b", "c", "d"] : ["a", "b", "c"]}
+        attribution={
+          isDark
+            ? '&copy; <a href="https://carto.com/attributions">CARTO</a> &middot; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · Edificios: &copy; <a href="https://sites.research.google/open-buildings/" target="_blank" rel="noopener noreferrer">Google Open Buildings</a> &amp; <a href="https://github.com/microsoft/GlobalMLBuildingFootprints" target="_blank" rel="noopener noreferrer">Microsoft Building Footprints</a>'
+            : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · Edificios: &copy; <a href="https://sites.research.google/open-buildings/" target="_blank" rel="noopener noreferrer">Google Open Buildings</a> &amp; <a href="https://github.com/microsoft/GlobalMLBuildingFootprints" target="_blank" rel="noopener noreferrer">Microsoft Building Footprints</a>'
+        }
       />
       <ZoomControl position="topright" />
 
       <LayersControl position="topleft" collapsed>
         {/* --- Relieve (DEM) --- */}
-        <LayersControl.Overlay name="Relieve Copernicus GLO-30" checked={false}>
+        <LayersControl.Overlay name="Relieve / topografía" checked={false}>
           <ImageOverlay
             url={HILLSHADE_PNG_URL}
             bounds={hillshadeBounds}
@@ -200,7 +226,7 @@ export default function MapView({
 
         {/* --- Catastro IDE Posadas (WMS) --- */}
         <LayersControl.Overlay
-          name="Trama urbana / manzanas (IDE Posadas)"
+          name="Manzanas urbanas (Municipalidad)"
           checked
         >
           <WMSTileLayer
@@ -215,7 +241,7 @@ export default function MapView({
         </LayersControl.Overlay>
 
         <LayersControl.Overlay
-          name="Chacras / damero urbano (IDE Posadas)"
+          name="Chacras / damero histórico"
           checked={false}
         >
           <WMSTileLayer
@@ -230,7 +256,7 @@ export default function MapView({
         </LayersControl.Overlay>
 
         <LayersControl.Overlay
-          name="Calles y avenidas (IDE Posadas)"
+          name="Calles y avenidas"
           checked={false}
         >
           <WMSTileLayer
@@ -245,7 +271,7 @@ export default function MapView({
         </LayersControl.Overlay>
 
         <LayersControl.Overlay
-          name="Delegaciones municipales / barrios (IDE Posadas)"
+          name="Barrios / delegaciones municipales"
           checked={false}
         >
           <WMSTileLayer
@@ -260,7 +286,7 @@ export default function MapView({
         </LayersControl.Overlay>
 
         <LayersControl.Overlay
-          name="Parcelas publicas (IDE Posadas)"
+          name="Parcelas públicas"
           checked={false}
         >
           <WMSTileLayer
@@ -278,21 +304,23 @@ export default function MapView({
             Off por default: el GeoJSON pesa ~24 MB (≈2 MB gzip) y son 217k
             puntos. Solo se descarga cuando el usuario activa la capa. */}
         <LayersControl.Overlay
-          name="Edificios detectados (217k)"
+          name="Edificios detectados (217 mil)"
           checked={false}
         >
           <BuildingsLayer />
         </LayersControl.Overlay>
 
         {/* --- Poligonos del observatorio (siempre visibles por default) --- */}
-        <LayersControl.Overlay name="Poligonos observatorio" checked>
+        <LayersControl.Overlay name="Polígonos del observatorio" checked>
           <GeoJSON
+            key={isDark ? "polys-dark" : "polys-light"}
             ref={geoJsonRef}
             data={data}
             style={(feature) =>
               styleFor(
                 (feature?.properties as PoligonoProperties) ?? undefined,
                 (feature?.properties as PoligonoProperties)?.id === selectedId,
+                isDark,
               )
             }
             onEachFeature={onEachFeature}
@@ -306,10 +334,20 @@ export default function MapView({
 function styleFor(
   props: PoligonoProperties | undefined,
   selected: boolean,
+  isDark = false,
 ): PathOptions {
   const score = props?.score_expansion ?? 0;
+  // Contornos: en dark usamos azules claros para que se distingan del
+  // fondo oscuro; en light mantenemos el azul institucional.
+  const stroke = isDark
+    ? selected
+      ? "#7faed8" // dk-primary
+      : "#94a0b8" // dk-muted
+    : selected
+      ? "#1a3a5c"
+      : "#5a7a9c";
   return {
-    color: selected ? "#1a3a5c" : "#5a7a9c",
+    color: stroke,
     weight: selected ? 3 : 1.5,
     fillColor: colorFromScore(score),
     fillOpacity: selected ? 0.75 : 0.55,

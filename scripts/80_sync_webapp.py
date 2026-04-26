@@ -31,6 +31,7 @@ while _p != _p.parent:
 # --- fin del parche ---------------------------------------------------------
 
 import json
+import re
 import shutil
 from datetime import datetime
 
@@ -293,14 +294,15 @@ def copiar_media(src_outputs: Path, src_processed: Path, dest_media: Path) -> di
 
     # PDFs: copiamos con nombre original (para archivar historial) Y con alias
     # canónico `{poligono_id}.pdf` (para que el frontend los referencie estable).
+    # Patrón del nombre: `{poligono_id}_v{semver}_{YYYYMMDD}.pdf`. No alcanza con
+    # split("_v") porque hay slugs que contienen `_v` (e.g. bajada_vieja).
+    pdf_version_re = re.compile(r"^(?P<id>.+?)_v\d+\.\d+\.\d+_\d{8}$")
     for pdf in (src_outputs / "pdfs").glob("*.pdf"):
         shutil.copy2(pdf, dest_media / pdf.name)
         contadores["pdfs"] += 1
-        # Extraer poligono_id del nombre (antes del primer "_v").
-        stem = pdf.stem
-        if "_v" in stem:
-            pid = stem.split("_v")[0]
-            alias = dest_media / f"{pid}.pdf"
+        match = pdf_version_re.match(pdf.stem)
+        if match:
+            alias = dest_media / f"{match['id']}.pdf"
             shutil.copy2(pdf, alias)
 
     for hd in (src_outputs / "comparaciones_hd").glob("*.png"):
@@ -316,6 +318,18 @@ def copiar_media(src_outputs: Path, src_processed: Path, dest_media: Path) -> di
     for archivo in (src_processed / "timelapses").glob("*_comparacion.png"):
         shutil.copy2(archivo, dest_media / archivo.name)
         contadores["comparacion_2x2"] += 1
+
+    # Mapas calor (PNG estacionales + GIF evolución + top5): servidos en
+    # /data/media/calor/ para enlaces de descarga desde el PDF, la página
+    # /calor y documentación externa.
+    contadores["calor_mapas"] = 0
+    mapas_src = src_processed / "calor" / "mapas"
+    if mapas_src.exists():
+        mapas_dest = dest_media / "calor"
+        ensure_dir(mapas_dest)
+        for archivo in list(mapas_src.glob("*.png")) + list(mapas_src.glob("*.gif")):
+            shutil.copy2(archivo, mapas_dest / archivo.name)
+            contadores["calor_mapas"] += 1
 
     return contadores
 
@@ -397,6 +411,15 @@ def cli(
         ("data/processed/calor/lst_mensual_por_poligono.csv", "calor/lst_mensual.csv"),
         ("data/processed/calor/uhi_por_poligono_mensual.csv", "calor/uhi_mensual.csv"),
         ("data/processed/calor/uhi_estacional.csv", "calor/uhi_estacional.csv"),
+        # Capa social (scripts 53, 54) — fase 3
+        ("data/processed/social/distancias_por_poligono.csv", "social/distancias.csv"),
+        ("data/processed/social/ranking_politico.csv", "social/ranking.csv"),
+        # Capa forecast climático (scripts 57, 58) — paquete A1+A2+A3+A4
+        ("data/processed/forecast/forecast_diario_por_barrio.csv", "forecast/forecast_diario.csv"),
+        ("data/processed/forecast/forecast_horario.csv", "forecast/forecast_horario.csv"),
+        ("data/processed/forecast/aqi_diario.csv", "forecast/aqi_diario.csv"),
+        # Proyecciones a futuro (script 59) — fase 5/6
+        ("data/processed/proyecciones/proyecciones_por_poligono.csv", "proyecciones/proyecciones.csv"),
     ]
     for src_rel, dest_name in extras:
         src = resolve_path(src_rel)
@@ -404,6 +427,7 @@ def cli(
             logger.warning(f"  - saltado {dest_name}: no existe {src_rel}")
             continue
         dest_path = dest_data / dest_name
+        dest_path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(src, dest_path)
         try:
             import pandas as _pd
@@ -411,6 +435,22 @@ def cli(
             logger.info(f"{dest_name} -> {n} filas (pass-through)")
         except Exception:
             logger.info(f"{dest_name} -> copiado")
+
+    # JSONs adicionales (alertas climáticas y metadata del forecast).
+    json_extras: list[tuple[str, str]] = [
+        ("data/processed/forecast/alertas_activas.json", "forecast/alertas_activas.json"),
+        ("data/processed/forecast/_metadata.json", "forecast/_metadata.json"),
+        ("data/processed/proyecciones/_metadata.json", "proyecciones/_metadata.json"),
+    ]
+    for src_rel, dest_name in json_extras:
+        src = resolve_path(src_rel)
+        if not src.exists():
+            logger.warning(f"  - saltado {dest_name}: no existe {src_rel}")
+            continue
+        dest_path = dest_data / dest_name
+        dest_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dest_path)
+        logger.info(f"{dest_name} -> copiado (JSON)")
 
     # Timestamp de actualización.
     (dest_data / "updated_at.txt").write_text(

@@ -1,0 +1,57 @@
+# Configuración de alertas climáticas trigger automáticas.
+#
+# Lo lee scripts/58_alertas_clima.py y produce
+# data/processed/forecast/alertas_activas.json. Ajustar los umbrales
+# acá modifica el comportamiento sin tocar código.
+#
+# Severidades:
+#   roja     — alerta crítica, evento extremo confirmado por ensemble.
+#   naranja  — alerta importante, evento severo o con probabilidad alta.
+#   amarilla — aviso preventivo, condiciones desfavorables.
+
+frio_extremo:
+  severidad: roja
+  descripcion: >-
+    Frío extremo: temperatura mínima por debajo de 5 °C con probabilidad
+    de helada (P10 ≤ 0 °C) durante al menos 2 días consecutivos.
+  umbral_tmin_p50_max: 5.0
+  umbral_tmin_p10_max: 0.0
+  dias_consecutivos_min: 2
+
+frio_severo:
+  severidad: naranja
+  descripcion: >-
+    Frío severo: temperatura mínima por debajo de 8 °C durante al menos
+    2 días consecutivos. Riesgo para población vulnerable y mascotas.
+  umbral_tmin_p50_max: 8.0
+  dias_consecutivos_min: 2
+
+calor_extremo:
+  severidad: roja
+  descripcion: >-
+    Calor extremo: temperatura máxima por encima de 38 °C durante al
+    menos 2 días consecutivos. Riesgo de golpe de calor.
+  umbral_tmax_p50_min: 38.0
+  dias_consecutivos_min: 2
+
+lluvia_intensa:
+  severidad: naranja
+  descripcion: >-
+    Lluvia intensa: acumulado diario por encima de 50 mm. Riesgo de
+    anegamientos en zonas bajas y barrios sin desagüe.
+  umbral_precip_mm_min: 50.0
+  dias_consecutivos_min: 1
+
+aqi_malo:
+  severidad: amarilla
+  descripcion: >-
+    Calidad de aire desfavorable: índice europeo (european_aqi) por
+    encima de 80. Sensible para personas con afecciones respiratorias.
+  umbral_aqi_min: 80.0
+  dias_consecutivos_min: 1
+
+# Cruce con ranking de prioridad política (script 54). Si un barrio
+# está en alerta y además tiene índice de prioridad alto, lo marcamos
+# como "top alert" para destacar en el dashboard.
+top_alert:
+  prioridad_min: 0.55  # ranking_politico.indice_prioridad ∈ [0, 1]

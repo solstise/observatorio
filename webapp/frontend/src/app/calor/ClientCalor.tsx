@@ -6,11 +6,29 @@
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 
-import { EvolucionEstacional } from "@/components/calor/EvolucionEstacional";
+import { LottieAnimation } from "@/components/LottieAnimation";
 import { LeyendaMapa } from "@/components/calor/LeyendaMapa";
 import type { MetricaCalor } from "@/components/calor/MapaCalor";
 import { NarrativaUHI } from "@/components/calor/NarrativaUHI";
 import { RankingBarrios } from "@/components/calor/RankingBarrios";
+
+// EvolucionEstacional usa Recharts (~80 KB gzipped). Aparece debajo del
+// fold y solo se hace útil cuando el usuario interactúa con el mapa, así
+// que cargarlo perezosamente acelera el TTI sin afectar el contenido
+// principal. Mantenemos SSR para que el card vacío exista en el HTML.
+const EvolucionEstacional = dynamic(
+  () =>
+    import("@/components/calor/EvolucionEstacional").then((m) => ({
+      default: m.EvolucionEstacional,
+    })),
+  {
+    loading: () => (
+      <div className="text-sm text-neutral-muted dark:text-dk-muted">
+        Cargando evolución…
+      </div>
+    ),
+  },
+);
 import {
   type Estacion,
   SelectorPeriodo,
@@ -26,8 +44,18 @@ import type {
 const MapaCalor = dynamic(() => import("@/components/calor/MapaCalor"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-[540px] items-center justify-center rounded-lg border border-neutral-border bg-primary-50 text-sm text-neutral-muted">
-      Cargando mapa térmico…
+    <div className="h-map-main flex items-center justify-center rounded-lg border border-neutral-border bg-primary-50 dark:border-dk-border dark:bg-dk-elevated">
+      <LottieAnimation
+        src="/animations/loading-map.json"
+        ariaLabel="Cargando mapa térmico"
+        width={120}
+        height={120}
+        fallback={
+          <span className="text-sm text-neutral-muted dark:text-dk-muted">
+            Cargando mapa térmico…
+          </span>
+        }
+      />
     </div>
   ),
 });
@@ -107,7 +135,7 @@ export function ClientCalor({
             height={540}
           />
           <LeyendaMapa metrica={metrica} />
-          <p className="mt-2 text-xs text-neutral-muted">
+          <p className="mt-2 text-xs text-neutral-muted dark:text-dk-muted">
             Los polígonos rurales (baseline) se muestran con borde punteado y
             opacidad reducida.
           </p>
@@ -129,7 +157,10 @@ export function ClientCalor({
       />
 
       <section aria-labelledby="evolucion" className="card">
-        <h2 id="evolucion" className="mb-3 text-lg font-semibold text-primary">
+        <h2
+          id="evolucion"
+          className="mb-3 text-lg font-semibold text-primary dark:text-dk-primary"
+        >
           Evolución estacional
         </h2>
         <EvolucionEstacional

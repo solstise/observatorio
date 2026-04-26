@@ -26,6 +26,8 @@ import {
   YAxis,
 } from "recharts";
 
+import { EducationalTooltip } from "@/components/charts/EducationalTooltip";
+import { useTheme } from "@/hooks/useTheme";
 import type { GhslRow, MapBiomasRow, ViirsRow } from "@/lib/types";
 
 interface HistoriaLargaChartProps {
@@ -36,17 +38,22 @@ interface HistoriaLargaChartProps {
   height?: number;
 }
 
-// Paleta local (alineada a la global, la replico para no acoplar a
-// COLORS si cambian los nombres). Urbano en accent naranja, vegetacion
-// en secundario azul grisaceo, GHSL en primario, VIIRS en amarillo.
-const PALETTE = {
-  urbano: "#c97d3c",
-  vegetacion: "#5a7a9c",
-  built: "#1a3a5c",
-  viirs: "#eab308",
-  grid: "#e5e7eb",
-  muted: "#6b7280",
-};
+// Paletas por tema. Urbano y VIIRS conservan su sentido cromático
+// (naranja = construido, amarillo = luz nocturna) en ambos temas para
+// que el lector mantenga el mapa mental. Grid/muted se ajustan.
+function buildPalette(isDark: boolean) {
+  return {
+    urbano: isDark ? "#e0945c" : "#c97d3c",
+    vegetacion: isDark ? "#7faed8" : "#5a7a9c",
+    built: isDark ? "#b3c7df" : "#1a3a5c",
+    viirs: isDark ? "#fbbf24" : "#eab308",
+    grid: isDark ? "#2a3247" : "#e5e7eb",
+    muted: isDark ? "#94a0b8" : "#6b7280",
+    surface: isDark ? "#161d2f" : "#ffffff",
+    border: isDark ? "#2a3247" : "#e5e7eb",
+    text: isDark ? "#e6ebf2" : "#222222",
+  };
+}
 
 // Fila consolidada: un anio puede tener datos de una o varias fuentes.
 interface RowCombinada {
@@ -78,6 +85,9 @@ export function HistoriaLargaChart({
   viirs,
   height = 340,
 }: HistoriaLargaChartProps) {
+  const { resolved } = useTheme();
+  const PALETTE = buildPalette(resolved === "dark");
+
   const mb = mapbiomas.filter((r) => r.poligono_id === poligonoId);
   const gh = ghsl.filter((r) => r.poligono_id === poligonoId);
   const vi = viirs.filter((r) => r.poligono_id === poligonoId);
@@ -102,7 +112,7 @@ export function HistoriaLargaChart({
   // Si no hay NADA, mostramos placeholder y salimos.
   if (!mb.length && !gh.length && !vi.length) {
     return (
-      <p className="text-sm italic text-neutral-muted">
+      <p className="text-sm italic text-neutral-muted dark:text-dk-muted">
         Sin datos historicos disponibles para este poligono.
       </p>
     );
@@ -148,30 +158,36 @@ export function HistoriaLargaChart({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-col gap-0.5">
-        <h3 className="text-base font-semibold text-primary">
-          Transformacion urbana 1975-2030
+        <h3 className="text-base font-semibold text-primary dark:text-dk-primary">
+          Cómo cambió este barrio en 50 años
         </h3>
-        <p className="text-xs text-neutral-muted">
-          Fuentes: MapBiomas Argentina Col.1 &middot; GHSL P2023A &middot;
-          VIIRS/NOAA
+        <p className="text-xs text-neutral-text dark:text-dk-text">
+          Combina cobertura del suelo (urbano vs vegetación), huella construida
+          y luces nocturnas para mostrar la transformación del territorio entre
+          1975 y 2030.
+        </p>
+        <p className="text-[11px] italic text-neutral-muted dark:text-dk-muted">
+          Datos: MapBiomas Argentina Col.1 (cobertura), GHSL P2023A (huella
+          construida, Comisión Europea), VIIRS NOAA (luces nocturnas).
         </p>
       </div>
 
       {faltantes.length > 0 && (
-        <p className="text-xs italic text-neutral-muted">
-          {faltantes.join(", ")} sin cobertura para este poligono.
+        <p className="text-xs italic text-neutral-muted dark:text-dk-muted">
+          {faltantes.join(", ")} sin cobertura para este polígono.
         </p>
       )}
 
       <div
         role="img"
-        aria-label={`Historia de largo plazo de ${poligonoId}: superficie construida, vegetacion y radiancia nocturna.`}
-        style={{ width: "100%", height }}
+        aria-label={`Historia de largo plazo de ${poligonoId}: superficie construida, vegetación y luces nocturnas.`}
+        className="w-full"
+        style={{ height }}
       >
         <ResponsiveContainer>
           <ComposedChart
             data={data}
-            margin={{ top: 10, right: 16, bottom: 0, left: 0 }}
+            margin={{ top: 10, right: 12, bottom: 0, left: -8 }}
           >
             <CartesianGrid stroke={PALETTE.grid} strokeDasharray="3 3" />
             <XAxis
@@ -181,6 +197,7 @@ export function HistoriaLargaChart({
               allowDecimals={false}
               tickCount={8}
               stroke={PALETTE.muted}
+              tick={{ fill: PALETTE.muted }}
               tickLine={false}
               axisLine={{ stroke: PALETTE.grid }}
             />
@@ -188,6 +205,7 @@ export function HistoriaLargaChart({
               yAxisId="pct"
               domain={[0, 100]}
               stroke={PALETTE.muted}
+              tick={{ fill: PALETTE.muted }}
               tickLine={false}
               axisLine={{ stroke: PALETTE.grid }}
               label={{
@@ -201,6 +219,7 @@ export function HistoriaLargaChart({
               yAxisId="viirs"
               orientation="right"
               stroke={PALETTE.muted}
+              tick={{ fill: PALETTE.muted }}
               tickLine={false}
               axisLine={{ stroke: PALETTE.grid }}
               label={{
@@ -211,21 +230,28 @@ export function HistoriaLargaChart({
               }}
             />
             <Tooltip
-              contentStyle={{
-                backgroundColor: "#ffffff",
-                border: `1px solid ${PALETTE.grid}`,
-                borderRadius: 4,
-                fontSize: 13,
-              }}
-              labelStyle={{ color: PALETTE.built, fontWeight: 600 }}
-              formatter={(value: number | string, name: string) => {
-                if (typeof value !== "number") return [value, name];
-                if (name.startsWith("VIIRS")) return [value.toFixed(2), name];
-                return [`${value.toFixed(1)} %`, name];
-              }}
+              content={
+                <EducationalTooltip
+                  labelFormatter={(label) => `Año ${label}`}
+                  formatter={(value, name) => {
+                    if (typeof value !== "number") return [String(value), name];
+                    const nombre = String(name ?? "");
+                    if (nombre.toLowerCase().startsWith("luces")) {
+                      return [`${value.toFixed(2)} (radiancia)`, name];
+                    }
+                    return [`${value.toFixed(1)}%`, name];
+                  }}
+                  interpretacion={
+                    "Las áreas miden cobertura del suelo (MapBiomas), la línea " +
+                    "azul oscuro la huella construida (GHSL, Comisión Europea) y " +
+                    "la línea amarilla las luces nocturnas (VIIRS, NOAA). En " +
+                    "Posadas, % urbano subió de ~6% (1985) a ~30% (2022)."
+                  }
+                />
+              }
             />
             <Legend
-              wrapperStyle={{ fontSize: 12, paddingBottom: 8 }}
+              wrapperStyle={{ fontSize: 12, paddingBottom: 8, color: PALETTE.muted }}
               verticalAlign="top"
             />
             {mb.length > 0 && (
@@ -237,7 +263,7 @@ export function HistoriaLargaChart({
                 stroke={PALETTE.urbano}
                 fill={PALETTE.urbano}
                 fillOpacity={0.55}
-                name="Urbano (MapBiomas)"
+                name="% urbano"
                 isAnimationActive={false}
               />
             )}
@@ -250,7 +276,7 @@ export function HistoriaLargaChart({
                 stroke={PALETTE.vegetacion}
                 fill={PALETTE.vegetacion}
                 fillOpacity={0.35}
-                name="Vegetacion (MapBiomas)"
+                name="% vegetación"
                 isAnimationActive={false}
               />
             )}
@@ -262,7 +288,7 @@ export function HistoriaLargaChart({
                 stroke={PALETTE.built}
                 strokeWidth={2.4}
                 dot={{ r: 2.5, fill: PALETTE.built }}
-                name="Construido (GHSL)"
+                name="Huella construida"
                 connectNulls
                 isAnimationActive={false}
               />
@@ -276,7 +302,7 @@ export function HistoriaLargaChart({
                 strokeWidth={2}
                 strokeDasharray="4 3"
                 dot={{ r: 3, fill: PALETTE.viirs, stroke: PALETTE.viirs }}
-                name="VIIRS julio"
+                name="Luces nocturnas (julio)"
                 connectNulls
                 isAnimationActive={false}
               />

@@ -4,39 +4,122 @@
 
 :root {
   color-scheme: light;
+  /* Escala fluida (clamp) para titulares y body. Evita textos gigantes en
+     mobile y subdimensionados en desktop sin necesidad de breakpoints en
+     cada componente. */
+  --fs-h1: clamp(1.75rem, 1.45rem + 1.5vw, 2.5rem);
+  --fs-h2: clamp(1.35rem, 1.2rem + 0.7vw, 1.75rem);
+  --fs-lead: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+
+  /* Tokens semánticos light. Los duplicamos en variables CSS para que
+     reglas globales (h1/h2/p, btn-*, .card, .data-table) puedan responder
+     al cambio de tema sin tener que escribir Tailwind dark: en cada caso. */
+  --color-bg: #ffffff;
+  --color-surface: #ffffff;
+  --color-text: #222222;
+  --color-muted: #6b7280;
+  --color-border: #e5e7eb;
+  --color-primary: #1a3a5c;
+  --color-primary-soft: #f0f4f9; /* primary-50 — bg pill, hover */
+  --color-secondary: #5a7a9c;
+  --color-accent: #c97d3c;
+  --color-focus: #1a3a5c;
+  --color-shadow: rgba(15, 23, 42, 0.04);
+  --color-shadow-strong: rgba(26, 58, 92, 0.35);
+  --color-tooltip-bg: #1a3a5c;
+  --color-tooltip-text: #ffffff;
+  --color-attribution-bg: rgba(255, 255, 255, 0.92);
+  --color-attribution-text: #444444;
+  --color-leaflet-bg: #f0f4f9;
+}
+
+:root.dark {
+  color-scheme: dark;
+
+  --color-bg: #0e1320;
+  --color-surface: #161d2f;
+  --color-text: #e6ebf2;
+  --color-muted: #94a0b8;
+  --color-border: #2a3247;
+  --color-primary: #7faed8;
+  --color-primary-soft: #1c2540;
+  --color-secondary: #94a0b8;
+  --color-accent: #e0945c;
+  --color-focus: #7faed8;
+  --color-shadow: rgba(0, 0, 0, 0.45);
+  --color-shadow-strong: rgba(0, 0, 0, 0.6);
+  --color-tooltip-bg: #1c2540;
+  --color-tooltip-text: #e6ebf2;
+  --color-attribution-bg: rgba(22, 29, 47, 0.92);
+  --color-attribution-text: #c0cadb;
+  --color-leaflet-bg: #161d2f;
 }
 
 html,
 body {
-  background-color: #ffffff;
-  color: #222222;
+  background-color: var(--color-bg);
+  color: var(--color-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Transición suave al cambiar de tema para que no haya un parpadeo brusco
+     cuando el usuario togglea desde el header. La duración es corta para
+     no sentirse perezoso. */
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
-/* Foco accesible WCAG AA. */
+/* Evita scroll horizontal accidental por overlays/ResponsiveContainer en
+   pantallas ajustadas (recharts a veces empuja 1-2 px en mobile). */
+body {
+  overflow-x: hidden;
+}
+
+/* Scroll suave al usar anchors internos (saltar al contenido, breadcrumbs). */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  html,
+  body {
+    transition: none;
+  }
+}
+
+/* Foco accesible WCAG AA. Subimos el contraste con un anillo doble blanco
+   para que se vea sobre fondos azules y naranjas del sitio. En dark, el foco
+   usa el azul claro de la paleta nocturna. */
 :where(a, button, [role="button"], input, select, textarea):focus-visible {
-  outline: 2px solid #1a3a5c;
+  outline: 2px solid var(--color-focus);
   outline-offset: 2px;
   border-radius: 2px;
 }
 
-/* Tipografia editorial sobria. */
+/* Tipografía editorial sobria. Los headings usan la escala fluida. */
 h1,
 h2,
 h3,
 h4 {
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: #1a3a5c;
+  color: var(--color-primary);
 }
 
 p {
-  color: #222222;
+  color: var(--color-text);
   line-height: 1.65;
 }
 
-/* Contenedor estandar. */
+/* Texto fluido para "lead paragraphs" (intros de página). */
+.lead {
+  font-size: var(--fs-lead);
+  line-height: 1.55;
+}
+
+/* Contenedor estandar. Padding lateral más generoso en sm+ para evitar que
+   las cards toquen el borde de la pantalla en tablets. */
 .container-obs {
   width: 100%;
   max-width: 72rem;
@@ -45,48 +128,85 @@ p {
   padding-left: 1rem;
   padding-right: 1rem;
 }
+@media (min-width: 640px) {
+  .container-obs {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
 
-/* Boton base sobrio. */
-.btn-primary {
+/* Botones base. Touch target mínimo 44x44 según WCAG 2.5.5.
+   Microinteracción suave: leve translate al apretar para feedback táctil. */
+.btn-primary,
+.btn-outline {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: #1a3a5c;
-  color: #ffffff;
-  border-radius: 0.25rem;
+  padding: 0.625rem 1.1rem;
+  min-height: 44px;
+  border-radius: 0.375rem;
   font-weight: 600;
-  transition: background-color 120ms ease;
+  font-size: 0.95rem;
+  line-height: 1.1;
+  transition: background-color 120ms ease, transform 80ms ease,
+    box-shadow 120ms ease, color 120ms ease, border-color 120ms ease;
+  text-align: center;
+}
+.btn-primary {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+:root.dark .btn-primary {
+  /* En dark, el "primary" es un azul claro; sobre él el texto debe ser
+     oscuro para mantener contraste WCAG AA. */
+  color: #0e1320;
 }
 .btn-primary:hover {
-  background-color: #152f4a;
+  background-color: var(--color-primary);
+  filter: brightness(0.92);
+  box-shadow: 0 4px 12px -4px var(--color-shadow-strong);
+}
+:root.dark .btn-primary:hover {
+  filter: brightness(1.08);
+}
+.btn-primary:active {
+  transform: translateY(1px);
 }
 .btn-primary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 
 .btn-outline {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border: 1px solid #1a3a5c;
-  color: #1a3a5c;
-  border-radius: 0.25rem;
-  font-weight: 600;
-  transition: background-color 120ms ease;
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  background-color: var(--color-surface);
 }
 .btn-outline:hover {
-  background-color: #f0f4f9;
+  background-color: var(--color-primary-soft);
+}
+.btn-outline:active {
+  transform: translateY(1px);
 }
 
-/* Tarjeta de metrica. */
+/* Tarjeta de métrica. Sombra muy sutil para jerarquía sin volverse "ruidosa";
+   hover incrementa apenas la sombra cuando la card es interactiva. */
 .card {
-  border: 1px solid #e5e7eb;
-  background-color: #ffffff;
-  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  border-radius: 0.625rem;
   padding: 1rem;
+  box-shadow: 0 1px 2px var(--color-shadow);
+  transition: box-shadow 160ms ease, border-color 160ms ease,
+    background-color 200ms ease;
+}
+@media (min-width: 768px) {
+  .card {
+    padding: 1.25rem;
+  }
 }
 
 /* Tabla sobria. */
@@ -99,10 +219,62 @@ table.data-table th,
 table.data-table td {
   padding: 0.6rem 0.8rem;
   text-align: left;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+  color: var(--color-text);
 }
 table.data-table th {
-  background-color: #f0f4f9;
+  background-color: var(--color-primary-soft);
   font-weight: 600;
-  color: #1a3a5c;
+  color: var(--color-primary);
+}
+/* En mobile: forzar que la tabla nunca colapse columnas. El wrapper
+   .overflow-x-auto del contenedor permite scroll horizontal con momentum. */
+table.data-table {
+  white-space: nowrap;
+  min-width: 32rem;
+}
+@media (min-width: 768px) {
+  table.data-table {
+    white-space: normal;
+    min-width: 0;
+  }
+}
+
+/* Scroll horizontal con touch momentum para tablas y heatmaps. */
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+/* Asegura que charts SVG y mapas Leaflet nunca rompan el ancho del card.
+   recharts a veces emite SVG con width fijo. */
+.recharts-wrapper,
+.recharts-surface {
+  max-width: 100%;
+}
+
+/* Variantes utilitarias específicas de altura para mapas Leaflet. Se usa
+   en lugar de h-[Npx] hardcoded en el JSX para que altura siga viewport. */
+.h-map-main {
+  height: clamp(320px, 55vh, 540px);
+}
+.h-map-tall {
+  height: clamp(360px, 60vh, 600px);
+}
+
+/* Grilla del comparador: en lg+ usa la cantidad real de polígonos
+   seleccionados (2 a 4) para llenar el ancho del contenedor. */
+@media (min-width: 1024px) {
+  .comparison-grid {
+    grid-template-columns: repeat(var(--comparison-cols, 2), minmax(0, 1fr));
+  }
+}
+
+/* Tile layer: en dark mode invertimos levemente la luminosidad de tiles
+   light que no se hayan reemplazado todavía (sólo afecta a TileLayer; los
+   componentes Leaflet visibles en dark usan CARTO Dark Matter via JS). */
+:root.dark .leaflet-tile-pane {
+  /* El fondo de la cuadrícula vacía cuando los tiles aún no cargaron debe
+     ser oscuro. */
 }
