@@ -228,10 +228,10 @@ jobs:
             git switch -c data
           fi
 
-          rm -rf webapp/frontend/public/data data/processed
-          mkdir -p webapp/frontend/public data
-          [[ -d /tmp/sync_payload/webapp_data ]] && cp -a /tmp/sync_payload/webapp_data webapp/frontend/public/data
-          [[ -d /tmp/sync_payload/data_processed ]] && cp -a /tmp/sync_payload/data_processed data/processed
+          # OVERLAY (no wipe). Ver explicación en refresh-monthly.yml.
+          mkdir -p webapp/frontend/public/data data/processed
+          [[ -d /tmp/sync_payload/webapp_data ]] && cp -a /tmp/sync_payload/webapp_data/. webapp/frontend/public/data/
+          [[ -d /tmp/sync_payload/data_processed ]] && cp -a /tmp/sync_payload/data_processed/. data/processed/
 
           git add -f webapp/frontend/public/data/ data/processed/ || true
 
@@ -243,13 +243,8 @@ jobs:
           echo "has_changes=true" >> "$GITHUB_OUTPUT"
           git commit -m "chore(data): refresh histórico anual $(date -u +%Y)"
           git push origin data
-          # git switch borra del working tree los archivos tracked-only-en-data;
-          # re-copiamos el payload para que deploy-vps.sh los incluya.
-          git switch main
-          rm -rf webapp/frontend/public/data data/processed
-          mkdir -p webapp/frontend/public data
-          [[ -d /tmp/sync_payload/webapp_data ]] && cp -a /tmp/sync_payload/webapp_data webapp/frontend/public/data
-          [[ -d /tmp/sync_payload/data_processed ]] && cp -a /tmp/sync_payload/data_processed data/processed
+          # Quedamos en data branch para deploy (mergeada con main, payload
+          # completo). Ver explicación en refresh-monthly.yml.
 
       - name: Setup SSH para VPS
         if: |

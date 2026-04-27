@@ -255,14 +255,16 @@ jobs:
             git switch -c data
           fi
 
-          # Reaplicamos los outputs sobre la rama data.
-          rm -rf webapp/frontend/public/data data/processed
-          mkdir -p webapp/frontend/public data
-          [[ -d /tmp/sync_payload/webapp_data ]] && cp -a /tmp/sync_payload/webapp_data webapp/frontend/public/data
-          [[ -d /tmp/sync_payload/data_processed ]] && cp -a /tmp/sync_payload/data_processed data/processed
+          # OVERLAY (no wipe): el monthly produce capas temporales (calor,
+          # CBERS, dynamic_world, sentinel1, forecast). El yearly produce
+          # buildings/conteos/poblacion v43, etc. Si rm -rf'eamos data/processed
+          # y restauramos solo lo del monthly, perdemos los outputs anuales.
+          # Copiamos por overlay: lo que existe en rama data se mantiene; lo
+          # nuevo lo sobrescribe, todo lo demás queda intacto.
+          mkdir -p webapp/frontend/public/data data/processed
+          [[ -d /tmp/sync_payload/webapp_data ]] && cp -a /tmp/sync_payload/webapp_data/. webapp/frontend/public/data/
+          [[ -d /tmp/sync_payload/data_processed ]] && cp -a /tmp/sync_payload/data_processed/. data/processed/
 
-          # En la rama data, esos paths NO están en su .gitignore (ver workflow
-          # docs). Igualmente forzamos -f por seguridad.
           git add -f webapp/frontend/public/data/ data/processed/ || true
 
           if git diff --cached --quiet; then
@@ -273,15 +275,10 @@ jobs:
           echo "has_changes=true" >> "$GITHUB_OUTPUT"
           git commit -m "chore(data): refresh satelital mensual $(date -u +%Y-%m)"
           git push origin data
-          # Volvemos a main para los pasos siguientes (deploy lee scripts y
-          # Dockerfile de main). Pero git switch borra del working tree los
-          # archivos tracked-only-en-data → re-copiamos el payload así
-          # deploy-vps.sh tarea con los datos frescos.
-          git switch main
-          rm -rf webapp/frontend/public/data data/processed
-          mkdir -p webapp/frontend/public data
-          [[ -d /tmp/sync_payload/webapp_data ]] && cp -a /tmp/sync_payload/webapp_data webapp/frontend/public/data
-          [[ -d /tmp/sync_payload/data_processed ]] && cp -a /tmp/sync_payload/data_processed data/processed
+          # NO volvemos a main: queremos deployar desde la rama data, que
+          # tiene merge con main (Dockerfile/scripts) + payload completo
+          # (overlayed con outputs de yearly previo). Si volvíamos a main,
+          # el working tree perdía los archivos tracked-only-en-data.
 
       - name: Setup SSH para VPS
         if: |

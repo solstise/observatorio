@@ -15,6 +15,11 @@ shapely>=2.0
 pyproj>=3.6
 fiona>=1.9
 
+# --- Cloud (S3 INPE para CBERS) ---
+# CBERS-4A WPM pansharpen: scripts/45*.py listan/descargan escenas desde
+# s3://cbers-meta-pds (público, sin auth) vía boto3 con UNSIGNED config.
+boto3>=1.34
+
 # --- Procesamiento de imágenes ---
 Pillow>=10.0
 imageio>=2.31

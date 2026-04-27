@@ -157,11 +157,10 @@ jobs:
             git switch -c data
           fi
 
-          # En el daily de FIRMS solo tocamos webapp/data y processed/ambiental.
-          rm -rf webapp/frontend/public/data data/processed/ambiental
-          mkdir -p webapp/frontend/public data/processed
-          [[ -d /tmp/sync_payload/webapp_data ]] && cp -a /tmp/sync_payload/webapp_data webapp/frontend/public/data
-          [[ -d /tmp/sync_payload/data_processed/ambiental ]] && cp -a /tmp/sync_payload/data_processed/ambiental data/processed/ambiental
+          # OVERLAY (no wipe). Ver refresh-monthly.yml para contexto.
+          mkdir -p webapp/frontend/public/data data/processed/ambiental
+          [[ -d /tmp/sync_payload/webapp_data ]] && cp -a /tmp/sync_payload/webapp_data/. webapp/frontend/public/data/
+          [[ -d /tmp/sync_payload/data_processed/ambiental ]] && cp -a /tmp/sync_payload/data_processed/ambiental/. data/processed/ambiental/
 
           git add -f webapp/frontend/public/data/ data/processed/ambiental/ || true
 
@@ -173,12 +172,7 @@ jobs:
           echo "has_changes=true" >> "$GITHUB_OUTPUT"
           git commit -m "chore(data): refresh FIRMS diario $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
           git push origin data
-          git switch main
-          # Restore payload para que deploy-vps.sh lo incluya.
-          rm -rf webapp/frontend/public/data data/processed/ambiental
-          mkdir -p webapp/frontend/public data/processed
-          [[ -d /tmp/sync_payload/webapp_data ]] && cp -a /tmp/sync_payload/webapp_data webapp/frontend/public/data
-          [[ -d /tmp/sync_payload/data_processed/ambiental ]] && cp -a /tmp/sync_payload/data_processed/ambiental data/processed/ambiental
+          # Quedamos en data branch para deploy. Ver refresh-monthly.yml.
 
       - name: Setup SSH para VPS
         if: |
