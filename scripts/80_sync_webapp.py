@@ -407,16 +407,20 @@ def copiar_media(src_outputs: Path, src_processed: Path, dest_media: Path) -> di
 @click.command(help="Sincroniza datos reales a webapp/frontend/public/data/.")
 @click.option("--poligonos", type=click.Path(exists=True), default="config/poligonos.geojson")
 @click.option(
-    "--serie", type=click.Path(exists=True), default="data/processed/conteos/serie_temporal.csv"
+    "--serie", type=click.Path(exists=False), default="data/processed/conteos/serie_temporal.csv"
 )
 @click.option(
-    "--poblacion", type=click.Path(exists=True), default="data/processed/poblacion_estimada.csv"
+    "--poblacion", type=click.Path(exists=False), default="data/processed/poblacion_estimada.csv"
 )
 @click.option(
-    "--servicios", type=click.Path(exists=True), default="data/processed/servicios_por_poligono.csv"
+    "--servicios",
+    type=click.Path(exists=False),
+    default="data/processed/servicios_por_poligono.csv",
 )
 @click.option(
-    "--vulnerabilidad", type=click.Path(exists=True), default="data/processed/vulnerabilidad_v0.csv"
+    "--vulnerabilidad",
+    type=click.Path(exists=False),
+    default="data/processed/vulnerabilidad_v0.csv",
 )
 @click.option("--webapp-data", type=click.Path(), default="webapp/frontend/public/data")
 @click.option("--webapp-media", type=click.Path(), default="webapp/frontend/public/data/media")
@@ -441,46 +445,60 @@ def cli(
     logger.info("Sync webapp — Observatorio Urbano Posadas")
     logger.info("=" * 60)
 
-    # Cargar fuentes.
+    # Cargar fuentes. Las base (serie/poblacion/vulnerabilidad/servicios) son
+    # producidas por el yearly (buildings) — pueden faltar en un runner del
+    # monthly, en cuyo caso saltamos transformaciones que dependen de ellas
+    # SIN sobrescribir el output previo del yearly en webapp/.
     poligonos_gdf = gpd.read_file(poligonos)
-    serie_df = pd.read_csv(serie, comment="#")
-    pob_df = pd.read_csv(poblacion, comment="#")
-    # Los CSVs generados por nuestros scripts no tienen comentarios pero toleramos.
-    svc_df = pd.read_csv(servicios, comment="#") if _Path(servicios).exists() else pd.DataFrame()
-    vuln_df = (
-        pd.read_csv(vulnerabilidad, comment="#")
-        if _Path(vulnerabilidad).exists()
-        else pd.DataFrame()
-    )
+    serie_path = _Path(serie)
+    pob_path = _Path(poblacion)
+    vuln_path = _Path(vulnerabilidad)
+    svc_path = _Path(servicios)
 
-    # Transformar y guardar.
-    fc = transformar_poligonos(_Path(poligonos), serie_df, pob_df, vuln_df)
-    (dest_data / "poligonos.geojson").write_text(
-        json.dumps(fc, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
-    logger.info(f"poligonos.geojson -> {dest_data / 'poligonos.geojson'}")
+    serie_df = pd.read_csv(serie_path, comment="#") if serie_path.exists() else None
+    pob_df = pd.read_csv(pob_path, comment="#") if pob_path.exists() else None
+    vuln_df = pd.read_csv(vuln_path, comment="#") if vuln_path.exists() else None
+    svc_df = pd.read_csv(svc_path, comment="#") if svc_path.exists() else None
 
-    serie_out = transformar_serie(serie_df, poligonos_gdf)
-    serie_out.to_csv(dest_data / "serie_temporal.csv", index=False, encoding="utf-8")
-    logger.info(f"serie_temporal.csv -> {len(serie_out)} filas")
+    if serie_df is None:
+        logger.warning(f"  - {serie_path} no existe; salto serie_temporal/poligonos.geojson")
+    if pob_df is None:
+        logger.warning(f"  - {pob_path} no existe; salto poblacion.csv")
+    if vuln_df is None:
+        logger.warning(f"  - {vuln_path} no existe; salto vulnerabilidad.csv")
+    if svc_df is None:
+        logger.warning(f"  - {svc_path} no existe; salto servicios.csv")
 
-    pob_out = transformar_poblacion(pob_df, poligonos_gdf)
-    pob_out.to_csv(dest_data / "poblacion.csv", index=False, encoding="utf-8")
-    logger.info(f"poblacion.csv -> {len(pob_out)} filas")
-
-    svc_out = (
-        transformar_servicios(svc_df)
-        if not svc_df.empty
-        else pd.DataFrame(
-            columns=["poligono_id", "servicio", "cobertura_pct", "fuente", "anio_referencia"]
+    # poligonos.geojson depende de los 3 base (serie+pob+vuln). Si falta
+    # alguno, dejamos el archivo previo intacto (lo escribió el último yearly).
+    if serie_df is not None and pob_df is not None and vuln_df is not None:
+        fc = transformar_poligonos(_Path(poligonos), serie_df, pob_df, vuln_df)
+        (dest_data / "poligonos.geojson").write_text(
+            json.dumps(fc, ensure_ascii=False, indent=2), encoding="utf-8"
         )
-    )
-    svc_out.to_csv(dest_data / "servicios.csv", index=False, encoding="utf-8")
-    logger.info(f"servicios.csv -> {len(svc_out)} filas")
+        logger.info(f"poligonos.geojson -> {dest_data / 'poligonos.geojson'}")
+    else:
+        logger.warning("poligonos.geojson NO regenerado (falta base). Mantengo versión previa.")
 
-    vuln_out = transformar_vulnerabilidad(vuln_df) if not vuln_df.empty else pd.DataFrame()
-    vuln_out.to_csv(dest_data / "vulnerabilidad.csv", index=False, encoding="utf-8")
-    logger.info(f"vulnerabilidad.csv -> {len(vuln_out)} filas")
+    if serie_df is not None:
+        serie_out = transformar_serie(serie_df, poligonos_gdf)
+        serie_out.to_csv(dest_data / "serie_temporal.csv", index=False, encoding="utf-8")
+        logger.info(f"serie_temporal.csv -> {len(serie_out)} filas")
+
+    if pob_df is not None:
+        pob_out = transformar_poblacion(pob_df, poligonos_gdf)
+        pob_out.to_csv(dest_data / "poblacion.csv", index=False, encoding="utf-8")
+        logger.info(f"poblacion.csv -> {len(pob_out)} filas")
+
+    if svc_df is not None:
+        svc_out = transformar_servicios(svc_df)
+        svc_out.to_csv(dest_data / "servicios.csv", index=False, encoding="utf-8")
+        logger.info(f"servicios.csv -> {len(svc_out)} filas")
+
+    if vuln_df is not None:
+        vuln_out = transformar_vulnerabilidad(vuln_df)
+        vuln_out.to_csv(dest_data / "vulnerabilidad.csv", index=False, encoding="utf-8")
+        logger.info(f"vulnerabilidad.csv -> {len(vuln_out)} filas")
 
     # ----- Copia pass-through de métricas complementarias (S2a/S3) -------
     # Estos CSVs salen de scripts nuevos (41, 43, 44) y se exponen al
