@@ -273,8 +273,15 @@ jobs:
           echo "has_changes=true" >> "$GITHUB_OUTPUT"
           git commit -m "chore(data): refresh satelital mensual $(date -u +%Y-%m)"
           git push origin data
-          # Volvemos a main para los pasos siguientes (deploy lee scripts de main).
+          # Volvemos a main para los pasos siguientes (deploy lee scripts y
+          # Dockerfile de main). Pero git switch borra del working tree los
+          # archivos tracked-only-en-data → re-copiamos el payload así
+          # deploy-vps.sh tarea con los datos frescos.
           git switch main
+          rm -rf webapp/frontend/public/data data/processed
+          mkdir -p webapp/frontend/public data
+          [[ -d /tmp/sync_payload/webapp_data ]] && cp -a /tmp/sync_payload/webapp_data webapp/frontend/public/data
+          [[ -d /tmp/sync_payload/data_processed ]] && cp -a /tmp/sync_payload/data_processed data/processed
 
       - name: Setup SSH para VPS
         if: |
