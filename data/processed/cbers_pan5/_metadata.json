@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-04-27T14:03:11",
+  "sensor": "CBERS-4 PAN5M",
+  "resolucion_m": 5,
+  "fecha_imagen": "2026-04-13",
+  "path": "163",
+  "row": "130",
+  "scene_id": "CBERS_4_PAN5M_20260413_163_130_L2",
+  "cloud_cover_pct": null,
+  "n_poligonos_cubiertos": 0,
+  "n_poligonos_sin_cobertura": 43,
+  "fuente": "INPE / AWS Open Data Registry (s3://brazil-eosats)",
+  "version_script": "0.1.0",
+  "fallback_chain": "PAN5M -> PAN10M -> WPM4A (script 45)",
+  "color_o_bn": "B&N (pancromática única)"
+}

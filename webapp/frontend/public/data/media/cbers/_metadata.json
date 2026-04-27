@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-04-27T14:02:31",
+  "sensor": "CBERS-4A WPM",
+  "resolucion_pan_m": 2,
+  "resolucion_ms_m": 8,
+  "resolucion_pansharpen_m": 2,
+  "fecha_imagen": "2026-04-18",
+  "path": "213",
+  "row": "148",
+  "scene_id": "CBERS_4A_WPM_20260418_213_148_L4",
+  "n_poligonos_cubiertos": 43,
+  "cloud_cover_pct": null,
+  "cobertura_bbox_pct": 100.0,
+  "fuente": "INPE / AWS Open Data Registry (s3://brazil-eosats)",
+  "algoritmo_pansharpen": "Brovey",
+  "version_script": "0.1.0",
+  "pansharpen_stats": {
+    "red_p2": 46.03297424316406,
+    "red_p98": 249.71664428710938,
+    "green_p2": 70.78943634033203,
+    "green_p98": 260.2035827636719,
+    "blue_p2": 99.1004409790039,
+    "blue_p98": 308.0252380371094,
+    "dimensiones": [
+      12458,
+      11738
+    ],
+    "resolucion_m": 2,
+    "elapsed_s": 38.6945219039917
+  },
+  "recortes_actualizados_en": "2026-04-27T14:02:51"
+}

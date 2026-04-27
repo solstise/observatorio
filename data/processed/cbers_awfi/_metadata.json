@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-04-27T14:03:17",
+  "sensor": "CBERS-4 AWFI 64 m + Sentinel-2 SR",
+  "rango": [
+    "2018-01-01",
+    "2026-04-27"
+  ],
+  "n_meses": 100,
+  "total_obs_s2": 1101,
+  "total_obs_awfi": 319,
+  "total_obs_total": 1308,
+  "cobertura_pct_s2_solo": 99.0,
+  "cobertura_pct_con_awfi": 100.0,
+  "mejora_absoluta_pct": 1.0,
+  "fuente_s2": "Earth Engine COPERNICUS/S2_SR_HARMONIZED",
+  "fuente_awfi": "AWS s3://brazil-eosats/CBERS4/AWFI/",
+  "version_script": "0.1.0",
+  "limitacion": "Conteo bruto de imágenes disponibles, sin filtrar nubes. Para utilización real habría que correr cloud-mask por escena."
+}

@@ -1,0 +1,9 @@
+{
+  "generated_at": "2026-04-27T14:13:31",
+  "sensor_cbers": "CBERS-4 MUX (BAND7=red, BAND8=NIR)",
+  "sensor_s2": "Sentinel-2 SR (B4=red, B8=NIR, B11=SWIR, B8A=NIR_narrow)",
+  "n_anios": 12,
+  "n_poligonos_warning_diff_gt_20pct": 0,
+  "version_script": "0.1.0",
+  "limitacion_critica": "ndbi_cbers es proxy NIR-RED (anti-vegetación). NDBI verdadero requiere SWIR, ausente en CBERS-4 MUX. Usar sólo como validación cruzada de NDVI."
+}

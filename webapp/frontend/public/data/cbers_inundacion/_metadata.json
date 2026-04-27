@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-04-27T14:14:28",
+  "fuente_primaria": "CBERS-4 AWFI 64m (NDWI McFeeters)",
+  "fuente_secundaria": "Sentinel-1 SAR (script 43)",
+  "ventana": [
+    "2018-01-01",
+    "2026-04-27"
+  ],
+  "n_eventos_detectados": 12,
+  "n_eventos_alta_confianza": 0,
+  "umbral_ndwi": 0.3,
+  "umbral_ndvi_max": 0.1,
+  "umbral_s1_delta_db": -3.0,
+  "version_script": "0.1.0",
+  "limitacion": "AWFI 64 m: detecta inundaciones grandes (>0.5 km²). NDWI McFeeters confunde agua con sombras y nubes oscuras. Cross-val S1 es mensual (no por fecha exacta de AWFI)."
+}
