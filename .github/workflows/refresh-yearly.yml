@@ -207,7 +207,17 @@ jobs:
       # ----------------------------------------------------------------------
       - name: Re-generar PDFs anuales (script 60 --all)
         if: github.event.inputs.skip_pdfs != 'true'
-        run: python scripts/60_generar_pdf.py --all
+        run: |
+          # Apuntar a v43 (los outputs nuevos del yearly). Sin estos flags
+          # el script lee data/processed/conteos/serie_temporal.csv (que no
+          # existe en runner fresco) → DataFrame vacío → KeyError 'poligono_id'.
+          if [[ "${{ github.event.inputs.skip_buildings }}" != "true" ]]; then
+            python scripts/60_generar_pdf.py --all \
+              --serie-temporal data/processed/conteos_v43/serie_temporal.csv \
+              --poblacion data/processed/poblacion_estimada_v43.csv
+          else
+            python scripts/60_generar_pdf.py --all
+          fi
 
       # ----------------------------------------------------------------------
       # Bloque 9: Sync webapp con los nuevos artefactos.
