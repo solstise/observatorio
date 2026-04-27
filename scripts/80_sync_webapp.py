@@ -154,6 +154,43 @@ def transformar_poligonos(
     }
 
 
+CIUDAD_TOTAL_ID = "posadas_completa"
+
+
+def _agregar_total_ciudad(serie_df: pd.DataFrame) -> pd.DataFrame:
+    """Agrega filas con poligono_id='posadas_completa' = suma de todos los
+    barrios por fecha. Permite mostrar totales de ciudad sin tener Sentinel-2
+    sobre los 106 km² (que excede el límite de getDownloadURL de GEE).
+    """
+    if serie_df is None or serie_df.empty:
+        return serie_df
+    # Excluir la fila vieja de posadas_completa si existe
+    base = serie_df[serie_df["poligono_id"] != CIUDAD_TOTAL_ID].copy()
+    if base.empty:
+        return serie_df
+    cols_sum = [c for c in base.columns if c not in ("poligono_id", "fecha")]
+    agg = base.groupby("fecha", as_index=False)[cols_sum].sum(numeric_only=True)
+    agg.insert(0, "poligono_id", CIUDAD_TOTAL_ID)
+    return pd.concat([base, agg], ignore_index=True)
+
+
+def _agregar_pob_total_ciudad(pob_df: pd.DataFrame) -> pd.DataFrame:
+    """Mismo patrón que _agregar_total_ciudad para poblacion_estimada."""
+    if pob_df is None or pob_df.empty:
+        return pob_df
+    base = pob_df[pob_df["poligono_id"] != CIUDAD_TOTAL_ID].copy()
+    if base.empty:
+        return pob_df
+    cols_sum = [
+        c for c in ("poblacion_min", "poblacion_estimada", "poblacion_max") if c in base.columns
+    ]
+    agg = base.groupby("fecha", as_index=False)[cols_sum].sum(numeric_only=True)
+    agg.insert(0, "poligono_id", CIUDAD_TOTAL_ID)
+    if "metodo" in base.columns:
+        agg["metodo"] = "agregado_barrios"
+    return pd.concat([base, agg], ignore_index=True)
+
+
 def transformar_serie(serie_df: pd.DataFrame, poligonos_gdf: gpd.GeoDataFrame) -> pd.DataFrame:
     """Transforma la serie temporal: fecha YYYY-MM → anio (int), agrega campos.
 
@@ -464,6 +501,14 @@ def cli(
         logger.warning(f"  - {serie_path} no existe; salto serie_temporal/poligonos.geojson")
     if pob_df is None:
         logger.warning(f"  - {pob_path} no existe; salto poblacion.csv")
+
+    # Inyectamos posadas_completa = suma de barrios. Sentinel-2 no cubre
+    # el polígono entero (106 km² > límite GEE) así que el pipeline lo
+    # saltea; lo derivamos de los barrios para tener total de ciudad.
+    if serie_df is not None:
+        serie_df = _agregar_total_ciudad(serie_df)
+    if pob_df is not None:
+        pob_df = _agregar_pob_total_ciudad(pob_df)
     if vuln_df is None:
         logger.warning(f"  - {vuln_path} no existe; salto vulnerabilidad.csv")
     if svc_df is None:

@@ -177,10 +177,12 @@ jobs:
             git switch -c data
           fi
 
-          mkdir -p webapp/frontend/public/data
-          rm -rf webapp/frontend/public/data/forecast webapp/frontend/public/data/alertas
-          [[ -d /tmp/sync_payload/forecast ]] && cp -a /tmp/sync_payload/forecast webapp/frontend/public/data/forecast
-          [[ -d /tmp/sync_payload/alertas ]]  && cp -a /tmp/sync_payload/alertas  webapp/frontend/public/data/alertas
+          # Overlay: forecast/ y alertas/ se sobrescriben enteros porque son
+          # snapshots completos cada 6h (no se acumulan); el resto del data
+          # branch (calor, cbers, conteos, etc.) queda intacto.
+          mkdir -p webapp/frontend/public/data/forecast webapp/frontend/public/data/alertas
+          [[ -d /tmp/sync_payload/forecast ]] && cp -a /tmp/sync_payload/forecast/. webapp/frontend/public/data/forecast/
+          [[ -d /tmp/sync_payload/alertas ]]  && cp -a /tmp/sync_payload/alertas/.  webapp/frontend/public/data/alertas/
           [[ -f /tmp/sync_payload/updated_at.txt ]] && cp -a /tmp/sync_payload/updated_at.txt webapp/frontend/public/data/updated_at.txt
 
           git add -f webapp/frontend/public/data/forecast/ webapp/frontend/public/data/alertas/ webapp/frontend/public/data/updated_at.txt || true
@@ -193,13 +195,7 @@ jobs:
           echo "changed=true" >> "$GITHUB_OUTPUT"
           git commit -m "chore(data): refresh forecast & alertas $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
           git push origin data
-          git switch main
-          # Restore payload para que deploy-vps.sh lo incluya.
-          mkdir -p webapp/frontend/public/data
-          rm -rf webapp/frontend/public/data/forecast webapp/frontend/public/data/alertas
-          [[ -d /tmp/sync_payload/forecast ]] && cp -a /tmp/sync_payload/forecast webapp/frontend/public/data/forecast
-          [[ -d /tmp/sync_payload/alertas ]]  && cp -a /tmp/sync_payload/alertas  webapp/frontend/public/data/alertas
-          [[ -f /tmp/sync_payload/updated_at.txt ]] && cp -a /tmp/sync_payload/updated_at.txt webapp/frontend/public/data/updated_at.txt
+          # Quedamos en data branch para deploy.
 
       - name: Setup SSH para VPS
         if: |
