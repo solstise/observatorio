@@ -190,6 +190,28 @@ jobs:
         run: python scripts/45i_cbers_inundacion.py
         continue-on-error: true
 
+      - name: CBERS histórico anual (script 45g)
+        run: python scripts/45g_cbers_historico.py
+        continue-on-error: true
+
+      # ----------------------------------------------------------------------
+      # Bloque 3c: capa aire multi-gas (NO2 + SO2 + CO + HCHO + CH4 + O3
+      # vía Sentinel-5P) para complementar el script 47 (que sólo cubre NO2).
+      # ----------------------------------------------------------------------
+      - name: Aire multi-gas (script 48)
+        run: python scripts/48_aire_multigas.py
+        continue-on-error: true
+
+      # ----------------------------------------------------------------------
+      # Bloque 3d: descripciones de mapas (HF Inference API o placeholder).
+      # Genera mapas_descripciones.json que /historia consume.
+      # ----------------------------------------------------------------------
+      - name: Descripciones mapas calor + comparaciones HD
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python scripts/_descripcion_mapas.py
+        continue-on-error: true
+
       # ----------------------------------------------------------------------
       # Bloque 4: Forecast + alertas con datos nuevos. El cron de 6h también
       # corre estos pero acá garantizamos que la base mensual quede coherente.
