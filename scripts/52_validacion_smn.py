@@ -1126,8 +1126,22 @@ def cruzar_cmd(ctx_click) -> None:
 @click.option("--force", is_flag=True, default=False)
 @click.pass_context
 def todo_cmd(ctx_click, force: bool) -> None:
-    """Corre descargar-aire + cruzar."""
+    """Corre descargar-aire + cruzar.
+
+    Si la capa de calor (LST mensual del script 49) no existe todavía
+    porque el monthly no corrió, se omite el cross-validation con un
+    warning en lugar de fallar — `descargar-aire` igual produce el CSV
+    ERA5 que es útil por sí solo.
+    """
     ctx_click.invoke(descargar_aire_cmd, force=force)
+
+    ctx: ContextoValidacion = ctx_click.obj["ctx"]
+    if not ctx.lst_mensual_csv.exists():
+        logger.warning(
+            f"{ctx.lst_mensual_csv} no existe — saltando cross-validation "
+            "(corré el monthly cron / scripts/49_calor_pipeline.py primero)."
+        )
+        return
     ctx_click.invoke(cruzar_cmd)
 
 
