@@ -56,9 +56,11 @@ jobs:
   refresh:
     name: Pipeline satelital mensual
     runs-on: ubuntu-latest
-    # 90 min: Landsat puede tardar 20-30 min y los composites mensuales otros
-    # 15-20 min. Margen para reintentos internos de los scripts.
-    timeout-minutes: 90
+    # 240 min (4 hs): Variables ambientales (script 47) baja 8 años de
+    # ERA5+CHIRPS+MODIS LST y solo eso lleva 60-80 min. Más Landsat (20-30),
+    # CBERS extendido (9 scripts, ~30 min), sync + deploy. Margen para
+    # reintentos internos de scripts ante throttling de EE.
+    timeout-minutes: 240
     env:
       TZ: America/Argentina/Cordoba
       UPSTASH_CONFIGURED: ${{ secrets.UPSTASH_REDIS_REST_URL != '' && secrets.UPSTASH_REDIS_REST_TOKEN != '' && 'true' || 'false' }}
