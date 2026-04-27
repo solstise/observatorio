@@ -97,8 +97,12 @@ def inicializar_ee(project_id: Optional[str]) -> None:
         logger.error("earthengine-api no está instalado. Corré: pip install earthengine-api")
         raise SystemExit(1) from exc
 
+    sa_key = __import__("os").environ.get("EE_SERVICE_ACCOUNT_KEY")
     try:
-        if project_id:
+        if sa_key and Path(sa_key).exists():
+            credentials = ee.ServiceAccountCredentials(None, sa_key)
+            ee.Initialize(credentials)
+        elif project_id:
             ee.Initialize(project=project_id)
         else:
             ee.Initialize()
