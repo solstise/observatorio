@@ -514,16 +514,25 @@ def cli(
     if svc_df is None:
         logger.warning(f"  - {svc_path} no existe; salto servicios.csv")
 
-    # poligonos.geojson depende de los 3 base (serie+pob+vuln). Si falta
-    # alguno, dejamos el archivo previo intacto (lo escribió el último yearly).
+    # poligonos.geojson SIEMPRE se escribe — el frontend lo necesita en
+    # build-time (Next.js prerender de /, /calor, /clima, etc.) y el build
+    # rompe si falta. Si tenemos los 3 base lo enriquecemos con stats por
+    # polígono (poblacion, edificios, etc.); si no, copiamos la geometría
+    # cruda de config/.
     if serie_df is not None and pob_df is not None and vuln_df is not None:
         fc = transformar_poligonos(_Path(poligonos), serie_df, pob_df, vuln_df)
         (dest_data / "poligonos.geojson").write_text(
             json.dumps(fc, ensure_ascii=False, indent=2), encoding="utf-8"
         )
-        logger.info(f"poligonos.geojson -> {dest_data / 'poligonos.geojson'}")
+        logger.info(f"poligonos.geojson -> {dest_data / 'poligonos.geojson'} (con stats)")
     else:
-        logger.warning("poligonos.geojson NO regenerado (falta base). Mantengo versión previa.")
+        # Fallback: copiar geometría cruda de config/. El frontend muestra
+        # polígonos sin stats, pero al menos no rompe el build.
+        shutil.copy2(_Path(poligonos), dest_data / "poligonos.geojson")
+        logger.warning(
+            f"poligonos.geojson copiado de {poligonos} (sin stats — "
+            "falta serie/pob/vuln). Para enriquecer correr el yearly."
+        )
 
     if serie_df is not None:
         serie_out = transformar_serie(serie_df, poligonos_gdf)
