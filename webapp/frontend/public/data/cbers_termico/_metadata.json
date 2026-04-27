@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-04-27T03:17:24",
+  "sensor": "CBERS-4 IRS",
+  "estado": "no_disponible_via_api_anonima",
+  "razon": "El bucket s3://brazil-eosats no expone CBERS-4 IRS (sólo PAN5M/PAN10M/MUX/AWFI). La STAC INPE tampoco lo incluye. Acceso requiere registro y descarga manual desde el catálogo INPE (http://www.dgi.inpe.br/CDSR/).",
+  "verificacion_stac": {
+    "stac_base": "https://www.dgi.inpe.br/lgi-stac",
+    "buscaba_colecciones": [
+      "CBERS4_IRS_L2_DN",
+      "CBERS4_IRS_L4_DN"
+    ],
+    "encontradas": [],
+    "total_colecciones_stac": 16
+  },
+  "verificacion_aws": {
+    "bucket": "brazil-eosats",
+    "found": false,
+    "error_aws": "No module named 'boto3'"
+  },
+  "schema_csv_objetivo": [
+    "poligono_id",
+    "anio",
+    "mes",
+    "lst_mean_cbers",
+    "n_pixeles",
+    "fecha_pasada",
+    "calidad"
+  ],
+  "version_script": "0.1.0",
+  "que_pasa_con_el_merge_de_calor": "scripts/49_calor_pipeline.py acepta CSV vacío y degrada a modo solo-Landsat. UHI sigue calculándose normalmente.",
+  "limitacion_aunque_estuviera_disponible": "Revisita CBERS-4 26 días. Sería complemento de Landsat, no reemplazo. Solo aporta meses con <30% válidos en Landsat y donde IRS coincida con cielo claro."
+}

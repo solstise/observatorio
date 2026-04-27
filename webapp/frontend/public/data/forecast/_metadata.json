@@ -1,0 +1,21 @@
+{
+  "script_version": "0.1.0",
+  "generated_at": "2026-04-27T03:17:29",
+  "modelos": [
+    "ecmwf_ifs04",
+    "gfs_seamless",
+    "icon_global",
+    "jma_gsm",
+    "gem_global",
+    "bom_access_global"
+  ],
+  "n_barrios": 43,
+  "n_filas_diario": 602,
+  "n_filas_horario": 72,
+  "n_filas_aqi": 5,
+  "fuente_ensemble": "https://ensemble-api.open-meteo.com/v1/ensemble",
+  "fuente_aqi": "https://air-quality-api.open-meteo.com/v1/air-quality",
+  "centro_lat": -27.3667,
+  "centro_lon": -55.8967,
+  "timezone": "America/Argentina/Cordoba"
+}
