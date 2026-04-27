@@ -514,25 +514,38 @@ def cli(
     if svc_df is None:
         logger.warning(f"  - {svc_path} no existe; salto servicios.csv")
 
-    # poligonos.geojson SIEMPRE se escribe — el frontend lo necesita en
-    # build-time (Next.js prerender de /, /calor, /clima, etc.) y el build
-    # rompe si falta. Si tenemos los 3 base lo enriquecemos con stats por
-    # polígono (poblacion, edificios, etc.); si no, copiamos la geometría
-    # cruda de config/.
-    if serie_df is not None and pob_df is not None and vuln_df is not None:
-        fc = transformar_poligonos(_Path(poligonos), serie_df, pob_df, vuln_df)
-        (dest_data / "poligonos.geojson").write_text(
-            json.dumps(fc, ensure_ascii=False, indent=2), encoding="utf-8"
-        )
-        logger.info(f"poligonos.geojson -> {dest_data / 'poligonos.geojson'} (con stats)")
-    else:
-        # Fallback: copiar geometría cruda de config/. El frontend muestra
-        # polígonos sin stats, pero al menos no rompe el build.
-        shutil.copy2(_Path(poligonos), dest_data / "poligonos.geojson")
-        logger.warning(
-            f"poligonos.geojson copiado de {poligonos} (sin stats — "
-            "falta serie/pob/vuln). Para enriquecer correr el yearly."
-        )
+    # poligonos.geojson SIEMPRE se escribe con el schema que espera el
+    # frontend (categoria mapeada, score_expansion, edificios_2018,
+    # edificios_2026, poblacion_estimada). Sin esto, /, /calor, /clima
+    # etc rompen prerender (build) o tiran client-side exception (runtime).
+    # Si faltan inputs base, pasamos DataFrames vacíos con las columnas
+    # esperadas — la función rellena con ceros consistentes.
+    serie_for_geojson = (
+        serie_df
+        if serie_df is not None
+        else pd.DataFrame(columns=["poligono_id", "fecha", "n_edificios_estimado"])
+    )
+    pob_for_geojson = (
+        pob_df
+        if pob_df is not None
+        else pd.DataFrame(columns=["poligono_id", "fecha", "poblacion_estimada"])
+    )
+    vuln_for_geojson = (
+        vuln_df
+        if vuln_df is not None
+        else pd.DataFrame(columns=["poligono_id", "score", "componentes_json"])
+    )
+    fc = transformar_poligonos(
+        _Path(poligonos), serie_for_geojson, pob_for_geojson, vuln_for_geojson
+    )
+    (dest_data / "poligonos.geojson").write_text(
+        json.dumps(fc, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    completo = serie_df is not None and pob_df is not None and vuln_df is not None
+    logger.info(
+        f"poligonos.geojson -> {dest_data / 'poligonos.geojson'} "
+        f"({'con stats' if completo else 'sin stats — falta base'})"
+    )
 
     if serie_df is not None:
         serie_out = transformar_serie(serie_df, poligonos_gdf)
