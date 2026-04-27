@@ -222,10 +222,10 @@ jobs:
 
           git fetch origin data 2>/dev/null || true
           if git rev-parse --verify origin/data >/dev/null 2>&1; then
-            git checkout data
+            git switch data
             git merge --no-edit origin/main || true
           else
-            git checkout -b data
+            git switch -c data
           fi
 
           rm -rf webapp/frontend/public/data data/processed
@@ -243,7 +243,7 @@ jobs:
           echo "has_changes=true" >> "$GITHUB_OUTPUT"
           git commit -m "chore(data): refresh histórico anual $(date -u +%Y)"
           git push origin data
-          git checkout main
+          git switch main
 
       - name: Setup SSH para VPS
         if: |
