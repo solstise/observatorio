@@ -165,6 +165,58 @@ def _intentar_descarga_directa(fc, destino_geojson: Path, resumen_path: Path) ->
         return False
 
 
+def _intentar_descarga_chunked(
+    fc,
+    bbox: Tuple[float, float, float, float],
+    destino_geojson: Path,
+    n: int = 4,
+) -> bool:
+    """Fallback: parte la bbox en una grilla n×n, baja cada tile por separado.
+
+    Útil cuando getDownloadURL devuelve 500 por tamaño (>32 MB / >100 MB feats).
+    Cada tile cabe bajo el límite de EE y los concatenamos en un solo GeoJSON.
+    """
+    import ee
+
+    oeste, sur, este, norte = bbox
+    dx = (este - oeste) / n
+    dy = (norte - sur) / n
+    logger.info(f"Descarga chunked: grilla {n}×{n} = {n * n} tiles")
+
+    all_features: list = []
+    for i in range(n):
+        for j in range(n):
+            tile_o = oeste + i * dx
+            tile_e = oeste + (i + 1) * dx
+            tile_s = sur + j * dy
+            tile_n = sur + (j + 1) * dy
+            tile_geom = ee.Geometry.Rectangle([tile_o, tile_s, tile_e, tile_n])
+            tile_fc = fc.filterBounds(tile_geom)
+            try:
+                try:
+                    url = tile_fc.getDownloadURL(filetype="GEOJSON")
+                except TypeError:
+                    url = tile_fc.getDownloadURL("GEOJSON")
+                with urllib.request.urlopen(url, timeout=600) as resp:
+                    data = json.loads(resp.read())
+                feats = data.get("features") or []
+                all_features.extend(feats)
+                logger.info(f"  tile ({i},{j}) -> {len(feats)} features")
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(f"  tile ({i},{j}) FAIL: {exc}")
+                return False
+
+    geojson = {"type": "FeatureCollection", "features": all_features}
+    destino_geojson.parent.mkdir(parents=True, exist_ok=True)
+    with destino_geojson.open("w", encoding="utf-8") as fh:
+        json.dump(geojson, fh)
+    size_mb = destino_geojson.stat().st_size / (1024 * 1024)
+    logger.info(
+        f"GeoJSON chunked total ({size_mb:.2f} MB), {len(all_features)} features"
+    )
+    return True
+
+
 def _fallback_export_drive(fc, descripcion: str) -> str:
     """Lanza un export a Google Drive y avisa al usuario cómo continuar.
 
@@ -444,8 +496,17 @@ def main(
             fc_filtrado, output_geojson, output_geojson.with_suffix(".resumen.json")
         )
 
+        # Paso 2: fallback chunked (parte bbox en grilla n×n).
         if not ok:
-            # Paso 2: fallback export a Drive.
+            for n_chunks in (4, 6, 8):
+                logger.info(f"Reintentando descarga con grilla {n_chunks}×{n_chunks}...")
+                ok = _intentar_descarga_chunked(fc_filtrado, bbox, output_geojson, n=n_chunks)
+                if ok:
+                    break
+
+        if not ok:
+            # Paso 3: fallback export a Drive (no apto para CI).
+            in_ci = bool(__import__("os").environ.get("CI"))
             try:
                 descripcion = f"posadas_open_buildings_v3_{datetime.now():%Y%m%d_%H%M}"
                 task_id = _fallback_export_drive(fc_filtrado, descripcion)
@@ -456,7 +517,8 @@ def main(
                     "que genere el CSV sidecar."
                 )
                 marcador_parcial.unlink(missing_ok=True)
-                sys.exit(0)
+                # En CI, no produjimos el archivo => exit no-cero para que el step falle.
+                sys.exit(2 if in_ci else 0)
             except Exception as exc:  # noqa: BLE001
                 logger.error(f"Falló también el export a Drive: {exc}")
                 logger.debug(traceback.format_exc())

@@ -249,10 +249,10 @@ jobs:
 
           git fetch origin data 2>/dev/null || true
           if git rev-parse --verify origin/data >/dev/null 2>&1; then
-            git checkout data
+            git switch data
             git merge --no-edit origin/main || true
           else
-            git checkout -b data
+            git switch -c data
           fi
 
           # Reaplicamos los outputs sobre la rama data.
@@ -274,7 +274,7 @@ jobs:
           git commit -m "chore(data): refresh satelital mensual $(date -u +%Y-%m)"
           git push origin data
           # Volvemos a main para los pasos siguientes (deploy lee scripts de main).
-          git checkout main
+          git switch main
 
       - name: Setup SSH para VPS
         if: |

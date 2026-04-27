@@ -615,6 +615,33 @@ def _merge_por_iou(
     g_utm = reproject_to_utm(gdf_google.copy(), epsg=EPSG_UTM_POSADAS)
     m_utm = reproject_to_utm(gdf_ms.copy(), epsg=EPSG_UTM_POSADAS)
 
+    # Saneamos geometrías inválidas (autointersecciones, etc.) ANTES del IoU
+    # para evitar TopologyException de shapely. Es común en MS Buildings.
+    def _make_valid(gdf):
+        try:
+            from shapely import make_valid as _mv  # shapely >= 2.0
+        except ImportError:
+            _mv = None
+        invalid_mask = ~gdf.geometry.is_valid
+        n_invalid = int(invalid_mask.sum())
+        if n_invalid == 0:
+            return gdf
+        logger.info(f"  saneando {n_invalid:,} geometrías inválidas...")
+        if _mv is not None:
+            gdf.loc[invalid_mask, "geometry"] = gdf.loc[invalid_mask, "geometry"].apply(_mv)
+        else:
+            gdf.loc[invalid_mask, "geometry"] = gdf.loc[invalid_mask, "geometry"].buffer(0)
+        # Filtramos posibles GeometryCollection / Empty resultantes.
+        still_invalid = ~gdf.geometry.is_valid | gdf.geometry.is_empty
+        n_drop = int(still_invalid.sum())
+        if n_drop:
+            logger.warning(f"  descartando {n_drop:,} geometrías irrecuperables")
+            gdf = gdf.loc[~still_invalid].copy()
+        return gdf
+
+    g_utm = _make_valid(g_utm)
+    m_utm = _make_valid(m_utm)
+
     g_utm["__idx_g"] = range(len(g_utm))
     m_utm["__idx_m"] = range(len(m_utm))
 
