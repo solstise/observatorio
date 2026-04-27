@@ -223,39 +223,58 @@ jobs:
             --poblacion data/processed/poblacion_estimada.csv \
             --vulnerabilidad data/processed/vulnerabilidad_v0.csv
 
-      - name: Detectar cambios en CSVs derivados
+      - name: Detectar y commitear cambios a rama data
         id: diff
-        run: |
-          if git diff --quiet HEAD -- webapp/frontend/public/data/ data/processed/; then
-            echo "has_changes=false" >> "$GITHUB_OUTPUT"
-            echo "Sin cambios. Saltando commit y deploy."
-          else
-            echo "has_changes=true" >> "$GITHUB_OUTPUT"
-            echo "Cambios detectados — procederá commit + deploy."
-          fi
-
-      - name: Commit & push a rama data
-        if: steps.diff.outputs.has_changes == 'true'
         env:
           GIT_AUTHOR_NAME: observatorio-bot
           GIT_AUTHOR_EMAIL: bot@observatorio.sistemaswinter.com
           GIT_COMMITTER_NAME: observatorio-bot
           GIT_COMMITTER_EMAIL: bot@observatorio.sistemaswinter.com
         run: |
+          # Los paths están en .gitignore, así que `git diff HEAD` siempre los ve
+          # como "sin cambios". Cambiamos a la rama data y comparamos contra ella
+          # — la rama data SÍ tiene esos archivos versionados (vía `git add -f`).
           set -e
           git config user.name  "$GIT_AUTHOR_NAME"
           git config user.email "$GIT_AUTHOR_EMAIL"
-          git fetch origin data:data || git checkout -b data
-          git checkout data
-          git merge --no-edit origin/main || true
-          # En el mensual incluimos un superset más amplio de processed/ porque
-          # tocamos varios subdirs (ambiental, dynamic_world, sentinel1, calor).
-          git add webapp/frontend/public/data/ data/processed/ || true
-          git commit -m "chore(data): refresh satelital mensual $(date -u +%Y-%m)" || {
-            echo "Sin cambios staged tras filtros. Saltando push."
+
+          # Stash de los outputs recién generados para preservarlos al cambiar de rama.
+          mkdir -p /tmp/sync_payload
+          if [[ -d webapp/frontend/public/data ]]; then
+            cp -a webapp/frontend/public/data /tmp/sync_payload/webapp_data
+          fi
+          if [[ -d data/processed ]]; then
+            cp -a data/processed /tmp/sync_payload/data_processed
+          fi
+
+          git fetch origin data 2>/dev/null || true
+          if git rev-parse --verify origin/data >/dev/null 2>&1; then
+            git checkout data
+            git merge --no-edit origin/main || true
+          else
+            git checkout -b data
+          fi
+
+          # Reaplicamos los outputs sobre la rama data.
+          rm -rf webapp/frontend/public/data data/processed
+          mkdir -p webapp/frontend/public data
+          [[ -d /tmp/sync_payload/webapp_data ]] && cp -a /tmp/sync_payload/webapp_data webapp/frontend/public/data
+          [[ -d /tmp/sync_payload/data_processed ]] && cp -a /tmp/sync_payload/data_processed data/processed
+
+          # En la rama data, esos paths NO están en su .gitignore (ver workflow
+          # docs). Igualmente forzamos -f por seguridad.
+          git add -f webapp/frontend/public/data/ data/processed/ || true
+
+          if git diff --cached --quiet; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "Sin cambios efectivos vs rama data."
             exit 0
-          }
+          fi
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          git commit -m "chore(data): refresh satelital mensual $(date -u +%Y-%m)"
           git push origin data
+          # Volvemos a main para los pasos siguientes (deploy lee scripts de main).
+          git checkout main
 
       - name: Setup SSH para VPS
         if: |

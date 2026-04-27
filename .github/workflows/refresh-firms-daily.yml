@@ -131,44 +131,49 @@ jobs:
             --poblacion data/processed/poblacion_estimada.csv \
             --vulnerabilidad data/processed/vulnerabilidad_v0.csv
 
-      - name: Detectar cambios en CSVs derivados
+      - name: Detectar y commitear cambios a rama data
         id: diff
-        run: |
-          # Solo nos interesan cambios en los datos del frontend y los
-          # processed (firms_anual.csv en data/processed/ambiental/).
-          # Si nada cambió, salteamos commit y deploy.
-          if git diff --quiet HEAD -- webapp/frontend/public/data/ data/processed/; then
-            echo "has_changes=false" >> "$GITHUB_OUTPUT"
-            echo "Sin cambios en FIRMS/derivados. Saltando commit y deploy."
-          else
-            echo "has_changes=true" >> "$GITHUB_OUTPUT"
-            echo "Cambios detectados — procederá commit + deploy."
-          fi
-
-      - name: Commit & push a rama data
-        if: steps.diff.outputs.has_changes == 'true'
         env:
           GIT_AUTHOR_NAME: observatorio-bot
           GIT_AUTHOR_EMAIL: bot@observatorio.sistemaswinter.com
           GIT_COMMITTER_NAME: observatorio-bot
           GIT_COMMITTER_EMAIL: bot@observatorio.sistemaswinter.com
         run: |
+          # Los paths están en .gitignore en main; comparamos contra rama data,
+          # que sí los tiene versionados (vía git add -f).
           set -e
           git config user.name  "$GIT_AUTHOR_NAME"
           git config user.email "$GIT_AUTHOR_EMAIL"
-          # Trabajamos sobre la rama dedicada `data` para no ensuciar main
-          # con commits automáticos diarios.
-          git fetch origin data:data || git checkout -b data
-          git checkout data
-          # Mergeamos main para mantener los datos sobre la última versión
-          # del código; si hay conflicto continúa (data prevalece).
-          git merge --no-edit origin/main || true
-          git add webapp/frontend/public/data/ data/processed/ambiental/ || true
-          git commit -m "chore(data): refresh FIRMS diario $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]" || {
-            echo "Sin cambios staged tras filtros. Saltando push."
+
+          mkdir -p /tmp/sync_payload
+          [[ -d webapp/frontend/public/data ]] && cp -a webapp/frontend/public/data /tmp/sync_payload/webapp_data
+          [[ -d data/processed/ambiental ]] && cp -a data/processed /tmp/sync_payload/data_processed
+
+          git fetch origin data 2>/dev/null || true
+          if git rev-parse --verify origin/data >/dev/null 2>&1; then
+            git checkout data
+            git merge --no-edit origin/main || true
+          else
+            git checkout -b data
+          fi
+
+          # En el daily de FIRMS solo tocamos webapp/data y processed/ambiental.
+          rm -rf webapp/frontend/public/data data/processed/ambiental
+          mkdir -p webapp/frontend/public data/processed
+          [[ -d /tmp/sync_payload/webapp_data ]] && cp -a /tmp/sync_payload/webapp_data webapp/frontend/public/data
+          [[ -d /tmp/sync_payload/data_processed/ambiental ]] && cp -a /tmp/sync_payload/data_processed/ambiental data/processed/ambiental
+
+          git add -f webapp/frontend/public/data/ data/processed/ambiental/ || true
+
+          if git diff --cached --quiet; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "Sin cambios efectivos vs rama data."
             exit 0
-          }
+          fi
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          git commit -m "chore(data): refresh FIRMS diario $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
           git push origin data
+          git checkout main
 
       - name: Setup SSH para VPS
         if: |
