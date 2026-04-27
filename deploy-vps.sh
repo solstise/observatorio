@@ -72,7 +72,7 @@ ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=3 "$VPS_HOST" "
   built=0
   for i in 1 2 3; do
     echo \"--- build intento \$i/3 ---\"
-    if timeout 600 docker compose build $APP_NAME; then
+    if timeout 1800 docker compose build $APP_NAME; then
       built=1
       break
     fi

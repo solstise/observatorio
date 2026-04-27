@@ -176,6 +176,32 @@ jobs:
         run: python scripts/59_proyecciones_futuras.py
 
       # ----------------------------------------------------------------------
+      # Bloque 7b: capas sociales (servicios + vulnerabilidad + ranking).
+      # Estas dependen de OSM y datos oficiales (CAPS, hospitales). Sin ellas
+      # las páginas /servicios, /vulnerabilidad, /prioridades y la columna
+      # score_expansion del mapa quedan vacías.
+      # ----------------------------------------------------------------------
+      - name: OSM raw data (script 04, descarga calles + servicios)
+        run: python scripts/04_descarga_osm.py
+        continue-on-error: true
+
+      - name: Distancias servicios por polígono (script 40)
+        run: python scripts/40_calcular_distancias_servicios.py
+        continue-on-error: true
+
+      - name: Índice vulnerabilidad v0 (script 35)
+        run: python scripts/35_indice_vulnerabilidad.py
+        continue-on-error: true
+
+      - name: Servicios distancias social (script 53)
+        run: python scripts/53_servicios_distancias.py
+        continue-on-error: true
+
+      - name: Ranking político (script 54)
+        run: python scripts/54_ranking_politico.py
+        continue-on-error: true
+
+      # ----------------------------------------------------------------------
       # Bloque 8: Re-generación de PDFs anuales (uno por polígono).
       # Es el paso más pesado del bloque final — opcional skip vía dispatch.
       # ----------------------------------------------------------------------
