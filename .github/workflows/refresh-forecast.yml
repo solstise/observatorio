@@ -194,6 +194,12 @@ jobs:
           git commit -m "chore(data): refresh forecast & alertas $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
           git push origin data
           git switch main
+          # Restore payload para que deploy-vps.sh lo incluya.
+          mkdir -p webapp/frontend/public/data
+          rm -rf webapp/frontend/public/data/forecast webapp/frontend/public/data/alertas
+          [[ -d /tmp/sync_payload/forecast ]] && cp -a /tmp/sync_payload/forecast webapp/frontend/public/data/forecast
+          [[ -d /tmp/sync_payload/alertas ]]  && cp -a /tmp/sync_payload/alertas  webapp/frontend/public/data/alertas
+          [[ -f /tmp/sync_payload/updated_at.txt ]] && cp -a /tmp/sync_payload/updated_at.txt webapp/frontend/public/data/updated_at.txt
 
       - name: Setup SSH para VPS
         if: |
