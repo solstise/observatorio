@@ -59,10 +59,24 @@ echo "  Sincronización OK."
 
 echo ""
 echo "[3/3] Building contenedor Docker en el VPS (puede tardar 2-4 min)..."
+# pipefail para que el | tail -20 no enmascare un fallo del build
+# (Docker Hub puede dar TLS handshake timeout transitorio al pullear el
+# base image — sin pipefail, el script reporta éxito y queda corriendo
+# la imagen vieja con datos viejos).
 ssh "$VPS_HOST" "
-  set -e
+  set -eo pipefail
   cd /opt/apps
-  docker compose build $APP_NAME 2>&1 | tail -20
+  # Reintentamos build hasta 3 veces ante fallos transitorios de Docker Hub.
+  attempts=0
+  until docker compose build $APP_NAME 2>&1 | tail -30; do
+    attempts=\$((attempts + 1))
+    if [ \"\$attempts\" -ge 3 ]; then
+      echo 'ERROR: docker compose build falló 3 veces seguidas' >&2
+      exit 1
+    fi
+    echo \"Build falló (intento \$attempts/3). Reintentando en 20s...\"
+    sleep 20
+  done
   docker compose up -d $APP_NAME
   sleep 3
   docker ps --filter name=$APP_NAME --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
