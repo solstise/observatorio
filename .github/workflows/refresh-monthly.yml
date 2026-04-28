@@ -213,19 +213,10 @@ jobs:
         run: python scripts/45g_cbers_historico.py
         continue-on-error: true
 
-      # ----------------------------------------------------------------------
-      # Bloque 3c: capa aire multi-gas (NO2 + SO2 + CO + HCHO + CH4 + O3
-      # vía Sentinel-5P) para complementar el script 47 (que sólo cubre NO2).
-      # ----------------------------------------------------------------------
-      - name: Aire multi-gas (script 48)
-        # timeout-minutes 30: el script descarga 6 gases × 7 años desde
-        # Sentinel-5P. Si GEE está lento, puede correr horas y bloquear el
-        # workflow entero (ya pasó: 119+ min en run #25022173251). Con
-        # 30min cap + continue-on-error, perdemos a lo sumo 30min y el
-        # cron sigue.
-        timeout-minutes: 30
-        run: python scripts/48_aire_multigas.py
-        continue-on-error: true
+      # NOTA: script 48 (aire multi-gas) movido al YEARLY. El script
+      # itera 44 polígonos × 7 años = 308 combinaciones × ~60s/cada una
+      # = >5 horas total — no encaja en el monthly. El script mismo
+      # documenta "Frescura natural: anual".
 
       # ----------------------------------------------------------------------
       # Bloque 3d: descripciones de mapas (HF Inference API o placeholder).
