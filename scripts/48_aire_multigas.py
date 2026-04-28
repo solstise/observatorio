@@ -520,6 +520,14 @@ def procesar_aire_multigas(
             )
             pbar.update(1)
 
+            # Checkpoint cada 10 filas: re-escribimos el CSV completo. Sin
+            # esto, si GH Actions mata el step por timeout-minutes, las
+            # ~150 iteraciones procesadas se pierden por completo. Un
+            # write parcial acepta que el monthly siguiente complete las
+            # filas faltantes (idempotencia por (poligono_id, anio)).
+            if agregadas % 10 == 0:
+                _write_csv(filas, destino_csv, columnas=columnas)
+
     pbar.close()
 
     if not filas:
