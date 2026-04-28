@@ -72,6 +72,25 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Pull outputs del yearly desde rama data
+        # Yearly genera vulnerabilidad_v0.csv, conteos_v43/, poblacion_v43,
+        # servicios_por_poligono.csv, etc. El monthly los necesita como
+        # input (script 54 ranking_politico, etc.). Sin esto, los scripts
+        # del monthly que dependen de outputs del yearly fallan con
+        # FileNotFoundError aunque tengan continue-on-error: true.
+        run: |
+          set -e
+          git fetch origin data 2>/dev/null || true
+          if git rev-parse --verify origin/data >/dev/null 2>&1; then
+            mkdir -p data/processed
+            # git archive es seguro: extrae sin tocar HEAD ni gitignore.
+            git archive origin/data data/processed 2>/dev/null | tar -xC . || true
+            echo "Outputs del yearly disponibles:"
+            ls data/processed/ 2>&1 | head -20
+          else
+            echo "::warning::Rama data no existe — primer run, continúa sin outputs yearly."
+          fi
+
       - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
