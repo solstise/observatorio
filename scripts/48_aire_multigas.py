@@ -260,6 +260,69 @@ def _bbox_ee_geometry(settings: Settings) -> Any:
     return ee.Geometry.Rectangle([b.oeste, b.sur, b.este, b.norte])
 
 
+def _ee_feature_collection(gdf) -> Any:
+    """Convierte un GeoDataFrame a ee.FeatureCollection con `id` por feature.
+
+    Usado para batched reduceRegions: una sola llamada EE devuelve la
+    estadística para los 44 polígonos a la vez (vs 44 llamadas separadas).
+    """
+    import ee
+
+    feats = []
+    for _, row in gdf.iterrows():
+        geom = ee.Geometry(row.geometry.__geo_interface__)
+        feats.append(ee.Feature(geom, {"poligono_id": str(row["id"])}))
+    return ee.FeatureCollection(feats)
+
+
+def _media_anual_gas_batched(
+    gas: GasS5P,
+    fc_polygons: Any,
+    inicio: str,
+    fin: str,
+) -> Tuple[Dict[str, Optional[float]], int]:
+    """Media anual de un gas para TODOS los polígonos en una sola llamada EE.
+
+    Usa `reduceRegions` (batched) en vez de `reduceRegion` por polígono.
+    Reduce el número de llamadas EE de N×M (44 polígonos × 6 gases) a M
+    (6 gases) por año — ~40× speedup para el yearly.
+
+    Args:
+        gas: Configuración del gas.
+        fc_polygons: ee.FeatureCollection con propiedad `poligono_id` por feature.
+        inicio: Fecha inicio (YYYY-MM-DD) inclusiva.
+        fin: Fecha fin (YYYY-MM-DD) exclusiva.
+
+    Returns:
+        Tupla (dict {poligono_id: media}, n_imagenes). media es None si NoData.
+    """
+    import ee
+
+    try:
+        col = ee.ImageCollection(gas.asset).filterDate(inicio, fin).select(gas.band)
+        n = int(col.size().getInfo() or 0)
+        if n == 0:
+            return {}, 0
+        img = col.mean()
+        result = img.reduceRegions(
+            collection=fc_polygons,
+            reducer=ee.Reducer.mean(),
+            scale=gas.scale_m,
+        ).getInfo()
+        out: Dict[str, Optional[float]] = {}
+        for feat in result.get("features", []):
+            props = feat.get("properties", {})
+            pid = props.get("poligono_id")
+            val = props.get("mean")  # reduceRegions con Reducer.mean() devuelve `mean`
+            if pid is None:
+                continue
+            out[str(pid)] = float(val) if val is not None else None
+        return out, n
+    except Exception as exc:  # noqa: BLE001
+        logger.debug(f"{gas.nombre} {inicio}→{fin} (batched) falló: {exc}")
+        return {}, 0
+
+
 def _media_anual_gas(
     gas: GasS5P,
     geom: Any,
@@ -434,101 +497,87 @@ def procesar_aire_multigas(
             f"Aire multi-gas — {len(previas)} filas ya existen, se respetan " f"salvo --force."
         )
 
-    # Cache del NO2 del bbox por año (una sola consulta por año vs N
-    # polígonos). Ahorra ~35 llamadas EE por año.
+    # Cache del NO2 del bbox por año (una sola consulta por año).
     no2_bbox_por_anio: Dict[int, Optional[float]] = {}
 
     filas: List[Dict[str, Any]] = list(previas)
-    total_iter = len(gdf) * (anio_hasta - anio_desde + 1)
-    pbar = tqdm(total=total_iter, desc="Aire", unit="pol-año")
+
+    # Batched: construimos UNA FeatureCollection con todos los polígonos
+    # y para cada (año, gas) hacemos una sola llamada reduceRegions que
+    # devuelve la media para los 44 polígonos. Reduce las llamadas EE de
+    # N polígonos × M gases × Y años (1848) a M gases × Y años (42).
+    fc_polygons = _ee_feature_collection(gdf)
+
+    total_iter = (anio_hasta - anio_desde + 1) * len(GASES)
+    pbar = tqdm(total=total_iter, desc="Aire (year×gas)", unit="batch")
     agregadas = 0
 
-    for _, row in gdf.iterrows():
-        poligono_id = str(row["id"])
-        try:
-            geom = _ee_geometry_from_row(row)
-        except Exception as exc:  # noqa: BLE001
-            logger.error(f"[{poligono_id}] geometría inválida: {exc}")
-            pbar.update(anio_hasta - anio_desde + 1)
-            continue
+    # Estructura: por_pol_anio[(pid, anio)][gas.nombre] = (val, n_img)
+    por_pol_anio: Dict[Tuple[str, int], Dict[str, Tuple[Optional[float], int]]] = {}
 
-        for anio in range(anio_desde, anio_hasta + 1):
-            if (poligono_id, anio) in ya_hechas:
-                pbar.update(1)
-                continue
+    for anio in range(anio_desde, anio_hasta + 1):
+        inicio = f"{anio}-01-01"
+        fin = f"{anio + 1}-01-01"
 
-            inicio = f"{anio}-01-01"
-            fin = f"{anio + 1}-01-01"
+        # NO2 bbox (1 call por año) para el relativo.
+        no2_gas = next(g for g in GASES if g.nombre == "no2")
+        bbox_val, _ = _media_anual_gas(no2_gas, bbox_geom, inicio, fin)
+        no2_bbox_por_anio[anio] = bbox_val
 
-            # Inicializamos la fila con las claves obligatorias y vacíos.
-            fila: Dict[str, Any] = {"poligono_id": poligono_id, "anio": anio}
-
-            # NO2 — caché del bbox para relativo.
-            if anio not in no2_bbox_por_anio:
-                no2_gas = next(g for g in GASES if g.nombre == "no2")
-                bbox_val, _bbox_n = _media_anual_gas(no2_gas, bbox_geom, inicio, fin)
-                no2_bbox_por_anio[anio] = bbox_val
-                if bbox_val is not None:
-                    logger.debug(f"NO2 bbox {anio} = {bbox_val:.4e} mol/m²")
-
-            algun_gas_ok = False
-            for gas in GASES:
-                val, n_img = _media_anual_gas(gas, geom, inicio, fin)
+        for gas in GASES:
+            valores, n_img = _media_anual_gas_batched(gas, fc_polygons, inicio, fin)
+            for pid, val in valores.items():
                 if val is not None:
                     val = _aplicar_conversion_unidad(gas, val)
-                    algun_gas_ok = True
-
-                # Formato científico breve para mol/m², 4 decimales para
-                # CH4 ppb, 2 decimales para O3 DU.
-                if val is None:
-                    fila[gas.csv_value_col] = ""
-                elif gas.nombre == "ch4":
-                    fila[gas.csv_value_col] = round(val, 4)
-                elif gas.nombre == "o3":
-                    fila[gas.csv_value_col] = round(val, 2)
-                else:
-                    fila[gas.csv_value_col] = f"{val:.6e}"
-
-                fila[gas.csv_count_col] = n_img
-
-                if gas.csv_calidad_col:
-                    # Cuando el gas tiene una bandera fija (CH4/O3 → baja).
-                    fila[gas.csv_calidad_col] = gas.calidad_fija or "alta"
-
-                # NO2 — además calculamos relativo al bbox.
-                if gas.nombre == "no2":
-                    bbox_val = no2_bbox_por_anio.get(anio)
-                    if val is not None and bbox_val and bbox_val != 0:
-                        fila["no2_relativo_bbox"] = round(val / bbox_val, 4)
-                    else:
-                        fila["no2_relativo_bbox"] = ""
-
-            if not algun_gas_ok:
-                # No hubo NINGÚN gas con datos. Saltamos la fila para no
-                # contaminar el CSV con basura.
-                logger.debug(f"[{poligono_id}|{anio}] sin datos para ningún gas.")
-                pbar.update(1)
-                continue
-
-            filas.append(fila)
-            agregadas += 1
-            logger.debug(
-                f"[{poligono_id}|{anio}] OK — "
-                f"no2={fila.get('no2_mol_m2', '')} "
-                f"so2={fila.get('so2_mol_m2', '')} "
-                f"co={fila.get('co_mol_m2', '')}"
-            )
+                por_pol_anio.setdefault((pid, anio), {})[gas.nombre] = (val, n_img)
             pbar.update(1)
-
-            # Checkpoint cada 10 filas: re-escribimos el CSV completo. Sin
-            # esto, si GH Actions mata el step por timeout-minutes, las
-            # ~150 iteraciones procesadas se pierden por completo. Un
-            # write parcial acepta que el monthly siguiente complete las
-            # filas faltantes (idempotencia por (poligono_id, anio)).
-            if agregadas % 10 == 0:
-                _write_csv(filas, destino_csv, columnas=columnas)
+            pbar.set_postfix(anio=anio, gas=gas.nombre, n_img=n_img, n_pol=len(valores))
 
     pbar.close()
+
+    # Construimos las filas a partir del dict.
+    for (pid, anio), gases_dict in por_pol_anio.items():
+        if (pid, anio) in ya_hechas:
+            continue
+
+        fila: Dict[str, Any] = {"poligono_id": pid, "anio": anio}
+        algun_gas_ok = False
+        for gas in GASES:
+            val, n_img = gases_dict.get(gas.nombre, (None, 0))
+            if val is not None:
+                algun_gas_ok = True
+
+            if val is None:
+                fila[gas.csv_value_col] = ""
+            elif gas.nombre == "ch4":
+                fila[gas.csv_value_col] = round(val, 4)
+            elif gas.nombre == "o3":
+                fila[gas.csv_value_col] = round(val, 2)
+            else:
+                fila[gas.csv_value_col] = f"{val:.6e}"
+
+            fila[gas.csv_count_col] = n_img
+
+            if gas.csv_calidad_col:
+                fila[gas.csv_calidad_col] = gas.calidad_fija or "alta"
+
+            if gas.nombre == "no2":
+                bbox_val_year = no2_bbox_por_anio.get(anio)
+                if val is not None and bbox_val_year and bbox_val_year != 0:
+                    fila["no2_relativo_bbox"] = round(val / bbox_val_year, 4)
+                else:
+                    fila["no2_relativo_bbox"] = ""
+
+        if not algun_gas_ok:
+            logger.debug(f"[{pid}|{anio}] sin datos para ningún gas.")
+            continue
+
+        filas.append(fila)
+        agregadas += 1
+
+        # Checkpoint cada 50 filas (escritura es barata vs llamadas EE).
+        if agregadas % 50 == 0:
+            _write_csv(filas, destino_csv, columnas=columnas)
 
     if not filas:
         return False, "Aire multi-gas no produjo ninguna fila."
