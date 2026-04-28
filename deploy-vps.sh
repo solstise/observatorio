@@ -59,24 +59,34 @@ echo "  Sincronización OK."
 
 echo ""
 echo "[3/3] Building contenedor Docker en el VPS (puede tardar 2-4 min)..."
-# pipefail para que el | tail -20 no enmascare un fallo del build
-# (Docker Hub puede dar TLS handshake timeout transitorio al pullear el
-# base image — sin pipefail, el script reporta éxito y queda corriendo
-# la imagen vieja con datos viejos).
-ssh "$VPS_HOST" "
-  set -eo pipefail
+# Notas sobre robustez:
+# - timeout 600s por intento (kill si el build cuelga — antes Github Actions
+#   reportaba step 'in_progress' por horas si npm/docker se trababa).
+# - SSH ServerAliveInterval evita que el túnel SSH cuelgue silencioso.
+# - for-loop en vez de until: lógica más clara, salida garantizada.
+# - sin pipefail/tail: deja que docker compose build hable directo a stdout
+#   (GH Actions y la consola local lo capturan completo, sin truncar).
+ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=3 "$VPS_HOST" "
+  set -e
   cd /opt/apps
-  # Reintentamos build hasta 3 veces ante fallos transitorios de Docker Hub.
-  attempts=0
-  until docker compose build $APP_NAME 2>&1 | tail -30; do
-    attempts=\$((attempts + 1))
-    if [ \"\$attempts\" -ge 3 ]; then
-      echo 'ERROR: docker compose build falló 3 veces seguidas' >&2
-      exit 1
+  built=0
+  for i in 1 2 3; do
+    echo \"--- build intento \$i/3 ---\"
+    if timeout 1800 docker compose build $APP_NAME; then
+      built=1
+      break
     fi
-    echo \"Build falló (intento \$attempts/3). Reintentando en 20s...\"
-    sleep 20
+    rc=\$?
+    echo \"Build falló (intento \$i/3, exit \$rc).\"
+    if [ \$i -lt 3 ]; then
+      echo 'Reintentando en 20s...'
+      sleep 20
+    fi
   done
+  if [ \$built -ne 1 ]; then
+    echo 'ERROR: docker compose build falló 3 veces seguidas' >&2
+    exit 1
+  fi
   docker compose up -d $APP_NAME
   sleep 3
   docker ps --filter name=$APP_NAME --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'

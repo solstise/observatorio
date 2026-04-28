@@ -176,12 +176,48 @@ jobs:
         run: python scripts/59_proyecciones_futuras.py
 
       # ----------------------------------------------------------------------
+      # Bloque 7b: capas sociales (servicios + vulnerabilidad + ranking).
+      # Estas dependen de OSM y datos oficiales (CAPS, hospitales). Sin ellas
+      # las páginas /servicios, /vulnerabilidad, /prioridades y la columna
+      # score_expansion del mapa quedan vacías.
+      # ----------------------------------------------------------------------
+      - name: OSM raw data (script 04, descarga calles + servicios)
+        run: python scripts/04_descarga_osm.py
+        continue-on-error: true
+
+      - name: Distancias servicios por polígono (script 40)
+        run: python scripts/40_calcular_distancias_servicios.py
+        continue-on-error: true
+
+      - name: Índice vulnerabilidad v0 (script 35)
+        run: python scripts/35_indice_vulnerabilidad.py
+        continue-on-error: true
+
+      - name: Servicios distancias social (script 53)
+        run: python scripts/53_servicios_distancias.py
+        continue-on-error: true
+
+      - name: Ranking político (script 54)
+        run: python scripts/54_ranking_politico.py
+        continue-on-error: true
+
+      # ----------------------------------------------------------------------
       # Bloque 8: Re-generación de PDFs anuales (uno por polígono).
       # Es el paso más pesado del bloque final — opcional skip vía dispatch.
       # ----------------------------------------------------------------------
       - name: Re-generar PDFs anuales (script 60 --all)
         if: github.event.inputs.skip_pdfs != 'true'
-        run: python scripts/60_generar_pdf.py --all
+        run: |
+          # Apuntar a v43 (los outputs nuevos del yearly). Sin estos flags
+          # el script lee data/processed/conteos/serie_temporal.csv (que no
+          # existe en runner fresco) → DataFrame vacío → KeyError 'poligono_id'.
+          if [[ "${{ github.event.inputs.skip_buildings }}" != "true" ]]; then
+            python scripts/60_generar_pdf.py --all \
+              --serie-temporal data/processed/conteos_v43/serie_temporal.csv \
+              --poblacion data/processed/poblacion_estimada_v43.csv
+          else
+            python scripts/60_generar_pdf.py --all
+          fi
 
       # ----------------------------------------------------------------------
       # Bloque 9: Sync webapp con los nuevos artefactos.
