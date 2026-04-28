@@ -166,7 +166,9 @@ export const DATASET_INFO: Record<string, DatasetEntry> = {
   cbers_pansharpen: {
     label: "Imagen alta resolución (CBERS)",
     frequency: "trimestral",
-    source: "data/cbers/_metadata.json",
+    // sync_webapp.py copia el _metadata.json del CBERS pansharpen a
+    // data/media/cbers/_metadata.json (junto con los PNGs, no a la raíz).
+    source: "data/media/cbers/_metadata.json",
     fuente: "INPE/CRESDA CBERS-4A WPM (pan 8 m + MS 16 m, pansharpen)",
     strategy: "json-generated-at",
   },
