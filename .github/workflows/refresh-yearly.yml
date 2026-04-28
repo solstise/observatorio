@@ -203,6 +203,19 @@ jobs:
       # consumidos por 54 en el cron mensual.
 
       # ----------------------------------------------------------------------
+      # Bloque 7c: aire multi-gas (Sentinel-5P TROPOMI). El script itera
+      # 44 polígonos × 7 años (~308 combinaciones × 60s = 5h+). No encaja
+      # en monthly (timeout 30min); aquí con timeout 120min + idempotencia
+      # del CSV (respeta filas existentes salvo --force) llena la historia
+      # incrementalmente: primer run hace todo, siguientes solo el año
+      # nuevo (~45 min).
+      # ----------------------------------------------------------------------
+      - name: Aire multi-gas (script 48)
+        timeout-minutes: 120
+        run: python scripts/48_aire_multigas.py
+        continue-on-error: true
+
+      # ----------------------------------------------------------------------
       # Bloque 8: Re-generación de PDFs anuales (uno por polígono).
       # Es el paso más pesado del bloque final — opcional skip vía dispatch.
       # ----------------------------------------------------------------------
