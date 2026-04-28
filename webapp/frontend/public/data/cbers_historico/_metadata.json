@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-28T11:26:26",
+  "generated_at": "2026-04-28T12:47:24",
   "rango_anios_cubiertos": [
     2015,
     2025
@@ -21,7 +21,7 @@
     2012,
     2013
   ],
-  "n_imagenes_generadas": 10,
+  "n_imagenes_generadas": 0,
   "fuente_post_2014": "AWS s3://brazil-eosats/CBERS4/PAN10M/",
   "fuente_pre_2014": "no_accesible_via_api_anonima (INPE CDSR requiere registro)",
   "schema_csv": [
