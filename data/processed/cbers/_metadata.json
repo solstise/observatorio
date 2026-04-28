@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-27T14:02:31",
+  "generated_at": "2026-04-28T02:02:35",
   "sensor": "CBERS-4A WPM",
   "resolucion_pan_m": 2,
   "resolucion_ms_m": 8,
@@ -26,7 +26,7 @@
       11738
     ],
     "resolucion_m": 2,
-    "elapsed_s": 38.6945219039917
+    "elapsed_s": 40.53240418434143
   },
-  "recortes_actualizados_en": "2026-04-27T14:02:51"
+  "recortes_actualizados_en": "2026-04-28T02:02:53"
 }

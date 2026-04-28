@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-04-28T02:17:13",
+  "rango_anios_cubiertos": [
+    2015,
+    2025
+  ],
+  "anios_pre_2014_no_disponibles": [
+    1999,
+    2000,
+    2001,
+    2002,
+    2003,
+    2004,
+    2005,
+    2006,
+    2007,
+    2008,
+    2009,
+    2010,
+    2011,
+    2012,
+    2013
+  ],
+  "n_imagenes_generadas": 10,
+  "fuente_post_2014": "AWS s3://brazil-eosats/CBERS4/PAN10M/",
+  "fuente_pre_2014": "no_accesible_via_api_anonima (INPE CDSR requiere registro)",
+  "schema_csv": [
+    "anio",
+    "fuente_satelite",
+    "fecha_imagen",
+    "n_poligonos_cubiertos",
+    "calidad"
+  ],
+  "version_script": "0.1.0",
+  "limitacion": "La serie histórica que se buscaba (1999-2013) requiere acceso manual al catálogo INPE CDSR. Aquí se entrega CBERS-4 desde 2015, complementaria al WPM 4A (script 45) y AWFI (script 45f)."
+}

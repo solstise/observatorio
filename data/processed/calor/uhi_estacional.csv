@@ -13,7 +13,7 @@ poligono_id,anio,estacion,uhi_vs_rural_mean,uhi_vs_ciudad_mean,lst_mean,n_meses
 23_de_septiembre,2020,verano,5.68,2.87,41.72,2
 23_de_septiembre,2021,invierno,0.32,0.67,19.55,2
 23_de_septiembre,2021,otono,1.53,1.62,32.61,3
-23_de_septiembre,2021,primavera,5.39,2.53,38.24,3
+23_de_septiembre,2021,primavera,5.02,2.48,36.12,2
 23_de_septiembre,2021,verano,3.64,1.96,42.56,2
 23_de_septiembre,2022,invierno,3.16,1.46,23.68,2
 23_de_septiembre,2022,otono,2.32,1.18,27.91,3
@@ -23,7 +23,7 @@ poligono_id,anio,estacion,uhi_vs_rural_mean,uhi_vs_ciudad_mean,lst_mean,n_meses
 23_de_septiembre,2023,otono,3.0,1.4,31.27,3
 23_de_septiembre,2023,primavera,5.45,2.58,37.71,3
 23_de_septiembre,2023,verano,3.44,2.15,43.77,3
-23_de_septiembre,2024,invierno,2.35,1.04,20.23,3
+23_de_septiembre,2024,invierno,0.89,0.44,21.54,2
 23_de_septiembre,2024,otono,0.6,0.17,29.16,3
 23_de_septiembre,2024,primavera,5.94,2.48,36.17,3
 23_de_septiembre,2024,verano,8.69,3.37,46.18,3
@@ -47,7 +47,7 @@ a4_nueva_esperanza,2020,primavera,3.86,2.84,42.62,2
 a4_nueva_esperanza,2020,verano,6.42,3.62,42.47,2
 a4_nueva_esperanza,2021,invierno,1.27,1.61,20.48,2
 a4_nueva_esperanza,2021,otono,2.84,2.93,33.92,3
-a4_nueva_esperanza,2021,primavera,6.28,3.42,39.13,3
+a4_nueva_esperanza,2021,primavera,5.7,3.16,36.8,2
 a4_nueva_esperanza,2021,verano,5.16,3.48,44.09,2
 a4_nueva_esperanza,2022,invierno,4.23,2.54,24.76,2
 a4_nueva_esperanza,2022,otono,4.11,2.97,29.7,3
@@ -57,7 +57,7 @@ a4_nueva_esperanza,2023,invierno,3.7,2.86,28.74,3
 a4_nueva_esperanza,2023,otono,5.0,3.4,33.27,3
 a4_nueva_esperanza,2023,primavera,7.12,4.24,39.38,3
 a4_nueva_esperanza,2023,verano,5.31,4.02,45.64,3
-a4_nueva_esperanza,2024,invierno,4.1,2.79,21.98,3
+a4_nueva_esperanza,2024,invierno,2.02,1.57,22.67,2
 a4_nueva_esperanza,2024,otono,2.66,2.23,31.22,3
 a4_nueva_esperanza,2024,primavera,7.73,4.27,37.96,3
 a4_nueva_esperanza,2024,verano,9.84,4.52,47.32,3
@@ -81,7 +81,7 @@ a_3_2_sector_b,2020,primavera,1.2,0.18,39.97,2
 a_3_2_sector_b,2020,verano,4.26,1.46,40.3,2
 a_3_2_sector_b,2021,invierno,-2.09,-1.74,17.13,2
 a_3_2_sector_b,2021,otono,-1.51,-1.42,29.57,3
-a_3_2_sector_b,2021,primavera,3.43,0.57,36.28,3
+a_3_2_sector_b,2021,primavera,3.18,0.64,34.28,2
 a_3_2_sector_b,2021,verano,2.12,0.44,41.05,2
 a_3_2_sector_b,2022,invierno,5.2,3.5,25.72,2
 a_3_2_sector_b,2022,otono,0.71,-0.44,26.29,3
@@ -91,7 +91,7 @@ a_3_2_sector_b,2023,invierno,1.64,0.8,26.68,3
 a_3_2_sector_b,2023,otono,1.94,0.33,30.2,3
 a_3_2_sector_b,2023,primavera,4.86,1.99,37.12,3
 a_3_2_sector_b,2023,verano,1.64,0.34,41.97,3
-a_3_2_sector_b,2024,invierno,0.2,-0.52,19.12,2
+a_3_2_sector_b,2024,invierno,-2.46,-0.89,23.05,1
 a_3_2_sector_b,2024,otono,1.67,1.24,30.23,3
 a_3_2_sector_b,2024,primavera,4.22,0.76,34.45,3
 a_3_2_sector_b,2024,verano,6.39,1.07,43.87,3
@@ -115,7 +115,7 @@ aguas_corrientes,2020,primavera,1.78,0.76,40.54,2
 aguas_corrientes,2020,verano,4.7,1.9,40.74,2
 aguas_corrientes,2021,invierno,-0.42,-0.08,18.8,2
 aguas_corrientes,2021,otono,0.99,1.08,32.07,3
-aguas_corrientes,2021,primavera,4.67,1.82,37.53,3
+aguas_corrientes,2021,primavera,4.11,1.57,35.21,2
 aguas_corrientes,2021,verano,2.7,1.01,41.62,2
 aguas_corrientes,2022,invierno,2.42,0.74,22.96,2
 aguas_corrientes,2022,otono,1.78,0.63,27.36,3
@@ -125,7 +125,7 @@ aguas_corrientes,2023,invierno,1.08,0.23,26.11,3
 aguas_corrientes,2023,otono,2.41,0.8,30.68,3
 aguas_corrientes,2023,primavera,4.17,1.29,36.43,3
 aguas_corrientes,2023,verano,2.5,1.21,42.84,3
-aguas_corrientes,2024,invierno,0.46,-0.26,19.38,2
+aguas_corrientes,2024,invierno,-2.71,-1.13,22.81,1
 aguas_corrientes,2024,otono,0.36,-0.07,28.92,3
 aguas_corrientes,2024,primavera,5.25,1.8,35.49,3
 aguas_corrientes,2024,verano,7.59,2.28,45.08,3
@@ -149,7 +149,7 @@ alta_gracia,2020,primavera,0.6,-0.42,39.36,2
 alta_gracia,2020,verano,3.1,0.28,39.14,2
 alta_gracia,2021,invierno,-1.11,-0.76,18.11,2
 alta_gracia,2021,otono,-0.51,-0.42,30.57,3
-alta_gracia,2021,primavera,3.4,0.54,36.25,3
+alta_gracia,2021,primavera,2.64,0.1,33.75,2
 alta_gracia,2021,verano,1.21,-0.47,40.14,2
 alta_gracia,2022,invierno,1.46,-0.24,21.98,2
 alta_gracia,2022,otono,0.72,-0.42,26.3,3
@@ -159,7 +159,7 @@ alta_gracia,2023,invierno,-0.07,-0.92,24.96,3
 alta_gracia,2023,otono,1.34,-0.27,29.61,3
 alta_gracia,2023,primavera,3.58,0.71,35.85,3
 alta_gracia,2023,verano,1.39,0.09,41.72,3
-alta_gracia,2024,invierno,1.92,0.62,19.8,3
+alta_gracia,2024,invierno,0.55,0.09,21.2,2
 alta_gracia,2024,otono,-0.11,-0.54,28.45,3
 alta_gracia,2024,primavera,4.73,1.28,34.97,3
 alta_gracia,2024,verano,6.01,0.69,43.5,3
@@ -183,7 +183,7 @@ centro,2020,primavera,1.2,0.18,39.96,2
 centro,2020,verano,4.36,1.56,40.41,2
 centro,2021,invierno,-0.7,-0.36,18.52,2
 centro,2021,otono,0.68,0.77,31.76,3
-centro,2021,primavera,4.39,1.53,37.24,3
+centro,2021,primavera,3.48,0.94,34.59,2
 centro,2021,verano,2.2,0.52,41.13,2
 centro,2022,invierno,2.03,0.34,22.56,2
 centro,2022,otono,1.52,0.38,27.11,3
@@ -193,7 +193,7 @@ centro,2023,invierno,0.56,-0.29,25.59,3
 centro,2023,otono,1.83,0.22,30.1,3
 centro,2023,primavera,3.44,0.57,35.7,3
 centro,2023,verano,2.17,0.88,42.5,3
-centro,2024,invierno,-0.04,-0.76,18.88,2
+centro,2024,invierno,-2.38,-0.8,23.14,1
 centro,2024,otono,-1.16,-1.6,27.39,3
 centro,2024,primavera,5.09,1.63,35.33,3
 centro,2024,verano,7.45,2.13,44.93,3
@@ -217,7 +217,7 @@ chacra_32,2020,primavera,2.37,1.35,41.13,2
 chacra_32,2020,verano,5.3,2.49,41.34,2
 chacra_32,2021,invierno,-0.08,0.27,19.14,2
 chacra_32,2021,otono,1.21,1.3,32.29,3
-chacra_32,2021,primavera,5.27,2.41,38.12,3
+chacra_32,2021,primavera,4.54,2.0,35.64,2
 chacra_32,2021,verano,3.46,1.78,42.39,2
 chacra_32,2022,invierno,2.6,0.91,23.13,2
 chacra_32,2022,otono,2.02,0.88,27.61,3
@@ -227,7 +227,7 @@ chacra_32,2023,invierno,1.21,0.36,26.24,3
 chacra_32,2023,otono,2.7,1.1,30.97,3
 chacra_32,2023,primavera,5.01,2.14,37.28,3
 chacra_32,2023,verano,3.27,1.98,43.61,3
-chacra_32,2024,invierno,2.66,1.35,20.53,3
+chacra_32,2024,invierno,1.07,0.62,21.72,2
 chacra_32,2024,otono,1.73,1.3,30.29,3
 chacra_32,2024,primavera,6.15,2.7,36.39,3
 chacra_32,2024,verano,8.36,3.04,45.84,3
@@ -251,7 +251,7 @@ cima_del_sol,2020,primavera,-0.1,-1.12,38.66,2
 cima_del_sol,2020,verano,1.36,-1.44,37.4,2
 cima_del_sol,2021,invierno,-1.23,-0.88,18.0,2
 cima_del_sol,2021,otono,-0.8,-0.71,30.28,3
-cima_del_sol,2021,primavera,1.1,-1.75,33.96,3
+cima_del_sol,2021,primavera,1.38,-1.16,32.48,2
 cima_del_sol,2021,verano,0.55,-1.14,39.48,2
 cima_del_sol,2022,invierno,1.46,-0.24,21.98,2
 cima_del_sol,2022,otono,0.58,-0.56,26.17,3
@@ -261,7 +261,7 @@ cima_del_sol,2023,invierno,-0.19,-1.03,24.85,3
 cima_del_sol,2023,otono,0.97,-0.64,29.24,3
 cima_del_sol,2023,primavera,1.76,-1.11,34.02,3
 cima_del_sol,2023,verano,-0.35,-1.64,39.99,3
-cima_del_sol,2024,invierno,1.63,0.32,19.5,3
+cima_del_sol,2024,invierno,0.49,0.04,21.14,2
 cima_del_sol,2024,otono,-0.01,-0.44,28.55,3
 cima_del_sol,2024,primavera,2.63,-0.83,32.87,3
 cima_del_sol,2024,verano,3.0,-2.32,40.48,3
@@ -285,7 +285,7 @@ colonia_laosiana,2020,primavera,-0.16,-1.18,38.61,2
 colonia_laosiana,2020,verano,-0.86,-3.66,35.18,2
 colonia_laosiana,2021,invierno,-0.84,-0.49,18.39,2
 colonia_laosiana,2021,otono,-2.58,-2.49,28.5,3
-colonia_laosiana,2021,primavera,-0.27,-3.13,32.58,3
+colonia_laosiana,2021,primavera,0.26,-2.28,31.36,2
 colonia_laosiana,2021,verano,-0.68,-2.36,38.25,2
 colonia_laosiana,2022,invierno,0.72,-0.97,21.25,2
 colonia_laosiana,2022,otono,0.12,-1.02,25.71,3
@@ -295,7 +295,7 @@ colonia_laosiana,2023,invierno,1.49,0.64,26.52,3
 colonia_laosiana,2023,otono,-0.58,-2.19,27.69,3
 colonia_laosiana,2023,primavera,0.08,-2.79,32.34,3
 colonia_laosiana,2023,verano,-2.39,-3.68,37.94,3
-colonia_laosiana,2024,invierno,1.06,-0.24,18.94,3
+colonia_laosiana,2024,invierno,0.82,0.38,21.48,2
 colonia_laosiana,2024,otono,-1.73,-2.16,26.83,3
 colonia_laosiana,2024,primavera,1.14,-2.32,31.38,3
 colonia_laosiana,2024,verano,0.15,-5.17,37.64,3
@@ -319,7 +319,7 @@ complejo_gervasio_artigas,2020,primavera,0.1,-0.92,38.86,2
 complejo_gervasio_artigas,2020,verano,0.26,-2.54,36.3,2
 complejo_gervasio_artigas,2021,invierno,-0.04,0.13,22.36,1
 complejo_gervasio_artigas,2021,otono,-0.3,-0.35,34.22,2
-complejo_gervasio_artigas,2021,primavera,0.38,-2.47,33.24,3
+complejo_gervasio_artigas,2021,primavera,-0.08,-2.62,31.02,2
 complejo_gervasio_artigas,2021,verano,0.53,-1.28,43.05,1
 complejo_gervasio_artigas,2022,invierno,-0.52,-2.22,20.0,2
 complejo_gervasio_artigas,2022,otono,0.01,-1.13,25.6,3
@@ -329,7 +329,7 @@ complejo_gervasio_artigas,2023,invierno,-2.3,-3.14,22.74,3
 complejo_gervasio_artigas,2023,otono,0.21,-1.4,28.47,3
 complejo_gervasio_artigas,2023,primavera,0.45,-2.43,32.71,3
 complejo_gervasio_artigas,2023,verano,-0.11,-1.4,40.22,3
-complejo_gervasio_artigas,2024,invierno,-0.48,-1.2,18.44,2
+complejo_gervasio_artigas,2024,invierno,-0.04,1.54,25.48,1
 complejo_gervasio_artigas,2024,otono,0.86,0.42,29.41,3
 complejo_gervasio_artigas,2024,primavera,-0.14,-3.6,30.1,3
 complejo_gervasio_artigas,2024,verano,1.25,-3.44,37.84,2
@@ -352,7 +352,7 @@ complejo_habitacional_virgen_de_fatima,2020,primavera,2.46,1.44,41.22,2
 complejo_habitacional_virgen_de_fatima,2020,verano,4.85,2.04,40.89,2
 complejo_habitacional_virgen_de_fatima,2021,invierno,0.08,0.25,22.48,1
 complejo_habitacional_virgen_de_fatima,2021,otono,1.6,1.56,36.12,2
-complejo_habitacional_virgen_de_fatima,2021,primavera,4.94,2.08,37.79,3
+complejo_habitacional_virgen_de_fatima,2021,primavera,4.74,2.2,35.84,2
 complejo_habitacional_virgen_de_fatima,2021,verano,3.42,1.74,42.34,2
 complejo_habitacional_virgen_de_fatima,2022,invierno,1.5,-0.19,22.03,2
 complejo_habitacional_virgen_de_fatima,2022,otono,1.86,0.71,27.44,3
@@ -362,7 +362,7 @@ complejo_habitacional_virgen_de_fatima,2023,invierno,2.3,1.75,28.83,2
 complejo_habitacional_virgen_de_fatima,2023,otono,2.83,1.23,31.1,3
 complejo_habitacional_virgen_de_fatima,2023,primavera,5.6,2.72,37.86,3
 complejo_habitacional_virgen_de_fatima,2023,verano,2.8,1.51,43.13,3
-complejo_habitacional_virgen_de_fatima,2024,invierno,-0.36,-1.08,18.56,2
+complejo_habitacional_virgen_de_fatima,2024,invierno,-2.19,-0.61,23.33,1
 complejo_habitacional_virgen_de_fatima,2024,otono,0.41,-0.02,28.97,3
 complejo_habitacional_virgen_de_fatima,2024,primavera,4.14,0.68,34.38,3
 complejo_habitacional_virgen_de_fatima,2024,verano,7.21,1.89,44.69,3
@@ -386,7 +386,7 @@ don_santiago,2020,primavera,0.63,-0.38,39.39,2
 don_santiago,2020,verano,1.96,-0.85,38.0,2
 don_santiago,2021,invierno,0.27,0.44,22.67,1
 don_santiago,2021,otono,-1.16,-1.19,33.37,2
-don_santiago,2021,primavera,2.31,-0.54,35.17,3
+don_santiago,2021,primavera,1.61,-0.93,32.72,2
 don_santiago,2021,verano,0.68,-1.0,39.61,2
 don_santiago,2022,invierno,-0.1,-1.79,20.43,2
 don_santiago,2022,otono,0.42,-0.72,26.01,3
@@ -396,7 +396,7 @@ don_santiago,2023,invierno,0.84,0.29,27.37,2
 don_santiago,2023,otono,1.06,-0.55,29.33,3
 don_santiago,2023,primavera,2.8,-0.07,35.06,3
 don_santiago,2023,verano,1.3,0.01,41.64,3
-don_santiago,2024,invierno,-0.12,-0.84,18.8,2
+don_santiago,2024,invierno,0.22,1.8,25.74,1
 don_santiago,2024,otono,2.5,2.07,31.06,3
 don_santiago,2024,primavera,2.2,-1.26,32.43,3
 don_santiago,2024,verano,5.03,0.34,41.62,2
@@ -419,7 +419,7 @@ el_brete,2020,primavera,-0.14,-1.16,38.62,2
 el_brete,2020,verano,2.23,-0.57,38.28,2
 el_brete,2021,invierno,0.02,0.36,19.24,2
 el_brete,2021,otono,-0.22,-0.13,30.86,3
-el_brete,2021,primavera,2.42,-0.43,35.28,3
+el_brete,2021,primavera,2.22,-0.32,33.33,2
 el_brete,2021,verano,0.94,-0.75,39.86,2
 el_brete,2022,invierno,2.03,0.34,22.56,2
 el_brete,2022,otono,1.32,0.18,26.9,3
@@ -429,7 +429,7 @@ el_brete,2023,invierno,0.83,-0.02,25.86,3
 el_brete,2023,otono,1.59,-0.01,29.86,3
 el_brete,2023,primavera,1.27,-1.6,33.54,3
 el_brete,2023,verano,0.22,-1.08,40.55,3
-el_brete,2024,invierno,1.86,0.55,19.74,3
+el_brete,2024,invierno,0.27,-0.18,20.92,2
 el_brete,2024,otono,0.59,0.16,29.15,3
 el_brete,2024,primavera,3.37,-0.09,33.6,3
 el_brete,2024,verano,4.82,-0.5,42.3,3
@@ -453,7 +453,7 @@ el_laurel,2020,primavera,-3.49,-4.5,35.28,2
 el_laurel,2020,verano,-2.0,-4.8,34.04,2
 el_laurel,2021,invierno,-0.79,-0.44,18.43,2
 el_laurel,2021,otono,-2.81,-2.72,28.27,3
-el_laurel,2021,primavera,-0.91,-3.77,31.94,3
+el_laurel,2021,primavera,-0.9,-3.43,30.21,2
 el_laurel,2021,verano,-3.09,-4.78,35.83,2
 el_laurel,2022,invierno,0.6,-1.1,21.12,2
 el_laurel,2022,otono,-0.54,-1.68,25.05,3
@@ -463,7 +463,7 @@ el_laurel,2023,invierno,-0.67,-1.52,24.36,3
 el_laurel,2023,otono,-1.09,-2.7,27.17,3
 el_laurel,2023,primavera,-1.76,-4.63,30.5,3
 el_laurel,2023,verano,-3.86,-5.15,36.47,3
-el_laurel,2024,invierno,0.18,-1.13,18.05,3
+el_laurel,2024,invierno,-1.31,-1.76,19.34,2
 el_laurel,2024,otono,-2.03,-2.46,26.53,3
 el_laurel,2024,primavera,-0.78,-4.24,29.45,3
 el_laurel,2024,verano,-0.05,-5.37,37.43,3
@@ -486,7 +486,7 @@ el_palomar,2020,primavera,1.94,0.92,40.7,2
 el_palomar,2020,verano,5.07,2.27,41.12,2
 el_palomar,2021,invierno,-0.68,-0.34,18.54,2
 el_palomar,2021,otono,0.78,0.87,31.86,3
-el_palomar,2021,primavera,5.11,2.25,37.96,3
+el_palomar,2021,primavera,4.26,1.72,35.37,2
 el_palomar,2021,verano,2.84,1.16,41.77,2
 el_palomar,2022,invierno,2.34,0.64,22.86,2
 el_palomar,2022,otono,1.94,0.8,27.53,3
@@ -496,7 +496,7 @@ el_palomar,2023,invierno,0.94,0.1,25.98,3
 el_palomar,2023,otono,2.32,0.71,30.58,3
 el_palomar,2023,primavera,4.83,1.96,37.1,3
 el_palomar,2023,verano,2.9,1.61,43.24,3
-el_palomar,2024,invierno,1.32,0.59,20.23,2
+el_palomar,2024,invierno,-0.12,1.45,25.39,1
 el_palomar,2024,otono,-0.23,-0.67,28.32,3
 el_palomar,2024,primavera,5.32,1.86,35.55,3
 el_palomar,2024,verano,8.19,2.88,45.68,3
@@ -520,7 +520,7 @@ fatima,2020,primavera,0.78,-0.24,39.54,2
 fatima,2020,verano,1.67,-1.14,37.72,2
 fatima,2021,invierno,-0.17,0.0,22.23,1
 fatima,2021,otono,-0.62,-0.66,33.91,2
-fatima,2021,primavera,2.29,-0.56,35.15,3
+fatima,2021,primavera,2.3,-0.24,33.4,2
 fatima,2021,verano,0.35,-1.34,39.28,2
 fatima,2022,invierno,0.36,-1.34,20.88,2
 fatima,2022,otono,0.56,-0.58,26.14,3
@@ -530,7 +530,7 @@ fatima,2023,invierno,1.12,0.58,27.66,2
 fatima,2023,otono,0.98,-0.63,29.24,3
 fatima,2023,primavera,2.49,-0.38,34.75,3
 fatima,2023,verano,-0.56,-1.85,39.78,3
-fatima,2024,invierno,-1.57,-2.29,17.35,2
+fatima,2024,invierno,-3.53,-1.95,21.99,1
 fatima,2024,otono,-1.0,-1.43,27.56,3
 fatima,2024,primavera,1.43,-2.03,31.67,3
 fatima,2024,verano,3.17,-2.15,40.65,3
@@ -554,7 +554,7 @@ federal,2020,primavera,1.04,0.03,39.8,2
 federal,2020,verano,1.29,-1.52,37.33,2
 federal,2021,invierno,0.61,0.78,23.01,1
 federal,2021,otono,0.18,0.14,34.7,2
-federal,2021,primavera,1.3,-1.55,34.16,3
+federal,2021,primavera,0.55,-1.98,31.66,2
 federal,2021,verano,0.98,-0.83,43.5,1
 federal,2022,invierno,-0.16,-1.86,20.37,2
 federal,2022,otono,0.54,-0.6,26.13,3
@@ -564,7 +564,7 @@ federal,2023,invierno,-0.3,-1.14,24.74,3
 federal,2023,otono,0.86,-0.74,29.13,3
 federal,2023,primavera,0.52,-2.36,32.78,3
 federal,2023,verano,0.45,-0.84,40.79,3
-federal,2024,invierno,-0.46,-1.18,18.46,2
+federal,2024,invierno,-0.12,1.46,25.4,1
 federal,2024,otono,0.67,0.24,29.23,3
 federal,2024,primavera,-0.41,-3.87,29.82,3
 federal,2024,verano,1.61,-3.08,38.2,2
@@ -587,7 +587,7 @@ itaembe_guazu,2020,primavera,1.61,0.59,40.37,2
 itaembe_guazu,2020,verano,2.5,-0.31,38.54,2
 itaembe_guazu,2021,invierno,-0.63,-0.29,18.59,2
 itaembe_guazu,2021,otono,0.05,0.14,31.13,3
-itaembe_guazu,2021,primavera,1.64,-1.21,34.5,3
+itaembe_guazu,2021,primavera,1.5,-1.04,32.61,2
 itaembe_guazu,2021,verano,2.7,1.01,41.62,2
 itaembe_guazu,2022,invierno,1.34,-0.36,21.86,2
 itaembe_guazu,2022,otono,0.66,-0.49,26.24,3
@@ -597,7 +597,7 @@ itaembe_guazu,2023,invierno,0.68,-0.17,25.71,3
 itaembe_guazu,2023,otono,0.99,-0.62,29.26,3
 itaembe_guazu,2023,primavera,1.41,-1.47,33.67,3
 itaembe_guazu,2023,verano,1.95,0.65,42.28,3
-itaembe_guazu,2024,invierno,0.88,-0.43,18.75,3
+itaembe_guazu,2024,invierno,-0.01,-0.46,20.65,2
 itaembe_guazu,2024,otono,-0.01,-0.44,28.55,3
 itaembe_guazu,2024,primavera,3.3,-0.15,33.54,3
 itaembe_guazu,2024,verano,4.97,-0.35,42.45,3
@@ -621,7 +621,7 @@ itaembe_mini,2020,primavera,1.6,0.57,40.36,2
 itaembe_mini,2020,verano,3.06,0.26,39.11,2
 itaembe_mini,2021,invierno,0.35,0.7,19.57,2
 itaembe_mini,2021,otono,0.09,0.18,31.17,3
-itaembe_mini,2021,primavera,3.19,0.34,36.05,3
+itaembe_mini,2021,primavera,2.94,0.4,34.04,2
 itaembe_mini,2021,verano,2.06,0.38,40.99,2
 itaembe_mini,2022,invierno,2.5,0.8,23.02,2
 itaembe_mini,2022,otono,1.86,0.72,27.45,3
@@ -631,7 +631,7 @@ itaembe_mini,2023,invierno,1.65,0.81,26.69,3
 itaembe_mini,2023,otono,2.24,0.63,30.51,3
 itaembe_mini,2023,primavera,3.13,0.26,35.4,3
 itaembe_mini,2023,verano,2.2,0.9,42.53,3
-itaembe_mini,2024,invierno,1.51,0.2,19.39,3
+itaembe_mini,2024,invierno,1.22,0.76,21.87,2
 itaembe_mini,2024,otono,1.07,0.64,29.63,3
 itaembe_mini,2024,primavera,4.41,0.96,34.65,3
 itaembe_mini,2024,verano,5.03,-0.29,42.51,3
@@ -655,7 +655,7 @@ itaembe_pora,2020,primavera,1.19,0.18,39.96,2
 itaembe_pora,2020,verano,2.8,-0.01,38.84,2
 itaembe_pora,2021,invierno,-0.26,0.08,18.95,2
 itaembe_pora,2021,otono,-0.08,0.01,31.0,3
-itaembe_pora,2021,primavera,2.74,-0.12,35.59,3
+itaembe_pora,2021,primavera,2.44,-0.1,33.54,2
 itaembe_pora,2021,verano,1.92,0.24,40.85,2
 itaembe_pora,2022,invierno,2.16,0.47,22.69,2
 itaembe_pora,2022,otono,1.56,0.42,27.15,3
@@ -665,7 +665,7 @@ itaembe_pora,2023,invierno,1.62,0.78,26.66,3
 itaembe_pora,2023,otono,2.3,0.69,30.56,3
 itaembe_pora,2023,primavera,2.99,0.11,35.25,3
 itaembe_pora,2023,verano,2.35,1.06,42.69,3
-itaembe_pora,2024,invierno,1.4,0.68,20.32,2
+itaembe_pora,2024,invierno,1.04,2.62,26.56,1
 itaembe_pora,2024,otono,1.3,0.86,29.85,3
 itaembe_pora,2024,primavera,4.62,1.16,34.85,3
 itaembe_pora,2024,verano,5.17,-0.15,42.65,3
@@ -689,7 +689,7 @@ las_dolores,2020,primavera,1.18,0.16,39.94,2
 las_dolores,2020,verano,2.16,-0.66,38.2,2
 las_dolores,2021,invierno,-0.32,0.02,18.9,2
 las_dolores,2021,otono,-0.08,0.01,31.0,3
-las_dolores,2021,primavera,2.23,-0.62,35.09,3
+las_dolores,2021,primavera,2.42,-0.12,33.53,2
 las_dolores,2021,verano,1.64,-0.05,40.56,2
 las_dolores,2022,invierno,1.97,0.28,22.5,2
 las_dolores,2022,otono,1.44,0.3,27.03,3
@@ -699,7 +699,7 @@ las_dolores,2023,invierno,1.1,0.26,26.14,3
 las_dolores,2023,otono,1.87,0.27,30.14,3
 las_dolores,2023,primavera,2.53,-0.34,34.79,3
 las_dolores,2023,verano,1.34,0.05,41.67,3
-las_dolores,2024,invierno,2.85,1.54,20.72,3
+las_dolores,2024,invierno,1.51,1.06,22.16,2
 las_dolores,2024,otono,0.94,0.51,29.5,3
 las_dolores,2024,primavera,3.87,0.42,34.11,3
 las_dolores,2024,verano,4.35,-0.97,41.84,3
@@ -723,7 +723,7 @@ lomas_de_garupa,2020,primavera,2.41,1.39,41.17,2
 lomas_de_garupa,2020,verano,3.24,0.43,39.28,2
 lomas_de_garupa,2021,invierno,1.14,1.31,23.54,1
 lomas_de_garupa,2021,otono,0.18,0.14,34.7,2
-lomas_de_garupa,2021,primavera,2.56,-0.29,35.42,3
+lomas_de_garupa,2021,primavera,1.84,-0.7,32.94,2
 lomas_de_garupa,2021,verano,2.36,0.55,44.88,1
 lomas_de_garupa,2022,invierno,0.57,-1.12,21.1,2
 lomas_de_garupa,2022,otono,1.23,0.09,26.82,3
@@ -733,7 +733,7 @@ lomas_de_garupa,2023,invierno,0.58,0.03,27.12,2
 lomas_de_garupa,2023,otono,1.04,-0.57,29.31,3
 lomas_de_garupa,2023,primavera,2.15,-0.73,34.41,3
 lomas_de_garupa,2023,verano,0.95,-0.35,41.28,3
-lomas_de_garupa,2024,invierno,0.62,-0.1,19.54,2
+lomas_de_garupa,2024,invierno,0.52,2.1,26.04,1
 lomas_de_garupa,2024,otono,1.89,1.46,30.45,3
 lomas_de_garupa,2024,primavera,1.8,-1.65,32.04,3
 lomas_de_garupa,2024,verano,4.11,-0.58,40.7,2
@@ -756,7 +756,7 @@ luis_piedrabuena,2020,primavera,0.55,-0.47,39.31,2
 luis_piedrabuena,2020,verano,2.28,-0.53,38.32,2
 luis_piedrabuena,2021,invierno,-0.1,0.25,19.12,2
 luis_piedrabuena,2021,otono,-0.29,-0.2,30.79,3
-luis_piedrabuena,2021,primavera,2.65,-0.2,35.51,3
+luis_piedrabuena,2021,primavera,2.5,-0.03,33.61,2
 luis_piedrabuena,2021,verano,1.16,-0.52,40.09,2
 luis_piedrabuena,2022,invierno,1.6,-0.09,22.13,2
 luis_piedrabuena,2022,otono,1.36,0.22,26.95,3
@@ -766,7 +766,7 @@ luis_piedrabuena,2023,invierno,0.85,0.01,25.89,3
 luis_piedrabuena,2023,otono,1.67,0.06,29.94,3
 luis_piedrabuena,2023,primavera,2.81,-0.06,35.07,3
 luis_piedrabuena,2023,verano,0.81,-0.48,41.15,3
-luis_piedrabuena,2024,invierno,1.92,0.61,19.8,3
+luis_piedrabuena,2024,invierno,0.34,-0.12,20.98,2
 luis_piedrabuena,2024,otono,-0.65,-1.08,27.91,3
 luis_piedrabuena,2024,primavera,3.75,0.29,33.98,3
 luis_piedrabuena,2024,verano,4.59,-0.73,42.07,3
@@ -790,7 +790,7 @@ miguel_lanus,2020,primavera,0.4,-0.62,39.17,2
 miguel_lanus,2020,verano,2.75,-0.05,38.8,2
 miguel_lanus,2021,invierno,-0.6,-0.43,21.8,1
 miguel_lanus,2021,otono,-0.08,-0.12,34.44,2
-miguel_lanus,2021,primavera,2.48,-0.37,35.34,3
+miguel_lanus,2021,primavera,2.72,0.18,33.83,2
 miguel_lanus,2021,verano,1.17,-0.51,40.1,2
 miguel_lanus,2022,invierno,0.94,-0.76,21.46,2
 miguel_lanus,2022,otono,0.1,-1.04,25.69,3
@@ -800,7 +800,7 @@ miguel_lanus,2023,invierno,0.86,0.02,25.9,3
 miguel_lanus,2023,otono,1.33,-0.28,29.6,3
 miguel_lanus,2023,primavera,3.66,0.78,35.92,3
 miguel_lanus,2023,verano,0.46,-0.84,40.79,3
-miguel_lanus,2024,invierno,-0.92,-1.64,18.0,2
+miguel_lanus,2024,invierno,-3.0,-1.43,22.51,1
 miguel_lanus,2024,otono,-0.91,-1.35,27.64,3
 miguel_lanus,2024,primavera,2.36,-1.1,32.59,3
 miguel_lanus,2024,verano,4.61,-0.71,42.09,3
@@ -824,7 +824,7 @@ monsenor_kemerer,2020,primavera,1.05,0.03,39.81,2
 monsenor_kemerer,2020,verano,3.06,0.25,39.1,2
 monsenor_kemerer,2021,invierno,-0.23,0.12,18.99,2
 monsenor_kemerer,2021,otono,-1.61,-1.52,29.47,3
-monsenor_kemerer,2021,primavera,3.92,1.07,36.78,3
+monsenor_kemerer,2021,primavera,3.34,0.8,34.45,2
 monsenor_kemerer,2021,verano,2.15,0.46,41.08,2
 monsenor_kemerer,2022,invierno,2.37,0.68,22.9,2
 monsenor_kemerer,2022,otono,1.53,0.39,27.12,3
@@ -834,7 +834,7 @@ monsenor_kemerer,2023,invierno,1.39,0.55,26.43,3
 monsenor_kemerer,2023,otono,1.96,0.36,30.23,3
 monsenor_kemerer,2023,primavera,2.84,-0.04,35.1,3
 monsenor_kemerer,2023,verano,2.0,0.71,42.33,3
-monsenor_kemerer,2024,invierno,1.02,-0.29,18.89,3
+monsenor_kemerer,2024,invierno,0.23,-0.22,20.88,2
 monsenor_kemerer,2024,otono,-0.27,-0.71,28.28,3
 monsenor_kemerer,2024,primavera,4.1,0.64,34.33,3
 monsenor_kemerer,2024,verano,6.2,0.88,43.68,3
@@ -857,7 +857,7 @@ nemesio_parma,2020,primavera,-1.55,-2.57,37.21,2
 nemesio_parma,2020,verano,-1.98,-4.8,34.06,2
 nemesio_parma,2021,invierno,-0.52,-0.18,18.7,2
 nemesio_parma,2021,otono,-1.14,-1.06,29.93,3
-nemesio_parma,2021,primavera,-1.41,-4.27,31.44,3
+nemesio_parma,2021,primavera,-0.79,-3.32,30.32,2
 nemesio_parma,2021,verano,-1.28,-2.96,37.64,2
 nemesio_parma,2022,invierno,1.27,-0.43,21.8,2
 nemesio_parma,2022,otono,-0.47,-1.61,25.12,3
@@ -867,7 +867,7 @@ nemesio_parma,2023,invierno,0.17,-0.67,25.21,3
 nemesio_parma,2023,otono,-0.78,-2.38,27.49,3
 nemesio_parma,2023,primavera,-1.22,-4.1,31.04,3
 nemesio_parma,2023,verano,-1.48,-2.77,38.85,3
-nemesio_parma,2024,invierno,1.77,0.46,19.65,3
+nemesio_parma,2024,invierno,0.46,0.01,21.12,2
 nemesio_parma,2024,otono,-1.79,-2.22,26.77,3
 nemesio_parma,2024,primavera,-1.19,-4.64,29.05,3
 nemesio_parma,2024,verano,-0.77,-6.09,36.71,3
@@ -891,7 +891,7 @@ norte,2020,primavera,-0.73,-1.75,38.03,2
 norte,2020,verano,-0.77,-3.58,35.28,2
 norte,2021,invierno,-0.25,-0.08,22.15,1
 norte,2021,otono,-0.2,-0.24,34.32,2
-norte,2021,primavera,-0.31,-3.17,32.54,3
+norte,2021,primavera,-0.76,-3.3,30.35,2
 norte,2021,verano,-1.17,-2.98,41.35,1
 norte,2022,invierno,-0.99,-2.68,19.54,2
 norte,2022,otono,-0.68,-1.82,24.91,3
@@ -901,7 +901,7 @@ norte,2023,invierno,-2.44,-3.28,22.6,3
 norte,2023,otono,-0.79,-2.4,27.47,3
 norte,2023,primavera,-0.13,-3.01,32.13,3
 norte,2023,verano,-0.78,-2.08,39.55,3
-norte,2024,invierno,-0.8,-1.52,18.12,2
+norte,2024,invierno,-0.44,1.14,25.08,1
 norte,2024,otono,0.26,-0.17,28.82,3
 norte,2024,primavera,-0.55,-4.01,29.69,3
 norte,2024,verano,0.53,-4.16,37.12,2
@@ -924,7 +924,7 @@ nu_pora,2020,primavera,1.46,0.44,40.22,2
 nu_pora,2020,verano,2.25,-0.55,38.3,2
 nu_pora,2021,invierno,0.65,0.82,23.05,1
 nu_pora,2021,otono,-0.26,-0.3,34.26,2
-nu_pora,2021,primavera,2.41,-0.45,35.26,3
+nu_pora,2021,primavera,1.97,-0.56,33.08,2
 nu_pora,2021,verano,0.74,-0.94,39.67,2
 nu_pora,2022,invierno,0.25,-1.44,20.78,2
 nu_pora,2022,otono,0.81,-0.33,26.4,3
@@ -934,7 +934,7 @@ nu_pora,2023,invierno,0.62,0.07,27.15,2
 nu_pora,2023,otono,1.33,-0.27,29.6,3
 nu_pora,2023,primavera,2.82,-0.06,35.08,3
 nu_pora,2023,verano,-0.31,-1.6,40.03,3
-nu_pora,2024,invierno,-0.43,-1.15,18.49,2
+nu_pora,2024,invierno,-1.12,0.45,24.39,1
 nu_pora,2024,otono,1.55,1.12,30.11,3
 nu_pora,2024,primavera,2.4,-1.06,32.63,3
 nu_pora,2024,verano,3.61,-1.08,40.2,2
@@ -957,7 +957,7 @@ posadas_completa,2020,primavera,0.63,-0.39,39.39,2
 posadas_completa,2020,verano,2.0,-0.81,38.04,2
 posadas_completa,2021,invierno,-0.5,-0.15,18.73,2
 posadas_completa,2021,otono,-0.46,-0.37,30.62,3
-posadas_completa,2021,primavera,2.11,-0.75,34.96,3
+posadas_completa,2021,primavera,2.0,-0.54,33.11,2
 posadas_completa,2021,verano,1.34,-0.34,40.27,2
 posadas_completa,2022,invierno,1.94,0.25,22.47,2
 posadas_completa,2022,otono,0.92,-0.22,26.51,3
@@ -967,7 +967,7 @@ posadas_completa,2023,invierno,0.85,0.01,25.89,3
 posadas_completa,2023,otono,1.35,-0.26,29.62,3
 posadas_completa,2023,primavera,2.09,-0.79,34.35,3
 posadas_completa,2023,verano,1.11,-0.18,41.45,3
-posadas_completa,2024,invierno,1.41,0.1,19.28,3
+posadas_completa,2024,invierno,0.24,-0.21,20.9,2
 posadas_completa,2024,otono,-0.16,-0.6,28.39,3
 posadas_completa,2024,primavera,3.09,-0.37,33.32,3
 posadas_completa,2024,verano,4.24,-1.08,41.73,3
@@ -991,7 +991,7 @@ rocamora,2020,primavera,1.78,0.76,40.54,2
 rocamora,2020,verano,4.53,1.72,40.56,2
 rocamora,2021,invierno,-0.34,0.01,18.88,2
 rocamora,2021,otono,0.71,0.8,31.79,3
-rocamora,2021,primavera,4.39,1.53,37.24,3
+rocamora,2021,primavera,4.16,1.62,35.27,2
 rocamora,2021,verano,2.72,1.03,41.64,2
 rocamora,2022,invierno,2.38,0.68,22.9,2
 rocamora,2022,otono,1.72,0.58,27.3,3
@@ -1001,7 +1001,7 @@ rocamora,2023,invierno,1.0,0.16,26.04,3
 rocamora,2023,otono,2.22,0.62,30.49,3
 rocamora,2023,primavera,4.62,1.75,36.88,3
 rocamora,2023,verano,2.56,1.26,42.89,3
-rocamora,2024,invierno,0.88,0.16,19.8,2
+rocamora,2024,invierno,-2.82,-1.25,22.69,1
 rocamora,2024,otono,1.33,0.9,29.89,3
 rocamora,2024,primavera,5.39,1.93,35.63,3
 rocamora,2024,verano,7.56,2.24,45.04,3
@@ -1025,7 +1025,7 @@ san_isidro,2020,primavera,2.23,1.21,40.99,2
 san_isidro,2020,verano,4.4,1.6,40.44,2
 san_isidro,2021,invierno,-0.15,0.2,19.08,2
 san_isidro,2021,otono,0.77,0.86,31.85,3
-san_isidro,2021,primavera,4.11,1.25,36.96,3
+san_isidro,2021,primavera,3.57,1.03,34.67,2
 san_isidro,2021,verano,3.66,1.98,42.58,2
 san_isidro,2022,invierno,2.5,0.81,23.03,2
 san_isidro,2022,otono,2.35,1.21,27.94,3
@@ -1035,7 +1035,7 @@ san_isidro,2023,invierno,2.02,1.18,27.06,3
 san_isidro,2023,otono,3.49,1.89,31.76,3
 san_isidro,2023,primavera,4.63,1.75,36.89,3
 san_isidro,2023,verano,3.44,2.15,43.77,3
-san_isidro,2024,invierno,3.14,1.83,21.02,3
+san_isidro,2024,invierno,2.0,1.54,22.65,2
 san_isidro,2024,otono,1.29,0.86,29.85,3
 san_isidro,2024,primavera,6.89,3.44,37.13,3
 san_isidro,2024,verano,7.49,2.17,44.98,3
@@ -1059,7 +1059,7 @@ san_lucas,2020,primavera,0.48,-0.53,39.25,2
 san_lucas,2020,verano,2.19,-0.61,38.24,2
 san_lucas,2021,invierno,-0.92,-0.58,18.29,2
 san_lucas,2021,otono,-0.32,-0.23,30.76,3
-san_lucas,2021,primavera,1.99,-0.87,34.84,3
+san_lucas,2021,primavera,2.04,-0.5,33.15,2
 san_lucas,2021,verano,1.5,-0.18,40.42,2
 san_lucas,2022,invierno,1.46,-0.23,21.99,2
 san_lucas,2022,otono,1.02,-0.12,26.61,3
@@ -1069,7 +1069,7 @@ san_lucas,2023,invierno,0.41,-0.43,25.45,3
 san_lucas,2023,otono,1.14,-0.47,29.41,3
 san_lucas,2023,primavera,2.59,-0.29,34.85,3
 san_lucas,2023,verano,0.65,-0.65,40.98,3
-san_lucas,2024,invierno,1.9,0.59,19.77,3
+san_lucas,2024,invierno,0.62,0.17,21.28,2
 san_lucas,2024,otono,0.58,0.15,29.14,3
 san_lucas,2024,primavera,3.89,0.44,34.13,3
 san_lucas,2024,verano,4.82,-0.49,42.31,3
@@ -1093,7 +1093,7 @@ san_marcos,2020,primavera,-0.26,-1.27,38.5,2
 san_marcos,2020,verano,1.28,-1.52,37.33,2
 san_marcos,2021,invierno,-1.64,-1.3,17.58,2
 san_marcos,2021,otono,-1.12,-1.03,29.96,3
-san_marcos,2021,primavera,1.41,-1.45,34.26,3
+san_marcos,2021,primavera,1.12,-1.41,32.24,2
 san_marcos,2021,verano,0.54,-1.15,39.46,2
 san_marcos,2022,invierno,0.76,-0.94,21.28,2
 san_marcos,2022,otono,0.28,-0.86,25.87,3
@@ -1103,7 +1103,7 @@ san_marcos,2023,invierno,-0.47,-1.31,24.57,3
 san_marcos,2023,otono,0.19,-1.42,28.45,3
 san_marcos,2023,primavera,1.69,-1.19,33.95,3
 san_marcos,2023,verano,-0.2,-1.49,40.13,3
-san_marcos,2024,invierno,1.08,-0.22,18.96,3
+san_marcos,2024,invierno,-1.09,-1.54,19.56,2
 san_marcos,2024,otono,0.34,-0.09,28.9,3
 san_marcos,2024,primavera,2.86,-0.59,33.1,3
 san_marcos,2024,verano,4.07,-1.25,41.55,3
@@ -1127,7 +1127,7 @@ san_martin,2020,primavera,1.25,0.24,40.02,2
 san_martin,2020,verano,3.78,0.96,39.82,2
 san_martin,2021,invierno,-0.43,-0.08,18.8,2
 san_martin,2021,otono,0.19,0.28,31.27,3
-san_martin,2021,primavera,3.96,1.1,36.81,3
+san_martin,2021,primavera,3.58,1.04,34.68,2
 san_martin,2021,verano,2.19,0.5,41.11,2
 san_martin,2022,invierno,2.28,0.59,22.81,2
 san_martin,2022,otono,1.14,0.0,26.73,3
@@ -1137,7 +1137,7 @@ san_martin,2023,invierno,1.02,0.18,26.06,3
 san_martin,2023,otono,1.86,0.26,30.13,3
 san_martin,2023,primavera,4.0,1.12,36.26,3
 san_martin,2023,verano,1.95,0.66,42.29,3
-san_martin,2024,invierno,1.77,0.46,19.64,3
+san_martin,2024,invierno,-0.07,-0.52,20.58,2
 san_martin,2024,otono,1.06,0.63,29.62,3
 san_martin,2024,primavera,4.98,1.52,35.22,3
 san_martin,2024,verano,6.82,1.5,44.3,3
@@ -1161,7 +1161,7 @@ santa_helena,2020,primavera,2.12,1.1,40.88,2
 santa_helena,2020,verano,3.26,0.46,39.31,2
 santa_helena,2021,invierno,0.67,0.84,23.07,1
 santa_helena,2021,otono,0.67,0.62,35.19,2
-santa_helena,2021,primavera,3.36,0.5,36.21,3
+santa_helena,2021,primavera,3.12,0.58,34.22,2
 santa_helena,2021,verano,2.06,0.38,40.98,2
 santa_helena,2022,invierno,0.64,-1.05,21.17,2
 santa_helena,2022,otono,1.05,-0.09,26.64,3
@@ -1171,7 +1171,7 @@ santa_helena,2023,invierno,1.89,1.34,28.42,2
 santa_helena,2023,otono,2.55,0.94,30.82,3
 santa_helena,2023,primavera,3.59,0.71,35.85,3
 santa_helena,2023,verano,1.51,0.22,41.85,3
-santa_helena,2024,invierno,-0.8,-1.52,18.11,2
+santa_helena,2024,invierno,-1.94,-0.36,23.58,1
 santa_helena,2024,otono,1.02,0.58,29.57,3
 santa_helena,2024,primavera,3.47,0.02,33.71,3
 santa_helena,2024,verano,5.34,0.64,41.93,2
@@ -1194,7 +1194,7 @@ santa_rita,2020,primavera,1.52,0.5,40.28,2
 santa_rita,2020,verano,3.42,0.62,39.47,2
 santa_rita,2021,invierno,-0.74,-0.39,18.48,2
 santa_rita,2021,otono,-0.41,-0.32,30.67,3
-santa_rita,2021,primavera,3.34,0.49,36.2,3
+santa_rita,2021,primavera,3.06,0.52,34.16,2
 santa_rita,2021,verano,2.26,0.58,41.19,2
 santa_rita,2022,invierno,1.88,0.19,22.41,2
 santa_rita,2022,otono,1.51,0.36,27.09,3
@@ -1204,7 +1204,7 @@ santa_rita,2023,invierno,0.91,0.07,25.95,3
 santa_rita,2023,otono,1.44,-0.17,29.71,3
 santa_rita,2023,primavera,3.52,0.64,35.78,3
 santa_rita,2023,verano,2.42,1.13,42.76,3
-santa_rita,2024,invierno,0.98,-0.33,18.85,3
+santa_rita,2024,invierno,0.12,-0.33,20.78,2
 santa_rita,2024,otono,0.56,0.13,29.12,3
 santa_rita,2024,primavera,3.99,0.53,34.23,3
 santa_rita,2024,verano,6.12,0.8,43.6,3
@@ -1228,7 +1228,7 @@ villa_bonita,2020,primavera,2.1,1.08,40.86,2
 villa_bonita,2020,verano,3.07,0.26,39.11,2
 villa_bonita,2021,invierno,0.77,0.94,23.17,1
 villa_bonita,2021,otono,0.31,0.26,34.83,2
-villa_bonita,2021,primavera,2.75,-0.1,35.61,3
+villa_bonita,2021,primavera,2.58,0.04,33.69,2
 villa_bonita,2021,verano,1.8,0.12,40.73,2
 villa_bonita,2022,invierno,0.59,-1.1,21.12,2
 villa_bonita,2022,otono,0.89,-0.25,26.47,3
@@ -1238,7 +1238,7 @@ villa_bonita,2023,invierno,1.37,0.82,27.9,2
 villa_bonita,2023,otono,1.97,0.37,30.24,3
 villa_bonita,2023,primavera,3.26,0.38,35.52,3
 villa_bonita,2023,verano,0.93,-0.36,41.26,3
-villa_bonita,2024,invierno,-0.48,-1.19,18.44,2
+villa_bonita,2024,invierno,-1.3,0.28,24.22,1
 villa_bonita,2024,otono,1.77,1.34,30.33,3
 villa_bonita,2024,primavera,2.77,-0.69,33.01,3
 villa_bonita,2024,verano,4.47,-0.22,41.06,2
@@ -1261,7 +1261,7 @@ villa_cabello,2020,primavera,0.19,-0.84,38.94,2
 villa_cabello,2020,verano,2.17,-0.63,38.22,2
 villa_cabello,2021,invierno,-0.16,0.18,19.06,2
 villa_cabello,2021,otono,-1.08,-0.99,30.0,3
-villa_cabello,2021,primavera,2.91,0.05,35.76,3
+villa_cabello,2021,primavera,2.38,-0.16,33.48,2
 villa_cabello,2021,verano,1.23,-0.46,40.16,2
 villa_cabello,2022,invierno,2.13,0.44,22.66,2
 villa_cabello,2022,otono,1.15,0.01,26.74,3
@@ -1271,7 +1271,7 @@ villa_cabello,2023,invierno,1.02,0.17,26.05,3
 villa_cabello,2023,otono,1.52,-0.08,29.79,3
 villa_cabello,2023,primavera,2.38,-0.5,34.64,3
 villa_cabello,2023,verano,1.42,0.13,41.75,3
-villa_cabello,2024,invierno,0.28,-1.03,18.15,3
+villa_cabello,2024,invierno,-0.66,-1.11,19.99,2
 villa_cabello,2024,otono,0.01,-0.42,28.57,3
 villa_cabello,2024,primavera,2.91,-0.55,33.15,3
 villa_cabello,2024,verano,4.73,-0.59,42.21,3
@@ -1295,7 +1295,7 @@ villa_mola,2020,primavera,1.34,0.32,40.11,2
 villa_mola,2020,verano,4.58,1.77,40.62,2
 villa_mola,2021,invierno,1.24,1.59,20.46,2
 villa_mola,2021,otono,1.4,1.49,32.48,3
-villa_mola,2021,primavera,3.6,0.74,36.45,3
+villa_mola,2021,primavera,3.38,0.84,34.49,2
 villa_mola,2021,verano,2.61,0.92,41.54,2
 villa_mola,2022,invierno,4.17,2.48,24.7,2
 villa_mola,2022,otono,1.88,0.74,27.47,3
@@ -1305,7 +1305,7 @@ villa_mola,2023,invierno,1.51,0.67,26.55,3
 villa_mola,2023,otono,2.98,1.37,31.25,3
 villa_mola,2023,primavera,3.4,0.52,35.66,3
 villa_mola,2023,verano,2.57,1.27,42.9,3
-villa_mola,2024,invierno,1.46,0.74,20.38,2
+villa_mola,2024,invierno,-2.12,-0.54,23.4,1
 villa_mola,2024,otono,0.31,-0.12,28.87,3
 villa_mola,2024,primavera,3.96,0.5,34.2,3
 villa_mola,2024,verano,6.92,1.6,44.4,3
@@ -1329,7 +1329,7 @@ villa_sarita,2020,primavera,0.48,-0.54,39.24,2
 villa_sarita,2020,verano,3.71,0.9,39.75,2
 villa_sarita,2021,invierno,-1.07,-0.72,18.15,2
 villa_sarita,2021,otono,-0.11,-0.02,30.97,3
-villa_sarita,2021,primavera,3.7,0.84,36.55,3
+villa_sarita,2021,primavera,2.79,0.25,33.9,2
 villa_sarita,2021,verano,1.46,-0.23,40.38,2
 villa_sarita,2022,invierno,1.62,-0.08,22.14,2
 villa_sarita,2022,otono,1.14,0.0,26.73,3
@@ -1339,7 +1339,7 @@ villa_sarita,2023,invierno,0.35,-0.5,25.38,3
 villa_sarita,2023,otono,1.58,-0.02,29.85,3
 villa_sarita,2023,primavera,1.57,-1.3,33.83,3
 villa_sarita,2023,verano,1.12,-0.17,41.45,3
-villa_sarita,2024,invierno,-1.25,-1.98,17.66,2
+villa_sarita,2024,invierno,-3.98,-2.41,21.53,1
 villa_sarita,2024,otono,-1.43,-1.86,27.13,3
 villa_sarita,2024,primavera,4.21,0.75,34.44,3
 villa_sarita,2024,verano,6.4,1.08,43.88,3
@@ -1363,7 +1363,7 @@ villa_urquiza,2020,primavera,1.88,0.86,40.64,2
 villa_urquiza,2020,verano,4.88,2.08,40.93,2
 villa_urquiza,2021,invierno,0.26,0.6,19.48,2
 villa_urquiza,2021,otono,1.16,1.25,32.24,3
-villa_urquiza,2021,primavera,4.71,1.86,37.57,3
+villa_urquiza,2021,primavera,4.25,1.71,35.36,2
 villa_urquiza,2021,verano,2.82,1.13,41.74,2
 villa_urquiza,2022,invierno,3.01,1.32,23.54,2
 villa_urquiza,2022,otono,2.14,1.0,27.73,3
@@ -1373,7 +1373,7 @@ villa_urquiza,2023,invierno,1.2,0.36,26.24,3
 villa_urquiza,2023,otono,2.47,0.87,30.74,3
 villa_urquiza,2023,primavera,4.63,1.75,36.89,3
 villa_urquiza,2023,verano,2.78,1.49,43.11,3
-villa_urquiza,2024,invierno,1.42,0.7,20.34,2
+villa_urquiza,2024,invierno,-3.09,-1.51,22.43,1
 villa_urquiza,2024,otono,1.27,0.84,29.83,3
 villa_urquiza,2024,primavera,4.97,1.52,35.21,3
 villa_urquiza,2024,verano,7.56,2.24,45.05,3
@@ -1397,7 +1397,7 @@ yacyreta,2020,primavera,1.29,0.27,40.05,2
 yacyreta,2020,verano,3.58,0.78,39.62,2
 yacyreta,2021,invierno,-0.68,-0.33,18.55,2
 yacyreta,2021,otono,0.1,0.19,31.18,3
-yacyreta,2021,primavera,4.07,1.21,36.92,3
+yacyreta,2021,primavera,3.52,0.98,34.62,2
 yacyreta,2021,verano,2.26,0.57,41.18,2
 yacyreta,2022,invierno,2.48,0.79,23.01,2
 yacyreta,2022,otono,1.34,0.2,26.93,3
@@ -1407,7 +1407,7 @@ yacyreta,2023,invierno,1.33,0.49,26.37,3
 yacyreta,2023,otono,2.05,0.45,30.32,3
 yacyreta,2023,primavera,4.1,1.22,36.36,3
 yacyreta,2023,verano,2.38,1.09,42.71,3
-yacyreta,2024,invierno,2.05,0.74,19.92,3
+yacyreta,2024,invierno,0.26,-0.2,20.91,2
 yacyreta,2024,otono,1.01,0.58,29.57,3
 yacyreta,2024,primavera,4.98,1.52,35.21,3
 yacyreta,2024,verano,6.79,1.47,44.27,3
