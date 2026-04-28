@@ -197,9 +197,10 @@ jobs:
         run: python scripts/53_servicios_distancias.py
         continue-on-error: true
 
-      - name: Ranking político (script 54)
-        run: python scripts/54_ranking_politico.py
-        continue-on-error: true
+      # NOTE: script 54 (ranking_politico) NO corre acá porque depende de
+      # uhi_estacional.csv que produce el monthly (script 49). El yearly
+      # genera vulnerabilidad+servicios; el monthly genera UHI; ambos
+      # consumidos por 54 en el cron mensual.
 
       # ----------------------------------------------------------------------
       # Bloque 8: Re-generación de PDFs anuales (uno por polígono).

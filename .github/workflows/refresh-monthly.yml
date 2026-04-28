@@ -219,6 +219,15 @@ jobs:
         continue-on-error: true
 
       # ----------------------------------------------------------------------
+      # Bloque 3e: Ranking político (combina vulnerabilidad del yearly +
+      # UHI estacional del monthly). Acá porque depende de uhi_estacional.csv
+      # que se acaba de generar en el bloque 3 (script 49b).
+      # ----------------------------------------------------------------------
+      - name: Ranking político (script 54)
+        run: python scripts/54_ranking_politico.py
+        continue-on-error: true
+
+      # ----------------------------------------------------------------------
       # Bloque 4: Forecast + alertas con datos nuevos. El cron de 6h también
       # corre estos pero acá garantizamos que la base mensual quede coherente.
       # ----------------------------------------------------------------------
