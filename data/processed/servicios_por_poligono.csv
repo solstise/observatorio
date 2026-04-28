@@ -1,0 +1,573 @@
+poligono_id,tipo_servicio,distancia_minima_m,nombre_servicio_cercano,osm_id_cercano,n_en_500m,n_en_1000m,n_en_2000m,cobertura_adecuada
+a_3_2_sector_b,caps_clinic,462.6,CAPS 26 Loma Poí,node/3190905673,1,6,11,True
+a_3_2_sector_b,hospital,885.1,,way/298111044,0,2,2,True
+a_3_2_sector_b,escuela,458.1,Escuela de Comercio 8,node/4773589715,3,14,35,True
+a_3_2_sector_b,jardin,263.7,Jardín Maternal Madre Teresa 1,node/9206434176,2,5,7,True
+a_3_2_sector_b,universidad,439.2,Instituto de Especializacion Proesional en Ciencias Policiales,node/6483750493,2,4,6,
+a_3_2_sector_b,farmacia,526.5,El Angel,node/2689039059,0,5,8,True
+a_3_2_sector_b,parada_colectivo,68.8,39 y 174,node/4514629214,32,113,183,True
+a_3_2_sector_b,policia,494.9,Comisaría Seccional Décima - UR X,node/4405130282,1,3,9,
+a_3_2_sector_b,bomberos,1141.4,Destacamento de Bomberos Costa Sur,node/9892184440,0,0,2,
+a_3_2_sector_b,supermercado,560.7,Estrella de Oro,node/2689039055,0,2,4,
+a_3_2_sector_b,mercado,801.7,Feria Franca Miguel Lanús,node/4795791834,0,1,1,
+a_3_2_sector_b,banco_atm,766.8,Cajero Express,node/6470831686,0,1,4,
+a_3_2_sector_b,plaza_parque,137.4,,way/547668872,18,61,144,
+colonia_laosiana,caps_clinic,615.9,CAPS Barrio Itaembé Guazú,node/7017114261,0,1,4,True
+colonia_laosiana,hospital,956.7,Hospital de Itaembé Guazú,node/13739923896,0,2,2,True
+colonia_laosiana,escuela,897.6,Instituto Superior Politécnico Misiones 1,node/5775811122,0,3,13,False
+colonia_laosiana,jardin,953.5,Núcleo Educativo de Nivel Inicial 58 Extensión 5,node/11240954716,0,1,7,True
+colonia_laosiana,universidad,2177.0,Instituto Superior Andrés Guacurarí,node/12812203369,0,0,0,
+colonia_laosiana,farmacia,638.9,RED Itaembe Guazu,node/12738758605,0,1,6,True
+colonia_laosiana,parada_colectivo,582.7,,node/5872337742,0,12,33,False
+colonia_laosiana,policia,1247.0,Comisaría deItaembé Guazú,node/7834675840,0,0,1,
+colonia_laosiana,bomberos,1683.8,Bomberos de Itaembé Guazú,node/5775818935,0,0,1,
+colonia_laosiana,supermercado,646.0,Petri,node/11728280406,0,3,10,
+colonia_laosiana,mercado,695.6,Feria Franca de Itaembé Guazú,node/4223931431,0,1,2,
+colonia_laosiana,banco_atm,1017.5,,node/8733489991,0,0,2,
+colonia_laosiana,plaza_parque,384.6,,way/860469894,1,6,80,
+san_jorge,caps_clinic,32.5,CAPS El Zaimán,node/3190899786,1,4,15,True
+san_jorge,hospital,2224.5,Instituto Tecnológico 1 Yacyretá,node/4419715298,0,0,0,True
+san_jorge,escuela,152.8,Instituto San Ignacio De Loyola,node/8568303182,6,9,30,True
+san_jorge,jardin,625.9,Núcleo Educativo de Nivel Inicial 2045 Extensión 125,node/6080575179,0,4,8,True
+san_jorge,universidad,1683.7,Instituto Superior de Ciencias Penitenciarias Andrés Guacurarí,node/4497815629,0,0,1,
+san_jorge,farmacia,553.4,Farmacenter,node/11690370469,0,2,17,True
+san_jorge,parada_colectivo,427.9,Las Palomas y Constitución,node/3800634532,5,43,229,False
+san_jorge,policia,365.4,Comisaría Seccional Octava - UR X,node/4405123493,1,3,10,
+san_jorge,bomberos,1155.1,Bomberos Voluntarios de Campo las Dolores,node/7832471022,0,0,1,
+san_jorge,supermercado,481.3,Despensa,node/5716099327,1,5,19,
+san_jorge,mercado,1460.4,Feria Franca jardín Botánico,node/10650419132,0,0,2,
+san_jorge,banco_atm,1855.3,,node/3174854232,0,0,4,
+san_jorge,plaza_parque,82.1,,way/268548927,11,28,126,
+23_de_septiembre,caps_clinic,800.7,Consultorio Odontológico Lavalle,node/4548107798,0,3,76,True
+23_de_septiembre,hospital,1369.7,Hospital Doctor Fernando Barreyro,node/7473661615,0,0,4,True
+23_de_septiembre,escuela,29.0,Escuela de Educación Vial,node/8681224230,12,17,75,True
+23_de_septiembre,jardin,95.8,Núcleo Educativo de Nivel Inicial 21 Extensión 250,node/11238081295,3,4,27,True
+23_de_septiembre,universidad,854.7,Universidad de la Cuenca del Plata,way/329121448,0,5,30,
+23_de_septiembre,farmacia,203.8,Bet-el,node/2665691954,6,22,101,True
+23_de_septiembre,parada_colectivo,144.0,Francisco de Haro al 3450,node/3152824414,17,77,312,True
+23_de_septiembre,policia,427.3,Comisaría Seccional Tercera - UR I,node/1946122557,1,2,11,
+23_de_septiembre,bomberos,173.5,División de Bomberos Zona Sur,node/7803637572,1,1,2,
+23_de_septiembre,supermercado,244.8,Autoservicio Don Alejo,node/4273599292,5,22,55,
+23_de_septiembre,mercado,141.7,Corrento,node/4838474402,2,2,5,
+23_de_septiembre,banco_atm,579.3,,node/3211780353,0,1,35,
+23_de_septiembre,plaza_parque,66.4,,way/359667116,11,35,162,
+villa_mola,caps_clinic,307.8,Vacunatorio COVID-19 Centro Multicultural La Costanera,node/8936706049,8,33,85,True
+villa_mola,hospital,1264.2,Hospital Doctor Fernando Barreyro,node/7473661615,0,0,4,True
+villa_mola,escuela,446.2,Escuela 4,node/4124595929,2,12,60,True
+villa_mola,jardin,399.9,Núcleo Educativo de Nivel Inicial 1 Extensión 4,node/10171075255,1,7,22,True
+villa_mola,universidad,603.2,Instituto Hernando Arias de Saavedra,node/8866174774,0,7,31,
+villa_mola,farmacia,130.8,Farmalife Costanera,node/5335799322,1,21,87,True
+villa_mola,parada_colectivo,316.2,Linea Internacional a Encarnacion Paraguay,node/5020419121,8,47,184,True
+villa_mola,policia,311.0,Comisaría Seccional Cuarta - UR I,node/2698581653,2,9,13,
+villa_mola,bomberos,717.9,División de Bomberos Zona Centro,node/2678777291,0,1,1,
+villa_mola,supermercado,365.2,Agogo,node/4317716490,1,10,30,
+villa_mola,mercado,342.2,Feria Franca Club Racing,node/4795791837,1,1,2,
+villa_mola,banco_atm,413.5,,node/4663856583,1,9,49,
+villa_mola,plaza_parque,145.9,,way/279036683,23,53,126,
+san_marcos,caps_clinic,350.6,CAPS 21 Barrio Independencia,node/3190899761,1,3,15,True
+san_marcos,hospital,1948.2,Instituto Tecnológico 1 Yacyretá,node/4419715298,0,0,1,True
+san_marcos,escuela,175.1,Escuela 122,node/6095442102,3,6,25,True
+san_marcos,jardin,142.8,Núcleo Educativo de Nivel Inicial 129 Extensión 122,node/10704012255,1,3,9,True
+san_marcos,universidad,2272.9,Instituto Superior de Ciencias Penitenciarias Andrés Guacurarí,node/4497815629,0,0,0,
+san_marcos,farmacia,307.8,Farmacenter,node/11690370469,1,3,15,True
+san_marcos,parada_colectivo,325.9,,node/4230171426,10,42,220,True
+san_marcos,policia,587.1,Comisaría Seccional Octava - UR X,node/4405123493,0,2,9,
+san_marcos,bomberos,1018.7,Bomberos Voluntarios de Campo las Dolores,node/7832471022,0,0,1,
+san_marcos,supermercado,317.9,Distribuidora TITO,node/6048782533,2,4,18,
+san_marcos,mercado,1356.9,Despensa Piri,node/6978483710,0,0,2,
+san_marcos,banco_atm,1809.4,,node/3174854232,0,0,6,
+san_marcos,plaza_parque,137.7,,way/776314701,5,25,136,
+las_dolores,caps_clinic,641.6,CAPS Latinoamérica,node/3190891838,0,3,8,True
+las_dolores,hospital,1794.8,Instituto Tecnológico 1 Yacyretá,node/4419715298,0,0,1,True
+las_dolores,escuela,401.7,Escuela 205,node/4405599967,2,6,20,True
+las_dolores,jardin,431.9,Núcleo Educativo de Nivel Inicial 57,node/4405599968,1,4,12,True
+las_dolores,universidad,2974.5,Instituto Superior Andrés Guacurarí,node/12812203369,0,0,0,
+las_dolores,farmacia,442.1,,node/11228881776,2,4,9,True
+las_dolores,parada_colectivo,409.9,,node/5592144076,6,42,122,False
+las_dolores,policia,1189.0,Dirección de Logística de la Policía,node/7834627633,0,0,7,
+las_dolores,bomberos,1803.7,División de Bomberos San Isidro,node/7810824695,0,0,1,
+las_dolores,supermercado,483.8,Changomás,way/286369417,1,2,10,
+las_dolores,mercado,1023.3,Feria Franca Barrio Los Álamos,node/4795791836,0,0,2,
+las_dolores,banco_atm,477.5,,node/4320446005,1,1,2,
+las_dolores,plaza_parque,64.5,,way/268795368,14,38,130,
+el_palomar,caps_clinic,422.0,Podoterapeuta Rosana Galarza,node/6551960524,3,28,98,True
+el_palomar,hospital,705.8,Hospital Doctor Fernando Barreyro,node/7473661615,0,4,4,True
+el_palomar,escuela,45.8,Colegio San Basilio Magno,node/1943403557,2,29,82,True
+el_palomar,jardin,322.9,Núcleo Educativo de Nivel Inicial 58 Extensión 464,node/11240954711,3,11,30,True
+el_palomar,universidad,241.0,Instituto Taller Espíritu Santo,node/8868081094,4,21,34,
+el_palomar,farmacia,33.1,El Palomar,node/1958600400,7,37,106,True
+el_palomar,parada_colectivo,334.6,,node/4058252118,28,88,281,True
+el_palomar,policia,359.6,Comando Radioelectrico - UR I,node/2666919432,1,4,13,
+el_palomar,bomberos,496.5,División de Bomberos Zona Centro,node/2678777291,1,1,2,
+el_palomar,supermercado,23.7,Despensa khlor,node/4434992909,6,19,49,
+el_palomar,mercado,926.0,Feria Franca Mercado de Villa Urquiza,node/4795791831,0,2,5,
+el_palomar,banco_atm,535.8,,node/1839855681,0,5,54,
+el_palomar,plaza_parque,381.8,Plazoleta Juan Bautista Alberdi,way/257090672,6,57,159,
+alta_gracia,caps_clinic,54.8,CAPS Alta Gracia,node/3189296946,1,10,20,True
+alta_gracia,hospital,2919.1,"Parque de la Salud ""Doctor Ramón Madariaga""",way/146355091,0,0,0,True
+alta_gracia,escuela,80.9,Escuela 548,node/3268338317,2,10,32,True
+alta_gracia,jardin,83.2,Núcleo Educativo de Nivel Inicial 25,node/4413064269,1,2,14,True
+alta_gracia,universidad,2213.4,Esteban Lugo,node/8867968124,0,0,0,
+alta_gracia,farmacia,388.3,Alta Gracia,node/2682723542,1,12,41,True
+alta_gracia,parada_colectivo,366.5,San Martín y Andresito,node/3180049470,18,128,345,True
+alta_gracia,policia,93.9,,node/3009443861,1,6,8,
+alta_gracia,bomberos,1410.1,Bomberos Voluntarios de Campo las Dolores,node/7832471022,0,0,2,
+alta_gracia,supermercado,362.3,Don Enrique Minimarket,node/3750500547,4,13,44,
+alta_gracia,mercado,1063.5,Despensa Piri,node/6978483710,0,0,6,
+alta_gracia,banco_atm,591.4,,node/5454988121,0,7,12,
+alta_gracia,plaza_parque,32.8,,node/4505676032,6,33,140,
+santa_rita,caps_clinic,164.9,CAPS Santa Rita,node/3189267975,2,2,11,True
+santa_rita,hospital,1941.1,,way/256128932,0,0,2,True
+santa_rita,escuela,149.9,Escuela para Adultos 73,node/4518849123,3,5,37,True
+santa_rita,jardin,800.1,Jardín Maternal Posadas,node/4960617201,0,3,16,True
+santa_rita,universidad,1581.0,Multiversidad Popular,node/8868098717,0,0,2,
+santa_rita,farmacia,278.6,Guacurarí II,node/4210763490,3,6,20,True
+santa_rita,parada_colectivo,164.0,Avenida Chacabuco y Avenida De Andrea,node/4210734522,15,63,251,True
+santa_rita,policia,1108.0,Comisaría Seccional Decimotercera - UR I,node/4095480275,0,0,4,
+santa_rita,bomberos,2400.3,División de Bomberos Zona Oeste,node/2003528009,0,0,0,
+santa_rita,supermercado,330.4,Autoservicio Dima,node/5996559888,2,9,26,
+santa_rita,mercado,163.1,Feria Franca Santa Rita,node/4228370761,1,1,3,
+santa_rita,banco_atm,1228.4,,node/9277549708,0,0,3,
+santa_rita,plaza_parque,165.6,,node/3832530792,11,42,195,
+san_martin,caps_clinic,485.2,CAPS 8 Rocamora,node/3189254681,1,10,29,True
+san_martin,hospital,2874.5,Hospital Doctor Fernando Barreyro,node/7473661615,0,0,0,True
+san_martin,escuela,348.3,Centro de Formación Profesional 17,node/8658756876,1,14,67,True
+san_martin,jardin,673.5,Núcleo Educativo de Nivel Inicial 25 Extensión 449,node/13296703529,0,5,20,True
+san_martin,universidad,978.9,Multiversidad Popular,node/8868098717,0,1,6,
+san_martin,farmacia,70.6,Neo Farma,node/13698158402,4,15,61,True
+san_martin,parada_colectivo,125.3,Blas Parera y San Martín,node/4295143979,18,72,295,True
+san_martin,policia,839.3,Comisaría Seccional Segunda - UR I,node/1132371063,0,2,5,
+san_martin,bomberos,1648.0,División de Bomberos Zona Sur,node/7803637572,0,0,1,
+san_martin,supermercado,58.1,San Martín,node/4194374389,2,10,41,
+san_martin,mercado,1114.7,Feria Franca Partido Justicialista,node/4795791830,0,0,5,
+san_martin,banco_atm,772.1,,node/13378492204,0,3,6,
+san_martin,plaza_parque,430.3,,way/347013113,6,38,158,
+villa_sarita,caps_clinic,117.8,Del Cerro Centro de Rehabilitación Integral,node/6660719487,5,28,89,True
+villa_sarita,hospital,2813.7,Hospital Doctor Fernando Barreyro,node/7473661615,0,0,0,True
+villa_sarita,escuela,384.2,Escuela para Adultos 8,node/3011979310,5,17,57,True
+villa_sarita,jardin,400.4,Núcleo Educativo de Nivel Inicial 2 - Extensión 43,node/10166041781,1,7,22,True
+villa_sarita,universidad,72.1,Wushu kunf fu taikachisu,node/4831770322,1,7,29,
+villa_sarita,farmacia,339.7,Grenon,node/2859493558,3,26,80,True
+villa_sarita,parada_colectivo,170.8,Roque González y Pedernera,node/3155660898,29,71,179,True
+villa_sarita,policia,273.8,Comisaría Seccional Primera - UR I,node/4405100011,1,2,11,
+villa_sarita,bomberos,1915.1,División de Bomberos Zona Centro,node/2678777291,0,0,1,
+villa_sarita,supermercado,359.5,California V,node/1945985591,3,6,19,
+villa_sarita,mercado,194.5,Feria Franca Club Guaraní Antonio Franco,node/4795791829,1,2,5,
+villa_sarita,banco_atm,283.1,,node/1945964151,2,32,50,
+villa_sarita,plaza_parque,136.2,Clemente Argentino Fernandez de Oliveira,way/254750496,12,50,115,
+el_brete,caps_clinic,163.5,CAPS 3 Chacra 181,node/3189105838,1,2,28,True
+el_brete,hospital,3537.3,,way/256131707,0,0,0,True
+el_brete,escuela,183.9,Escuela para Adultos 80,node/3823113882,2,4,29,True
+el_brete,jardin,240.9,úcleo Educativo de Nivel Inicial 3 Extensión 645,node/10125636260,1,2,12,True
+el_brete,universidad,1125.3,Instituto de Formación para la Gestión Pública,node/6567654373,0,0,6,
+el_brete,farmacia,700.6,Ayacucho,node/9076207217,0,3,41,True
+el_brete,parada_colectivo,40.9,Malvinas Argentinas y 20 (Chacra 181),node/4295228425,14,36,133,True
+el_brete,policia,220.7,Prefectura Naval Argentina Posadas,node/5850003961,2,2,4,
+el_brete,bomberos,3020.5,División de Bomberos Zona Centro,node/2678777291,0,0,0,
+el_brete,supermercado,668.4,Multiservicio,node/5893631085,0,2,14,
+el_brete,mercado,1082.6,Feria Franca Posadas,node/7999734850,0,0,3,
+el_brete,banco_atm,968.4,,node/3026170113,0,1,6,
+el_brete,plaza_parque,138.5,,way/489057546,13,21,103,
+luis_piedrabuena,caps_clinic,211.0,CAPS 11 Cecilia Griersson,node/7016925846,2,4,13,True
+luis_piedrabuena,hospital,2544.1,Hospital Doctor Pedro Baliña,node/1698683341,0,0,0,True
+luis_piedrabuena,escuela,319.0,Escuela 356,node/6095276921,1,5,21,True
+luis_piedrabuena,jardin,385.7,Núcleo Educativo de Nivel Inicial 57 Extensión 356,node/10246742071,1,2,9,True
+luis_piedrabuena,universidad,3479.1,Multiversidad Popular,node/8868098717,0,0,0,
+luis_piedrabuena,farmacia,493.4,Openfarma,node/9497124472,1,4,19,True
+luis_piedrabuena,parada_colectivo,351.7,Moreau De Justo y Corpus,node/4305376857,10,48,263,True
+luis_piedrabuena,policia,454.2,Policía de Tránsito,node/3729824146,1,2,8,
+luis_piedrabuena,bomberos,1232.5,Bomberos Voluntarios de Campo las Dolores,node/7832471022,0,0,1,
+luis_piedrabuena,supermercado,384.7,Maxiconsumo,relation/10842407,1,8,28,
+luis_piedrabuena,mercado,821.4,Despensa Isabella,node/9014748665,0,1,3,
+luis_piedrabuena,banco_atm,1134.7,,node/4305396915,0,0,6,
+luis_piedrabuena,plaza_parque,206.8,,node/11102867111,7,36,149,
+san_lucas,caps_clinic,393.4,CAPS Barrio San Marcos,node/3190895502,1,1,10,True
+san_lucas,hospital,1637.8,Instituto Tecnológico 1 Yacyretá,node/4419715298,0,0,1,True
+san_lucas,escuela,360.2,Escuela para Adultos 54,node/4503271605,2,5,23,True
+san_lucas,jardin,342.2,Núcleo Educativo de Nivel Inicial 57,node/4405599968,1,3,10,True
+san_lucas,universidad,2625.6,Instituto Superior de Ciencias Penitenciarias Andrés Guacurarí,node/4497815629,0,0,0,
+san_lucas,farmacia,617.4,Abril,node/4306330339,0,4,9,True
+san_lucas,parada_colectivo,386.6,,node/4219185924,4,29,126,True
+san_lucas,policia,1143.6,Destacamento Policial Barrio Los Lapachos,node/3089813954,0,0,6,
+san_lucas,bomberos,1577.0,Bomberos Voluntarios de Campo las Dolores,node/7832471022,0,0,1,
+san_lucas,supermercado,624.5,Super Diez,node/4306330338,0,2,11,
+san_lucas,mercado,1137.6,Feria Franca Barrio Los Álamos,node/4795791836,0,0,3,
+san_lucas,banco_atm,1196.0,,node/4320446005,0,0,2,
+san_lucas,plaza_parque,136.9,,node/3836544803,4,25,134,
+monsenor_kemerer,caps_clinic,639.6,CAPS 1 San Miguel,node/3110058725,0,4,10,True
+monsenor_kemerer,hospital,1139.0,,way/256131707,0,0,2,True
+monsenor_kemerer,escuela,548.8,Instituto Alfredo G. Pohl,node/11080916239,0,8,41,True
+monsenor_kemerer,jardin,959.8,Núcleo Educativo de Nivel Inicial 2353,node/5891271819,0,1,14,True
+monsenor_kemerer,universidad,543.1,Universidad Gastón Dachary - Campus Urbano,way/398588130,0,1,5,
+monsenor_kemerer,farmacia,122.3,Boscarino,node/7380413646,5,12,28,True
+monsenor_kemerer,parada_colectivo,275.1,Centenario y Pérez,node/9461527989,6,36,176,True
+monsenor_kemerer,policia,1140.7,Comisaría Seccional Séptima - UR I,node/4405127139,0,0,4,
+monsenor_kemerer,bomberos,1143.4,División de Bomberos Zona Oeste,node/2003528009,0,0,1,
+monsenor_kemerer,supermercado,458.4,Al Paso,node/5883192430,1,7,24,
+monsenor_kemerer,mercado,1241.4,Feria Franca Villa Cabello,node/4795791835,0,0,2,
+monsenor_kemerer,banco_atm,967.2,Macro,node/2003492182,0,2,6,
+monsenor_kemerer,plaza_parque,85.4,San José Fútbol Club,way/1436571389,13,60,188,
+rocamora,caps_clinic,227.4,Centro de Medicina Biológica,node/6897814786,4,10,68,True
+rocamora,hospital,2077.1,Hospital Doctor Fernando Barreyro,node/7473661615,0,0,0,True
+rocamora,escuela,144.7,Escuela 449,node/5515414527,9,24,80,True
+rocamora,jardin,153.7,Núcleo Educativo de Nivel Inicial 25 Extensión 449,node/13296703529,2,7,32,True
+rocamora,universidad,510.3,Juan Manuel de Rosas,node/8868151272,0,2,32,
+rocamora,farmacia,175.2,Respirar,node/4687579691,4,14,104,True
+rocamora,parada_colectivo,31.2,,node/4214577190,24,81,335,True
+rocamora,policia,764.6,Comisaría Seccional Segunda - UR I,node/1132371063,0,1,10,
+rocamora,bomberos,954.9,División de Bomberos Zona Sur,node/7803637572,0,1,2,
+rocamora,supermercado,382.1,Kenji,node/5121828821,3,14,47,
+rocamora,mercado,503.2,Feria Franca Partido Justicialista,node/4795791830,0,2,4,
+rocamora,banco_atm,474.9,,node/4897096439,1,1,43,
+rocamora,plaza_parque,270.0,Plaza Escondida,node/13748061377,7,28,153,
+yacyreta,caps_clinic,43.9,CAPS 5 Yacyretá,node/3189249861,2,2,17,True
+yacyreta,hospital,2488.9,,way/256131707,0,0,0,True
+yacyreta,escuela,102.6,Escuela para Adultos 69,node/4361675576,5,12,45,True
+yacyreta,jardin,82.0,Núcleo Educativo de Nivel Inicial 43,node/3513852257,3,6,13,True
+yacyreta,universidad,130.3,Multiversidad Popular,node/8868098717,1,1,2,
+yacyreta,farmacia,158.7,Farmacia Blaspa,node/3825498667,2,11,42,True
+yacyreta,parada_colectivo,163.8,Blas Parera y Aguado (San Cayetano),node/4214556953,20,79,252,True
+yacyreta,policia,15.9,Comisaría Seccional Sexta - UR I,node/3513852285,1,1,3,
+yacyreta,bomberos,2375.9,División de Bomberos Zona Sur,node/7803637572,0,0,0,
+yacyreta,supermercado,334.1,5 Estrellas,node/13657190720,3,12,32,
+yacyreta,mercado,1327.4,Mercado Concentrador,relation/3983242,0,0,4,
+yacyreta,banco_atm,21.9,,node/3257938018,1,3,6,
+yacyreta,plaza_parque,125.5,,way/344631587,19,59,171,
+villa_urquiza,caps_clinic,293.4,Consultorios Externos y Laboratorio,way/254696147,2,5,60,True
+villa_urquiza,hospital,460.1,"Parque de la Salud ""Doctor Ramón Madariaga""",way/146355091,1,4,4,True
+villa_urquiza,escuela,32.1,Escuela 76,node/6095233498,5,11,65,True
+villa_urquiza,jardin,300.9,Núcleo Educativo de Nivel Inicial 129 Sede Guardería 3 Melvin Jones,node/3011979313,2,3,23,True
+villa_urquiza,universidad,135.3,,way/315086770,5,6,26,
+villa_urquiza,farmacia,129.3,Acuario,node/5907261457,9,21,73,True
+villa_urquiza,parada_colectivo,53.2,,node/4472150516,24,63,233,True
+villa_urquiza,policia,616.6,Comisaría Seccional Tercera - UR I,node/1946122557,0,2,14,
+villa_urquiza,bomberos,1012.7,División de Bomberos Zona Sur,node/7803637572,0,0,2,
+villa_urquiza,supermercado,209.5,Despensa,node/4730785023,2,11,46,
+villa_urquiza,mercado,686.0,Feria Franca Mercado de Villa Urquiza,node/4795791831,0,2,5,
+villa_urquiza,banco_atm,352.6,,node/652193177,1,3,15,
+villa_urquiza,plaza_parque,118.8,Plaza Justo José de Urquiza,way/254742080,11,31,129,
+complejo_habitacional_virgen_de_fatima,caps_clinic,906.8,CAPS Miguel Lanús,node/3190908179,0,1,9,True
+complejo_habitacional_virgen_de_fatima,hospital,467.7,Hospital Vírgen de Fátima,node/4423695520,1,2,4,True
+complejo_habitacional_virgen_de_fatima,escuela,96.6,,relation/3512683,10,14,26,True
+complejo_habitacional_virgen_de_fatima,jardin,147.8,Núcleo Educativo de Nivel Inicial 79,node/4720089050,2,3,9,True
+complejo_habitacional_virgen_de_fatima,universidad,1262.9,Universidad Siglo 21 - Centro de Aprendizaje Universitario,node/5045579450,0,0,6,
+complejo_habitacional_virgen_de_fatima,farmacia,898.7,,node/3291005969,0,1,8,True
+complejo_habitacional_virgen_de_fatima,parada_colectivo,206.6,Juan Pablo II y Sepp,node/4564668007,21,50,185,True
+complejo_habitacional_virgen_de_fatima,policia,190.8,Comisaría Seccional Décimo Cuarta - UR X,node/4405248921,3,3,5,
+complejo_habitacional_virgen_de_fatima,bomberos,158.6,Cuartel de Bomberos Técnicos en Urgencias Médicas,node/4559281367,1,1,2,
+complejo_habitacional_virgen_de_fatima,supermercado,751.5,Yaguar,node/7204398991,0,1,8,
+complejo_habitacional_virgen_de_fatima,mercado,1085.3,Feria Franca Miguel Lanús,node/4795791834,0,0,1,
+complejo_habitacional_virgen_de_fatima,banco_atm,765.3,,node/1132344449,0,2,6,
+complejo_habitacional_virgen_de_fatima,plaza_parque,42.1,,way/503342873,13,31,123,
+a4_nueva_esperanza,caps_clinic,345.8,CAPS 23 San Lorenzo,node/8009383823,2,2,11,True
+a4_nueva_esperanza,hospital,427.2,Instituto Tecnológico 1 Yacyretá,node/4419715298,1,1,1,True
+a4_nueva_esperanza,escuela,470.2,Escuela Especial 45,node/6148542209,2,6,25,True
+a4_nueva_esperanza,jardin,407.7,"Jardín Maternal ""Rayito de Sol""",node/4419715301,1,3,7,True
+a4_nueva_esperanza,universidad,1710.5,Instituto Superior de Ciencias Penitenciarias Andrés Guacurarí,node/4497815629,0,0,1,
+a4_nueva_esperanza,farmacia,750.3,Sagrada Familia,node/3089870409,0,1,6,True
+a4_nueva_esperanza,parada_colectivo,158.4,,node/6942736330,16,34,79,True
+a4_nueva_esperanza,policia,366.4,Comisaría 11 URX,node/6162356585,2,2,4,
+a4_nueva_esperanza,bomberos,2654.8,División de Bomberos San Isidro,node/7810824695,0,0,0,
+a4_nueva_esperanza,supermercado,514.3,Cocomarola,node/6075918938,0,1,4,
+a4_nueva_esperanza,mercado,544.7,Feria Franca Barrio Néstor Kirchner,node/4795791833,0,1,1,
+a4_nueva_esperanza,banco_atm,398.5,,node/4052278404,1,1,1,
+a4_nueva_esperanza,plaza_parque,14.5,,way/261740782,22,45,93,
+el_laurel,caps_clinic,849.7,Posta de Salud Chacra 193,node/3189098428,0,2,6,True
+el_laurel,hospital,2227.3,,way/256131707,0,0,0,True
+el_laurel,escuela,259.4,Escuela 266,node/6095477482,2,4,16,True
+el_laurel,jardin,292.0,Núcleo Educativo de Nivel Inicial 43 Extensión 266,node/12165290112,1,2,5,True
+el_laurel,universidad,1032.0,Instituto Superior Antonio Ruiz de Montoya,node/2014412941,0,0,4,
+el_laurel,farmacia,579.2,Nueva Vida,node/3110058724,0,2,19,True
+el_laurel,parada_colectivo,197.7,,node/4119550372,9,28,90,True
+el_laurel,policia,677.3,Comisaría Seccional Decimosegunda - UR I,node/3732316146,0,1,3,
+el_laurel,bomberos,2283.2,División de Bomberos Zona Oeste,node/2003528009,0,0,0,
+el_laurel,supermercado,394.9,Sumpermercado,node/5302700379,1,5,11,
+el_laurel,mercado,2064.6,Feria Franca Posadas,node/7999734850,0,0,0,
+el_laurel,banco_atm,371.7,,node/4331370909,1,1,3,
+el_laurel,plaza_parque,323.9,,way/381205500,7,24,103,
+cima_del_sol,caps_clinic,715.0,CAPS 23 San Lorenzo,node/8009383823,0,2,7,True
+cima_del_sol,hospital,679.1,Instituto Tecnológico 1 Yacyretá,node/4419715298,0,1,1,True
+cima_del_sol,escuela,522.9,Centro Educativo Polimodal 57,node/4209308301,0,6,20,True
+cima_del_sol,jardin,703.3,NENI 2044,node/4052254092,0,2,11,True
+cima_del_sol,universidad,2467.5,Instituto Superior de Ciencias Penitenciarias Andrés Guacurarí,node/4497815629,0,0,0,
+cima_del_sol,farmacia,612.8,Abril,node/4306330339,0,2,6,True
+cima_del_sol,parada_colectivo,469.2,Cabo de Hornos y Medrano,node/4322326247,4,30,95,False
+cima_del_sol,policia,620.7,Comisaría 11 URX,node/6162356585,0,2,3,
+cima_del_sol,bomberos,1912.0,División de Bomberos San Isidro,node/7810824695,0,0,1,
+cima_del_sol,supermercado,618.5,Super Diez,node/4306330338,0,2,7,
+cima_del_sol,mercado,755.3,Feria Franca Barrio Néstor Kirchner,node/4795791833,0,1,1,
+cima_del_sol,banco_atm,612.9,,node/4052278404,0,1,2,
+cima_del_sol,plaza_parque,145.6,,way/261706445,6,39,107,
+san_isidro,caps_clinic,370.8,CAPS 33 San Isidro,node/7929290590,1,1,4,True
+san_isidro,hospital,2625.2,Instituto Tecnológico 1 Yacyretá,node/4419715298,0,0,0,True
+san_isidro,escuela,260.6,Bachillerato Orientado 85,node/8681306693,4,6,15,True
+san_isidro,jardin,255.1,Núcleo Educativo de Nivel Inicial 17 Extensión 893,node/8681268597,2,3,8,True
+san_isidro,universidad,2047.0,Instituto Superior Andrés Guacurarí,node/12812203369,0,0,0,
+san_isidro,farmacia,414.7,San Isidro,node/8912298013,1,2,5,True
+san_isidro,parada_colectivo,352.6,Calle 81b y Calle 194,node/5174675447,6,29,80,True
+san_isidro,policia,336.8,Comisaría Seccional Décimo Quinta - UR X,node/4405108071,1,2,4,
+san_isidro,bomberos,352.2,División de Bomberos San Isidro,node/7810824695,1,1,1,
+san_isidro,supermercado,325.0,vieja,node/12633766101,2,2,5,
+san_isidro,mercado,2591.3,Feria Franca Barrio Néstor Kirchner,node/4795791833,0,0,0,
+san_isidro,banco_atm,1566.6,,node/4320446005,0,0,1,
+san_isidro,plaza_parque,162.5,,way/285861310,12,19,84,
+lomas_de_garupa,caps_clinic,827.9,CAPS 20 Ñu Porá,node/3588944825,0,1,2,True
+lomas_de_garupa,hospital,2126.7,,way/785456671,0,0,0,True
+lomas_de_garupa,escuela,426.0,Instituto de Educación Técnica Superior en Seguridad Vial,node/4487438690,2,5,12,True
+lomas_de_garupa,jardin,773.5,Núcleo Educativo de Nivel Inicial 51,node/3011979089,0,3,5,True
+lomas_de_garupa,universidad,2315.7,Universidad Siglo 21 - Centro de Aprendizaje Universitario,node/5045579450,0,0,0,
+lomas_de_garupa,farmacia,905.1,Del Carmen,node/7250135609,0,1,7,True
+lomas_de_garupa,parada_colectivo,262.4,Félix de Azara y El Ceibo,node/4529191731,8,30,86,True
+lomas_de_garupa,policia,808.9,Deestacamento Móvil,node/5182573764,0,2,4,
+lomas_de_garupa,bomberos,1223.7,División de Bomberos de Garupá,node/5431496711,0,0,1,
+lomas_de_garupa,supermercado,593.9,Súper 8,node/4515845643,0,4,9,
+lomas_de_garupa,mercado,2546.5,Feria Franca,node/5618500645,0,0,0,
+lomas_de_garupa,banco_atm,1427.1,,node/3521035145,0,0,3,
+lomas_de_garupa,plaza_parque,229.6,,way/451937342,3,9,35,
+santa_helena,caps_clinic,1413.1,Vacunatorio COVID-19 CAPS 19 - Barrio Don Santiago,node/8936706045,0,0,3,True
+santa_helena,hospital,3336.8,,way/785456671,0,0,0,True
+santa_helena,escuela,328.2,Centro Educativo Polimodal 11,node/6138883249,2,2,7,True
+santa_helena,jardin,374.5,Núcleo Educativo de Nivel Inicial 118,node/4194428145,1,1,3,True
+santa_helena,universidad,2199.9,Universidad Siglo 21 - Centro de Aprendizaje Universitario,node/5045579450,0,0,0,
+santa_helena,farmacia,225.7,San José,node/4504293890,1,2,5,True
+santa_helena,parada_colectivo,439.6,,node/5717635553,2,7,39,False
+santa_helena,policia,436.6,Destacamento Barrio Santa Helena,node/12160321735,1,1,2,
+santa_helena,bomberos,2379.7,División de Bomberos de Garupá,node/5431496711,0,0,0,
+santa_helena,supermercado,468.7,Autoservicio Yeni,node/4349962665,1,3,8,
+santa_helena,mercado,2642.8,Despensa Avenida,node/8142370157,0,0,0,
+santa_helena,banco_atm,444.5,,node/7998167995,1,1,3,
+santa_helena,plaza_parque,299.8,,way/384910459,5,10,30,
+fatima,caps_clinic,718.0,Garupá Salud,node/7031821263,0,2,8,True
+fatima,hospital,240.8,,way/785456671,2,2,4,True
+fatima,escuela,386.3,Escuela 857,node/4195691774,2,14,23,True
+fatima,jardin,372.6,Núcleo Educativo de Nivel Inicial 46,node/4404850175,2,3,7,True
+fatima,universidad,1042.1,Universidad Siglo 21 - Centro de Aprendizaje Universitario,node/5045579450,0,0,6,
+fatima,farmacia,770.3,Ñu Porá,node/3291128070,0,2,8,True
+fatima,parada_colectivo,309.4,Kemerer y Melchora (Hospital de Fátima),node/4564667997,7,44,140,True
+fatima,policia,509.9,Comando Radioeléctrico - UR X,node/4936771611,0,3,4,
+fatima,bomberos,714.2,Cuartel de Bomberos Técnicos en Urgencias Médicas,node/4559281367,0,1,2,
+fatima,supermercado,708.3,Tio Eladio,way/322341338,0,2,10,
+fatima,mercado,1642.4,Feria Franca Miguel Lanús,node/4795791834,0,0,1,
+fatima,banco_atm,901.5,,node/3290998219,0,1,5,
+fatima,plaza_parque,99.3,,way/1117228418,6,24,97,
+don_santiago,caps_clinic,138.3,CAPS 19 Don Santiago,node/7016981053,2,2,4,True
+don_santiago,hospital,3293.6,,way/785456671,0,0,0,True
+don_santiago,escuela,805.3,Escuela 815,node/4188064742,0,6,19,False
+don_santiago,jardin,816.1,Núcleo Educativo de Nivel Inicial 54,node/4405572334,0,2,5,True
+don_santiago,universidad,2571.1,Universidad Siglo 21 - Centro de Aprendizaje Universitario,node/5045579450,0,0,0,
+don_santiago,farmacia,211.6,El Trebol,node/7250192040,2,5,10,True
+don_santiago,parada_colectivo,135.8,,node/3927968627,16,40,86,True
+don_santiago,policia,961.0,Destacamento Barrio Santa Helena,node/12160321735,0,1,5,
+don_santiago,bomberos,1069.8,División de Bomberos de Garupá,node/5431496711,0,0,1,
+don_santiago,supermercado,228.0,JB,node/5175495407,2,6,12,
+don_santiago,mercado,1371.9,Feria Franca,node/5618500645,0,0,2,
+don_santiago,banco_atm,627.2,,node/5264560821,0,2,3,
+don_santiago,plaza_parque,129.2,,way/1442687981,2,11,52,
+nu_pora,caps_clinic,387.9,CAPS 20 Ñu Porá,node/3588944825,1,1,5,True
+nu_pora,hospital,1175.2,,way/785456671,0,0,2,True
+nu_pora,escuela,360.5,Escuela Especial de Formación Integral de Jóvenes y Adultos 4,node/3588955834,2,4,24,True
+nu_pora,jardin,351.2,Núcleo Educativo de Nivel Inicial 13,node/4453691143,2,2,7,True
+nu_pora,universidad,1491.8,Universidad Siglo 21 - Centro de Aprendizaje Universitario,node/5045579450,0,0,1,
+nu_pora,farmacia,1003.7,Guacurarí III,node/7249761139,0,0,6,True
+nu_pora,parada_colectivo,325.1,El Ceibo y Tierra Roja,node/4529191741,10,26,99,True
+nu_pora,policia,984.1,Comisaría Seccional Quinta - UR X,node/2117166805,0,1,6,
+nu_pora,bomberos,1781.7,Cuartel de Bomberos Técnicos en Urgencias Médicas,node/4559281367,0,0,2,
+nu_pora,supermercado,233.5,La 12,node/5154312424,1,4,11,
+nu_pora,mercado,2722.1,Feria Franca Miguel Lanús,node/4795791834,0,0,0,
+nu_pora,banco_atm,1007.1,,node/3521035145,0,0,3,
+nu_pora,plaza_parque,219.8,Plazoleta Barrio Ñu Pora,way/353120407,5,14,51,
+miguel_lanus,caps_clinic,584.8,CAPS 13 Villa Lanus,node/3190905040,0,3,12,True
+miguel_lanus,hospital,615.6,,way/298111044,0,2,4,True
+miguel_lanus,escuela,154.2,Escuela 269,node/3011977621,2,14,31,True
+miguel_lanus,jardin,144.1,CAI Centro de Actividades Infantiles,node/4772193515,1,4,8,True
+miguel_lanus,universidad,542.6,Instituto Universitario de Seguridad Provincia de Misiones,node/6483750492,0,4,6,
+miguel_lanus,farmacia,100.1,San Francisco,node/6533667828,1,4,9,True
+miguel_lanus,parada_colectivo,108.1,Perón y Crucero General Belgrano,node/3423867224,22,110,193,True
+miguel_lanus,policia,638.5,Comisaría de la Mujer Fátima - UR X,node/4936714936,0,2,7,
+miguel_lanus,bomberos,721.9,Destacamento de Bomberos Costa Sur,node/9892184440,0,2,2,
+miguel_lanus,supermercado,414.8,Santa Rita,node/4514666629,1,2,5,
+miguel_lanus,mercado,475.9,Feria Franca Miguel Lanús,node/4795791834,1,1,1,
+miguel_lanus,banco_atm,870.6,,node/1568381219,0,2,4,
+miguel_lanus,plaza_parque,69.0,,way/261759574,15,59,143,
+norte,caps_clinic,1358.2,CAPS 10 Garupá,node/4120996508,0,0,2,True
+norte,hospital,5093.7,,way/785456671,0,0,0,False
+norte,escuela,873.3,Escuela para Adultos 85,node/4516779666,0,4,12,False
+norte,jardin,1238.0,Núcleo Educativo de Nivel Inicial 51,node/4405524350,0,0,2,False
+norte,universidad,4852.8,Universidad Siglo 21 - Centro de Aprendizaje Universitario,node/5045579450,0,0,0,
+norte,farmacia,1029.9,FarmaSalud,node/2689488036,0,0,8,True
+norte,parada_colectivo,554.1,,node/5708466119,0,4,58,False
+norte,policia,1414.4,Comisaría de Garupá - UR X,node/5060355896,0,0,2,
+norte,bomberos,2069.1,División de Bomberos de Garupá,node/5431496711,0,0,0,
+norte,supermercado,973.5,Las Américas,node/4317192365,0,2,3,
+norte,mercado,1310.9,Feria Franca,node/5618500645,0,0,2,
+norte,banco_atm,1311.7,Macro,node/4529330100,0,0,2,
+norte,plaza_parque,955.4,Cancha Barrio Norte,way/285583751,0,2,40,
+centro,caps_clinic,37.6,Amugenal,way/382899951,29,79,95,True
+centro,hospital,1651.6,Hospital Doctor Fernando Barreyro,node/7473661615,0,0,4,True
+centro,escuela,92.8,Rush English Institute,node/6503667585,17,49,78,True
+centro,jardin,171.2,Los Angelitos,node/3276154190,7,19,27,True
+centro,universidad,241.2,Instituto Superior Madhel,node/11116295987,14,25,35,
+centro,farmacia,84.8,Farmar,node/3225800913,33,71,102,True
+centro,parada_colectivo,175.9,,node/3150212132,37,125,247,True
+centro,policia,71.8,Comisaría de la Mujer - UR I,node/1100043261,4,7,15,
+centro,bomberos,756.5,División de Bomberos Zona Centro,node/2678777291,0,1,2,
+centro,supermercado,230.6,California I,way/304389243,6,17,38,
+centro,mercado,672.0,Feria Franca Club Racing,node/4795791837,0,2,7,
+centro,banco_atm,45.0,Banca Digital,node/6536881589,40,47,52,
+centro,plaza_parque,189.1,Plaza 9 de Julio,way/186661155,6,82,166,
+complejo_gervasio_artigas,caps_clinic,1827.0,CAPS 10 Garupá,node/4120996508,0,0,1,False
+complejo_gervasio_artigas,hospital,5567.5,,way/785456671,0,0,0,False
+complejo_gervasio_artigas,escuela,574.2,Escuela 930,node/4188075246,0,1,12,True
+complejo_gervasio_artigas,jardin,1854.8,Núcleo Educativo de Nivel Inicial 54,node/4405572334,0,0,2,False
+complejo_gervasio_artigas,universidad,4850.2,Universidad Siglo 21 - Centro de Aprendizaje Universitario,node/5045579450,0,0,0,
+complejo_gervasio_artigas,farmacia,1112.4,Farmacia Génesis,node/8142347488,0,0,7,True
+complejo_gervasio_artigas,parada_colectivo,1113.9,Américas y De Haro,node/3960833039,0,0,36,False
+complejo_gervasio_artigas,policia,1802.1,Comisaría de Garupá - UR X,node/5060355896,0,0,1,
+complejo_gervasio_artigas,bomberos,2693.0,División de Bomberos de Garupá,node/5431496711,0,0,0,
+complejo_gervasio_artigas,supermercado,1206.9,Las Américas,node/4317192365,0,0,3,
+complejo_gervasio_artigas,mercado,1023.6,Despensa Avenida,node/8142370157,0,0,2,
+complejo_gervasio_artigas,banco_atm,1827.0,,node/4529330099,0,0,2,
+complejo_gervasio_artigas,plaza_parque,596.1,Zona Liberada,node/4993402494,0,9,41,
+federal,caps_clinic,3118.2,CAPS 10 Garupá,node/4120996508,0,0,0,False
+federal,hospital,6866.2,,way/785456671,0,0,0,False
+federal,escuela,238.8,Instituto Crucero del Norte,node/8570206334,1,2,4,True
+federal,jardin,1070.2,Núcleo Educativo de Nivel Inicial 118 Extensión 627,node/10696763487,0,0,1,False
+federal,universidad,5934.7,Universidad Siglo 21 - Centro de Aprendizaje Universitario,node/5045579450,0,0,0,
+federal,farmacia,2811.9,Farmacia Génesis,node/8142347488,0,0,0,False
+federal,parada_colectivo,2774.8,Américas y Ameghino,node/4529191710,0,0,0,False
+federal,policia,3066.3,Comisaría de Garupá - UR X,node/5060355896,0,0,0,
+federal,bomberos,4286.6,División de Bomberos de Garupá,node/5431496711,0,0,0,
+federal,supermercado,2825.1,Las Américas,node/4317192365,0,0,0,
+federal,mercado,2715.6,Despensa Avenida,node/8142370157,0,0,0,
+federal,banco_atm,3138.9,,node/4529330099,0,0,0,
+federal,plaza_parque,167.5,,way/261620197,10,12,19,
+nemesio_parma,caps_clinic,556.3,CAPS 30 Nemesio Parma,node/4755511394,0,1,2,True
+nemesio_parma,hospital,6407.8,Hospital Doctor René Favaloro,node/13739830033,0,0,0,False
+nemesio_parma,escuela,1849.9,Bachillerato Orientado 102,node/4099948862,0,0,3,False
+nemesio_parma,jardin,4479.4,Núcleo Educativo de Nivel Inicial 130,node/9549284685,0,0,0,False
+nemesio_parma,universidad,7312.6,Universidad Católica de Las Misiones,node/4013332392,0,0,0,
+nemesio_parma,farmacia,5634.2,,node/13437558328,0,0,0,False
+nemesio_parma,parada_colectivo,406.1,,node/4755524948,2,5,7,False
+nemesio_parma,policia,1001.0,Prefectura Naval Argentina - Detacamento Nemesio Parma,node/4755512039,0,0,2,
+nemesio_parma,bomberos,5671.0,Bomberos de Itaembé Guazú,node/5775818935,0,0,0,
+nemesio_parma,supermercado,5650.8,Super Wu,node/11836062586,0,0,0,
+nemesio_parma,mercado,6330.1,Feria Franca Villa Cabello,node/4795791835,0,0,0,
+nemesio_parma,banco_atm,5989.3,,node/2696431145,0,0,0,
+nemesio_parma,plaza_parque,627.7,,way/859949650,0,1,4,
+villa_cabello,caps_clinic,284.3,Centro Médico Presidente Néstor Kirchner,node/3141220540,4,4,7,True
+villa_cabello,hospital,303.1,Hospital Doctor René Favaloro,node/13739830033,2,2,2,True
+villa_cabello,escuela,126.5,Escuela 42,node/3011978142,13,16,26,True
+villa_cabello,jardin,136.9,Núcleo Educativo de Nivel Inicial 4 Extensión 42,node/10171080809,3,4,8,True
+villa_cabello,universidad,832.7,Universidad Gastón Dachary - Campus Urbano,way/398588130,0,1,4,
+villa_cabello,farmacia,157.3,Romanna,node/4210814965,7,11,19,True
+villa_cabello,parada_colectivo,132.7,,node/4210814964,21,51,119,True
+villa_cabello,policia,259.1,Comisaría de la Mujer Zona Oeste - UR I,node/4405140610,2,2,4,
+villa_cabello,bomberos,234.9,División de Bomberos Zona Oeste,node/2003528009,1,1,1,
+villa_cabello,supermercado,269.7,California VI,way/256131709,3,7,14,
+villa_cabello,mercado,316.9,Feria Franca Villa Cabello,node/4795791835,1,1,1,
+villa_cabello,banco_atm,259.0,Macro,node/2003492182,2,2,4,
+villa_cabello,plaza_parque,25.6,,way/262819301,27,72,152,
+itaembe_pora,caps_clinic,381.2,CAPS Barrio Belén,node/3190883764,1,3,3,True
+itaembe_pora,hospital,2274.0,Hospital Doctor Pedro Baliña,node/1698683341,0,0,0,True
+itaembe_pora,escuela,199.8,Escuela 748,node/4178086086,3,9,17,True
+itaembe_pora,jardin,347.9,Núcleo Educativo de Nivel Inicial 26,node/3928032076,1,1,4,True
+itaembe_pora,universidad,828.5,Instituto Superior Andrés Guacurarí,node/12812203369,0,1,1,
+itaembe_pora,farmacia,615.9,Mercedes,node/3928032073,0,2,4,True
+itaembe_pora,parada_colectivo,218.6,147 y 176,node/3955529361,11,39,85,True
+itaembe_pora,policia,823.7,Comisaría de la Mujer Itaembe Miní - UR X,node/5049764925,0,2,5,
+itaembe_pora,bomberos,656.3,Bomberos Voluntarios Itaembé Miní,node/4910902731,0,1,1,
+itaembe_pora,supermercado,448.2,Itaembé Miní,node/1070938817,1,2,2,
+itaembe_pora,mercado,716.0,Feria Franca Itaembé Miní,node/4788018760,0,1,1,
+itaembe_pora,banco_atm,590.8,Macro,way/389636069,0,3,3,
+itaembe_pora,plaza_parque,147.3,Karai,way/358539235,10,40,100,
+itaembe_mini,caps_clinic,804.5,CAPS 22 Doctor Ramón Carrillo,node/4408836055,0,2,7,True
+itaembe_mini,hospital,800.1,Hospital Doctor Pedro Baliña,node/1698683341,0,3,3,True
+itaembe_mini,escuela,336.3,Escuela para Adultos 20,node/3011979299,2,5,19,True
+itaembe_mini,jardin,279.8,Núcleo Educativo de Nivel Inicial 16,node/4406072707,1,1,6,True
+itaembe_mini,universidad,2304.1,Instituto Superior Andrés Guacurarí,node/12812203369,0,0,0,
+itaembe_mini,farmacia,521.4,Del Barrio,node/3632471222,0,4,7,True
+itaembe_mini,parada_colectivo,119.1,147 y 146A,node/3955528753,18,36,118,True
+itaembe_mini,policia,677.3,Comisaría Seccional Novena - UR X,node/638354720,0,2,4,
+itaembe_mini,bomberos,1424.6,Bomberos Voluntarios Itaembé Miní,node/4910902731,0,0,1,
+itaembe_mini,supermercado,641.9,Los Hermanos,node/639270112,0,1,8,
+itaembe_mini,mercado,795.5,Feria Franca Itaembé Miní,node/4788018760,0,1,1,
+itaembe_mini,banco_atm,662.0,,node/1070948752,0,3,3,
+itaembe_mini,plaza_parque,57.9,,node/4511426837,18,34,156,
+aguas_corrientes,caps_clinic,138.1,Full Esthetic Center,node/5696720654,3,22,90,True
+aguas_corrientes,hospital,1923.4,Hospital Doctor Fernando Barreyro,node/7473661615,0,0,2,True
+aguas_corrientes,escuela,351.3,Colegio Del Carmen,node/8568279473,3,36,91,True
+aguas_corrientes,jardin,448.1,Jardín Materno Infantil Ceprin,node/5882930425,1,9,33,True
+aguas_corrientes,universidad,57.9,Juan Manuel de Rosas,node/8868151272,1,8,33,
+aguas_corrientes,farmacia,164.7,Atenas,node/3200691555,4,30,119,True
+aguas_corrientes,parada_colectivo,16.2,Bencivenga,node/1924468414,25,86,334,True
+aguas_corrientes,policia,625.6,Comisaría Seccional Segunda - UR I,node/1132371063,0,3,10,
+aguas_corrientes,bomberos,1129.8,División de Bomberos Zona Sur,node/7803637572,0,0,2,
+aguas_corrientes,supermercado,142.8,Hiper del Pollo,node/3200691554,5,15,54,
+aguas_corrientes,mercado,57.3,Feria Franca Partido Justicialista,node/4795791830,1,2,5,
+aguas_corrientes,banco_atm,325.5,,node/4897096439,1,2,53,
+aguas_corrientes,plaza_parque,101.1,,way/447793369,6,37,165,
+chacra_32,caps_clinic,232.0,CAPS 29 Cristo Rey,node/3189299671,4,10,21,True
+chacra_32,hospital,2297.9,Hospital Doctor Ramón Madariaga,node/13739888242,0,0,0,True
+chacra_32,escuela,55.6,Instituto Cristiano Emanuel,node/4542315692,4,8,36,True
+chacra_32,jardin,348.5,Núcleo Educativo de Nivel Inicial 21 Extensión 674,node/11238081294,1,3,12,True
+chacra_32,universidad,1603.8,Esteban Lugo,node/8867968124,0,0,3,
+chacra_32,farmacia,208.9,,node/7148678781,4,15,39,True
+chacra_32,parada_colectivo,103.3,Francisco de Haro al 5500,node/3152824418,18,124,298,True
+chacra_32,policia,218.3,Destacamento Policial Barrio Cristo Rey,node/1705344500,2,3,14,
+chacra_32,bomberos,1361.9,Bomberos Voluntarios de Campo las Dolores,node/7832471022,0,0,2,
+chacra_32,supermercado,299.6,California III,way/256027362,3,18,47,
+chacra_32,mercado,436.3,Feria Franca Chacra 32-33,node/4795791832,1,1,5,
+chacra_32,banco_atm,320.6,,node/1946136013,2,6,12,
+chacra_32,plaza_parque,133.4,Fútbol 5,way/418138649,14,37,128,
+bajada_vieja,caps_clinic,71.9,CENTRO Taity Centro de Desarrollo Infantil,node/10087665378,7,20,83,True
+bajada_vieja,hospital,2651.1,Hospital Doctor Fernando Barreyro,node/7473661615,0,0,0,True
+bajada_vieja,escuela,327.1,Instituto Cooperativo de Educación,node/4507682953,4,20,55,True
+bajada_vieja,jardin,498.7,Magic World,node/6544428285,1,5,22,True
+bajada_vieja,universidad,490.1,Wushu kunf fu taikachisu,node/4831770322,1,5,28,
+bajada_vieja,farmacia,69.4,Farmacity,node/624002713,3,23,79,True
+bajada_vieja,parada_colectivo,236.2,,node/3180120786,16,68,162,True
+bajada_vieja,policia,262.9,Comisaría Seccional Primera - UR I,node/4405100011,1,2,9,
+bajada_vieja,bomberos,1766.4,División de Bomberos Zona Centro,node/2678777291,0,0,1,
+bajada_vieja,supermercado,277.3,California V,node/1945985591,2,8,21,
+bajada_vieja,mercado,290.5,Feria del Paseo Bajada Vieja,node/6202349932,1,2,3,
+bajada_vieja,banco_atm,293.3,,node/2874053242,3,38,50,
+bajada_vieja,plaza_parque,288.3,Paseo del Mensú,way/454164426,11,36,122,
+villa_bonita,caps_clinic,870.8,CAPS 20 Ñu Porá,node/3588944825,0,2,7,True
+villa_bonita,hospital,1970.7,,way/785456671,0,0,1,True
+villa_bonita,escuela,425.4,Escuela 59,node/2460749160,3,6,15,True
+villa_bonita,jardin,481.3,Núcleo Educativo de Nivel Inicial 13 Extensión 59,node/10175456531,1,3,6,True
+villa_bonita,universidad,1296.6,Universidad Siglo 21 - Centro de Aprendizaje Universitario,node/5045579450,0,0,1,
+villa_bonita,farmacia,262.5,Guacurarí III,node/7249761139,1,3,11,True
+villa_bonita,parada_colectivo,235.5,,node/3927618859,3,22,101,True
+villa_bonita,policia,318.5,Grupo de Intervencón Rapida (GIR),node/5188441027,1,2,4,
+villa_bonita,bomberos,1524.3,División de Bomberos de Garupá,node/5431496711,0,0,1,
+villa_bonita,supermercado,269.0,La Económica,node/3521035132,3,7,14,
+villa_bonita,mercado,2569.9,Feria Franca,node/5618500645,0,0,0,
+villa_bonita,banco_atm,265.6,,node/3521035145,1,3,4,
+villa_bonita,plaza_parque,180.9,,node/5526632145,11,24,47,
+itaembe_guazu,caps_clinic,1408.6,CAPS Barrio Itaembé Guazú,node/7017114261,0,0,2,True
+itaembe_guazu,hospital,1022.2,,way/1044671661,0,0,2,True
+itaembe_guazu,escuela,72.2,Instituto Santo Cura Brocero,node/11836062585,4,5,11,True
+itaembe_guazu,jardin,380.6,Núcleo Educativo de Nivel Inicial 130 Aula Satélite I,node/10817093307,1,2,9,True
+itaembe_guazu,universidad,4156.0,Instituto Superior Andrés Guacurarí,node/12812203369,0,0,0,
+itaembe_guazu,farmacia,139.9,Médica 2,node/9424241248,3,5,6,True
+itaembe_guazu,parada_colectivo,602.1,Avenida Los Lirios y Avenida Los Tucanes,node/6005189146,0,3,17,False
+itaembe_guazu,policia,897.1,Comisaría deItaembé Guazú,node/7834675840,0,1,2,
+itaembe_guazu,bomberos,1255.8,Bomberos de Itaembé Guazú,node/5775818935,0,0,1,
+itaembe_guazu,supermercado,123.7,Agencia 212,node/9424241245,4,7,10,
+itaembe_guazu,mercado,1304.3,Feria Franca de Itaembé Guazú,node/4223931431,0,0,1,
+itaembe_guazu,banco_atm,994.5,,node/8733489991,0,1,1,
+itaembe_guazu,plaza_parque,65.9,,way/1181877734,17,34,83,
+posadas_completa,caps_clinic,424.1,CAPS Dos de Abril,node/4425059633,1,1,9,True
+posadas_completa,hospital,1489.9,Hospital Doctor Pedro Baliña,node/1698683341,0,0,3,True
+posadas_completa,escuela,776.0,Escuela 665,node/4153591184,0,2,22,True
+posadas_completa,jardin,789.6,Núcleo Educativo de Nivel Inicial 53,node/4405546853,0,2,8,True
+posadas_completa,universidad,3227.3,Multiversidad Popular,node/8868098717,0,0,0,
+posadas_completa,farmacia,543.0,Berardi,node/3293754998,0,3,14,True
+posadas_completa,parada_colectivo,193.3,Quaranta y Areco (Panambí),node/3181825883,15,62,179,True
+posadas_completa,policia,815.6,Comisaría Seccional Decimotercera - UR I,node/4095480275,0,1,3,
+posadas_completa,bomberos,2130.2,Bomberos Voluntarios Itaembé Miní,node/4910902731,0,0,0,
+posadas_completa,supermercado,442.2,Despensa Martnelly,node/4747717253,1,9,19,
+posadas_completa,mercado,1058.5,Despensa Isabella,node/9014748665,0,0,3,
+posadas_completa,banco_atm,1992.3,,node/4305396915,0,0,1,
+posadas_completa,plaza_parque,119.5,Cancha Polideportiva,way/256803227,18,48,176,

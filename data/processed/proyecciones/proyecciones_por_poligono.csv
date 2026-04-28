@@ -8,9 +8,9 @@ a4_nueva_esperanza,poblacion,2035,6177.179,4958.004,7396.353,lineal,0.7974,media
 a_3_2_sector_b,poblacion,2027,1572.845,1293.49,1852.2,lineal,0.8719,alta,8
 a_3_2_sector_b,poblacion,2030,1821.488,1474.6,2168.376,lineal,0.8719,alta,8
 a_3_2_sector_b,poblacion,2035,2235.893,1755.167,2716.618,lineal,0.8719,alta,8
-aguas_corrientes,poblacion,2027,26269.558,23346.883,29192.234,lineal,0.8689,alta,7
-aguas_corrientes,poblacion,2030,28482.397,24856.607,32108.188,lineal,0.8689,alta,7
-aguas_corrientes,poblacion,2035,32170.462,27154.387,37186.537,lineal,0.8689,alta,7
+aguas_corrientes,poblacion,2027,26377.631,23883.003,28872.259,lineal,0.8747,alta,8
+aguas_corrientes,poblacion,2030,28626.202,25528.506,31723.899,lineal,0.8747,alta,8
+aguas_corrientes,poblacion,2035,32373.821,28080.966,36666.677,lineal,0.8747,alta,8
 alta_gracia,poblacion,2027,2137.155,1874.519,2399.79,lineal,0.9425,alta,8
 alta_gracia,poblacion,2030,2499.762,2173.635,2825.889,lineal,0.9425,alta,8
 alta_gracia,poblacion,2035,3104.107,2652.153,3556.061,lineal,0.9425,alta,8
@@ -269,9 +269,9 @@ a4_nueva_esperanza,viviendas,2035,1715.929,1377.687,2054.17,lineal,0.7978,media,
 a_3_2_sector_b,viviendas,2027,436.881,359.219,514.543,lineal,0.8717,alta,8
 a_3_2_sector_b,viviendas,2030,505.952,409.516,602.388,lineal,0.8717,alta,8
 a_3_2_sector_b,viviendas,2035,621.071,487.428,754.715,lineal,0.8717,alta,8
-aguas_corrientes,viviendas,2027,7297.295,6485.436,8109.153,lineal,0.8689,alta,7
-aguas_corrientes,viviendas,2030,7912.068,6904.899,8919.238,lineal,0.8689,alta,7
-aguas_corrientes,viviendas,2035,8936.692,7543.33,10330.053,lineal,0.8689,alta,7
+aguas_corrientes,viviendas,2027,7327.179,6634.137,8020.22,lineal,0.8747,alta,8
+aguas_corrientes,viviendas,2030,7951.821,7091.239,8812.404,lineal,0.8747,alta,8
+aguas_corrientes,viviendas,2035,8992.893,7800.279,10185.507,lineal,0.8747,alta,8
 alta_gracia,viviendas,2027,593.512,520.495,666.529,lineal,0.9423,alta,8
 alta_gracia,viviendas,2030,694.155,603.486,784.823,lineal,0.9423,alta,8
 alta_gracia,viviendas,2035,861.893,736.242,987.543,lineal,0.9423,alta,8
