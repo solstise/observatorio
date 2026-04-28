@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-28T02:03:10",
+  "generated_at": "2026-04-28T11:12:28",
   "sensor": "CBERS-4 IRS SWIR (3 bandas) + TIR",
   "estado": "no_disponible_via_api_anonima",
   "razon": "Bucket s3://brazil-eosats no expone CBERS-4 IRS. STAC INPE tampoco. Sólo PAN5M/PAN10M/MUX/AWFI están en AWS abierto.",
