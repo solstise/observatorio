@@ -199,6 +199,12 @@ jobs:
       # vía Sentinel-5P) para complementar el script 47 (que sólo cubre NO2).
       # ----------------------------------------------------------------------
       - name: Aire multi-gas (script 48)
+        # timeout-minutes 30: el script descarga 6 gases × 7 años desde
+        # Sentinel-5P. Si GEE está lento, puede correr horas y bloquear el
+        # workflow entero (ya pasó: 119+ min en run #25022173251). Con
+        # 30min cap + continue-on-error, perdemos a lo sumo 30min y el
+        # cron sigue.
+        timeout-minutes: 30
         run: python scripts/48_aire_multigas.py
         continue-on-error: true
 
