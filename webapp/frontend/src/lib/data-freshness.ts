@@ -179,7 +179,9 @@ export const DATASET_INFO: Record<string, DatasetEntry> = {
   cbers_pan5: {
     label: "Imagen ultra-detalle (CBERS PAN5)",
     frequency: "trimestral",
-    source: "data/cbers_pan5/_metadata.json",
+    // sync_webapp.py copia el _metadata.json del PAN5 a media/cbers_pan5/
+    // (junto a los PNGs por barrio), no a la raíz /data/cbers_pan5/.
+    source: "data/media/cbers_pan5/_metadata.json",
     fuente: "INPE CBERS-4 PAN5 (banda pancromática 5 m B&N)",
     strategy: "json-generated-at",
   },
