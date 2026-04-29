@@ -495,52 +495,84 @@ def main(
             f"  [{i + 1}] {c.sensor} {c.fecha[:4]}-{c.fecha[4:6]}-{c.fecha[6:]} "
             f"path/row={c.path}/{c.row} cloud={cloud}"
         )
-    elegida = candidatos[0]
-    logger.info(f"Elegida: {elegida.scene_id} ({elegida.resolucion_m} m, sensor={elegida.sensor})")
 
     if dry_run:
         logger.info("Dry-run completo, no se descargó nada.")
         sys.exit(0)
 
-    # Descarga raw
-    pan_tif = out_raw / f"cbers4_{elegida.fecha}_pan{elegida.resolucion_m}.tif"
-    if not (cache_check(pan_tif) and not force):
-        ok = descargar_recortado(elegida, pan_tif)
-        if not ok:
-            logger.error("Falló descarga PAN, abortando.")
-            sys.exit(3)
-    else:
-        logger.info(f"  cache hit raw {pan_tif.name}")
-
-    # Recorte por polígono
+    # Recorte por polígono — iteramos por candidatos hasta cubrir TODOS los
+    # polígonos. La escena más reciente puede tener nubes sobre la mitad
+    # norte de Posadas (que es donde está el casco urbano), entonces los
+    # polígonos sin píxeles válidos los completamos con escenas más viejas
+    # del fallback. Cada polígono usa la escena MÁS RECIENTE disponible
+    # para él (el _latest.png queda con la primera que cubrió).
     gdf = load_geojson(poligonos_path)
     gdf_pub = gdf[~gdf["id"].astype(str).isin(POLIGONOS_EXCLUIR)].reset_index(drop=True)
 
+    pendientes: set = {str(r["id"]) for _, r in gdf_pub.iterrows()}
+    total_pol = len(pendientes)
     cubiertos: List[Dict[str, Any]] = []
-    sin_cobertura: List[str] = []
     errores: List[str] = []
+    escenas_usadas: List[Dict[str, Any]] = []
+    elegida = candidatos[0]  # La principal (la más reciente) para metadata
 
+    MAX_INTENTOS = min(5, len(candidatos))
     t0 = time.time()
-    for _, row in gdf_pub.iterrows():
-        pid = str(row["id"])
-        try:
-            ok, info = recortar_y_pngear_por_poligono(
-                pan_tif=pan_tif,
-                geom_geojson=row.geometry.__geo_interface__,
-                poligono_id=pid,
-                yyyymm=elegida.yyyymm,
-                out_dir=out_proc,
-                force=force,
-            )
-        except Exception as exc:  # noqa: BLE001
-            logger.error(f"  {pid}: excepción {exc}")
-            errores.append(pid)
-            continue
-        if ok:
-            cubiertos.append(info)
-        else:
-            sin_cobertura.append(pid)
+    for idx, c in enumerate(candidatos[:MAX_INTENTOS]):
+        if not pendientes:
+            logger.info("Todos los polígonos cubiertos — fin de iteración.")
+            break
 
+        logger.info(
+            f"[escena {idx + 1}/{MAX_INTENTOS}] {c.scene_id} — "
+            f"{len(pendientes)} polígonos pendientes"
+        )
+
+        pan_tif = out_raw / f"cbers4_{c.fecha}_pan{c.resolucion_m}.tif"
+        if not (cache_check(pan_tif) and not force):
+            ok = descargar_recortado(c, pan_tif)
+            if not ok:
+                logger.warning("  download falló — siguiente candidato.")
+                continue
+        else:
+            logger.info(f"  cache hit raw {pan_tif.name}")
+
+        nuevos_cubiertos = 0
+        for pid in list(pendientes):
+            row = gdf_pub[gdf_pub["id"].astype(str) == pid].iloc[0]
+            try:
+                ok, info = recortar_y_pngear_por_poligono(
+                    pan_tif=pan_tif,
+                    geom_geojson=row.geometry.__geo_interface__,
+                    poligono_id=pid,
+                    yyyymm=c.yyyymm,
+                    out_dir=out_proc,
+                    force=force,
+                )
+            except Exception as exc:  # noqa: BLE001
+                logger.error(f"  {pid}: excepción {exc}")
+                errores.append(pid)
+                pendientes.discard(pid)
+                continue
+            if ok:
+                cubiertos.append(info)
+                pendientes.discard(pid)
+                nuevos_cubiertos += 1
+
+        escenas_usadas.append(
+            {
+                "scene_id": c.scene_id,
+                "fecha": c.fecha,
+                "cloud_cover_pct": c.cloud_cover,
+                "polygons_cubiertos_aqui": nuevos_cubiertos,
+            }
+        )
+        logger.info(
+            f"  +{nuevos_cubiertos} polígonos cubiertos por esta escena, "
+            f"quedan {len(pendientes)} sin cobertura"
+        )
+
+    sin_cobertura: List[str] = sorted(pendientes)
     elapsed = time.time() - t0
 
     # Metadata
@@ -555,6 +587,8 @@ def main(
         "cloud_cover_pct": elegida.cloud_cover,
         "n_poligonos_cubiertos": len(cubiertos),
         "n_poligonos_sin_cobertura": len(sin_cobertura),
+        "n_poligonos_total": total_pol,
+        "escenas_usadas": escenas_usadas,
         "fuente": "INPE / AWS Open Data Registry (s3://brazil-eosats)",
         "version_script": SCRIPT_VERSION,
         "fallback_chain": "PAN5M -> PAN10M -> WPM4A (script 45)",
