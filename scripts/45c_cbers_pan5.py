@@ -104,11 +104,19 @@ STAC_BASE = "https://www.dgi.inpe.br/lgi-stac"
 # Bbox Posadas extendido (mismo que el resto del observatorio)
 POSADAS_BBOX_4326 = (-56.05, -27.51, -55.80, -27.30)
 
-# CBERS-4: path/row para Posadas (verificado contra bounds reales)
-# PAN5M 163/130 cubre desde -56.10 lon hasta -55.20 (Posadas: -55.90), perfecto
+# CBERS-4 PAN5M path/row para Posadas — verificado vía STAC INPE 2026-04-28.
+# Posadas bbox: (-56.05, -27.51, -55.80, -27.30).
+#
+#   163/131 bbox: (-56.05, -28.25, -55.15, -27.08) → ✓ Posadas FULL coverage
+#   163/130 bbox: (-55.82, -27.36, -54.93, -26.19) → ✗ apenas clip NE
+#   164/131 bbox: (-56.91, -28.24, -56.02, -27.09) → cubre solo borde W
+#
+# Versión anterior usaba 163/130 primero, lo que descargaba la escena
+# pero el raster NO se solapaba con ningún polígono ("Input shapes do
+# not overlap raster" para los 44 barrios) → 0 PNGs generados.
 PATH_ROW_CANDIDATES: List[Tuple[str, str]] = [
-    ("163", "130"),  # primario
-    ("163", "131"),  # fallback sur
+    ("163", "131"),  # primario — cubre Posadas entera
+    ("164", "131"),  # fallback oeste si la primaria está nublada
 ]
 
 # Sensores fallback chain (5m → 10m)
