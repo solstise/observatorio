@@ -209,7 +209,11 @@ function useSugerenciaPan5(): boolean {
 export function HiResComparacion({
   poligonoId,
   nombre,
-  initialMode = "s2",
+  // Default cambiado de "s2" a "cbers": las comparaciones HD S2 las genera
+  // scripts/70_generar_comparaciones_hd.py que aún no está en cron, así que
+  // el modo S2 muestra 404 por barrio. CBERS-4A WPM pansharpen sí está
+  // disponible (43 polígonos generados por el monthly cron).
+  initialMode = "cbers",
   className = "",
 }: HiResComparacionProps) {
   const [modo, setModo] = useState<Modo>(initialMode);

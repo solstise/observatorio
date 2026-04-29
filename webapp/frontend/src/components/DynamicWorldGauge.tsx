@@ -55,7 +55,24 @@ export function DynamicWorldGauge({
     );
   }
 
-  const ordenadas = [...rows].sort((a, b) => cmpFechaDesc(a.fecha, b.fecha));
+  // Ignoramos filas vacías (años en curso sin datos de S2 todavía:
+  // dw_built_pct_ge_50 NaN/null y n_imagenes=0). Sin esto, /poligono
+  // mostraba 0% construido en barrios consolidados durante el año actual.
+  const validas = rows.filter(
+    (r) =>
+      Number.isFinite(r.dw_built_pct_ge_50) &&
+      (r as { n_imagenes?: number }).n_imagenes !== 0,
+  );
+  if (!validas.length) {
+    return (
+      <div className="flex h-full min-h-[160px] items-center justify-center">
+        <p className="text-sm italic text-neutral-muted dark:text-dk-muted">
+          Sin datos de cobertura del suelo para este polígono.
+        </p>
+      </div>
+    );
+  }
+  const ordenadas = [...validas].sort((a, b) => cmpFechaDesc(a.fecha, b.fecha));
   const ultima = ordenadas[0];
   const pct = normalizarPct(ultima.dw_built_pct_ge_50);
   const data = [
