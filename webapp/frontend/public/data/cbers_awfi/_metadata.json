@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-04-28T23:22:57",
+  "generated_at": "2026-04-29T00:14:46",
   "sensor": "CBERS-4 AWFI 64 m + Sentinel-2 SR",
   "rango": [
     "2026-04-01",
-    "2026-04-28"
+    "2026-04-29"
   ],
   "n_meses": 100,
   "total_obs_s2": 1102,

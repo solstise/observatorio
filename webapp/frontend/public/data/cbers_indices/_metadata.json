@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-28T23:36:14",
+  "generated_at": "2026-04-29T00:18:32",
   "sensor_cbers": "CBERS-4 MUX (BAND7=red, BAND8=NIR)",
   "sensor_s2": "Sentinel-2 SR (B4=red, B8=NIR, B11=SWIR, B8A=NIR_narrow)",
   "n_anios": 12,

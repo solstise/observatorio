@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-28T23:22:54",
+  "generated_at": "2026-04-29T00:14:42",
   "sensor": "CBERS-4 IRS",
   "estado": "no_disponible_via_api_anonima",
   "razon": "El bucket s3://brazil-eosats no expone CBERS-4 IRS (sólo PAN5M/PAN10M/MUX/AWFI). La STAC INPE tampoco lo incluye. Acceso requiere registro y descarga manual desde el catálogo INPE (http://www.dgi.inpe.br/CDSR/).",
