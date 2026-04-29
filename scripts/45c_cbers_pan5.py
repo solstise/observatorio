@@ -111,12 +111,12 @@ POSADAS_BBOX_4326 = (-56.05, -27.51, -55.80, -27.30)
 #   163/130 bbox: (-55.82, -27.36, -54.93, -26.19) → ✗ apenas clip NE
 #   164/131 bbox: (-56.91, -28.24, -56.02, -27.09) → cubre solo borde W
 #
-# Versión anterior usaba 163/130 primero, lo que descargaba la escena
-# pero el raster NO se solapaba con ningún polígono ("Input shapes do
-# not overlap raster" para los 44 barrios) → 0 PNGs generados.
+# SOLO 163/131 cubre Posadas entera. Las fallback alternativas no
+# ayudan a llenar gaps porque están desplazadas. La estrategia correcta
+# es probar varias FECHAS del MISMO 163/131 hasta encontrar una con
+# pocas nubes en la mitad norte (donde está el casco urbano).
 PATH_ROW_CANDIDATES: List[Tuple[str, str]] = [
-    ("163", "131"),  # primario — cubre Posadas entera
-    ("164", "131"),  # fallback oeste si la primaria está nublada
+    ("163", "131"),  # único path/row que cubre Posadas urbana
 ]
 
 # Sensores fallback chain (5m → 10m)
@@ -126,7 +126,9 @@ SENSORES_PRIORIZADOS = [
 ]
 
 DEFAULT_CLOUD_THRESHOLD = 30
-DEFAULT_DIAS = 90
+# 365 días: CBERS-4 tiene ~26-day revisit en path/row 163/131. En 365 días
+# tenemos ~14 escenas para iterar. Necesitamos probar varias por nubes.
+DEFAULT_DIAS = 365
 
 POLIGONOS_EXCLUIR = {"posadas_completa"}
 PNG_WIDTH = 1200
@@ -528,7 +530,9 @@ def main(
     escenas_usadas: List[Dict[str, Any]] = []
     elegida = candidatos[0]  # La principal (la más reciente) para metadata
 
-    MAX_INTENTOS = min(5, len(candidatos))
+    # Probamos hasta 10 escenas — con dias=365 hay ~14 candidatos. Stop
+    # early si todos los polígonos quedaron cubiertos.
+    MAX_INTENTOS = min(10, len(candidatos))
     t0 = time.time()
     for idx, c in enumerate(candidatos[:MAX_INTENTOS]):
         if not pendientes:
