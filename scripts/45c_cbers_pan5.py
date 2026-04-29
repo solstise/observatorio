@@ -466,15 +466,27 @@ def main(
     logger.info(f"CBERS-4 PAN5M (B&N 5 m) — v{SCRIPT_VERSION}")
     logger.info("=" * 60)
 
-    # Idempotencia mensual: ¿ya hay PNGs del mes corriente?
-    yyyymm_actual = datetime.now().strftime("%Y%m")
-    existentes = list(out_proc.glob(f"*_pan5_{yyyymm_actual}.png"))
-    if existentes and not force and not dry_run:
-        logger.info(
-            f"Ya existen {len(existentes)} PNGs PAN5 para {yyyymm_actual} → skip "
-            "(usá --force para regenerar)"
-        )
-        sys.exit(0)
+    # Idempotencia: solo skipeamos si la cobertura del mes anterior es
+    # COMPLETA (todos los polígonos OK). Si fue parcial — caso típico
+    # cuando una escena tiene nubes sobre parte de Posadas — continuamos
+    # iterando candidatos para llenar gaps con escenas alternativas.
+    metadata_file = out_proc / "_metadata.json"
+    if metadata_file.exists() and not force and not dry_run:
+        try:
+            meta = json.loads(metadata_file.read_text(encoding="utf-8"))
+            sin_cobertura_prev = int(meta.get("n_poligonos_sin_cobertura", 999))
+            if sin_cobertura_prev == 0:
+                logger.info(
+                    f"Cobertura PAN5 completa según _metadata.json "
+                    f"({meta.get('n_poligonos_cubiertos')} polígonos) → skip"
+                )
+                sys.exit(0)
+            logger.info(
+                f"Cobertura PAN5 previa parcial: {sin_cobertura_prev} polígonos "
+                "sin cobertura → reintentando con candidatos alternativos."
+            )
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.warning(f"_metadata.json inválido ({e}) — reprocesando todo.")
 
     candidatos = descubrir_candidatos(
         dias_atras=dias,
