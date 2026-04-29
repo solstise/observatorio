@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-29T00:14:40",
+  "generated_at": "2026-04-29T00:58:10",
   "sensor": "CBERS-4 PAN5M",
   "resolucion_m": 5,
   "fecha_imagen": "2026-04-13",
@@ -7,8 +7,8 @@
   "row": "131",
   "scene_id": "CBERS_4_PAN5M_20260413_163_131_L2",
   "cloud_cover_pct": null,
-  "n_poligonos_cubiertos": 8,
-  "n_poligonos_sin_cobertura": 35,
+  "n_poligonos_cubiertos": 43,
+  "n_poligonos_sin_cobertura": 0,
   "n_poligonos_total": 43,
   "escenas_usadas": [
     {
@@ -18,28 +18,16 @@
       "polygons_cubiertos_aqui": 8
     },
     {
-      "scene_id": "CBERS_4_PAN5M_20260410_164_131_L2",
-      "fecha": "20260410",
-      "cloud_cover_pct": null,
-      "polygons_cubiertos_aqui": 0
-    },
-    {
-      "scene_id": "CBERS_4_PAN5M_20260318_164_131_L2",
-      "fecha": "20260318",
-      "cloud_cover_pct": null,
-      "polygons_cubiertos_aqui": 0
-    },
-    {
       "scene_id": "CBERS_4_PAN5M_20260220_163_131_L2",
       "fecha": "20260220",
       "cloud_cover_pct": null,
       "polygons_cubiertos_aqui": 0
     },
     {
-      "scene_id": "CBERS_4_PAN5M_20260217_164_131_L2",
-      "fecha": "20260217",
+      "scene_id": "CBERS_4_PAN5M_20260125_163_131_L2",
+      "fecha": "20260125",
       "cloud_cover_pct": null,
-      "polygons_cubiertos_aqui": 0
+      "polygons_cubiertos_aqui": 35
     }
   ],
   "fuente": "INPE / AWS Open Data Registry (s3://brazil-eosats)",
