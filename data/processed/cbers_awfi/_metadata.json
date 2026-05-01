@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-04-29T00:58:15",
+  "generated_at": "2026-05-01T06:03:47",
   "sensor": "CBERS-4 AWFI 64 m + Sentinel-2 SR",
   "rango": [
     "2026-04-01",
-    "2026-04-29"
+    "2026-05-01"
   ],
-  "n_meses": 100,
-  "total_obs_s2": 1102,
+  "n_meses": 101,
+  "total_obs_s2": 1103,
   "total_obs_awfi": 319,
-  "total_obs_total": 1309,
-  "cobertura_pct_s2_solo": 99.0,
-  "cobertura_pct_con_awfi": 100.0,
+  "total_obs_total": 1310,
+  "cobertura_pct_s2_solo": 98.0,
+  "cobertura_pct_con_awfi": 99.0,
   "mejora_absoluta_pct": 1.0,
   "fuente_s2": "Earth Engine COPERNICUS/S2_SR_HARMONIZED",
   "fuente_awfi": "AWS s3://brazil-eosats/CBERS4/AWFI/",
