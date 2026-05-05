@@ -1,12 +1,18 @@
 "use client";
 
 // Cliente interactivo de /clima:
-// - Banner sticky con la alerta más severa.
+// - Selector de día (hoy → +7).
 // - Mapa coroplético con barrios coloreados por la Tmin pronosticada
 //   del día seleccionado (paleta diverging frío azul / templado naranja).
-// - Selector de día (hoy → +13).
+// - Tarjeta AQI fija para Posadas global con explicaciones inline de
+//   PM2.5 / PM10 / NO₂ / O₃ vía <TerminoGlosario> (tooltip on hover/tap)
+//   y un <details> "¿qué significa cada contaminante?" con la versión en
+//   prosa para usuarios mobile / sin hover.
+// - Banner de alertas climáticas debajo del mapa (no sticky en el top
+//   para no robar espacio a la pantalla principal — el mapa primero,
+//   luego el detalle de la alerta más severa con CTA "Ver detalle").
+// - Top 3 barrios más fríos (próx 7 días).
 // - Selector de barrio (lista) → muestra PronosticoBarrio para ese.
-// - Tarjeta AQI fija para Posadas global (5 días).
 //
 // El mapa coroplético se importa con ssr:false (Leaflet depende de window).
 
@@ -14,6 +20,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 
 import { AlertasBanner } from "@/components/AlertasBanner";
+import { TerminoGlosario } from "@/components/TerminoGlosario";
 import type {
   AlertasPayload,
   AqiDiarioRow,
@@ -145,8 +152,6 @@ export function ClientClima({
 
   return (
     <div className="space-y-6">
-      <AlertasBanner payload={alertas} hideWhenEmpty={false} />
-
       <section
         aria-labelledby="selector-dia"
         className="rounded-md border border-neutral-border bg-white p-3 dark:border-dk-border dark:bg-dk-surface"
@@ -225,24 +230,74 @@ export function ClientClima({
                   {clasificacionAqi(aqiDia.european_aqi).label}
                 </span>
               </div>
-              <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-neutral-text dark:text-dk-text">
+              <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs text-neutral-text dark:text-dk-text">
                 <div>
-                  <dt className="text-neutral-muted dark:text-dk-muted">PM2.5</dt>
-                  <dd>{aqiDia.pm2_5.toFixed(1)} µg/m³</dd>
+                  <dt className="text-neutral-muted dark:text-dk-muted">
+                    <TerminoGlosario id="pm2_5">PM2.5</TerminoGlosario>
+                  </dt>
+                  <dd className="tabular-nums">
+                    {aqiDia.pm2_5.toFixed(1)} µg/m³
+                  </dd>
                 </div>
                 <div>
-                  <dt className="text-neutral-muted dark:text-dk-muted">PM10</dt>
-                  <dd>{aqiDia.pm10.toFixed(1)} µg/m³</dd>
+                  <dt className="text-neutral-muted dark:text-dk-muted">
+                    <TerminoGlosario id="pm10">PM10</TerminoGlosario>
+                  </dt>
+                  <dd className="tabular-nums">
+                    {aqiDia.pm10.toFixed(1)} µg/m³
+                  </dd>
                 </div>
                 <div>
-                  <dt className="text-neutral-muted dark:text-dk-muted">NO₂</dt>
-                  <dd>{aqiDia.no2.toFixed(1)} µg/m³</dd>
+                  <dt className="text-neutral-muted dark:text-dk-muted">
+                    <TerminoGlosario id="no2">NO₂</TerminoGlosario>
+                  </dt>
+                  <dd className="tabular-nums">
+                    {aqiDia.no2.toFixed(1)} µg/m³
+                  </dd>
                 </div>
                 <div>
-                  <dt className="text-neutral-muted dark:text-dk-muted">O₃</dt>
-                  <dd>{aqiDia.ozone.toFixed(1)} µg/m³</dd>
+                  <dt className="text-neutral-muted dark:text-dk-muted">
+                    <TerminoGlosario id="ozone">O₃</TerminoGlosario>
+                  </dt>
+                  <dd className="tabular-nums">
+                    {aqiDia.ozone.toFixed(1)} µg/m³
+                  </dd>
                 </div>
               </dl>
+              <details className="mt-2 text-[11px] text-neutral-muted dark:text-dk-muted">
+                <summary className="cursor-pointer text-primary underline-offset-2 hover:underline dark:text-dk-primary">
+                  ¿Qué significa cada contaminante?
+                </summary>
+                <ul className="mt-1.5 space-y-1.5 leading-relaxed text-neutral-text dark:text-dk-text">
+                  <li>
+                    <strong>PM2.5</strong> — partículas finas (humo, polvo
+                    quemado). Llegan al pulmón profundo. Suben con quemas y
+                    tráfico diésel.
+                  </li>
+                  <li>
+                    <strong>PM10</strong> — polvo más grueso (calles de tierra,
+                    obras, polen). Irrita garganta y bronquios.
+                  </li>
+                  <li>
+                    <strong>NO₂</strong> — gas que sale del caño de escape.
+                    Marcador del tráfico vehicular.
+                  </li>
+                  <li>
+                    <strong>O₃</strong> — ozono a nivel del piso. Se forma con
+                    sol fuerte; pico en tardes calurosas.
+                  </li>
+                </ul>
+                <p className="mt-1.5 italic">
+                  Pasá el cursor sobre cada sigla para ver más, o entrá a{" "}
+                  <a
+                    href="/metodologia#glosario-pm2_5"
+                    className="text-primary underline-offset-2 hover:underline dark:text-dk-primary"
+                  >
+                    metodología → glosario
+                  </a>
+                  .
+                </p>
+              </details>
               <p className="mt-2 text-[10px] italic text-neutral-muted dark:text-dk-muted">
                 Resolución del modelo ≈ 10 km — aplica a Posadas global, no se
                 desagrega por barrio.
@@ -314,6 +369,10 @@ export function ClientClima({
           </section>
         </div>
       </div>
+
+      {/* Alertas climáticas activas — debajo del mapa, ancho completo. Si
+          no hay alertas, muestra el estado "todo en orden" en verde. */}
+      <AlertasBanner payload={alertas} hideWhenEmpty={false} />
 
       {/* Pronóstico del barrio seleccionado */}
       {selectedId ? (
