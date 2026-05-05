@@ -77,6 +77,7 @@ def acortar_nombre(s: str) -> str:
             return pref_corto + s[len(pref_largo) :]
     return s
 
+
 # Centro geográfico de Posadas (≈ Plaza 9 de Julio) — para clasificar
 # orientación cardinal y evitar que el naming geográfico colapse cuando
 # el reverse-geocoding falla.
@@ -217,9 +218,7 @@ def main() -> None:
 
     # ── Paso 2: sub-clustering K-means dentro de cada mancha ───────────────
     # Coordenadas de centroides INDEC en el CRS métrico para el K-means.
-    coords_m = np.array(
-        [(p.x, p.y) for p in huerf_m["centroid_m"]]
-    )
+    coords_m = np.array([(p.x, p.y) for p in huerf_m["centroid_m"]])
     sub_clusters: list[list[int]] = []
     for idx_mancha, mancha_idx in enumerate(manchas_list):
         n_radios = len(mancha_idx)
@@ -227,9 +226,7 @@ def main() -> None:
             sub_clusters.append(mancha_idx)
             continue
         k = max(2, round(n_radios / TARGET_RADIOS_POR_SUBCLUSTER))
-        print(
-            f"  mancha #{idx_mancha + 1}: {n_radios} radios → K-means k={k}"
-        )
+        print(f"  mancha #{idx_mancha + 1}: {n_radios} radios → K-means k={k}")
         X = coords_m[mancha_idx]
         km = KMeans(n_clusters=k, random_state=42, n_init=10)
         labels = km.fit_predict(X)
@@ -260,12 +257,8 @@ def main() -> None:
                 f"contra legacy ({len(sub_idx)} radios)."
             )
             continue
-        geom_4326 = (
-            gpd.GeoSeries([geom_m], crs=METRIC).to_crs(4326).iloc[0]
-        )
-        centroide_4326 = (
-            gpd.GeoSeries([geom_m.centroid], crs=METRIC).to_crs(4326).iloc[0]
-        )
+        geom_4326 = gpd.GeoSeries([geom_m], crs=METRIC).to_crs(4326).iloc[0]
+        centroide_4326 = gpd.GeoSeries([geom_m.centroid], crs=METRIC).to_crs(4326).iloc[0]
         lon, lat = centroide_4326.x, centroide_4326.y
         ori = orientacion(lon, lat)
         fallback_nombre = f"Zona {ori} {idx_sub + 1}"
@@ -334,17 +327,19 @@ def main() -> None:
                 "_orientacion": ori,
                 "_densidad_radios_km2": round(densidad, 2),
                 "_geocode_match": (
-                    geo.get("address", {}).get("suburb")
-                    or geo.get("address", {}).get("neighbourhood")
-                    or geo.get("address", {}).get("road")
-                    or None
-                )
-                if geo
-                else None,
+                    (
+                        geo.get("address", {}).get("suburb")
+                        or geo.get("address", {}).get("neighbourhood")
+                        or geo.get("address", {}).get("road")
+                        or None
+                    )
+                    if geo
+                    else None
+                ),
             },
-            "geometry": json.loads(
-                gpd.GeoSeries([geom_4326], crs=4326).to_json()
-            )["features"][0]["geometry"],
+            "geometry": json.loads(gpd.GeoSeries([geom_4326], crs=4326).to_json())["features"][0][
+                "geometry"
+            ],
         }
         nuevos_features.append(feat)
         flag = "  " if publicar else "✗ "
@@ -369,8 +364,7 @@ def main() -> None:
         if not inter.is_empty and inter.area > 100.0:
             overlaps += 1
             print(
-                f"  ⚠ overlap: {f['properties']['id']} con legacy "
-                f"({inter.area / 1e6:.4f} km²)"
+                f"  ⚠ overlap: {f['properties']['id']} con legacy " f"({inter.area / 1e6:.4f} km²)"
             )
     if overlaps == 0:
         print("  ✓ Cero solapamientos con los 44 polígonos actuales.")
@@ -382,9 +376,7 @@ def main() -> None:
         "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:1.3:CRS84"}},
         "features": nuevos_features,
     }
-    PATH_OUT.write_text(
-        json.dumps(fc, ensure_ascii=False, indent=1), encoding="utf-8"
-    )
+    PATH_OUT.write_text(json.dumps(fc, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"\nGuardado preview: {PATH_OUT}")
     print(f"  → {len(nuevos_features)} polígonos nuevos propuestos.")
     print(f"  → Cobertura: {sum(len(s) for s in sub_clusters)} radios huérfanos")

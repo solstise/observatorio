@@ -77,9 +77,7 @@ def fetch_osm() -> dict:
     last_err = None
     for url in endpoints:
         try:
-            r = requests.post(
-                url, data={"data": OVERPASS_QUERY}, headers=headers, timeout=180
-            )
+            r = requests.post(url, data={"data": OVERPASS_QUERY}, headers=headers, timeout=180)
             r.raise_for_status()
             break
         except Exception as e:
@@ -111,9 +109,7 @@ def overpass_to_geojson(data: dict) -> gpd.GeoDataFrame:
         if el["type"] == "way" and el.get("geometry"):
             coords = [(p["lon"], p["lat"]) for p in el["geometry"]]
             if len(coords) >= 4 and coords[0] == coords[-1]:
-                geom = shape(
-                    {"type": "Polygon", "coordinates": [coords]}
-                )
+                geom = shape({"type": "Polygon", "coordinates": [coords]})
         elif el["type"] == "relation":
             outers = []
             inners = []
@@ -232,7 +228,9 @@ def main() -> None:
         al = c["admin_level"]
         al_s = "-" if al is None or (isinstance(al, float) and al != al) else str(al)
         place = c["place"]
-        place_s = "-" if place is None or (isinstance(place, float) and place != place) else str(place)
+        place_s = (
+            "-" if place is None or (isinstance(place, float) and place != place) else str(place)
+        )
         print(
             f"{c['name'][:40]:40s} "
             f"{al_s:>4s} "
@@ -248,15 +246,15 @@ def main() -> None:
     huerf_cubribles = sum(c["n_huerf_dentro"] for c in no_existentes if c["n_huerf_dentro"] > 0)
 
     # Para el área, hacer una unión real (no sumar — los OSM se solapan).
-    osm_no_exist_m = osm_m[
-        ~osm_m["name"].apply(lambda n: slug(n) in nombres_existentes)
-    ]
+    osm_no_exist_m = osm_m[~osm_m["name"].apply(lambda n: slug(n) in nombres_existentes)]
     union_osm_no_exist = unary_union(osm_no_exist_m.geometry)
     area_osm_no_exist_km2 = union_osm_no_exist.area / 1e6
 
     print(f"\n=== RESUMEN ===")
     print(f"Barrios OSM nuevos (no existentes): {len(no_existentes)}")
-    print(f"  con ≥1 radio huérfano dentro: {sum(1 for c in no_existentes if c['n_huerf_dentro'] > 0)}")
+    print(
+        f"  con ≥1 radio huérfano dentro: {sum(1 for c in no_existentes if c['n_huerf_dentro'] > 0)}"
+    )
     print(f"Radios huérfanos cubribles por OSM: ~{huerf_cubribles} de {len(huerf_m)}")
     print(f"Área OSM no existente (unión): {area_osm_no_exist_km2:.2f} km²")
 
@@ -270,12 +268,14 @@ def main() -> None:
 
     # GeoJSON con los candidatos OSM no existentes (para visualizar).
     out_gj = ROOT / "data/raw/osm/candidatos_barrios_nuevos.geojson"
-    osm_no_exist = osm[
-        ~osm["name"].apply(lambda n: slug(n) in nombres_existentes)
-    ].copy()
+    osm_no_exist = osm[~osm["name"].apply(lambda n: slug(n) in nombres_existentes)].copy()
     osm_no_exist["n_huerf_dentro"] = [
         next(
-            (c["n_huerf_dentro"] for c in candidatos if c["osm_id"] == oid and c["osm_type"] == otype),
+            (
+                c["n_huerf_dentro"]
+                for c in candidatos
+                if c["osm_id"] == oid and c["osm_type"] == otype
+            ),
             0,
         )
         for oid, otype in zip(osm_no_exist["osm_id"], osm_no_exist["osm_type"])

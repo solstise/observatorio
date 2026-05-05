@@ -61,10 +61,16 @@ def main() -> None:
     area_total_km2 = urb_m.geometry.area.sum() / 1e6
 
     print(f"\n=== COBERTURA ===")
-    print(f"  Radios urbanos+mixtos asignados:  {asignados} / {len(urb_m)}  ({asignados / len(urb_m):.1%})")
-    print(f"  Radios urbanos+mixtos HUÉRFANOS:  {huerfanos} / {len(urb_m)}  ({huerfanos / len(urb_m):.1%})")
+    print(
+        f"  Radios urbanos+mixtos asignados:  {asignados} / {len(urb_m)}  ({asignados / len(urb_m):.1%})"
+    )
+    print(
+        f"  Radios urbanos+mixtos HUÉRFANOS:  {huerfanos} / {len(urb_m)}  ({huerfanos / len(urb_m):.1%})"
+    )
     print(f"  Área urbana TOTAL: {area_total_km2:.2f} km²")
-    print(f"  Área urbana HUÉRFANA: {area_huerfana_km2:.2f} km² ({area_huerfana_km2 / area_total_km2:.1%})")
+    print(
+        f"  Área urbana HUÉRFANA: {area_huerfana_km2:.2f} km² ({area_huerfana_km2 / area_total_km2:.1%})"
+    )
 
     # Bounding box de los radios huérfanos para entender dónde están.
     huerf = urb_m[~urb_m["asignado"]].to_crs(4326)
@@ -75,9 +81,7 @@ def main() -> None:
         print(f"  Lat: {bbox[1]:.4f} → {bbox[3]:.4f}")
 
     # Áreas individuales: ¿cómo se distribuyen?
-    areas_huerf_km2 = sorted(
-        urb_m[~urb_m["asignado"]].geometry.area.values / 1e6, reverse=True
-    )
+    areas_huerf_km2 = sorted(urb_m[~urb_m["asignado"]].geometry.area.values / 1e6, reverse=True)
     print(f"\n=== TAMAÑOS HUÉRFANOS (top 10 km²) ===")
     for a in areas_huerf_km2[:10]:
         print(f"  {a:.3f} km²")

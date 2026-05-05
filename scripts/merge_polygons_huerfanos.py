@@ -67,9 +67,7 @@ def main() -> None:
     # 1. IDs no deben colisionar.
     colisiones = set(legacy_ids) & set(nuevos_ids)
     if colisiones:
-        raise SystemExit(
-            f"ERROR: colisión de IDs entre legacy y nuevos: {sorted(colisiones)}"
-        )
+        raise SystemExit(f"ERROR: colisión de IDs entre legacy y nuevos: {sorted(colisiones)}")
     print("✓ Sin colisión de IDs.")
 
     # 2. IDs nuevos únicos entre sí.
@@ -93,10 +91,7 @@ def main() -> None:
         inter = gm.intersection(union_legacy_m)
         if not inter.is_empty and inter.area > TOL_OVERLAP_M2:
             overlap_count += 1
-            print(
-                f"  ⚠ overlap real: {f['properties']['id']} "
-                f"({inter.area / 1e6:.4f} km²)"
-            )
+            print(f"  ⚠ overlap real: {f['properties']['id']} " f"({inter.area / 1e6:.4f} km²)")
     if overlap_count > 0:
         raise SystemExit(
             f"ERROR: {overlap_count} polígonos nuevos solapan con legacy "
@@ -118,9 +113,7 @@ def main() -> None:
     # Append.
     out = dict(legacy)
     out["features"] = list(legacy["features"]) + list(nuevos["features"])
-    PATH_LEGACY.write_text(
-        json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8"
-    )
+    PATH_LEGACY.write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"Escrito: {PATH_LEGACY}")
     print(
         f"  total polígonos: {len(out['features'])} "
@@ -128,14 +121,11 @@ def main() -> None:
     )
 
     publicables = sum(
-        1
-        for f in nuevos["features"]
-        if f["properties"].get("publicar_en_sitio") is True
+        1 for f in nuevos["features"] if f["properties"].get("publicar_en_sitio") is True
     )
     print(f"  → de los nuevos, {publicables} se publican en el sitio.")
     print(
-        f"\nProximo paso recomendado: python scripts/_audit_overlaps.py "
-        f"para validación final."
+        f"\nProximo paso recomendado: python scripts/_audit_overlaps.py " f"para validación final."
     )
 
 

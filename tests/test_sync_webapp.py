@@ -37,9 +37,9 @@ def test_sync_tolera_csvs_faltantes(tmp_path: Path) -> None:
     saltar las transformaciones afectadas, y aún así emitir updated_at."""
     result = _run_sync(tmp_path)
 
-    assert result.returncode == 0, (
-        f"sync falló con stderr:\n{result.stderr[-2000:]}\nstdout:\n{result.stdout[-1000:]}"
-    )
+    assert (
+        result.returncode == 0
+    ), f"sync falló con stderr:\n{result.stderr[-2000:]}\nstdout:\n{result.stdout[-1000:]}"
     # Mensajes de skip esperados.
     combined = result.stdout + result.stderr
     assert "no existe; salto" in combined or "NO regenerado" in combined
