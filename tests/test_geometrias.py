@@ -16,12 +16,15 @@ from shapely.geometry import box
 RUTA_POLIGONOS = Path(__file__).parent.parent / "config" / "poligonos.geojson"
 RUTA_SETTINGS = Path(__file__).parent.parent / "config" / "settings.yaml"
 
-# Categorías permitidas según el dominio del proyecto
+# Categorías permitidas según el dominio del proyecto.
+# `ciudad_completa` la usa el polígono `posadas_completa` (capa de
+# referencia "toda la ciudad"); aceptable aunque no es un barrio.
 CATEGORIAS_VALIDAS = {
     "asentamiento_crecimiento_rapido",
     "consolidado_crecimiento",
     "control_consolidado",
     "zona_sensible",
+    "ciudad_completa",
 }
 
 PROPERTIES_REQUERIDAS = {"id", "nombre", "categoria", "prioridad"}
@@ -80,9 +83,16 @@ def test_poligonos_no_solapan(gdf_poligonos: gpd.GeoDataFrame):
 
     Aceptamos solapamientos chicos (fronteras compartidas) pero no
     duplicación significativa de territorio.
+
+    Excluimos `posadas_completa` (capa de referencia "toda la ciudad") que
+    por diseño contiene a todos los demás barrios — la regla de no-solape
+    aplica solo entre barrios reales. Es la misma exclusión que aplica
+    `scripts/_audit_overlaps.py` al auditoría oficial del proyecto.
     """
-    n = len(gdf_poligonos)
-    filas = list(gdf_poligonos.itertuples(index=False))
+    EXCLUIDOS = {"posadas_completa"}
+    gdf = gdf_poligonos[~gdf_poligonos["id"].isin(EXCLUIDOS)].reset_index(drop=True)
+    n = len(gdf)
+    filas = list(gdf.itertuples(index=False))
     fallos = []
     for i in range(n):
         for j in range(i + 1, n):

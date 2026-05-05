@@ -77,6 +77,42 @@ SERVICIOS_A_FRONTEND = {
 # --- Transformaciones ---------------------------------------------------------
 
 
+def _coerce_bool(value) -> bool | None:
+    """Coerce robusto a bool tolerando los modos en que pyogrio puede
+    devolver el campo `publicar_en_sitio` / `sensible` desde GeoJSON.
+
+    Pyogrio actualmente NO parsea `true`/`false` JSON como nativo en
+    algunos paths de lectura — los entrega como strings ``"true"`` /
+    ``"false"`` (ver UserWarning "Could not parse column ... as JSON;
+    leaving as string"). Si caemos en `bool("false")` directo eso es
+    ``True`` porque cualquier string no vacío es truthy en Python.
+    Además ``NaN`` (float) también es truthy (``bool(float("nan"))``
+    devuelve ``True``).
+
+    Esta función centraliza la coerción defensiva.
+    """
+    if value is None:
+        return None
+    # NaN (float) o pd.NA → None.
+    try:
+        if pd.isna(value):
+            return None
+    except (TypeError, ValueError):
+        pass
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        v = value.strip().lower()
+        if v in ("true", "1", "yes", "si", "sí"):
+            return True
+        if v in ("false", "0", "no", "", "nan", "null", "none"):
+            return False
+        return None  # valor inesperado: que el caller decida default
+    if isinstance(value, (int, float)):
+        return bool(value)
+    return None
+
+
 def transformar_poligonos(
     geojson_in: Path, serie_df: pd.DataFrame, pob_df: pd.DataFrame, vuln_df: pd.DataFrame
 ) -> dict:
@@ -125,10 +161,14 @@ def transformar_poligonos(
             "_synthetic": False,
             "descripcion": str(row.get("descripcion") or ""),
             "prioridad": int(row.get("prioridad") or 0),
-            "publicar_en_sitio": bool(row.get("publicar_en_sitio", True)),
+            # Default True si el flag no viene seteado, pero respetamos un
+            # `false` explícito (zonas rurales / muy baja densidad).
+            "publicar_en_sitio": (
+                v if (v := _coerce_bool(row.get("publicar_en_sitio"))) is not None else True
+            ),
         }
         # Respetar sensible: no publicar detalle de polígonos marcados sensibles.
-        if row.get("sensible"):
+        if _coerce_bool(row.get("sensible")) is True:
             props_out["_sensible"] = True
 
         features_out.append(
