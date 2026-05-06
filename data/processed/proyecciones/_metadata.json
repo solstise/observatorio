@@ -1,6 +1,6 @@
 {
   "script_version": "0.1.0",
-  "generated_at": "2026-04-28T21:00:44",
+  "generated_at": "2026-05-05T23:23:38",
   "parametros": {
     "metricas": [
       "viviendas",
@@ -15,14 +15,15 @@
     ],
     "poligono_filtro": null
   },
-  "n_filas_total": 390,
-  "n_poligonos_unicos": 44,
+  "n_filas_total": 573,
+  "n_poligonos_unicos": 65,
   "distribucion_modelo": {
-    "lineal": 390
+    "lineal": 570,
+    "exp": 3
   },
   "distribucion_confianza": {
-    "alta": 297,
-    "media": 63,
+    "alta": 465,
+    "media": 78,
     "baja": 30
   },
   "umbrales_confianza": {
