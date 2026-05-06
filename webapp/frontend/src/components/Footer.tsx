@@ -227,12 +227,26 @@ export async function Footer({ updatedAt }: FooterProps) {
             <span className="opacity-70 transition-opacity duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:opacity-100">
               Diseñado por
             </span>
+            {/* El logo original (PNG con texto blanco + azul claro) está
+                pensado para fondo oscuro y se pierde en light mode. Servimos
+                dos variantes y switcheamos por el dark-mode class de Tailwind:
+                  * sistemas-winter-light.png → texto en gris oscuro, igual icono.
+                  * sistemas-winter.png       → texto blanco original.
+                Ambos comparten dimensiones (225x50), sólo cambian colores. */}
+            <Image
+              src="/sistemas-winter-light.png"
+              alt="Sistemas Winter"
+              width={150}
+              height={30}
+              className="block h-9 w-auto opacity-80 transition-opacity duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:opacity-100 dark:hidden"
+            />
             <Image
               src="/sistemas-winter.png"
               alt="Sistemas Winter"
               width={150}
               height={30}
-              className="h-9 w-auto opacity-80 transition-opacity duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:opacity-100"
+              aria-hidden="true"
+              className="hidden h-9 w-auto opacity-80 transition-opacity duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:opacity-100 dark:block"
             />
           </a>
         </div>
