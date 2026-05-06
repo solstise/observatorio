@@ -3,6 +3,7 @@
 // licencias y una mini tabla de "frescura" de los 5 datasets más críticos
 // para que el visitante entienda de un vistazo qué tan vivo está cada dato.
 
+import Image from "next/image";
 import Link from "next/link";
 
 import { DataFreshness } from "@/components/DataFreshness";
@@ -184,6 +185,57 @@ export async function Footer({ updatedAt }: FooterProps) {
           </Link>{" "}
           para detalles.
         </p>
+
+        {/* Línea final con cross-promotion del ecosistema "*posadas.com" y
+            firma del estudio. Replica el patrón del footer de
+            mediosposadas.com (Sistemas Winter): "Mis otras apps → ..."
+            a la izquierda, "Diseñado por <logo>" a la derecha. La app
+            actual es sateliteposadas.com; las "otras" son ahorroposadas
+            y mediosposadas (no listamos sateliteposadas a sí misma). */}
+        <div className="mt-10 flex flex-col gap-y-4 border-t border-neutral-border pt-6 text-sm text-neutral-muted dark:border-dk-border dark:text-dk-muted sm:flex-row sm:items-center sm:justify-between sm:gap-y-0">
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+            <span className="opacity-70">Mis otras apps</span>
+            <span aria-hidden="true" className="opacity-30">
+              →
+            </span>
+            <a
+              href="https://ahorroposadas.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary underline decoration-transparent decoration-[1.5px] underline-offset-[5px] transition-[color,text-decoration-color] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] hover:decoration-primary active:opacity-70 dark:text-dk-primary dark:hover:decoration-dk-primary"
+            >
+              ahorroposadas.com
+            </a>
+            <span aria-hidden="true" className="opacity-30">
+              ·
+            </span>
+            <a
+              href="https://mediosposadas.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary underline decoration-transparent decoration-[1.5px] underline-offset-[5px] transition-[color,text-decoration-color] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] hover:decoration-primary active:opacity-70 dark:text-dk-primary dark:hover:decoration-dk-primary"
+            >
+              mediosposadas.com
+            </a>
+          </div>
+          <a
+            href="https://sistemaswinter.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-center gap-2.5 transition-colors duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] hover:text-neutral-text active:opacity-80 dark:hover:text-dk-text"
+          >
+            <span className="opacity-70 transition-opacity duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:opacity-100">
+              Diseñado por
+            </span>
+            <Image
+              src="/sistemas-winter.png"
+              alt="Sistemas Winter"
+              width={150}
+              height={30}
+              className="h-9 w-auto opacity-80 transition-opacity duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:opacity-100"
+            />
+          </a>
+        </div>
       </div>
     </footer>
   );
