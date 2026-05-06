@@ -157,9 +157,8 @@ def main() -> None:
     cluster_list = sorted(clusters.values(), key=len, reverse=True)
 
     print(f"\nManchas conexas detectadas: {len(cluster_list)}")
-    print(f"\nTop 15 manchas (por n radios + km²):")
+    print("\nTop 15 manchas (por n radios + km²):")
     print(f"{'#':>3s} {'n_radios':>9s} {'area_km2':>9s} {'centroide_lonlat'}")
-    huerf_4326 = huerf.to_crs(4326) if False else huerf_m.to_crs(4326)
     for idx, cluster_indices in enumerate(cluster_list[:15]):
         ar = sum(huerf_g[i].area for i in cluster_indices) / 1e6
         union_m = unary_union([huerf_g[i] for i in cluster_indices])
@@ -168,8 +167,7 @@ def main() -> None:
 
     # Tamaños: cuántos radios cubren los top-K clusters.
     sizes = sorted([len(c) for c in cluster_list], reverse=True)
-    cum = 0
-    print(f"\nCobertura acumulada por cantidad de polígonos sintéticos:")
+    print("\nCobertura acumulada por cantidad de polígonos sintéticos:")
     for k in [5, 10, 15, 20, 30, 50]:
         cum_k = sum(sizes[:k])
         print(f"  Top {k:>3d} manchas → {cum_k} radios huérfanos ({cum_k / n:.0%})")

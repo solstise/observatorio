@@ -9,7 +9,6 @@ No modifica nada. Solo reporta.
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import geopandas as gpd
@@ -60,7 +59,7 @@ def main() -> None:
     area_huerfana_km2 = urb_m[~urb_m["asignado"]].geometry.area.sum() / 1e6
     area_total_km2 = urb_m.geometry.area.sum() / 1e6
 
-    print(f"\n=== COBERTURA ===")
+    print("\n=== COBERTURA ===")
     print(
         f"  Radios urbanos+mixtos asignados:  {asignados} / {len(urb_m)}  ({asignados / len(urb_m):.1%})"
     )
@@ -76,13 +75,13 @@ def main() -> None:
     huerf = urb_m[~urb_m["asignado"]].to_crs(4326)
     if len(huerf) > 0:
         bbox = huerf.total_bounds
-        print(f"\n=== BBOX HUÉRFANOS (lat/lon) ===")
+        print("\n=== BBOX HUÉRFANOS (lat/lon) ===")
         print(f"  Lon: {bbox[0]:.4f} → {bbox[2]:.4f}")
         print(f"  Lat: {bbox[1]:.4f} → {bbox[3]:.4f}")
 
     # Áreas individuales: ¿cómo se distribuyen?
     areas_huerf_km2 = sorted(urb_m[~urb_m["asignado"]].geometry.area.values / 1e6, reverse=True)
-    print(f"\n=== TAMAÑOS HUÉRFANOS (top 10 km²) ===")
+    print("\n=== TAMAÑOS HUÉRFANOS (top 10 km²) ===")
     for a in areas_huerf_km2[:10]:
         print(f"  {a:.3f} km²")
     print(f"  ... mediana: {sorted(areas_huerf_km2)[len(areas_huerf_km2) // 2]:.3f} km²")
@@ -94,7 +93,7 @@ def main() -> None:
     out_gdf["centroid_lat"] = urb_m[~urb_m["asignado"]].centroid.to_crs(4326).y.values
     out_gdf.to_file(out_path, driver="GeoJSON")
     print(f"\nGuardado para inspección: {out_path}")
-    print(f"  → abrir en geojson.io / qgis para ver el mapa de huecos.")
+    print("  → abrir en geojson.io / qgis para ver el mapa de huecos.")
 
 
 if __name__ == "__main__":

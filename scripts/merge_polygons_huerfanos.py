@@ -124,9 +124,7 @@ def main() -> None:
         1 for f in nuevos["features"] if f["properties"].get("publicar_en_sitio") is True
     )
     print(f"  → de los nuevos, {publicables} se publican en el sitio.")
-    print(
-        f"\nProximo paso recomendado: python scripts/_audit_overlaps.py " f"para validación final."
-    )
+    print("\nProximo paso recomendado: python scripts/_audit_overlaps.py " "para validación final.")
 
 
 if __name__ == "__main__":

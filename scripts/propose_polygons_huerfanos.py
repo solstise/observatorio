@@ -380,7 +380,7 @@ def main() -> None:
     print(f"\nGuardado preview: {PATH_OUT}")
     print(f"  → {len(nuevos_features)} polígonos nuevos propuestos.")
     print(f"  → Cobertura: {sum(len(s) for s in sub_clusters)} radios huérfanos")
-    print(f"  → Los 44 polígonos legacy NO se modifican.")
+    print("  → Los 44 polígonos legacy NO se modifican.")
 
     # Reporte markdown.
     publicables = [f for f in nuevos_features if f["properties"]["publicar_en_sitio"]]
@@ -389,8 +389,8 @@ def main() -> None:
     lines = [
         "# Propuesta: polígonos nuevos para zonas huérfanas",
         "",
-        f"Generado: 2026-05-05",
-        f"",
+        "Generado: 2026-05-05",
+        "",
         f"- **Radios huérfanos detectados**: {len(huerf_m)}",
         f"- **Sub-clusters generados**: {len(sub_clusters)}",
         f"- **Polígonos válidos tras clip y reverse-geocode**: {len(nuevos_features)}",

@@ -126,7 +126,7 @@ def overpass_to_geojson(data: dict) -> gpd.GeoDataFrame:
             # Construcción simple: une los outers en un MultiPolygon vía
             # Shapely. No reconstruimos topología completa (suficiente para
             # análisis de cobertura, no para producción).
-            from shapely.geometry import MultiPolygon, Polygon
+            from shapely.geometry import Polygon
 
             outer_polys = []
             for ring in outers:
@@ -250,7 +250,7 @@ def main() -> None:
     union_osm_no_exist = unary_union(osm_no_exist_m.geometry)
     area_osm_no_exist_km2 = union_osm_no_exist.area / 1e6
 
-    print(f"\n=== RESUMEN ===")
+    print("\n=== RESUMEN ===")
     print(f"Barrios OSM nuevos (no existentes): {len(no_existentes)}")
     print(
         f"  con ≥1 radio huérfano dentro: {sum(1 for c in no_existentes if c['n_huerf_dentro'] > 0)}"
