@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Preview — polígonos propuestos para zonas huérfanas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  html, body { margin:0; padding:0; height:100%; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  #map { position:absolute; top:0; left:0; right:0; bottom:0; }
+  .panel {
+    position:absolute; top:12px; right:12px; z-index:1000;
+    background:#fff; border:1px solid #ccc; border-radius:6px;
+    padding:12px 14px; max-width:300px;
+    box-shadow:0 2px 6px rgba(0,0,0,.15); font-size:13px; line-height:1.45;
+  }
+  .panel h2 { margin:0 0 6px; font-size:14px; }
+  .panel h3 { margin:10px 0 4px; font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:#555; }
+  .legend-row { display:flex; align-items:center; gap:8px; margin:3px 0; }
+  .swatch { width:18px; height:18px; border-radius:3px; border:1px solid #333; }
+  .panel label { display:block; margin:4px 0; cursor:pointer; }
+  .stats { font-size:11px; color:#666; margin-top:8px; line-height:1.5; }
+  .stats strong { color:#333; }
+  .leaflet-tooltip.label-tip {
+    background:rgba(255,255,255,.95); border:1px solid #888;
+    font-size:11px; padding:2px 6px;
+  }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="panel">
+  <h2>Polígonos — preview</h2>
+  <h3>Capas</h3>
+  <label><input type="checkbox" id="chk-actual" checked> <span class="swatch" style="background:#888;border-color:#444"></span> 44 actuales (no se tocan)</label>
+  <label><input type="checkbox" id="chk-nuevo" checked> <span class="swatch" style="background:#22c55e;border-color:#15803d"></span> 18 nuevos publicables</label>
+  <label><input type="checkbox" id="chk-rural" checked> <span class="swatch" style="background:#f59e0b;border-color:#b45309"></span> 3 descartados (rural)</label>
+  <label><input type="checkbox" id="chk-base" checked> Mapa base (calles)</label>
+  <h3>Atajos</h3>
+  <div style="font-size:11px; color:#444">Click en un polígono → ver datos<br>Hover → nombre y nº de radios</div>
+  <div class="stats" id="stats">cargando…</div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const map = L.map('map', { preferCanvas: true }).setView([-27.39, -55.92], 12);
+
+const baseTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '© OpenStreetMap'
+}).addTo(map);
+
+function styleActual() { return { color:'#444', weight:1, fillColor:'#888', fillOpacity:.55 }; }
+function styleNuevo()  { return { color:'#15803d', weight:1.4, fillColor:'#22c55e', fillOpacity:.55 }; }
+function styleRural()  { return { color:'#b45309', weight:1.4, fillColor:'#f59e0b', fillOpacity:.4, dashArray:'4 3' }; }
+
+let lyrActual, lyrNuevo, lyrRural;
+let nActual = 0, nNuevo = 0, nRural = 0;
+
+function bindFeature(feature, layer, kind) {
+  const p = feature.properties || {};
+  const nombre = p.nombre || p.id || 'sin nombre';
+  const radios = p.n_radios || p.cod_indec_radios?.split(',').length || '?';
+  layer.bindTooltip(`${nombre} · ${radios} radios`, { className:'label-tip', sticky:true });
+  let html = `<strong>${nombre}</strong><br><code>${p.id||''}</code>`;
+  if (p.categoria) html += `<br>categoria: ${p.categoria}`;
+  if (p._densidad_radios_km2 != null) html += `<br>densidad: ${p._densidad_radios_km2} radios/km²`;
+  if (p.n_radios) html += `<br>n_radios: ${p.n_radios}`;
+  if (kind === 'rural') html += `<br><em>marcado publicar_en_sitio=false</em>`;
+  layer.bindPopup(html);
+}
+
+Promise.all([
+  fetch('poligonos.geojson').then(r => r.json()),
+  fetch('poligonos_propuestos_huerfanos.geojson').then(r => r.json()),
+]).then(([actual, nuevos]) => {
+  lyrActual = L.geoJSON(actual, {
+    style: styleActual,
+    onEachFeature: (f,l) => bindFeature(f,l,'actual')
+  }).addTo(map);
+  nActual = actual.features.length;
+
+  const publicables = nuevos.features.filter(f => f.properties.publicar_en_sitio === true);
+  const noPublicables = nuevos.features.filter(f => f.properties.publicar_en_sitio !== true);
+
+  lyrNuevo = L.geoJSON({ type:'FeatureCollection', features: publicables }, {
+    style: styleNuevo,
+    onEachFeature: (f,l) => bindFeature(f,l,'nuevo')
+  }).addTo(map);
+  nNuevo = publicables.length;
+
+  lyrRural = L.geoJSON({ type:'FeatureCollection', features: noPublicables }, {
+    style: styleRural,
+    onEachFeature: (f,l) => bindFeature(f,l,'rural')
+  }).addTo(map);
+  nRural = noPublicables.length;
+
+  document.getElementById('stats').innerHTML =
+    `<strong>${nActual}</strong> polígonos actuales · ` +
+    `<strong>${nNuevo}</strong> nuevos publicables · ` +
+    `<strong>${nRural}</strong> descartados (rural)<br>` +
+    `Total si aprobás merge: <strong>${nActual + nNuevo}</strong> publicables`;
+
+  // Encuadrar al conjunto.
+  const bounds = lyrActual.getBounds().extend(lyrNuevo.getBounds());
+  map.fitBounds(bounds, { padding: [20,20] });
+}).catch(err => {
+  document.getElementById('stats').innerHTML =
+    '<span style="color:#b91c1c"><strong>Error cargando geojson:</strong><br>' +
+    err.message + '<br><br>Asegurate de abrir este HTML con un servidor local ' +
+    '(no haciendo doble-click) — ver instrucciones en la consola del browser.</span>';
+  console.error(err);
+  console.log('Para abrir esto correctamente:');
+  console.log('  cd C:\\\\ProyectosIA\\\\Antigravity\\\\observatorio\\\\config');
+  console.log('  npx http-server -p 8080');
+  console.log('  abrir http://localhost:8080/preview_poligonos_huerfanos.html');
+});
+
+document.getElementById('chk-actual').addEventListener('change', e => {
+  e.target.checked ? lyrActual.addTo(map) : map.removeLayer(lyrActual);
+});
+document.getElementById('chk-nuevo').addEventListener('change', e => {
+  e.target.checked ? lyrNuevo.addTo(map) : map.removeLayer(lyrNuevo);
+});
+document.getElementById('chk-rural').addEventListener('change', e => {
+  e.target.checked ? lyrRural.addTo(map) : map.removeLayer(lyrRural);
+});
+document.getElementById('chk-base').addEventListener('change', e => {
+  e.target.checked ? baseTiles.addTo(map) : map.removeLayer(baseTiles);
+});
+</script>
+</body>
+</html>

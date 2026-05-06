@@ -753,6 +753,55 @@ export const GLOSARIO: TerminoGlosario[] = [
     relacionados: ["aqi", "tropomi", "open-meteo"],
   },
   {
+    id: "pm2_5",
+    termino: "PM2.5 (partículas finas)",
+    resumen_corto:
+      "Polvo y humo muy fino (≤2,5 µm). Se mete hasta los pulmones y la sangre. Sube con quemas, tráfico y polvo.",
+    descripcion_larga:
+      "Material particulado con diámetro aerodinámico igual o menor a 2.5 µm — más chico que un glóbulo rojo. Por su tamaño penetra hasta los alvéolos pulmonares y pasa al torrente sanguíneo, asociado a enfermedad cardiopulmonar, ACV y cáncer de pulmón. Fuentes en Posadas y la región: humo de quemas agrícolas/forestales (estacional, agosto-octubre, principal aporte regional), tráfico vehicular (especialmente diésel), polvo resuspendido de calles sin asfaltar y combustión doméstica de leña/carbón. Se mide en µg/m³. **Guía OMS 2021**: media anual ≤ 5 µg/m³, media diaria ≤ 15 µg/m³ (más estricta que la europea). El observatorio reporta el forecast horario de CAMS vía Open-Meteo a ~10 km de resolución; aplica a Posadas global, no se desagrega por barrio porque la ciudad cabe en pocos píxeles del modelo.",
+    categoria: "datos_publicos",
+    alias: [
+      "particulate matter 2.5",
+      "particulas finas",
+      "PM 2.5",
+      "material particulado fino",
+    ],
+    fuente_url: "https://www.who.int/publications/i/item/9789240034228",
+    fuente_label: "OMS Guías de Calidad del Aire 2021",
+    relacionados: ["pm10", "aqi", "cams", "firms"],
+  },
+  {
+    id: "pm10",
+    termino: "PM10 (partículas gruesas)",
+    resumen_corto:
+      "Polvo más grande (≤10 µm) que viene de calles de tierra, obras y polen. Irrita garganta y bronquios.",
+    descripcion_larga:
+      "Material particulado con diámetro aerodinámico igual o menor a 10 µm — incluye al PM2.5 y agrega la fracción gruesa entre 2.5 y 10 µm. La fracción gruesa proviene principalmente de procesos mecánicos: polvo resuspendido de calles sin asfaltar (importante en barrios con baja cobertura de pavimento en Posadas), obras de construcción, desgaste de freno y neumático, polen y esporas. Se asocia a irritación de vías respiratorias altas, agravamiento de asma y enfermedad pulmonar obstructiva crónica (EPOC). Se mide en µg/m³. **Guía OMS 2021**: media anual ≤ 15 µg/m³, media diaria ≤ 45 µg/m³. La normativa europea es más laxa (40 µg/m³ anual). El observatorio reporta el forecast horario de CAMS vía Open-Meteo a ~10 km, aplicado a Posadas global.",
+    categoria: "datos_publicos",
+    alias: [
+      "particulate matter 10",
+      "particulas gruesas",
+      "PM 10",
+      "material particulado",
+    ],
+    fuente_url: "https://www.who.int/publications/i/item/9789240034228",
+    fuente_label: "OMS Guías de Calidad del Aire 2021",
+    relacionados: ["pm2_5", "aqi", "cams"],
+  },
+  {
+    id: "ozone",
+    termino: "O₃ (ozono troposférico)",
+    resumen_corto:
+      "Gas que se forma con sol fuerte cuando se mezclan humo de autos y compuestos vegetales. Sube en tardes calurosas.",
+    descripcion_larga:
+      "El ozono troposférico (O₃ a baja altura) es un contaminante secundario: no se emite directamente sino que se forma cuando óxidos de nitrógeno (NOx, principalmente del tráfico) reaccionan con compuestos orgánicos volátiles (COVs antropogénicos y biogénicos como el isopreno de la selva paranaense) bajo radiación solar UV. **No confundir con la capa de ozono estratosférica** (que protege de UV) — el O₃ a nivel del suelo es perjudicial: reduce función pulmonar, agrava asma, daña vegetación y cultivos. Patrón típico: pico en horas de tarde de días calurosos y soleados, mínimo nocturno. Para Posadas la combinación de NO2 urbano + emisiones biogénicas de la selva subtropical + alta radiación solar genera condiciones favorables a producción de O₃ en verano. Se mide en µg/m³. **Guía OMS 2021**: pico de 8 horas ≤ 100 µg/m³, exposición prolongada (pico estacional) ≤ 60 µg/m³.",
+    categoria: "datos_publicos",
+    alias: ["ozono", "o3", "ozono troposférico", "ground level ozone"],
+    fuente_url: "https://www.who.int/publications/i/item/9789240034228",
+    fuente_label: "OMS Guías de Calidad del Aire 2021",
+    relacionados: ["no2", "hcho", "aqi", "cams"],
+  },
+  {
     id: "aqi",
     termino: "AQI europeo (Air Quality Index)",
     resumen_corto:

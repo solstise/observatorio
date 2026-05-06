@@ -37,9 +37,9 @@ def test_sync_tolera_csvs_faltantes(tmp_path: Path) -> None:
     saltar las transformaciones afectadas, y aún así emitir updated_at."""
     result = _run_sync(tmp_path)
 
-    assert result.returncode == 0, (
-        f"sync falló con stderr:\n{result.stderr[-2000:]}\nstdout:\n{result.stdout[-1000:]}"
-    )
+    assert (
+        result.returncode == 0
+    ), f"sync falló con stderr:\n{result.stderr[-2000:]}\nstdout:\n{result.stdout[-1000:]}"
     # Mensajes de skip esperados.
     combined = result.stdout + result.stderr
     assert "no existe; salto" in combined or "NO regenerado" in combined
@@ -49,9 +49,20 @@ def test_sync_tolera_csvs_faltantes(tmp_path: Path) -> None:
 
 
 @pytest.mark.skipif(not POLIGONOS.exists(), reason="poligonos.geojson no presente")
-def test_sync_no_sobrescribe_poligonos_si_falta_base(tmp_path: Path) -> None:
-    """Si ya hay un poligonos.geojson previo en webapp/ y faltan los CSVs base,
-    el sync debe dejarlo intacto."""
+def test_sync_regenera_poligonos_con_stats_en_cero_si_falta_base(tmp_path: Path) -> None:
+    """Cuando faltan los CSVs base (serie/pob/vuln) el sync DEBE regenerar
+    poligonos.geojson con el schema enriquecido que espera Next.js, rellenando
+    los stats con cero. Antes el script saltaba la regeneración y dejaba el
+    archivo previo, pero eso rompía el build de Next con ENOENT cuando la
+    webapp se desplegaba en limpio (commits ``8839b5f`` y ``2c58b22``).
+
+    Validamos:
+      * El archivo previo se sobrescribe (no se conserva).
+      * El nuevo contenido tiene el shape FeatureCollection real con todos
+        los polígonos de ``config/poligonos.geojson``.
+      * Los stats numéricos (poblacion_estimada, edificios_2018,
+        edificios_2026, score_expansion) son 0 — ningún dato fabricado.
+    """
     dest = tmp_path / "webapp_data"
     dest.mkdir(parents=True)
     sentinela = {"_marker": "previa"}
@@ -63,4 +74,13 @@ def test_sync_no_sobrescribe_poligonos_si_falta_base(tmp_path: Path) -> None:
     assert result.returncode == 0, result.stderr[-2000:]
 
     contenido = json.loads((dest / "poligonos.geojson").read_text(encoding="utf-8"))
-    assert contenido == sentinela, "poligonos.geojson previo fue sobrescrito sin datos base"
+    assert contenido != sentinela, "se esperaba que el archivo previo fuera sobrescrito"
+    assert contenido.get("type") == "FeatureCollection", contenido
+    feats = contenido.get("features", [])
+    assert len(feats) > 0, "regeneración debe producir al menos un feature"
+    for f in feats:
+        p = f.get("properties", {})
+        # Stats deben quedar en cero — no se inventan datos cuando faltan
+        # los CSVs base. Es responsabilidad del cron yearly poblarlos.
+        for k in ("poblacion_estimada", "edificios_2018", "edificios_2026", "score_expansion"):
+            assert p.get(k, 0) == 0, f"{p.get('id')}: {k}={p.get(k)} (debería ser 0)"

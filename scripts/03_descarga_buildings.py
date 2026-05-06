@@ -211,9 +211,7 @@ def _intentar_descarga_chunked(
     with destino_geojson.open("w", encoding="utf-8") as fh:
         json.dump(geojson, fh)
     size_mb = destino_geojson.stat().st_size / (1024 * 1024)
-    logger.info(
-        f"GeoJSON chunked total ({size_mb:.2f} MB), {len(all_features)} features"
-    )
+    logger.info(f"GeoJSON chunked total ({size_mb:.2f} MB), {len(all_features)} features")
     return True
 
 
