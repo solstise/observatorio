@@ -80,6 +80,25 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Pull outputs del monthly+yearly desde rama data
+        # CRÍTICO: 80_sync_webapp.py recibe --serie/--poblacion/--vulnerabilidad
+        # apuntando a CSVs en data/processed/ que NO existen en main (están en
+        # .gitignore). Sin este step, serie_df=None / pob_df=None / vuln_df=None
+        # y el script regenera webapp/frontend/public/data/poligonos.geojson
+        # con score_expansion=0 y poblacion_estimada=0 para los 65 polígonos,
+        # pisando todos los días el geojson bueno que dejó el monthly.
+        run: |
+          set -e
+          git fetch origin data 2>/dev/null || true
+          if git rev-parse --verify origin/data >/dev/null 2>&1; then
+            mkdir -p data/processed
+            git archive origin/data data/processed 2>/dev/null | tar -xC . || true
+            echo "Outputs del monthly/yearly disponibles:"
+            ls data/processed/ 2>&1 | head -20
+          else
+            echo "::warning::Rama data no existe — primer run, score/pob saldrán en 0."
+          fi
+
       - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
@@ -135,9 +154,9 @@ jobs:
         id: diff
         env:
           GIT_AUTHOR_NAME: observatorio-bot
-          GIT_AUTHOR_EMAIL: bot@observatorio.sistemaswinter.com
+          GIT_AUTHOR_EMAIL: bot@sateliteposadas.com
           GIT_COMMITTER_NAME: observatorio-bot
-          GIT_COMMITTER_EMAIL: bot@observatorio.sistemaswinter.com
+          GIT_COMMITTER_EMAIL: bot@sateliteposadas.com
         run: |
           # Los paths están en .gitignore en main; comparamos contra rama data,
           # que sí los tiene versionados (vía git add -f).
