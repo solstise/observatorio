@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-09T00:46:35",
+  "generated_at": "2026-06-01T09:18:56",
   "sensor": "CBERS-4A WPM",
   "resolucion_pan_m": 2,
   "resolucion_ms_m": 8,
@@ -8,7 +8,7 @@
   "path": "213",
   "row": "148",
   "scene_id": "CBERS_4A_WPM_20260418_213_148_L4",
-  "n_poligonos_cubiertos": 64,
+  "n_poligonos_cubiertos": 63,
   "cloud_cover_pct": null,
   "cobertura_bbox_pct": 100.0,
   "fuente": "INPE / AWS Open Data Registry (s3://brazil-eosats)",
@@ -26,7 +26,7 @@
       11738
     ],
     "resolucion_m": 2,
-    "elapsed_s": 38.838462829589844
+    "elapsed_s": 42.20693278312683
   },
-  "recortes_actualizados_en": "2026-05-09T00:47:00"
+  "recortes_actualizados_en": "2026-06-01T09:18:57"
 }
