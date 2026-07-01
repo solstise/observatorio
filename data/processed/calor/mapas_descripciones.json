@@ -223,6 +223,13 @@
     "method": "placeholder",
     "source": "calor/mapas"
   },
+  "lst_2026_invierno.png": {
+    "caption_en": "Surface temperature map of Posadas in invierno 2026.",
+    "caption_es": "Mapa de temperatura del suelo (LST) de Posadas en invierno 2026.",
+    "generated_at": "2026-07-01T10:48:08+00:00",
+    "method": "placeholder",
+    "source": "calor/mapas"
+  },
   "lst_2026_otono.png": {
     "caption_en": "Surface temperature map of Posadas in otoño 2026.",
     "caption_es": "Mapa de temperatura del suelo (LST) de Posadas en otoño 2026.",
@@ -234,6 +241,13 @@
     "caption_en": "Surface temperature map of Posadas in verano 2026.",
     "caption_es": "Mapa de temperatura del suelo (LST) de Posadas en verano 2026.",
     "generated_at": "2026-04-28T14:56:38+00:00",
+    "method": "placeholder",
+    "source": "calor/mapas"
+  },
+  "top5_calientes_invierno_2026.png": {
+    "caption_en": "Map: top5_calientes_invierno_2026.png",
+    "caption_es": "Mapa: top5_calientes_invierno_2026.png",
+    "generated_at": "2026-07-01T10:48:08+00:00",
     "method": "placeholder",
     "source": "calor/mapas"
   },
@@ -465,6 +479,13 @@
     "caption_en": "Urban heat anomaly vs city average in Posadas, verano 2025.",
     "caption_es": "Mapa de anomalía térmica respecto al promedio de Posadas, verano 2025.",
     "generated_at": "2026-04-28T14:56:38+00:00",
+    "method": "placeholder",
+    "source": "calor/mapas"
+  },
+  "uhi_vs_ciudad_2026_invierno.png": {
+    "caption_en": "Urban heat anomaly vs city average in Posadas, invierno 2026.",
+    "caption_es": "Mapa de anomalía térmica respecto al promedio de Posadas, invierno 2026.",
+    "generated_at": "2026-07-01T10:48:08+00:00",
     "method": "placeholder",
     "source": "calor/mapas"
   },
@@ -703,6 +724,13 @@
     "caption_en": "Urban heat island vs rural baseline in Posadas, verano 2025.",
     "caption_es": "Mapa de isla de calor urbana respecto al campo en Posadas, verano 2025.",
     "generated_at": "2026-04-28T14:56:38+00:00",
+    "method": "placeholder",
+    "source": "calor/mapas"
+  },
+  "uhi_vs_rural_2026_invierno.png": {
+    "caption_en": "Urban heat island vs rural baseline in Posadas, invierno 2026.",
+    "caption_es": "Mapa de isla de calor urbana respecto al campo en Posadas, invierno 2026.",
+    "generated_at": "2026-07-01T10:48:08+00:00",
     "method": "placeholder",
     "source": "calor/mapas"
   },

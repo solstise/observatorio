@@ -1,6 +1,6 @@
 {
   "script_version": "0.1.0",
-  "generated_at": "2026-06-01T09:40:00",
+  "generated_at": "2026-07-01T07:48:10",
   "modelos": [
     "ecmwf_ifs04",
     "gfs_seamless",
