@@ -1,7 +1,25 @@
 {
-  "generated_at": "2026-08-01T06:13:34",
+  "generated_at": "2026-09-01T09:32:11",
   "script_version": "0.1.0",
-  "n_alertas": 0,
+  "n_alertas": 1,
   "ventana_dias": 14,
-  "alertas": []
+  "alertas": [
+    {
+      "tipo": "frio_severo",
+      "severidad": "naranja",
+      "fecha_inicio": "2026-09-06",
+      "fecha_fin": "2026-09-07",
+      "n_dias": 2,
+      "n_barrios_afectados": 1,
+      "barrios_afectados": [
+        "norte"
+      ],
+      "barrios_afectados_nombres": [
+        "Norte"
+      ],
+      "barrios_prioritarios": [],
+      "barrios_prioritarios_nombres": [],
+      "descripcion": "Frío severo: temperatura mínima por debajo de 8 °C durante al menos 2 días consecutivos. Riesgo para población vulnerable y mascotas."
+    }
+  ]
 }
