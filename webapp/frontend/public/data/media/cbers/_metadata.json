@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-09-01T08:58:45",
+  "generated_at": "2026-10-01T10:24:49",
   "sensor": "CBERS-4A WPM",
   "resolucion_pan_m": 2,
   "resolucion_ms_m": 8,
   "resolucion_pansharpen_m": 2,
-  "fecha_imagen": "2026-04-18",
+  "fecha_imagen": "2026-09-20",
   "path": "213",
   "row": "148",
-  "scene_id": "CBERS_4A_WPM_20260418_213_148_L4",
+  "scene_id": "CBERS_4A_WPM_20260920_213_148_L4",
   "n_poligonos_cubiertos": 63,
   "cloud_cover_pct": null,
   "cobertura_bbox_pct": 100.0,
@@ -15,18 +15,18 @@
   "algoritmo_pansharpen": "Brovey",
   "version_script": "0.1.0",
   "pansharpen_stats": {
-    "red_p2": 46.03297424316406,
-    "red_p98": 249.71664428710938,
-    "green_p2": 70.78943634033203,
-    "green_p98": 260.2035827636719,
-    "blue_p2": 99.1004409790039,
-    "blue_p98": 308.0252380371094,
+    "red_p2": 95.80767822265625,
+    "red_p98": 497.0274353027344,
+    "green_p2": 113.84485626220703,
+    "green_p98": 353.091552734375,
+    "blue_p2": 145.48712158203125,
+    "blue_p98": 373.75634765625,
     "dimensiones": [
       12458,
       11738
     ],
     "resolucion_m": 2,
-    "elapsed_s": 39.74989318847656
+    "elapsed_s": 33.243688106536865
   },
-  "recortes_actualizados_en": "2026-09-01T08:58:46"
+  "recortes_actualizados_en": "2026-10-01T10:25:33"
 }

@@ -237,6 +237,13 @@
     "method": "placeholder",
     "source": "calor/mapas"
   },
+  "lst_2026_primavera.png": {
+    "caption_en": "Surface temperature map of Posadas in primavera 2026.",
+    "caption_es": "Mapa de temperatura del suelo (LST) de Posadas en primavera 2026.",
+    "generated_at": "2026-10-01T13:46:52+00:00",
+    "method": "placeholder",
+    "source": "calor/mapas"
+  },
   "lst_2026_verano.png": {
     "caption_en": "Surface temperature map of Posadas in verano 2026.",
     "caption_es": "Mapa de temperatura del suelo (LST) de Posadas en verano 2026.",
@@ -496,6 +503,13 @@
     "method": "placeholder",
     "source": "calor/mapas"
   },
+  "uhi_vs_ciudad_2026_primavera.png": {
+    "caption_en": "Urban heat anomaly vs city average in Posadas, primavera 2026.",
+    "caption_es": "Mapa de anomalía térmica respecto al promedio de Posadas, primavera 2026.",
+    "generated_at": "2026-10-01T13:46:52+00:00",
+    "method": "placeholder",
+    "source": "calor/mapas"
+  },
   "uhi_vs_ciudad_2026_verano.png": {
     "caption_en": "Urban heat anomaly vs city average in Posadas, verano 2026.",
     "caption_es": "Mapa de anomalía térmica respecto al promedio de Posadas, verano 2026.",
@@ -738,6 +752,13 @@
     "caption_en": "Urban heat island vs rural baseline in Posadas, otoño 2026.",
     "caption_es": "Mapa de isla de calor urbana respecto al campo en Posadas, otoño 2026.",
     "generated_at": "2026-04-28T14:56:38+00:00",
+    "method": "placeholder",
+    "source": "calor/mapas"
+  },
+  "uhi_vs_rural_2026_primavera.png": {
+    "caption_en": "Urban heat island vs rural baseline in Posadas, primavera 2026.",
+    "caption_es": "Mapa de isla de calor urbana respecto al campo en Posadas, primavera 2026.",
+    "generated_at": "2026-10-01T13:46:52+00:00",
     "method": "placeholder",
     "source": "calor/mapas"
   },
