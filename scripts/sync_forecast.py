@@ -7,6 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 FILES = {
+    "lluvia_72h.json": "lluvia_72h.json",
     "forecast_diario_por_barrio.csv": "forecast_diario.csv",
     "forecast_horario.csv": "forecast_horario.csv",
     "aqi_diario.csv": "aqi_diario.csv",

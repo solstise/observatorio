@@ -80,10 +80,12 @@ import click
 import numpy as np
 import pandas as pd
 import requests
+import yaml
 from loguru import logger
 
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import resolve_path
+from scripts.nino_model import resumen_ensemble
 
 SCRIPT_VERSION = "0.1.0"
 
@@ -351,7 +353,10 @@ def parsear_ensemble_horario(
         }
     )
     # Cortar a las primeras N horas para no llenar el CSV con 14 días horarios.
-    return df.head(horas_adelante).copy()
+    now = datetime.now(timezone.utc).timestamp()
+    tz_offset = j.get("utc_offset_seconds", -10800)
+    stamps = pd.to_datetime(df["time"]).astype("int64") / 1e9 - tz_offset
+    return df[stamps > now].head(horas_adelante).copy()
 
 
 def parsear_aqi(j: Dict) -> pd.DataFrame:
@@ -673,6 +678,10 @@ def main(
 
     # Proyección por barrio.
     generated_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    thresholds = yaml.safe_load(resolve_path("config/alertas.yaml").read_text(encoding="utf-8"))["anegamiento_v2"]
+    rain = resumen_ensemble(j_ens, thresholds)
+    rain.update(generated_at=generated_at, umbrales=thresholds, modelos=ENSEMBLE_MODELS)
+    (out_path / "lluvia_72h.json").write_text(json.dumps(rain, ensure_ascii=False, indent=2), encoding="utf-8")
     df_barrios = proyectar_forecast_por_barrio(
         forecast_centro=df_centro,
         offsets=offsets,
