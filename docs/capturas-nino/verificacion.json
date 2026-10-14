@@ -1,0 +1,49 @@
+{
+  "checked_at": "2026-10-14T03:57:47.073Z",
+  "base": "http://localhost:3127",
+  "checks": [
+    {
+      "route": "/nino",
+      "status": 200,
+      "h1": "Sala de situación El Niño"
+    },
+    {
+      "route": "/",
+      "status": 200,
+      "h1": "Estado de Posadas · hace 157 d"
+    },
+    {
+      "route": "/pronostico",
+      "status": 200,
+      "h1": "Pronóstico · qué viene en Posadas"
+    },
+    {
+      "route": "/pronostico/riesgos",
+      "status": 200,
+      "h1": "Riesgos próximos 14 días"
+    },
+    {
+      "route": "/datos/metodologia",
+      "status": 200,
+      "h1": "Cómo construimos las cifras"
+    },
+    {
+      "route": "/poligono/villa_urquiza",
+      "status": 200,
+      "h1": "Villa Urquiza"
+    },
+    {
+      "viewport": "390x844",
+      "overflow": false
+    },
+    {
+      "test": "vencimiento en pestaña abierta tras 25 h",
+      "passed": true
+    },
+    {
+      "route": "/nino/opengraph-image",
+      "status": 200
+    }
+  ],
+  "errors": []
+}

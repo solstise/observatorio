@@ -120,6 +120,17 @@ jobs:
           printf '%s' "$EE_SERVICE_ACCOUNT_JSON" > "$HOME/.config/earthengine/service_account.json"
           echo "EE_SERVICE_ACCOUNT_KEY=$HOME/.config/earthengine/service_account.json" >> "$GITHUB_ENV"
 
+      - name: Recuperar insumos agregados existentes
+        run: |
+          git fetch origin data
+          for file in calor/uhi_estacional.csv dynamic_world.csv; do
+            destination="webapp/frontend/public/data/$file"
+            if git cat-file -e "origin/data:$destination" 2>/dev/null; then
+              mkdir -p "$(dirname "$destination")"
+              git show "origin/data:$destination" > "$destination"
+            fi
+          done
+
       - name: Run forecast clima (script L1 57)
         env:
           # Disponibles para el script si los precisa.
@@ -127,7 +138,7 @@ jobs:
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
         run: |
           if [[ -f scripts/57_forecast_clima.py ]]; then
-            python scripts/57_forecast_clima.py
+            python scripts/57_forecast_clima.py --uhi webapp/frontend/public/data/calor/uhi_estacional.csv
           else
             echo "::warning::scripts/57_forecast_clima.py no existe todavía (lo crea L1). Saltando."
           fi

@@ -48,8 +48,16 @@ def sync_forecast(root=ROOT):
                 parsed[key] = value
         groups.setdefault(row["poligono_id"], []).append(parsed)
     for pid, records in groups.items():
-        (target / f"{pid}.json").write_text(json.dumps({"generated_at": meta["generated_at"], "diario": records}, ensure_ascii=False), encoding="utf-8")
-    (target / "_resumen.json").write_text(json.dumps({"generated_at": meta["generated_at"], "diario": rows}, ensure_ascii=False), encoding="utf-8")
+        (target / f"{pid}.json").write_text(
+            json.dumps(
+                {"generated_at": meta["generated_at"], "diario": records}, ensure_ascii=False
+            ),
+            encoding="utf-8",
+        )
+    (target / "_resumen.json").write_text(
+        json.dumps({"generated_at": meta["generated_at"], "diario": rows}, ensure_ascii=False),
+        encoding="utf-8",
+    )
     print(f"Snapshot sincronizado: {meta['generated_at']}")
 
 

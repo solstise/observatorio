@@ -180,6 +180,7 @@ def discover_payloads(source_dir: Path) -> dict[str, Any]:
     # Stems "especiales" que NO son barrios — se mapean a claves dedicadas
     # en lugar de `forecast:diario:<stem>`.
     SPECIAL_KEYS: dict[str, str] = {
+        "lluvia_72h": "forecast:lluvia_72h",
         "_metadata": "forecast:metadata",
         "metadata": "forecast:metadata",
         "_resumen": "forecast:diario:posadas_completa",

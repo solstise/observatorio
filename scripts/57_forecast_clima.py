@@ -678,10 +678,14 @@ def main(
 
     # Proyección por barrio.
     generated_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    thresholds = yaml.safe_load(resolve_path("config/alertas.yaml").read_text(encoding="utf-8"))["anegamiento_v2"]
+    thresholds = yaml.safe_load(resolve_path("config/alertas.yaml").read_text(encoding="utf-8"))[
+        "anegamiento_v2"
+    ]
     rain = resumen_ensemble(j_ens, thresholds)
     rain.update(generated_at=generated_at, umbrales=thresholds, modelos=ENSEMBLE_MODELS)
-    (out_path / "lluvia_72h.json").write_text(json.dumps(rain, ensure_ascii=False, indent=2), encoding="utf-8")
+    (out_path / "lluvia_72h.json").write_text(
+        json.dumps(rain, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     df_barrios = proyectar_forecast_por_barrio(
         forecast_centro=df_centro,
         offsets=offsets,

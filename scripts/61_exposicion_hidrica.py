@@ -35,12 +35,20 @@ def osm_cached(endpoint):
     path = ROOT / "data/raw/osm/nino_overpass.json"
     if path.exists():
         return json.loads(path.read_text(encoding="utf-8"))
-    bbox = yaml.safe_load((ROOT / "config/settings.yaml").read_text(encoding="utf-8"))["geografia"]["bbox"]
+    bbox = yaml.safe_load((ROOT / "config/settings.yaml").read_text(encoding="utf-8"))["geografia"][
+        "bbox"
+    ]
     b = f"{bbox['sur']},{bbox['oeste']},{bbox['norte']},{bbox['este']}"
-    query = f'[out:json][timeout:60];way[waterway~"^(stream|river|canal|drain|ditch)$"]({b});out geom;'
+    query = (
+        f'[out:json][timeout:60];way[waterway~"^(stream|river|canal|drain|ditch)$"]({b});out geom;'
+    )
     # Una consulta cacheada. Sin reintentos agresivos ni descargas por barrio.
-    response = requests.get(endpoint, params={"data": query},
-                             headers={"User-Agent": "ObservatorioPosadas-exposicion/1.0"}, timeout=150)
+    response = requests.get(
+        endpoint,
+        params={"data": query},
+        headers={"User-Agent": "ObservatorioPosadas-exposicion/1.0"},
+        timeout=150,
+    )
     response.raise_for_status()
     payload = response.json()
     if payload.get("remark"):
@@ -69,16 +77,23 @@ def export_kml(zones, path):
         pm = ET.SubElement(doc, f"{{{ns}}}Placemark")
         ET.SubElement(pm, f"{{{ns}}}name").text = row.nombre
         multi = ET.SubElement(pm, f"{{{ns}}}MultiGeometry")
-        polys = list(row.geometry.geoms) if row.geometry.geom_type == "MultiPolygon" else [row.geometry]
+        polys = (
+            list(row.geometry.geoms) if row.geometry.geom_type == "MultiPolygon" else [row.geometry]
+        )
         for poly in polys:
             if poly.geom_type != "Polygon":
                 continue
             el = ET.SubElement(multi, f"{{{ns}}}Polygon")
-            for label, rings in (("outerBoundaryIs", [poly.exterior]), ("innerBoundaryIs", poly.interiors)):
+            for label, rings in (
+                ("outerBoundaryIs", [poly.exterior]),
+                ("innerBoundaryIs", poly.interiors),
+            ):
                 for ring in rings:
                     boundary = ET.SubElement(el, f"{{{ns}}}{label}")
                     linear = ET.SubElement(boundary, f"{{{ns}}}LinearRing")
-                    ET.SubElement(linear, f"{{{ns}}}coordinates").text = " ".join(f"{x},{y},0" for x, y in ring.coords)
+                    ET.SubElement(linear, f"{{{ns}}}coordinates").text = " ".join(
+                        f"{x},{y},0" for x, y in ring.coords
+                    )
     ET.ElementTree(root).write(path, encoding="utf-8", xml_declaration=True)
 
 
@@ -87,10 +102,17 @@ def export_facilities(endpoint):
     if cached.exists():
         data = json.loads(cached.read_text(encoding="utf-8"))
     else:
-        b = yaml.safe_load((ROOT / "config/settings.yaml").read_text(encoding="utf-8"))["geografia"]["bbox"]
+        b = yaml.safe_load((ROOT / "config/settings.yaml").read_text(encoding="utf-8"))[
+            "geografia"
+        ]["bbox"]
         bbox = f"{b['sur']},{b['oeste']},{b['norte']},{b['este']}"
         q = f'[out:json][timeout:60];(nwr[amenity~"school|hospital|clinic|doctors|community_centre"]({bbox});nwr[leisure=sports_centre]({bbox});nwr[name~"CAV|Centro de Atenci",i]({bbox}););out center;'
-        r = requests.get(endpoint, params={"data": q}, headers={"User-Agent": "ObservatorioPosadas-exposicion/1.0"}, timeout=100)
+        r = requests.get(
+            endpoint,
+            params={"data": q},
+            headers={"User-Agent": "ObservatorioPosadas-exposicion/1.0"},
+            timeout=100,
+        )
         r.raise_for_status()
         data = r.json()
         if data.get("remark"):
@@ -98,20 +120,44 @@ def export_facilities(endpoint):
         data["downloaded_at"] = datetime.now(timezone.utc).isoformat()
         cached.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
     features = []
-    labels = {"school": "Escuela", "hospital": "Hospital", "clinic": "Centro de salud", "doctors": "Atención de salud", "community_centre": "Centro comunitario", "sports_centre": "Centro deportivo"}
+    labels = {
+        "school": "Escuela",
+        "hospital": "Hospital",
+        "clinic": "Centro de salud",
+        "doctors": "Atención de salud",
+        "community_centre": "Centro comunitario",
+        "sports_centre": "Centro deportivo",
+    }
     for el in data["elements"]:
         pos = el.get("center", el)
         if "lat" not in pos:
             continue
         tags = el.get("tags", {})
         kind = tags.get("amenity", tags.get("leisure", "CAV"))
-        features.append({"type": "Feature", "geometry": {"type": "Point", "coordinates": [pos["lon"], pos["lat"]]},
-                         "properties": {"nombre": tags.get("name", labels.get(kind, "Equipamiento sin nombre")),
-                                        "tipo": labels.get(kind, "CAV"),
-                                        "osm_url": f"https://www.openstreetmap.org/{el['type']}/{el['id']}"}})
+        features.append(
+            {
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [pos["lon"], pos["lat"]]},
+                "properties": {
+                    "nombre": tags.get("name", labels.get(kind, "Equipamiento sin nombre")),
+                    "tipo": labels.get(kind, "CAV"),
+                    "osm_url": f"https://www.openstreetmap.org/{el['type']}/{el['id']}",
+                },
+            }
+        )
     target = ROOT / "data/outputs/equipamientos_nino.geojson"
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps({"type": "FeatureCollection", "generated_at": data["downloaded_at"], "features": features}, ensure_ascii=False), encoding="utf-8")
+    target.write_text(
+        json.dumps(
+            {
+                "type": "FeatureCollection",
+                "generated_at": data["downloaded_at"],
+                "features": features,
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
     print(f"Equipamientos públicos OSM: {len(features)}")
 
 
@@ -126,10 +172,20 @@ def main(endpoint):
             center = el.get("center", el)
             if "lat" in center and "lon" in center:
                 # Solo nombre público y tipo, nunca teléfonos/contactos de personas.
-                facilities.append({"type": "Feature", "geometry": {"type": "Point", "coordinates": [center["lon"], center["lat"]]},
-                                   "properties": {"nombre": tags.get("name", "Equipamiento sin nombre"),
-                                                  "tipo": tags.get("amenity", tags.get("leisure", "CAV")),
-                                                  "osm_url": f"https://www.openstreetmap.org/{el['type']}/{el['id']}"}})
+                facilities.append(
+                    {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [center["lon"], center["lat"]],
+                        },
+                        "properties": {
+                            "nombre": tags.get("name", "Equipamiento sin nombre"),
+                            "tipo": tags.get("amenity", tags.get("leisure", "CAV")),
+                            "osm_url": f"https://www.openstreetmap.org/{el['type']}/{el['id']}",
+                        },
+                    }
+                )
     if not lines:
         raise ValueError("Red OSM vacía: no se puede estimar exposición")
     water = gpd.GeoSeries(lines, crs=4326).to_crs(CRS)
@@ -159,7 +215,9 @@ def main(endpoint):
 
         def classify_points(points):
             coords = np.array([(p.x, p.y) for p in points])
-            indices, nearest_dist = tree.query_nearest(points, return_distance=True, all_matches=False)
+            indices, nearest_dist = tree.query_nearest(
+                points, return_distance=True, all_matches=False
+            )
             distances = np.full(len(points), np.inf)
             distances[indices[0]] = nearest_dist
             terrain = elevations(coords)
@@ -171,11 +229,17 @@ def main(endpoint):
             return clasificar(distances, heights)
 
         print("Leyendo footprints combinados", flush=True)
-        buildings = pd.read_csv(ROOT / "data/raw/buildings_merge/posadas_merged_buildings.csv", usecols=["lat", "lon"])
-        points = gpd.GeoDataFrame(geometry=gpd.points_from_xy(buildings.lon, buildings.lat), crs=4326).to_crs(CRS)
+        buildings = pd.read_csv(
+            ROOT / "data/raw/buildings_merge/posadas_merged_buildings.csv", usecols=["lat", "lon"]
+        )
+        points = gpd.GeoDataFrame(
+            geometry=gpd.points_from_xy(buildings.lon, buildings.lat), crs=4326
+        ).to_crs(CRS)
         points["clase"] = classify_points(points.geometry.values)
         barrios = gpd.read_file(ROOT / "config/poligonos.geojson")
-        barrios = barrios[(barrios["id"] != "posadas_completa") & (barrios["categoria"] != "ciudad_completa")].to_crs(CRS)
+        barrios = barrios[
+            (barrios["id"] != "posadas_completa") & (barrios["categoria"] != "ciudad_completa")
+        ].to_crs(CRS)
         joined = gpd.sjoin(points, barrios[["id", "geometry"]], how="inner", predicate="intersects")
         # Si hay solapamientos de polígonos, asignación estable una sola vez.
         duplicates = int(joined.index.duplicated().sum())
@@ -192,16 +256,25 @@ def main(endpoint):
                 except ValueError:
                     total_pop = None
                 classes = joined.loc[joined["id"] == row.id, "clase"].tolist()
-                output.append({"poligono_id": row.id, "nombre": row.nombre,
-                               **agregar_exposicion(classes, total_pop)})
+                output.append(
+                    {
+                        "poligono_id": row.id,
+                        "nombre": row.nombre,
+                        **agregar_exposicion(classes, total_pop),
+                    }
+                )
         print("Generando zonas agregadas de 60 m", flush=True)
         bounds = barrios.total_bounds
         xs = np.arange(bounds[0], bounds[2], 60)
         ys = np.arange(bounds[1], bounds[3], 60)
         xx, yy = np.meshgrid(xs, ys)
-        cells = gpd.GeoDataFrame(geometry=gpd.points_from_xy(xx.ravel() + 30, yy.ravel() + 30), crs=CRS)
+        cells = gpd.GeoDataFrame(
+            geometry=gpd.points_from_xy(xx.ravel() + 30, yy.ravel() + 30), crs=CRS
+        )
         # Limitar a 300 m de drenajes: fuera de ese radio HAND es indefinido.
-        indices, nearest_dist = tree.query_nearest(cells.geometry.values, return_distance=True, all_matches=False)
+        indices, nearest_dist = tree.query_nearest(
+            cells.geometry.values, return_distance=True, all_matches=False
+        )
         dist = np.full(len(cells), np.inf)
         dist[indices[0]] = nearest_dist
         cells = cells[dist <= 300].copy()
@@ -214,18 +287,27 @@ def main(endpoint):
         zones = zones[~zones.geometry.is_empty].to_crs(4326)
     out = ROOT / "data/outputs"
     out.mkdir(parents=True, exist_ok=True)
-    result = {"generated_at": datetime.now(timezone.utc).isoformat(), "barrios": output,
-              "metodo": "Altura relativa aproximada: cota de centroide menos mínima cota de drenajes OSM muestreados cada 30 m dentro de 300 m. No es HAND hidrológico.",
-              "dem": "Copernicus GLO-30 existente (script 46); no es SRTM 2000",
-              "poblacion": "WorldPop 2020 prorrateado por proporción de footprints expuestos; banda ±20% orientativa, no intervalo estadístico",
-              "viviendas": "Footprints Google + Microsoft como proxy: un edificio no equivale necesariamente a una vivienda",
-              "zonas": "Grilla 60 m disuelta por barrio, sin edificios individuales",
-              "osm_downloaded_at": payload["downloaded_at"], "duplicados_por_solapamiento": duplicates,
-              "n_cursos_osm": len(lines)}
-    (out / "exposicion_hidrica.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+    result = {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "barrios": output,
+        "metodo": "Altura relativa aproximada: cota de centroide menos mínima cota de drenajes OSM muestreados cada 30 m dentro de 300 m. No es HAND hidrológico.",
+        "dem": "Copernicus GLO-30 existente (script 46); no es SRTM 2000",
+        "poblacion": "WorldPop 2020 prorrateado por proporción de footprints expuestos; banda ±20% orientativa, no intervalo estadístico",
+        "viviendas": "Footprints Google + Microsoft como proxy: un edificio no equivale necesariamente a una vivienda",
+        "zonas": "Grilla 60 m disuelta por barrio, sin edificios individuales",
+        "osm_downloaded_at": payload["downloaded_at"],
+        "duplicados_por_solapamiento": duplicates,
+        "n_cursos_osm": len(lines),
+    }
+    (out / "exposicion_hidrica.json").write_text(
+        json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     zones.to_file(out / "exposicion_hidrica.geojson", driver="GeoJSON")
     export_kml(zones, out / "exposicion_hidrica.kml")
-    print(f"Exposición: {len(output)} barrios, {len(lines)} cursos, {len(facilities)} equipamientos", flush=True)
+    print(
+        f"Exposición: {len(output)} barrios, {len(lines)} cursos, {len(facilities)} equipamientos",
+        flush=True,
+    )
     export_facilities(endpoint)
 
 

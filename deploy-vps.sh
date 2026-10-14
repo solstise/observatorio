@@ -50,6 +50,7 @@ tar \
   --exclude='./.git' \
   --exclude='./.env' \
   --exclude='./.env.local' \
+  --exclude='./.env.*' \
   --exclude='./out' \
   --exclude='./dist' \
   --exclude='./build' \
@@ -74,7 +75,7 @@ ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=3 "$VPS_HOST" "
   built=0
   for i in 1 2 3; do
     echo \"--- build intento \$i/3 ---\"
-    if timeout 1800 docker compose -f '$VPS_COMPOSE_FILE' build $APP_NAME; then
+    if timeout 1800 docker build -t apps-observatorio:latest '$VPS_APP_DIR'; then
       built=1
       break
     fi
