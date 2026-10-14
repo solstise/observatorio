@@ -1,64 +1,64 @@
 poligono_id,nombre,edificios_total,viviendas_muy_expuestas,viviendas_expuestas,pct_viviendas_expuestas,edificios_a_verificar,poblacion_expuesta_estimada,poblacion_expuesta_min,poblacion_expuesta_max,estado,score_anegamiento,nivel,categoria,lluvia_max_1h,lluvia_48h_proj_mm,pct_impermeable,riesgo_inundacion_base,anegamiento_v1,generated_at
-puerto_canela,Puerto Canela,10490,2,1827,,20,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,37.3,2026-10-14T04:12:43+00:00
-chacra_32,Chacra 32,10913,3,1704,,19,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,61.4,2026-10-14T04:12:43+00:00
-aguas_corrientes,Aguas Corrientes,8924,2,1608,,2,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,60.7,2026-10-14T04:12:43+00:00
-dm_itaembe_mini_este,DM Itaembé Miní Este,7465,69,1575,,7,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,53.0,2026-10-14T04:12:43+00:00
-cit_riberas_del_parana_oeste,CIT Riberas del Paraná (oeste),8658,25,1343,,15,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,55.2,2026-10-14T04:12:43+00:00
-cit_riberas_del_parana,CIT Riberas del Paraná,5515,13,1313,,9,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,56.2,2026-10-14T04:12:43+00:00
-dm_santa_rita_suroeste,DM Santa Rita (suroeste),11986,21,917,,6,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,60.0,2026-10-14T04:12:43+00:00
-itaembe_guazu,Itaembé Guazú,9193,1,913,,490,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,50.7,2026-10-14T04:12:43+00:00
-dm_santa_rita,DM Santa Rita,8742,19,913,,11,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,57.0,2026-10-14T04:12:43+00:00
-itaembe_pora,Itaembé Porá,5539,16,705,,14,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,55.1,2026-10-14T04:12:43+00:00
-dm_villa_urquiza,DM Villa Urquiza,4713,1,650,,1,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,59.4,2026-10-14T04:12:43+00:00
-villa_dolores,Villa Dolores,8922,0,586,,3,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,58.4,2026-10-14T04:12:43+00:00
-monsenor_kemerer,Monseñor Kemerer,2334,0,582,,1,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,60.6,2026-10-14T04:12:43+00:00
-villa_bonita,Villa Bonita,2557,7,552,,3,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,56.9,2026-10-14T04:12:43+00:00
-horacio_quiroga,Horacio Quiroga,2249,0,493,,2,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,53.6,2026-10-14T04:12:43+00:00
-fatima_sur,Fátima (sur),2828,24,475,16.8,0,1073.0,858.0,1288.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,49.8,2026-10-14T04:12:43+00:00
-san_lucas,San Lucas,1132,0,474,41.87,0,690.0,552.0,828.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,61.4,2026-10-14T04:12:43+00:00
-san_marcos,San Marcos,638,0,359,56.27,0,623.0,498.0,748.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,54.6,2026-10-14T04:12:43+00:00
-porvenir_2,Porvenir 2,1071,1,342,,3,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,49.9,2026-10-14T04:12:43+00:00
-malvinas,Malvinas,1824,10,327,,1,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,38.3,2026-10-14T04:12:43+00:00
-el_palomar,El Palomar,1916,12,292,,3,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,62.1,2026-10-14T04:12:43+00:00
-villa_urquiza,Villa Urquiza,2048,0,286,13.96,0,626.0,501.0,751.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,60.9,2026-10-14T04:12:43+00:00
-centro,Centro,4991,0,281,,2,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,61.9,2026-10-14T04:12:43+00:00
-23_de_septiembre,23 de Septiembre,876,0,278,31.74,0,539.0,431.0,647.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,62.0,2026-10-14T04:12:43+00:00
-nu_pora,Ñu Porá,1574,0,263,,4,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,61.2,2026-10-14T04:12:43+00:00
-los_patitos,Los Patitos,1384,5,249,,2,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,,2026-10-14T04:12:43+00:00
-villa_cabello,Villa Cabello,7143,0,235,,4,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,55.6,2026-10-14T04:12:43+00:00
-dm_miguel_lanus,DM Miguel Lanús,3282,0,192,5.85,0,977.0,782.0,1172.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,38.7,2026-10-14T04:12:43+00:00
-dm_villa_urquiza_sureste,DM Villa Urquiza (sureste),675,7,169,25.04,0,1162.0,930.0,1394.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,54.3,2026-10-14T04:12:43+00:00
-miguel_lanus,Miguel Lanús,2205,0,164,,4,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,58.8,2026-10-14T04:12:43+00:00
-norte,Norte,628,0,164,26.11,0,,,,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,36.4,2026-10-14T04:12:43+00:00
-dm_miguel_lanus_sur,DM Miguel Lanús (sur),1163,1,151,,4,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,36.9,2026-10-14T04:12:43+00:00
-itaembe_mini,Itaembé Miní,2071,0,113,,3,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,53.7,2026-10-14T04:12:43+00:00
-el_laurel,El Laurel,515,0,81,15.73,0,170.0,136.0,204.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,41.2,2026-10-14T04:12:43+00:00
-complejo_habitacional_virgen_de_fatima,Complejo Habitacional Vírgen de Fátima,1014,0,73,7.2,0,163.0,130.0,196.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,61.1,2026-10-14T04:12:43+00:00
-don_santiago,Don Santiago,535,0,72,13.46,0,93.0,74.0,112.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,61.0,2026-10-14T04:12:43+00:00
-san_isidro,San Isidro,907,0,64,,2,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,60.4,2026-10-14T04:12:43+00:00
-lomas_de_garupa,Lomas de Garupá,546,0,60,10.99,0,224.0,179.0,269.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,52.5,2026-10-14T04:12:43+00:00
-luis_piedrabuena,Luis Piedrabuena,1336,0,39,,2,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,53.4,2026-10-14T04:12:43+00:00
-bajada_vieja,Bajada Vieja,680,0,39,5.74,0,152.0,122.0,182.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,57.7,2026-10-14T04:12:43+00:00
-villa_mola,Villa Mola,225,0,31,,1,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,52.7,2026-10-14T04:12:43+00:00
-el_portal,El Portal,1171,0,30,,1,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,53.9,2026-10-14T04:12:43+00:00
-el_brete,El Brete,1556,0,28,1.8,0,37.0,30.0,44.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,59.3,2026-10-14T04:12:43+00:00
-a4_nueva_esperanza,A4 - Nueva Esperanza,138,0,20,,1,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,60.2,2026-10-14T04:12:43+00:00
-fatima,Fátima,755,0,17,2.25,0,47.0,38.0,56.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,49.7,2026-10-14T04:12:43+00:00
-las_dolores,Las Dolores,452,0,15,3.32,0,46.0,37.0,55.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,50.1,2026-10-14T04:12:43+00:00
-san_martin_sureste,San Martín (sureste),2323,0,11,,1,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,57.2,2026-10-14T04:12:43+00:00
-santa_helena,Santa Helena,1120,0,10,0.89,0,14.0,11.0,17.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,56.6,2026-10-14T04:12:43+00:00
-dm_itaembe_mini_este_suroeste,DM Itaembé Miní Este (suroeste),2149,0,9,,1,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,44.2,2026-10-14T04:12:43+00:00
-yacyreta,Yacyretá,2155,0,8,,1,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,61.8,2026-10-14T04:12:43+00:00
-villa_sarita,Villa Sarita,2019,0,4,0.2,0,6.0,5.0,7.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,61.7,2026-10-14T04:12:43+00:00
-santa_rita,Santa Rita,1739,0,3,,5,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,61.4,2026-10-14T04:12:43+00:00
-rocamora,Rocamora,1898,0,3,,2,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,61.8,2026-10-14T04:12:43+00:00
-complejo_gervasio_artigas,Complejo Gervasio Artigas,752,0,3,0.4,0,1.0,1.0,1.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,33.6,2026-10-14T04:12:43+00:00
-federal,Federal,106,0,1,0.94,0,,,,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,29.5,2026-10-14T04:12:43+00:00
-nemesio_parma,Nemesio Parma,4,0,1,,3,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,30.0,2026-10-14T04:12:43+00:00
-a_3_2_sector_b,A-3-2 Sector B,324,0,0,0.0,0,0.0,0.0,0.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,62.0,2026-10-14T04:12:43+00:00
-colonia_laosiana,Colonia Laosiana,50,0,0,0.0,0,0.0,0.0,0.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,29.1,2026-10-14T04:12:43+00:00
-san_jorge,San Jorge,603,0,0,,2,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,58.2,2026-10-14T04:12:43+00:00
-alta_gracia,Alta Gracia,1370,0,0,0.0,0,0.0,0.0,0.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,61.4,2026-10-14T04:12:43+00:00
-san_martin,San Martín,2290,0,0,0.0,0,0.0,0.0,0.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,62.0,2026-10-14T04:12:43+00:00
-cima_del_sol,Cima del Sol,284,0,0,0.0,0,0.0,0.0,0.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,42.5,2026-10-14T04:12:43+00:00
-la_eugenia,La Eugenia,190,0,0,0.0,0,,,,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,,2026-10-14T04:12:43+00:00
+puerto_canela,Puerto Canela,10490,2,1827,,20,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,37.3,2026-10-14T11:09:15+00:00
+chacra_32,Chacra 32,10913,3,1704,,19,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,61.4,2026-10-14T11:09:15+00:00
+aguas_corrientes,Aguas Corrientes,8924,2,1608,,2,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,60.7,2026-10-14T11:09:15+00:00
+dm_itaembe_mini_este,DM Itaembé Miní Este,7465,69,1575,,7,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,53.0,2026-10-14T11:09:15+00:00
+cit_riberas_del_parana_oeste,CIT Riberas del Paraná (oeste),8658,25,1343,,15,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,55.2,2026-10-14T11:09:15+00:00
+cit_riberas_del_parana,CIT Riberas del Paraná,5515,13,1313,,9,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,56.2,2026-10-14T11:09:15+00:00
+dm_santa_rita_suroeste,DM Santa Rita (suroeste),11986,21,917,,6,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,60.0,2026-10-14T11:09:15+00:00
+itaembe_guazu,Itaembé Guazú,9193,1,913,,490,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,50.7,2026-10-14T11:09:15+00:00
+dm_santa_rita,DM Santa Rita,8742,19,913,,11,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,57.0,2026-10-14T11:09:15+00:00
+itaembe_pora,Itaembé Porá,5539,16,705,,14,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,55.1,2026-10-14T11:09:15+00:00
+dm_villa_urquiza,DM Villa Urquiza,4713,1,650,,1,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,59.4,2026-10-14T11:09:15+00:00
+villa_dolores,Villa Dolores,8922,0,586,,3,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,58.4,2026-10-14T11:09:15+00:00
+monsenor_kemerer,Monseñor Kemerer,2334,0,582,,1,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,60.6,2026-10-14T11:09:15+00:00
+villa_bonita,Villa Bonita,2557,7,552,,3,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,56.9,2026-10-14T11:09:15+00:00
+horacio_quiroga,Horacio Quiroga,2249,0,493,,2,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,53.6,2026-10-14T11:09:15+00:00
+fatima_sur,Fátima (sur),2828,24,475,16.8,0,1073.0,858.0,1288.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,49.8,2026-10-14T11:09:15+00:00
+san_lucas,San Lucas,1132,0,474,41.87,0,690.0,552.0,828.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,61.4,2026-10-14T11:09:15+00:00
+san_marcos,San Marcos,638,0,359,56.27,0,623.0,498.0,748.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,54.6,2026-10-14T11:09:15+00:00
+porvenir_2,Porvenir 2,1071,1,342,,3,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,49.9,2026-10-14T11:09:15+00:00
+malvinas,Malvinas,1824,10,327,,1,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,38.3,2026-10-14T11:09:15+00:00
+el_palomar,El Palomar,1916,12,292,,3,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,62.1,2026-10-14T11:09:15+00:00
+villa_urquiza,Villa Urquiza,2048,0,286,13.96,0,626.0,501.0,751.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,60.9,2026-10-14T11:09:15+00:00
+centro,Centro,4991,0,281,,2,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,61.9,2026-10-14T11:09:15+00:00
+23_de_septiembre,23 de Septiembre,876,0,278,31.74,0,539.0,431.0,647.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,62.0,2026-10-14T11:09:15+00:00
+nu_pora,Ñu Porá,1574,0,263,,4,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,61.2,2026-10-14T11:09:15+00:00
+los_patitos,Los Patitos,1384,5,249,,2,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,,2026-10-14T11:09:15+00:00
+villa_cabello,Villa Cabello,7143,0,235,,4,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,55.6,2026-10-14T11:09:15+00:00
+dm_miguel_lanus,DM Miguel Lanús,3282,0,192,5.85,0,977.0,782.0,1172.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,38.7,2026-10-14T11:09:15+00:00
+dm_villa_urquiza_sureste,DM Villa Urquiza (sureste),675,7,169,25.04,0,1162.0,930.0,1394.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,54.3,2026-10-14T11:09:15+00:00
+miguel_lanus,Miguel Lanús,2205,0,164,,4,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,58.8,2026-10-14T11:09:15+00:00
+norte,Norte,628,0,164,26.11,0,,,,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,36.4,2026-10-14T11:09:15+00:00
+dm_miguel_lanus_sur,DM Miguel Lanús (sur),1163,1,151,,4,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,36.9,2026-10-14T11:09:15+00:00
+itaembe_mini,Itaembé Miní,2071,0,113,,3,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,53.7,2026-10-14T11:09:15+00:00
+el_laurel,El Laurel,515,0,81,15.73,0,170.0,136.0,204.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,41.2,2026-10-14T11:09:15+00:00
+complejo_habitacional_virgen_de_fatima,Complejo Habitacional Vírgen de Fátima,1014,0,73,7.2,0,163.0,130.0,196.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,61.1,2026-10-14T11:09:15+00:00
+don_santiago,Don Santiago,535,0,72,13.46,0,93.0,74.0,112.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,61.0,2026-10-14T11:09:15+00:00
+san_isidro,San Isidro,907,0,64,,2,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,60.4,2026-10-14T11:09:15+00:00
+lomas_de_garupa,Lomas de Garupá,546,0,60,10.99,0,224.0,179.0,269.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,52.5,2026-10-14T11:09:15+00:00
+luis_piedrabuena,Luis Piedrabuena,1336,0,39,,2,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,53.4,2026-10-14T11:09:15+00:00
+bajada_vieja,Bajada Vieja,680,0,39,5.74,0,152.0,122.0,182.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,57.7,2026-10-14T11:09:15+00:00
+villa_mola,Villa Mola,225,0,31,,1,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,52.7,2026-10-14T11:09:15+00:00
+el_portal,El Portal,1171,0,30,,1,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,53.9,2026-10-14T11:09:15+00:00
+el_brete,El Brete,1556,0,28,1.8,0,37.0,30.0,44.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,59.3,2026-10-14T11:09:15+00:00
+a4_nueva_esperanza,A4 - Nueva Esperanza,138,0,20,,1,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,60.2,2026-10-14T11:09:15+00:00
+fatima,Fátima,755,0,17,2.25,0,47.0,38.0,56.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,49.7,2026-10-14T11:09:15+00:00
+las_dolores,Las Dolores,452,0,15,3.32,0,46.0,37.0,55.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,50.1,2026-10-14T11:09:15+00:00
+san_martin_sureste,San Martín (sureste),2323,0,11,,1,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,57.2,2026-10-14T11:09:15+00:00
+santa_helena,Santa Helena,1120,0,10,0.89,0,14.0,11.0,17.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,56.6,2026-10-14T11:09:15+00:00
+dm_itaembe_mini_este_suroeste,DM Itaembé Miní Este (suroeste),2149,0,9,,1,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,44.2,2026-10-14T11:09:15+00:00
+yacyreta,Yacyretá,2155,0,8,,1,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,61.8,2026-10-14T11:09:15+00:00
+villa_sarita,Villa Sarita,2019,0,4,0.2,0,6.0,5.0,7.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,61.7,2026-10-14T11:09:15+00:00
+santa_rita,Santa Rita,1739,0,3,,5,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,61.4,2026-10-14T11:09:15+00:00
+rocamora,Rocamora,1898,0,3,,2,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,61.8,2026-10-14T11:09:15+00:00
+complejo_gervasio_artigas,Complejo Gervasio Artigas,752,0,3,0.4,0,1.0,1.0,1.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,33.6,2026-10-14T11:09:15+00:00
+federal,Federal,106,0,1,0.94,0,,,,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,29.5,2026-10-14T11:09:15+00:00
+nemesio_parma,Nemesio Parma,4,0,1,,3,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,30.0,2026-10-14T11:09:15+00:00
+a_3_2_sector_b,A-3-2 Sector B,324,0,0,0.0,0,0.0,0.0,0.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,62.0,2026-10-14T11:09:15+00:00
+colonia_laosiana,Colonia Laosiana,50,0,0,0.0,0,0.0,0.0,0.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,29.1,2026-10-14T11:09:15+00:00
+san_jorge,San Jorge,603,0,0,,2,,,,a_verificar,,a_verificar,a_verificar,0.0,0.0,,,58.2,2026-10-14T11:09:15+00:00
+alta_gracia,Alta Gracia,1370,0,0,0.0,0,0.0,0.0,0.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,61.4,2026-10-14T11:09:15+00:00
+san_martin,San Martín,2290,0,0,0.0,0,0.0,0.0,0.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,62.0,2026-10-14T11:09:15+00:00
+cima_del_sol,Cima del Sol,284,0,0,0.0,0,0.0,0.0,0.0,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,42.5,2026-10-14T11:09:15+00:00
+la_eugenia,La Eugenia,190,0,0,0.0,0,,,,calculado,0.0,sin_umbral,bajo,0.0,0.0,,,,2026-10-14T11:09:15+00:00
