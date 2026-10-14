@@ -1,0 +1,34 @@
+{
+  "checked_at": "2026-10-14T13:47:49.950306+00:00",
+  "barrios_completos": 63,
+  "centroides_pendientes": 0,
+  "poblacion_a_verificar": [
+    "Puerto Canela",
+    "CIT Riberas del Paraná (oeste)",
+    "El Laurel",
+    "Villa Mola",
+    "Bajada Vieja"
+  ],
+  "forecast_generated_at": "2026-10-14T13:41:02+00:00",
+  "exposicion_generated_at": "2026-10-14T13:36:57.189828+00:00",
+  "descargas": [
+    {
+      "archivo": "exposicion_hidrica.json",
+      "bytes": 38662,
+      "sha256_publicado": "9dd4eb36070f50ff9eb18d5b5266989e55219ee37315c0b9aff223099c44209b",
+      "identico_local_normalizando_crlf": true
+    },
+    {
+      "archivo": "exposicion_hidrica.geojson",
+      "bytes": 442714,
+      "sha256_publicado": "e5405e0b9e7d211000b0b15520cc8ab600d22994ec79a97a57d1f60d7e205785",
+      "identico_local_normalizando_crlf": true
+    },
+    {
+      "archivo": "exposicion_hidrica.kml",
+      "bytes": 426593,
+      "sha256_publicado": "6192f92429e7150d846c5dde5356497c00d8d889b5151e4a06bcd8931a154696",
+      "identico_local_normalizando_crlf": true
+    }
+  ]
+}

@@ -65,10 +65,23 @@ python -m black --check scripts tests
 
 El pronóstico de origen se renueva mediante 57 → 58 → `sync_forecast.py` antes de 62; la fecha del pronóstico nunca se sustituye por la fecha del DEM. El cron consume los agregados versionados y no descarga DEM ni edificios en cada ejecución.
 
-Pruebas: **97 aprobadas, 37 omitidas** según condiciones de la suite; ruff y black aprobados. Siete pruebas geoespaciales nuevas cubren borde 299,9/300,1 m, cotas faltantes, nodata parcial del drenaje, cero válido y cobertura/nodata poblacional. Build y lint de frontend aprobados; lint conserva advertencias previas. Chrome verificó seis rutas, mapa, 103, tabla ordenable, móvil de 390 px sin desborde, vencimiento del pronóstico tras 25 h y OG PNG, sin errores de JavaScript. Evidencias en `docs/capturas-dem/`.
+Pruebas locales: **97 aprobadas, 37 omitidas** según condiciones de la suite; ruff y black aprobados. [Tests en GitHub](https://github.com/solstise/observatorio/actions/runs/38573590717) y [lint](https://github.com/solstise/observatorio/actions/runs/38573590544) aprobados; el job Python 3.11 de CI informa **130 aprobadas y 8 omitidas**. Siete pruebas geoespaciales nuevas cubren borde 299,9/300,1 m, cotas faltantes, nodata parcial del drenaje, cero válido y cobertura/nodata poblacional. Build y lint de frontend aprobados; lint conserva advertencias previas. Chrome verificó seis rutas, mapa, 103, tabla ordenable, móvil de 390 px sin desborde, vencimiento del pronóstico tras 25 h y OG PNG, sin errores de JavaScript. Evidencias en `docs/capturas-dem/`.
 
 Las descargas siguen siendo agregadas por barrio o grilla de 60 m disuelta; no se publican centroides de edificios ni se afirma daño observado.
 
 ## Despliegue
 
-Pendiente de cerrar con la corrida y el smoke público. Se guardó la imagen previa como `apps-observatorio:rollback-dem-20261014`, digest `sha256:0669577974d84862657c14b6223d7a51ea91e99db2ffcbf3354dfc8161f9cee0`, en el VPS de producción. El código anterior corresponde a `f937d8c`. No se modificaron los cambios ajenos presentes al iniciar.
+Integrado con merge normal `efd064d` en `main`, sin force push. [Corrida de actualización y despliegue 38573593113](https://github.com/solstise/observatorio/actions/runs/38573593113) aprobada. El contenedor se inició el **14/10/2026 a las 10:46:35 ART** (`13:46:35 UTC`), imagen `sha256:4c5ea9a01cb05f24cab61897c31339a73fc7e186c5484562e2799825d2aee6bf`.
+
+URL: [Sala de situación El Niño](https://sateliteposadas.com/nino). Smoke público a las 10:47 ART aprobado: home, `/nino`, `/pronostico/riesgos`, `/datos/metodologia` y ficha Villa Urquiza respondieron 200; OG PNG válida. Pronóstico emitido `2026-10-14T13:41:02+00:00`, unos seis minutos de antigüedad. Chrome en producción aprobó también `/pronostico`, mapa, 103, ordenamiento, móvil sin desborde y degradación con datos vencidos, sin errores JavaScript.
+
+Se verificó directamente el JSON público: **63 barrios calculados, cero centroides pendientes y las cinco poblaciones nulas esperadas**. JSON, GeoJSON y KML publicados coinciden con los agregados locales validados al normalizar los saltos de línea CRLF/LF de Windows/Linux. Evidencias y hashes publicados en `docs/capturas-dem/produccion-datos.json`; smoke en `produccion-smoke.json` y pruebas visuales en `docs/capturas-dem/produccion/`. No fue necesario rollback.
+
+Se guardó la imagen previa como `apps-observatorio:rollback-dem-20261014`, digest `sha256:0669577974d84862657c14b6223d7a51ea91e99db2ffcbf3354dfc8161f9cee0`, en el VPS de producción. El código anterior corresponde a `f937d8c`. No se modificaron los cambios ajenos presentes al iniciar. El servidor de prueba local quedó detenido.
+
+Rollback inmediato, si fuera necesario:
+
+```powershell
+ssh root@187.77.54.19 'docker tag apps-observatorio:rollback-dem-20261014 apps-observatorio:latest && docker compose -f /opt/apps/migrated-vps2.yml up -d --no-deps --force-recreate --no-build observatorio'
+python scripts/smoke_nino.py
+```
