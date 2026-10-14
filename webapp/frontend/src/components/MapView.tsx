@@ -311,7 +311,7 @@ export default function MapView({
         </LayersControl.Overlay>
 
         {/* --- Poligonos del observatorio (siempre visibles por default) --- */}
-        <LayersControl.Overlay name="Polígonos del observatorio" checked>
+        <LayersControl.Overlay name="Barrios del observatorio" checked>
           <GeoJSON
             key={isDark ? "polys-dark" : "polys-light"}
             ref={geoJsonRef}

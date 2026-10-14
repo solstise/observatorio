@@ -62,7 +62,7 @@ export type CategoriaGlosario = TerminoGlosario["categoria"];
 export const CATEGORIA_LABELS: Record<CategoriaGlosario, string> = {
   satelital: "Sensores satelitales",
   estadistica: "Estadística y modelos",
-  calor: "Calor urbano",
+  calor: "Temperatura",
   social: "Indicadores sociales",
   datos_publicos: "Datos públicos / fuentes",
   infraestructura: "Infraestructura del observatorio",

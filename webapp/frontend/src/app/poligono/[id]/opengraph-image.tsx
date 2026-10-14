@@ -14,7 +14,7 @@ import { getPoligonoFeature } from "@/lib/data.server";
 
 export const runtime = "nodejs";
 
-export const alt = "Ficha del polígono — Observatorio Urbano Posadas";
+export const alt = "Ficha del barrio — Observatorio Urbano Posadas";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -89,7 +89,7 @@ export default async function Image({ params }: ImageProps) {
           </div>
         </div>
 
-        {/* Centro: nombre del polígono */}
+        {/* Centro: nombre del barrio */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div
             style={{
@@ -163,7 +163,7 @@ export default async function Image({ params }: ImageProps) {
               opacity: 0.85,
             }}
           >
-            observatorio.sistemaswinter.com
+            sateliteposadas.com
           </div>
         </div>
       </div>

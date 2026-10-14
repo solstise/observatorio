@@ -38,7 +38,7 @@ export function RankingBarrios({
   nombres,
   onSelect,
 }: Props) {
-  // Tomamos el dato más reciente de cada polígono.
+  // Tomamos el dato más reciente de cada barrio.
   const ultimosPorPoli = new Map<string, UhiMensualRow>();
   for (const r of rows) {
     const prev = ultimosPorPoli.get(r.poligono_id);

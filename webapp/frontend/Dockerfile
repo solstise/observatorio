@@ -22,6 +22,7 @@ RUN npm run build
 
 # ---------- Etapa 3: runtime ----------
 FROM base AS runner
+RUN apk add --no-cache font-dejavu
 WORKDIR /app
 
 ENV NODE_ENV=production

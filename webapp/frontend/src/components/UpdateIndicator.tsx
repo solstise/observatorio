@@ -18,7 +18,7 @@
 //
 // Si querés que él mismo fetchee, pasale `selfFetch` y omití generatedAt.
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { LottieAnimation } from "@/components/LottieAnimation";
 import { useLiveData } from "@/hooks/useLiveData";
@@ -95,20 +95,16 @@ export function UpdateIndicator({
 
   // Re-render cada minuto para que el "hace X min" se mantenga preciso
   // sin depender de updates externos.
+  const [mounted, setMounted] = useState(false);
   const [, setTick] = useState(0);
   useEffect(() => {
+    setMounted(true);
     const id = setInterval(() => setTick((v) => v + 1), 60_000);
     return () => clearInterval(id);
   }, []);
 
-  const freshness = useMemo(
-    () => classifyFreshness(effectiveGeneratedAt),
-    [effectiveGeneratedAt],
-  );
-  const relText = useMemo(
-    () => formatRelative(effectiveGeneratedAt),
-    [effectiveGeneratedAt],
-  );
+  const freshness = mounted ? classifyFreshness(effectiveGeneratedAt) : "old";
+  const relText = mounted ? formatRelative(effectiveGeneratedAt) : "verificando antigüedad";
 
   const dotColor = {
     fresh: "bg-emerald-500 dark:bg-emerald-400",

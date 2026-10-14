@@ -91,7 +91,7 @@ export const DATASET_INFO: Record<string, DatasetEntry> = {
     strategy: "json-generated-at",
   },
   calor_landsat: {
-    label: "Calor urbano (Landsat)",
+    label: "Temperatura (Landsat)",
     frequency: "mensual",
     source: "data/calor/lst_mensual.csv",
     fuente: "USGS Landsat 8/9 Collection 2 — banda térmica ST_B10",
@@ -189,7 +189,7 @@ export const DATASET_INFO: Record<string, DatasetEntry> = {
   // ventanas mensuales sin observación Landsat. El CSV agrega `mes`/`anio`
   // así que `mtime` del archivo es un proxy razonable de su frescura.
   cbers_termico: {
-    label: "Calor urbano backup (CBERS IRS)",
+    label: "Temperatura backup (CBERS IRS)",
     frequency: "mensual",
     source: "data/cbers_termico/lst_cbers.csv",
     fuente: "INPE CBERS-4 IRS (banda térmica 40 m + SWIR 80 m)",
@@ -349,6 +349,8 @@ async function resolveTimestamp(
   entry: DatasetEntry,
 ): Promise<string> {
   const abs = resolvePublic(entry.source);
+  // Nunca convertir una copia reciente de un archivo viejo en pronóstico fresco.
+  if (entry.frequency === "6h") return (await readJsonGeneratedAt(abs)) ?? "";
   const isJson = entry.source.endsWith(".json");
 
   // Orden preferido por estrategia explícita; luego intentamos las demás.

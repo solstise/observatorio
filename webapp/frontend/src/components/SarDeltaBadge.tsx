@@ -28,7 +28,7 @@ export function SarDeltaBadge({ rows }: SarDeltaBadgeProps) {
     return (
       <div className="flex h-full min-h-[160px] items-center justify-center">
         <p className="text-sm italic text-neutral-muted dark:text-dk-muted">
-          Sin datos de detección por radar para este polígono.
+          Sin datos de detección por radar para este barrio.
         </p>
       </div>
     );

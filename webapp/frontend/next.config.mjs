@@ -96,6 +96,46 @@ const nextConfig = {
       },
     ];
   },
+  // Re-arquitectura mayo 2026: el sitio pasó de 17 rutas flat a 6 hubs
+  // top-level (Mapa, Indicadores, Pronóstico, Decisión, Historia, Datos).
+  // Los redirects de abajo preservan bookmarks y SEO existentes — Google
+  // retiene ranking de los 301 en 2-4 semanas. Mantenerlos indefinidamente.
+  async redirects() {
+    const map = [
+      // → /indicadores/*
+      ["/tipologia", "/indicadores/tipologia"],
+      ["/calor", "/indicadores/calor"],
+      ["/calidad-vida", "/indicadores/calidad-vida"],
+      ["/densidad", "/indicadores/poblacion"],
+      // → /pronostico/*
+      ["/clima", "/pronostico/clima"],
+      ["/riesgos", "/pronostico/riesgos"],
+      ["/proyecciones", "/pronostico/proyecciones"],
+      // → /decision/*
+      ["/prioridades", "/decision/prioridades"],
+      ["/comparar", "/decision/comparar"],
+      // → /datos/* (capa histórica y validación se reubicaron acá tras la
+      // poda del hub /historia top-level — los eventos extremos quedaron
+      // archivados porque Posadas no tiene catástrofes recurrentes que
+      // sostengan un catálogo histórico con confianza alta. Las URLs
+      // viejas /historia* y /eventos redirigen al timeline para no
+      // romper bookmarks de prensa o IDE de Misiones.)
+      ["/historia", "/datos/historia"],
+      ["/historia/eventos", "/datos/historia"],
+      ["/historia/validacion", "/datos/validacion"],
+      ["/eventos", "/datos/historia"],
+      ["/validacion", "/datos/validacion"],
+      ["/descargas", "/datos/descargas"],
+      ["/metodologia", "/datos/metodologia"],
+      ["/3d", "/datos/3d"],
+      ["/explorar", "/datos/explorar"],
+    ];
+    return map.map(([source, destination]) => ({
+      source,
+      destination,
+      permanent: true,
+    }));
+  },
 };
 
 export default withBundleAnalyzer(nextConfig);

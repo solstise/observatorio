@@ -95,7 +95,14 @@ const TOOLTIP_GAP = 8; // separación trigger ↔ tooltip
 const VIEWPORT_MARGIN = 8; // margen mínimo respecto al borde del viewport
 
 export function TerminoGlosario({ id, children, className = "" }: Props) {
+  // Separar el fallback mantiene estable el orden de hooks al cambiar de término.
   const term = INDEX.get(id);
+  if (!term) return <>{children ?? id}</>;
+  return <TerminoGlosarioKnown id={id} className={className}>{children}</TerminoGlosarioKnown>;
+}
+
+function TerminoGlosarioKnown({ id, children, className = "" }: Props) {
+  const term = INDEX.get(id)!;
   const tooltipId = useId();
   const triggerRef = useRef<HTMLSpanElement | null>(null);
   const tooltipRef = useRef<HTMLDivElement | null>(null);
@@ -104,22 +111,6 @@ export function TerminoGlosario({ id, children, className = "" }: Props) {
     placement: "top",
     offsetX: 0,
   });
-
-  // Si el id no existe → render plain text. NUNCA crashear el padre.
-  if (!term) {
-    if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
-      if (!WARNED.has(id)) {
-        WARNED.add(id);
-        // eslint-disable-next-line no-console
-        console.warn(
-          `[TerminoGlosario] id="${id}" no existe en GLOSARIO. ` +
-            `Renderizando como texto plano. Definir el término en lib/glosario.ts ` +
-            `o corregir el id usado en el JSX.`,
-        );
-      }
-    }
-    return <>{children ?? id}</>;
-  }
 
   const label = children ?? term.termino;
 

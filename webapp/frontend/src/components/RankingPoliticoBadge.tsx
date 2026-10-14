@@ -1,6 +1,6 @@
 // Badge del ranking político de prioridad (capa social, fase 3).
 //
-// Qué hace: muestra la posición del polígono dentro del ranking de
+// Qué hace: muestra la posición del barrio dentro del ranking de
 // prioridad de inversión política. Incluye un tooltip con el desglose
 // de los tres componentes (vulnerabilidad, UHI verano y carencia de
 // acceso a servicios).
@@ -80,7 +80,7 @@ export function RankingPoliticoBadge({
           Ranking de prioridad
         </h3>
         <p className="mt-2 text-sm italic text-neutral-muted dark:text-dk-muted">
-          Sin datos de ranking para este polígono todavía.
+          Sin datos de ranking para este barrio todavía.
         </p>
       </div>
     );
