@@ -4,8 +4,8 @@ Ejecutar desde la raíz: python scripts/61_exposicion_hidrica.py
 No publica puntos de edificios. Las zonas son una grilla de 60 m disuelta.
 """
 
-import json
 import argparse
+import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -24,7 +24,7 @@ import yaml
 from pyproj import Transformer
 from rasterio.mask import mask
 from scipy.spatial import cKDTree
-from shapely.geometry import LineString, Point, box
+from shapely.geometry import LineString, box
 
 from scripts.nino_model import agregar_exposicion
 
@@ -89,8 +89,8 @@ def export_facilities(endpoint):
     else:
         b = yaml.safe_load((ROOT / "config/settings.yaml").read_text(encoding="utf-8"))["geografia"]["bbox"]
         bbox = f"{b['sur']},{b['oeste']},{b['norte']},{b['este']}"
-        q = f'[out:json][timeout:60];(nwr[amenity~"^(school|hospital|clinic|doctors|community_centre)$"]({bbox});nwr[leisure=sports_centre]({bbox});nwr[name~"CAV|Centro de Atención al Vecino",i]({bbox}););out center;'
-        r = requests.get(endpoint, params={"data": q}, timeout=100)
+        q = f'[out:json][timeout:60];(nwr[amenity~"school|hospital|clinic|doctors|community_centre"]({bbox});nwr[leisure=sports_centre]({bbox});nwr[name~"CAV|Centro de Atenci",i]({bbox}););out center;'
+        r = requests.get(endpoint, params={"data": q}, headers={"User-Agent": "ObservatorioPosadas-exposicion/1.0"}, timeout=100)
         r.raise_for_status()
         data = r.json()
         if data.get("remark"):

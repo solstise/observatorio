@@ -83,9 +83,9 @@ import requests
 import yaml
 from loguru import logger
 
+from scripts.nino_model import resumen_ensemble
 from scripts.utils.logger import setup_logger
 from scripts.utils.paths import resolve_path
-from scripts.nino_model import resumen_ensemble
 
 SCRIPT_VERSION = "0.1.0"
 
@@ -355,7 +355,7 @@ def parsear_ensemble_horario(
     # Cortar a las primeras N horas para no llenar el CSV con 14 días horarios.
     now = datetime.now(timezone.utc).timestamp()
     tz_offset = j.get("utc_offset_seconds", -10800)
-    stamps = pd.to_datetime(df["time"]).astype("int64") / 1e9 - tz_offset
+    stamps = pd.to_datetime(df["time"], utc=True).map(lambda t: t.timestamp()) - tz_offset
     return df[stamps > now].head(horas_adelante).copy()
 
 

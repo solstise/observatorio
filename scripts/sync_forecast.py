@@ -1,5 +1,6 @@
 """Sincroniza exclusivamente el snapshot de pronóstico, sin requerir Earth Engine."""
 
+import csv
 import json
 import shutil
 from datetime import datetime, timezone
@@ -32,6 +33,23 @@ def sync_forecast(root=ROOT):
     target.mkdir(parents=True, exist_ok=True)
     for name, dest in FILES.items():
         shutil.copy2(source / name, target / dest)
+    # JSONs por barrio y resumen para /api/forecast y el publicador Upstash.
+    with (source / "forecast_diario_por_barrio.csv").open(encoding="utf-8", newline="") as stream:
+        rows = list(csv.DictReader(stream))
+    if not rows or any(r.get("generated_at") != meta["generated_at"] for r in rows):
+        raise ValueError("Filas y metadata no pertenecen al mismo snapshot")
+    groups = {}
+    for row in rows:
+        parsed = {}
+        for key, value in row.items():
+            try:
+                parsed[key] = float(value) if value != "" else None
+            except ValueError:
+                parsed[key] = value
+        groups.setdefault(row["poligono_id"], []).append(parsed)
+    for pid, records in groups.items():
+        (target / f"{pid}.json").write_text(json.dumps({"generated_at": meta["generated_at"], "diario": records}, ensure_ascii=False), encoding="utf-8")
+    (target / "_resumen.json").write_text(json.dumps({"generated_at": meta["generated_at"], "diario": rows}, ensure_ascii=False), encoding="utf-8")
     print(f"Snapshot sincronizado: {meta['generated_at']}")
 
 

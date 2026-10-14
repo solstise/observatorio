@@ -144,7 +144,9 @@ jobs:
           fi
 
       - name: Sincronizar y validar snapshot publicado
-        run: python scripts/sync_forecast.py
+        run: |
+          python scripts/sync_forecast.py
+          python scripts/62_nino_snapshot.py
 
       - name: Publish to Upstash Redis
         if: env.UPSTASH_CONFIGURED == 'true'
@@ -166,39 +168,26 @@ jobs:
           git config user.name  "$GIT_AUTHOR_NAME"
           git config user.email "$GIT_AUTHOR_EMAIL"
 
-          # Stash de los outputs específicos del forecast.
-          mkdir -p /tmp/sync_payload
-          [[ -d webapp/frontend/public/data/forecast ]] && cp -a webapp/frontend/public/data/forecast /tmp/sync_payload/forecast
-          [[ -d webapp/frontend/public/data/alertas ]]  && cp -a webapp/frontend/public/data/alertas  /tmp/sync_payload/alertas
-          [[ -f webapp/frontend/public/data/updated_at.txt ]] && cp -a webapp/frontend/public/data/updated_at.txt /tmp/sync_payload/
+          # No cambiar el checkout de código ni ignorar conflictos de merge.
+          git fetch origin data
+          task_data_dir=$(mktemp -d)
+          trap 'git worktree remove --force "$task_data_dir"' EXIT
+          git worktree add --detach "$task_data_dir" origin/data
+          mkdir -p "$task_data_dir/webapp/frontend/public/data/riesgos"
+          for folder in forecast nino; do
+            cp -a "webapp/frontend/public/data/$folder" "$task_data_dir/webapp/frontend/public/data/"
+          done
+          cp webapp/frontend/public/data/riesgos/anegamiento_v2.csv "$task_data_dir/webapp/frontend/public/data/riesgos/"
+          git -C "$task_data_dir" add -f webapp/frontend/public/data/forecast webapp/frontend/public/data/nino webapp/frontend/public/data/riesgos/anegamiento_v2.csv
 
-          git fetch origin data 2>/dev/null || true
-          if git rev-parse --verify origin/data >/dev/null 2>&1; then
-            git switch data
-            git merge --no-edit origin/main || true
-          else
-            git switch -c data
-          fi
-
-          # Overlay: forecast/ y alertas/ se sobrescriben enteros porque son
-          # snapshots completos cada 6h (no se acumulan); el resto del data
-          # branch (calor, cbers, conteos, etc.) queda intacto.
-          mkdir -p webapp/frontend/public/data/forecast webapp/frontend/public/data/alertas
-          [[ -d /tmp/sync_payload/forecast ]] && cp -a /tmp/sync_payload/forecast/. webapp/frontend/public/data/forecast/
-          [[ -d /tmp/sync_payload/alertas ]]  && cp -a /tmp/sync_payload/alertas/.  webapp/frontend/public/data/alertas/
-          [[ -f /tmp/sync_payload/updated_at.txt ]] && cp -a /tmp/sync_payload/updated_at.txt webapp/frontend/public/data/updated_at.txt
-
-          git add -f webapp/frontend/public/data/forecast/ webapp/frontend/public/data/alertas/ webapp/frontend/public/data/updated_at.txt || true
-
-          if git diff --cached --quiet; then
+          if git -C "$task_data_dir" diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "Sin cambios efectivos vs rama data."
             exit 0
           fi
           echo "changed=true" >> "$GITHUB_OUTPUT"
-          git commit -m "chore(data): refresh forecast & alertas $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
-          git push origin data
-          # Quedamos en data branch para deploy.
+          git -C "$task_data_dir" commit -m "chore(data): refresh forecast y Modo El Nino [skip ci]"
+          git -C "$task_data_dir" push origin HEAD:data
 
       - name: Setup SSH para VPS
         if: |
