@@ -349,6 +349,8 @@ async function resolveTimestamp(
   entry: DatasetEntry,
 ): Promise<string> {
   const abs = resolvePublic(entry.source);
+  // Nunca convertir una copia reciente de un archivo viejo en pronóstico fresco.
+  if (entry.frequency === "6h") return (await readJsonGeneratedAt(abs)) ?? "";
   const isJson = entry.source.endsWith(".json");
 
   // Orden preferido por estrategia explícita; luego intentamos las demás.

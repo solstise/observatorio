@@ -1,3 +1,6 @@
+import { ForecastSafety } from '@/components/ForecastSafety';
+import { getDatasetFreshness as forecastFreshness } from '@/lib/data-freshness';
+export const dynamic = 'force-dynamic';
 // Home (/) — dashboard del Observatorio Urbano Posadas.
 //
 // Refactor a "layout dashboard": en lugar de "mapa + sidebar" puro,
@@ -68,6 +71,7 @@ function media(arr: number[]): number | null {
 }
 
 export default async function HomePage() {
+  const safety = await forecastFreshness('forecast');
   // Carga en paralelo de TODO lo que necesitamos para el dashboard.
   // Si un CSV falla, el getter degrada a [] y el card respectivo muestra
   // "s/d" — no rompemos la página.
@@ -261,6 +265,7 @@ export default async function HomePage() {
 
   return (
     <>
+<ForecastSafety generatedAt={safety.lastUpdated} />
       <Disclaimer />
 
       <section className="container-obs pb-2 pt-6 sm:pt-8">

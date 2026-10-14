@@ -1,3 +1,6 @@
+import { ForecastSafety } from '@/components/ForecastSafety';
+import { getDatasetFreshness as forecastFreshness } from '@/lib/data-freshness';
+export const dynamic = 'force-dynamic';
 // Página /pronostico — Hub overview de "qué viene en Posadas".
 //
 // Server Component que combina los tres horizontes temporales:
@@ -108,6 +111,7 @@ function fmtPct(n: number): string {
 }
 
 export default async function PronosticoHubPage() {
+  const safety = await forecastFreshness('forecast');
   const [dengue, calor, anegamiento, gentri, forecast, poblacion, proyecciones] =
     await Promise.all([
       getDengue(),
@@ -177,6 +181,7 @@ export default async function PronosticoHubPage() {
     <>
       <Disclaimer />
       <main className="container-obs py-8">
+<ForecastSafety generatedAt={safety.lastUpdated} />
         <nav
           aria-label="Migas"
           className="mb-4 text-sm text-secondary dark:text-dk-muted"

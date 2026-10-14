@@ -1,3 +1,6 @@
+import { ForecastSafety } from '@/components/ForecastSafety';
+import { getDatasetFreshness as forecastFreshness } from '@/lib/data-freshness';
+export const dynamic = 'force-dynamic';
 // Página /pronostico/riesgos — Capa 2: riesgos próximos 14 días.
 //
 // Compone cuatro vistas que comparten la lógica "qué va a pasar en las
@@ -116,6 +119,7 @@ function formatoNum(n: number | null | undefined, fixed = 1): string {
 }
 
 export default async function RiesgosPage() {
+  const safety = await forecastFreshness('forecast');
   const [dengue, calor, anegamiento, saturacion, collection, freshness] =
     await Promise.all([
       getDengue(),
@@ -149,6 +153,7 @@ export default async function RiesgosPage() {
     <>
       <Disclaimer />
       <main className="container-obs py-8">
+<ForecastSafety generatedAt={safety.lastUpdated} />
         <nav
           aria-label="Migas"
           className="mb-4 text-sm text-secondary dark:text-dk-muted"

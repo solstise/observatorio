@@ -72,7 +72,7 @@ while _p != _p.parent:
 
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -672,7 +672,7 @@ def main(
         df_aqi = pd.DataFrame()
 
     # Proyección por barrio.
-    generated_at = datetime.now().isoformat(timespec="seconds")
+    generated_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     df_barrios = proyectar_forecast_por_barrio(
         forecast_centro=df_centro,
         offsets=offsets,

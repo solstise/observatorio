@@ -117,7 +117,7 @@ export function freshness(iso: string, frequency: string): Freshness {
   const t = Date.parse(iso);
   if (Number.isNaN(t)) return "rojo";
   const delta = Date.now() - t;
-  if (delta < 0) return "verde"; // futuro: tratamos como recién emitido
+  if (delta < -300_000) return "rojo";
   const period = parseFrequencyMs(frequency) ?? 24 * 60 * 60 * 1000;
   const ratio = delta / period;
   if (ratio <= 1) return "verde";
@@ -177,20 +177,21 @@ export function DataFreshness({
   // Re-render cada minuto para que el "hace X" se mantenga preciso aunque
   // la pestaña esté abierta sin recibir updates externos. Mismo truco que
   // UpdateIndicator. El cleanup desmonta el interval correctamente.
-  const [, setTick] = useState(0);
+  const [tick, setTick] = useState(0);
   useEffect(() => {
+    setTick((v) => v + 1);
     const id = setInterval(() => setTick((v) => v + 1), 60_000);
     return () => clearInterval(id);
   }, []);
 
   const estado = useMemo(
     () => freshness(lastUpdated, frequency),
-    [lastUpdated, frequency],
+    [lastUpdated, frequency, tick],
   );
-  const relText = useMemo(() => tiempoRelativo(lastUpdated), [lastUpdated]);
+  const relText = useMemo(() => tiempoRelativo(lastUpdated), [lastUpdated, tick]);
   const proxima = useMemo(
     () => proximaActualizacion(lastUpdated, frequency),
-    [lastUpdated, frequency],
+    [lastUpdated, frequency, tick],
   );
 
   const dotColor = COLOR_DOT[estado];

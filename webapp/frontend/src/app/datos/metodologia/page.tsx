@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 // Página de metodología.
 // Documenta de manera accesible las fuentes, procesamiento y límites del
 // observatorio. Cada fuente describe primero qué aporta al análisis y luego

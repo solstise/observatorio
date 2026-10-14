@@ -1,3 +1,6 @@
+import { ForecastSafety } from '@/components/ForecastSafety';
+import { getDatasetFreshness as forecastFreshness } from '@/lib/data-freshness';
+export const dynamic = 'force-dynamic';
 // Página /pronostico/clima — pronóstico climático por barrio + alertas trigger.
 //
 // Server Component que carga los datasets en paralelo y delega la
@@ -35,6 +38,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ClimaPage() {
+  const safety = await forecastFreshness('forecast');
   const [collection, forecast, aqi, alertas, freshForecast, freshAlertas] =
     await Promise.all([
       getPoligonosBarrios(),
@@ -54,6 +58,7 @@ export default async function ClimaPage() {
     <>
       <Disclaimer />
       <main className="container-obs py-8">
+<ForecastSafety generatedAt={safety.lastUpdated} />
         <nav
           aria-label="Migas"
           className="mb-4 text-sm text-secondary dark:text-dk-muted"
