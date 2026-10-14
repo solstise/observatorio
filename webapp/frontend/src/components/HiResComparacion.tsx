@@ -57,7 +57,7 @@ import { useEffect, useId, useMemo, useState } from "react";
 type Modo = "s2" | "cbers" | "pan5";
 
 interface HiResComparacionProps {
-  /** Slug del polígono — debe matchear el id en `poligonos.geojson`. */
+  /** Slug del barrio — debe matchear el id en `poligonos.geojson`. */
   poligonoId: string;
   /** Nombre humano del barrio — usado en el alt y en los banners. */
   nombre: string;
@@ -328,7 +328,7 @@ export function HiResComparacion({
           //   - el bucket de imágenes CBERS aún no está confirmado (puede
           //     no existir el archivo, entonces necesitamos onError nativo
           //     sin que el optimizer falle el build);
-          //   - el size es variable (depende del polígono) y queremos
+          //   - el size es variable (depende del barrio) y queremos
           //     respetar el aspect ratio real del PNG, no forzar 1600x900;
           //   - object-cover + max-h:500px nos da el comportamiento que
           //     pide el brief sin pelear con sizes/srcset de Next.
@@ -382,7 +382,7 @@ export function HiResComparacion({
               <>
                 <p className="max-w-md">
                   Datos en preparación — el primer cron mensual publicará
-                  la imagen CBERS WPM para este polígono.
+                  la imagen CBERS WPM para este barrio.
                 </p>
                 <div className="flex flex-wrap items-center justify-center gap-2">
                   <button

@@ -5,7 +5,7 @@
 //
 // Cada evento muestra:
 //   - Fecha (chip prominente).
-//   - Área inundada en km² + polígonos afectados como chips clicables que
+//   - Área inundada en km² + barrios afectados como chips clicables que
 //     llevan a `/poligono/{id}` para más contexto.
 //   - Fuente principal (sensor primario que detectó) + fuente de
 //     validación (sensor independiente que confirmó).

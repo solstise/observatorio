@@ -58,7 +58,6 @@ while _p != _p.parent:
 
 import json
 import sys
-from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -472,7 +471,7 @@ def main(
     alertas = agregar_alertas(eventos, cfg, df_rk, nombres)
 
     payload = {
-        "generated_at": datetime.now().isoformat(timespec="seconds"),
+        "generated_at": str(df_fc["generated_at"].iloc[0]),
         "script_version": SCRIPT_VERSION,
         "n_alertas": len(alertas),
         "ventana_dias": (

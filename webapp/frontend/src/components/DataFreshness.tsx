@@ -26,7 +26,7 @@
 //   - aria-label resumido para lectores de pantalla.
 //   - Tooltip nativo via title.
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface DataFreshnessProps {
   /** Slug del dataset — solo informativo (no consulta nada). */
@@ -117,7 +117,7 @@ export function freshness(iso: string, frequency: string): Freshness {
   const t = Date.parse(iso);
   if (Number.isNaN(t)) return "rojo";
   const delta = Date.now() - t;
-  if (delta < 0) return "verde"; // futuro: tratamos como recién emitido
+  if (delta < -300_000) return "rojo";
   const period = parseFrequencyMs(frequency) ?? 24 * 60 * 60 * 1000;
   const ratio = delta / period;
   if (ratio <= 1) return "verde";
@@ -177,21 +177,18 @@ export function DataFreshness({
   // Re-render cada minuto para que el "hace X" se mantenga preciso aunque
   // la pestaña esté abierta sin recibir updates externos. Mismo truco que
   // UpdateIndicator. El cleanup desmonta el interval correctamente.
+  const [mounted, setMounted] = useState(false);
   const [, setTick] = useState(0);
   useEffect(() => {
+    setMounted(true);
+    setTick((v) => v + 1);
     const id = setInterval(() => setTick((v) => v + 1), 60_000);
     return () => clearInterval(id);
   }, []);
 
-  const estado = useMemo(
-    () => freshness(lastUpdated, frequency),
-    [lastUpdated, frequency],
-  );
-  const relText = useMemo(() => tiempoRelativo(lastUpdated), [lastUpdated]);
-  const proxima = useMemo(
-    () => proximaActualizacion(lastUpdated, frequency),
-    [lastUpdated, frequency],
-  );
+  const estado = mounted ? freshness(lastUpdated, frequency) : "rojo";
+  const relText = mounted ? tiempoRelativo(lastUpdated) : "verificando antigüedad";
+  const proxima = mounted ? proximaActualizacion(lastUpdated, frequency) : "verificando";
 
   const dotColor = COLOR_DOT[estado];
   // Solo pulsa cuando está fresco. Si está amarillo/rojo, el dot estático

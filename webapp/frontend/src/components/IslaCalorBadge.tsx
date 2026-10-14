@@ -143,7 +143,7 @@ export function IslaCalorBadge({
           Isla de calor urbana
         </h3>
         <p className="mt-2 text-sm italic text-neutral-muted dark:text-dk-muted">
-          Sin datos térmicos disponibles todavía para este polígono.
+          Sin datos térmicos disponibles todavía para este barrio.
         </p>
       </div>
     );
@@ -187,10 +187,10 @@ export function IslaCalorBadge({
         y <TerminoGlosario id="modis">MODIS</TerminoGlosario> (1 km,
         día/noche). Detalle en{" "}
         <Link
-          href="/calor"
+          href="/indicadores/calor"
           className="text-primary underline dark:text-dk-primary"
         >
-          /calor
+          /indicadores/calor
         </Link>
         .
       </p>
@@ -207,7 +207,7 @@ function BloqueCbersBackup({ ultima }: { ultima: LstCbersRow }) {
   const lstC = ultima.lst_mean_cbers ?? 0;
   const mesNombre = MESES_ES[ultima.mes - 1] ?? `mes ${ultima.mes}`;
   const tooltip =
-    "Backup térmico: CBERS-4 IRS, banda térmica 40 m. Se muestra cuando Landsat no tiene observación útil del mes (nubosidad sobre la ventana de pasada). LST absoluta del polígono — sin delta UHI calculado todavía.";
+    "Backup térmico: CBERS-4 IRS, banda térmica 40 m. Se muestra cuando Landsat no tiene observación útil del mes (nubosidad sobre la ventana de pasada). LST absoluta del barrio — sin delta UHI calculado todavía.";
 
   // Color base usando la misma escala absoluta que MODIS para mantener
   // consistencia visual: >35 caliente, 28-35 templado, <28 fresco.

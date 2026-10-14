@@ -49,7 +49,7 @@ export function DynamicWorldGauge({
     return (
       <div className="flex h-full min-h-[160px] items-center justify-center">
         <p className="text-sm italic text-neutral-muted dark:text-dk-muted">
-          Sin datos de cobertura del suelo para este polígono.
+          Sin datos de cobertura del suelo para este barrio.
         </p>
       </div>
     );
@@ -67,14 +67,14 @@ export function DynamicWorldGauge({
     return (
       <div className="flex h-full min-h-[160px] items-center justify-center">
         <p className="text-sm italic text-neutral-muted dark:text-dk-muted">
-          Sin datos de cobertura del suelo para este polígono.
+          Sin datos de cobertura del suelo para este barrio.
         </p>
       </div>
     );
   }
   const ordenadas = [...validas].sort((a, b) => cmpFechaDesc(a.fecha, b.fecha));
   const ultima = ordenadas[0];
-  const pct = normalizarPct(ultima.dw_built_pct_ge_50);
+  const pct = normalizarPct(ultima.dw_built_pct_ge_50 ?? 0);
   const data = [
     { name: "Construido", value: pct },
     { name: "Resto", value: 100 - pct },
@@ -87,13 +87,13 @@ export function DynamicWorldGauge({
           Cuánto del barrio es construcción
         </h3>
         <p className="mt-1 text-xs text-neutral-text dark:text-dk-text">
-          Identifica qué proporción del polígono es superficie construida
+          Identifica qué proporción del barrio es superficie construida
           (techos, calles, infraestructura) frente a verde, suelo y agua.
         </p>
       </div>
       <div
         role="img"
-        aria-label={`Cobertura construida: ${pct.toFixed(1)} por ciento del polígono.`}
+        aria-label={`Cobertura construida: ${pct.toFixed(1)} por ciento del barrio.`}
         className="relative w-full"
         style={{ height }}
       >
@@ -125,7 +125,7 @@ export function DynamicWorldGauge({
         </div>
       </div>
       <p className="text-xs text-neutral-muted dark:text-dk-muted">
-        {pct.toFixed(1)}% del polígono clasificado como construcción
+        {pct.toFixed(1)}% del barrio clasificado como construcción
         ({ultima.fecha}).{" "}
         <em>
           Datos:{" "}

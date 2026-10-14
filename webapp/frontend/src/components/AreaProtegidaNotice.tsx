@@ -75,7 +75,7 @@ export function AreaProtegidaNotice({
           Área protegida
         </h3>
         <p className="mt-2 text-sm italic text-neutral-muted dark:text-dk-muted">
-          Sin datos sobre áreas protegidas para este polígono.
+          Sin datos sobre áreas protegidas para este barrio.
         </p>
       </div>
     );
@@ -144,7 +144,7 @@ export function AreaProtegidaNotice({
             Solapa con {nombre}
           </span>
           <span className="text-[11px] text-neutral-muted dark:text-amber-200/80">
-            {pct.toFixed(1)}% del polígono dentro del área protegida.{" "}
+            {pct.toFixed(1)}% del barrio dentro del área protegida.{" "}
             <em>
               Datos: <TerminoGlosario id="wdpa">WDPA</TerminoGlosario>, IUCN /
               UNEP-WCMC.

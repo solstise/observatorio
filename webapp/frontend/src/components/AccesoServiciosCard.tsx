@@ -1,6 +1,6 @@
 // Card de acceso a servicios públicos (capa social, fase 3).
 //
-// Qué hace: para un polígono dado, muestra la distancia mínima desde su
+// Qué hace: para un barrio dado, muestra la distancia mínima desde su
 // centroide al servicio más cercano de cada una de cuatro categorías clave
 // (CAPS, escuela, hospital y transporte público), con un semáforo de
 // proximidad (verde <500 m, amarillo <1500 m, rojo ≥1500 m).
@@ -23,6 +23,10 @@ interface Categoria {
     SocialDistanciasRow,
     "dist_caps_m" | "dist_escuela_m" | "dist_hospital_m" | "dist_transporte_m"
   >;
+  countKey: keyof Pick<
+    SocialDistanciasRow,
+    "n_caps_dentro" | "n_escuela_dentro" | "n_hospital_dentro" | "n_transporte_dentro"
+  >;
   label: string;
   descripcion: string;
   Icon: () => JSX.Element;
@@ -31,24 +35,28 @@ interface Categoria {
 const CATEGORIAS: Categoria[] = [
   {
     key: "dist_caps_m",
+    countKey: "n_caps_dentro",
     label: "CAPS",
     descripcion: "Centro de Atención Primaria de la Salud más cercano",
     Icon: IconCaps,
   },
   {
     key: "dist_escuela_m",
+    countKey: "n_escuela_dentro",
     label: "Escuela",
     descripcion: "Escuela primaria, secundaria o jardín más cercano",
     Icon: IconEscuela,
   },
   {
     key: "dist_hospital_m",
+    countKey: "n_hospital_dentro",
     label: "Hospital",
     descripcion: "Hospital público más cercano",
     Icon: IconHospital,
   },
   {
     key: "dist_transporte_m",
+    countKey: "n_transporte_dentro",
     label: "Transporte",
     descripcion: "Parada de colectivo más cercana",
     Icon: IconTransporte,
@@ -109,7 +117,7 @@ export function AccesoServiciosCard({ row }: AccesoServiciosCardProps) {
           Acceso a servicios públicos
         </h3>
         <p className="mt-2 text-sm italic text-neutral-muted dark:text-dk-muted">
-          Sin datos de distancias para este polígono todavía.
+          Sin datos de distancias para este barrio todavía.
         </p>
       </div>
     );
@@ -122,7 +130,7 @@ export function AccesoServiciosCard({ row }: AccesoServiciosCardProps) {
           Acceso a servicios públicos
         </h3>
         <p className="mt-1 text-xs text-neutral-text dark:text-dk-text">
-          Distancia desde el centro del polígono al servicio más cercano de
+          Distancia desde el centro del barrio al servicio más cercano de
           cada categoría. Verde menor a 500 m, amarillo de 500 a 1500 m,
           rojo desde 1500 m.{" "}
           <em>
@@ -138,12 +146,13 @@ export function AccesoServiciosCard({ row }: AccesoServiciosCardProps) {
       >
         {CATEGORIAS.map((cat) => {
           const dist = row[cat.key];
+          const dentro = (row[cat.countKey] as number) ?? 0;
           const { cls, textCls, label } = semaforoColor(dist);
           const tooltip = `${cat.descripcion}. ${
             dist === null || dist === undefined
               ? "Sin datos."
               : `Distancia: ${formatoDistancia(dist)} (${label}).`
-          }`;
+          } ${dentro} dentro del barrio.`;
           return (
             <li
               key={cat.key}
@@ -162,7 +171,12 @@ export function AccesoServiciosCard({ row }: AccesoServiciosCardProps) {
                   {cat.label}
                 </span>
                 <span className="text-base font-bold text-primary dark:text-dk-primary">
-                  {formatoDistancia(dist)}
+                  {dentro > 0 ? `${dentro} dentro` : formatoDistancia(dist)}
+                </span>
+                <span className="text-[10px] text-neutral-muted dark:text-dk-muted">
+                  {dentro > 0
+                    ? `${formatoDistancia(dist)} al más cercano`
+                    : "0 dentro del barrio"}
                 </span>
               </div>
               <span

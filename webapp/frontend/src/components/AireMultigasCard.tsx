@@ -403,7 +403,7 @@ function HistoricoPanel({
     return (
       <div className="rounded-md border border-dashed border-neutral-border p-4 text-sm italic text-neutral-muted dark:border-dk-border dark:text-dk-muted">
         Sin mediciones <TerminoGlosario id="tropomi">TROPOMI</TerminoGlosario>{" "}
-        anuales para este polígono todavía.
+        anuales para este barrio todavía.
       </div>
     );
   }
@@ -678,7 +678,24 @@ interface ResumenChipProps {
   tipo: "cientifico" | "fijo";
   color: string;
   anio: number;
+  /** Una línea explicando qué es y de dónde viene en lenguaje simple. */
+  descripcion?: string;
 }
+
+// Descripciones cortas para hover y accesibilidad. El glosario formal
+// (con click + modal) sigue disponible para el detalle académico.
+const DESCRIPCIONES_GASES: Record<string, string> = {
+  NO2: "Dióxido de nitrógeno — sale del escape de autos y motores diésel. Más alto = más tránsito o combustión cerca.",
+  "NO₂": "Dióxido de nitrógeno — sale del escape de autos y motores diésel. Más alto = más tránsito o combustión cerca.",
+  SO2: "Dióxido de azufre — viene de quemar combustibles con azufre (industria pesada, generación eléctrica). En Posadas es bajo y suele ser ruido del satélite.",
+  "SO₂": "Dióxido de azufre — viene de quemar combustibles con azufre (industria pesada, generación eléctrica). En Posadas es bajo y suele ser ruido del satélite.",
+  CO: "Monóxido de carbono — humo de combustión incompleta: estufas, cocinas a leña, quemas agrícolas, autos viejos.",
+  HCHO: "Formaldehído — gas que indica reacciones químicas en la atmósfera, asociado a vegetación y combustión.",
+  "CH₄": "Metano — gas de efecto invernadero. Sale de basureros, ganadería y arroceras. La medición satelital tiene baja resolución (~7 km), no diferencia un barrio de otro.",
+  CH4: "Metano — gas de efecto invernadero. Sale de basureros, ganadería y arroceras. La medición satelital tiene baja resolución (~7 km), no diferencia un barrio de otro.",
+  "O₃": "Ozono — alto en la estratósfera nos protege del sol; a nivel del suelo es contaminante. La medición satelital ve toda la columna, no separa lo urbano.",
+  O3: "Ozono — alto en la estratósfera nos protege del sol; a nivel del suelo es contaminante. La medición satelital ve toda la columna, no separa lo urbano.",
+};
 
 function ResumenChip({
   gas,
@@ -690,8 +707,13 @@ function ResumenChip({
   anio,
 }: ResumenChipProps) {
   const tieneDato = valor != null && Number.isFinite(valor);
+  const desc = DESCRIPCIONES_GASES[gas] ?? "";
   return (
-    <div className="rounded-md border border-neutral-border bg-white p-2 dark:border-dk-border dark:bg-dk-elevated/40">
+    <div
+      className="rounded-md border border-neutral-border bg-white p-2 dark:border-dk-border dark:bg-dk-elevated/40"
+      title={desc}
+      aria-label={`${gas}. ${desc}`}
+    >
       <p
         className="text-[11px] font-semibold uppercase tracking-wider"
         style={{ color }}
@@ -708,6 +730,11 @@ function ResumenChip({
       <p className="text-[10px] text-neutral-muted dark:text-dk-muted">
         {tieneDato ? `${unidad} (${anio})` : "Sin dato disponible"}
       </p>
+      {desc ? (
+        <p className="mt-1 text-[10px] italic leading-tight text-neutral-muted dark:text-dk-muted">
+          {desc.length > 80 ? `${desc.slice(0, 78)}…` : desc}
+        </p>
+      ) : null}
     </div>
   );
 }

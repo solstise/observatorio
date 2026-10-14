@@ -55,3 +55,11 @@ aqi_malo:
 # como "top alert" para destacar en el dashboard.
 top_alert:
   prioridad_min: 0.55  # ranking_politico.indice_prioridad ∈ [0, 1]
+
+# Calibración inicial a revisar. No son umbrales de alerta oficial.
+# Antecedente 40 mm/h: https://www.primeraedicion.com.ar/nota/101045786/en-solo-una-hora-en-posadas-llovio-40-milimetros-y-hubo-anegamientos/
+# Antecedente 126 mm en <2h (86,4 mm primera hora): La Voz de San Justo, nota 48576.
+anegamiento_v2:
+  atencion: {mm_1h: 20, mm_24h: 50}
+  alto: {mm_1h: 40, mm_24h: 80}
+  muy_alto: {mm_1h: 70, mm_24h: 120}

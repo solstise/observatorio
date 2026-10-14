@@ -120,6 +120,17 @@ jobs:
           printf '%s' "$EE_SERVICE_ACCOUNT_JSON" > "$HOME/.config/earthengine/service_account.json"
           echo "EE_SERVICE_ACCOUNT_KEY=$HOME/.config/earthengine/service_account.json" >> "$GITHUB_ENV"
 
+      - name: Recuperar insumos agregados existentes
+        run: |
+          git fetch origin data
+          for file in calor/uhi_estacional.csv dynamic_world.csv; do
+            destination="webapp/frontend/public/data/$file"
+            if git cat-file -e "origin/data:$destination" 2>/dev/null; then
+              mkdir -p "$(dirname "$destination")"
+              git show "origin/data:$destination" > "$destination"
+            fi
+          done
+
       - name: Run forecast clima (script L1 57)
         env:
           # Disponibles para el script si los precisa.
@@ -127,7 +138,7 @@ jobs:
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
         run: |
           if [[ -f scripts/57_forecast_clima.py ]]; then
-            python scripts/57_forecast_clima.py
+            python scripts/57_forecast_clima.py --uhi webapp/frontend/public/data/calor/uhi_estacional.csv
           else
             echo "::warning::scripts/57_forecast_clima.py no existe todavía (lo crea L1). Saltando."
           fi
@@ -143,6 +154,11 @@ jobs:
             echo "::warning::scripts/58_alertas_clima.py no existe todavía (lo crea L1). Saltando."
           fi
 
+      - name: Sincronizar y validar snapshot publicado
+        run: |
+          python scripts/sync_forecast.py
+          python scripts/62_nino_snapshot.py
+
       - name: Publish to Upstash Redis
         if: env.UPSTASH_CONFIGURED == 'true'
         env:
@@ -155,47 +171,34 @@ jobs:
         id: diff
         env:
           GIT_AUTHOR_NAME: observatorio-bot
-          GIT_AUTHOR_EMAIL: bot@observatorio.sistemaswinter.com
+          GIT_AUTHOR_EMAIL: bot@sateliteposadas.com
           GIT_COMMITTER_NAME: observatorio-bot
-          GIT_COMMITTER_EMAIL: bot@observatorio.sistemaswinter.com
+          GIT_COMMITTER_EMAIL: bot@sateliteposadas.com
         run: |
           set -e
           git config user.name  "$GIT_AUTHOR_NAME"
           git config user.email "$GIT_AUTHOR_EMAIL"
 
-          # Stash de los outputs específicos del forecast.
-          mkdir -p /tmp/sync_payload
-          [[ -d webapp/frontend/public/data/forecast ]] && cp -a webapp/frontend/public/data/forecast /tmp/sync_payload/forecast
-          [[ -d webapp/frontend/public/data/alertas ]]  && cp -a webapp/frontend/public/data/alertas  /tmp/sync_payload/alertas
-          [[ -f webapp/frontend/public/data/updated_at.txt ]] && cp -a webapp/frontend/public/data/updated_at.txt /tmp/sync_payload/
+          # No cambiar el checkout de código ni ignorar conflictos de merge.
+          git fetch origin data
+          task_data_dir=$(mktemp -d)
+          trap 'git worktree remove --force "$task_data_dir"' EXIT
+          git worktree add --detach "$task_data_dir" origin/data
+          mkdir -p "$task_data_dir/webapp/frontend/public/data/riesgos"
+          for folder in forecast nino; do
+            cp -a "webapp/frontend/public/data/$folder" "$task_data_dir/webapp/frontend/public/data/"
+          done
+          cp webapp/frontend/public/data/riesgos/anegamiento_v2.csv "$task_data_dir/webapp/frontend/public/data/riesgos/"
+          git -C "$task_data_dir" add -f webapp/frontend/public/data/forecast webapp/frontend/public/data/nino webapp/frontend/public/data/riesgos/anegamiento_v2.csv
 
-          git fetch origin data 2>/dev/null || true
-          if git rev-parse --verify origin/data >/dev/null 2>&1; then
-            git switch data
-            git merge --no-edit origin/main || true
-          else
-            git switch -c data
-          fi
-
-          # Overlay: forecast/ y alertas/ se sobrescriben enteros porque son
-          # snapshots completos cada 6h (no se acumulan); el resto del data
-          # branch (calor, cbers, conteos, etc.) queda intacto.
-          mkdir -p webapp/frontend/public/data/forecast webapp/frontend/public/data/alertas
-          [[ -d /tmp/sync_payload/forecast ]] && cp -a /tmp/sync_payload/forecast/. webapp/frontend/public/data/forecast/
-          [[ -d /tmp/sync_payload/alertas ]]  && cp -a /tmp/sync_payload/alertas/.  webapp/frontend/public/data/alertas/
-          [[ -f /tmp/sync_payload/updated_at.txt ]] && cp -a /tmp/sync_payload/updated_at.txt webapp/frontend/public/data/updated_at.txt
-
-          git add -f webapp/frontend/public/data/forecast/ webapp/frontend/public/data/alertas/ webapp/frontend/public/data/updated_at.txt || true
-
-          if git diff --cached --quiet; then
+          if git -C "$task_data_dir" diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "Sin cambios efectivos vs rama data."
             exit 0
           fi
           echo "changed=true" >> "$GITHUB_OUTPUT"
-          git commit -m "chore(data): refresh forecast & alertas $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
-          git push origin data
-          # Quedamos en data branch para deploy.
+          git -C "$task_data_dir" commit -m "chore(data): refresh forecast y Modo El Nino [skip ci]"
+          git -C "$task_data_dir" push origin HEAD:data
 
       - name: Setup SSH para VPS
         if: |

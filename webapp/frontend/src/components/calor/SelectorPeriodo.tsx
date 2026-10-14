@@ -14,6 +14,7 @@ interface Props {
   onEstacion: (e: Estacion) => void;
   metrica: MetricaCalor;
   onMetrica: (m: MetricaCalor) => void;
+  estacionesDisponibles?: Set<Estacion>;
 }
 
 const ESTACIONES: Array<{ value: Estacion; label: string }> = [
@@ -37,18 +38,25 @@ export function SelectorPeriodo({
   onEstacion,
   metrica,
   onMetrica,
+  estacionesDisponibles,
 }: Props) {
+  const isDisponible = (e: Estacion) =>
+    !estacionesDisponibles || estacionesDisponibles.has(e);
   // Grid responsive: 1 columna en mobile (apilado vertical), 2 en sm, 3 en md+.
   // Esto evita que tres selects con labels largos se aprieten en pantallas
   // chicas y entrega un objetivo táctil cómodo (44px de alto en cada select).
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
       <Sel label="Estación" value={estacion} onChange={(v) => onEstacion(v as Estacion)}>
-        {ESTACIONES.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
+        {ESTACIONES.map((o) => {
+          const disp = isDisponible(o.value);
+          return (
+            <option key={o.value} value={o.value} disabled={!disp}>
+              {o.label}
+              {disp ? "" : " — sin datos"}
+            </option>
+          );
+        })}
       </Sel>
       <Sel
         label="Año"

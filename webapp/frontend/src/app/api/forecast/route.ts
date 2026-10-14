@@ -124,7 +124,7 @@ export async function GET(request: Request): Promise<Response> {
     const generated_at =
       (typeof data === "object" && data !== null && "generated_at" in data
         ? (data as { generated_at?: string }).generated_at
-        : undefined) ?? new Date().toISOString();
+        : undefined) ?? "";
     const body: ForecastResponse = {
       data,
       source: "upstash",
@@ -150,7 +150,7 @@ export async function GET(request: Request): Promise<Response> {
       const body: ForecastResponse = {
         data,
         source: "local",
-        generated_at: generated_at || new Date().toISOString(),
+        generated_at,
         key,
         fallback_reason: reason,
       };

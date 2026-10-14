@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Deploy observatorio → VPS (187.77.54.19 / observatorio.sistemaswinter.com)
+# Deploy observatorio → VPS (sateliteposadas.com)
 # Uso: bash deploy-vps.sh
 #
 # Qué hace:
@@ -12,14 +12,15 @@
 # Requisitos previos (primer deploy):
 #   - Entrada `observatorio` agregada a /opt/apps/docker-compose.yml
 #     (usá deploy/observatorio.compose.snippet.yml como referencia).
-#   - DNS de observatorio.sistemaswinter.com → 187.77.54.19.
+#   - DNS de sateliteposadas.com → 187.77.54.19.
 #   - Reverse proxy del VPS (nginx/Traefik) ruteando el subdominio al
 #     puerto 3011 del host.
 # ==============================================================================
 
 set -euo pipefail
 
-VPS_HOST="root@187.77.54.19"
+VPS_HOST="${VPS_HOST:-root@187.77.54.19}"
+VPS_COMPOSE_FILE="${VPS_COMPOSE_FILE:-/opt/apps/migrated-vps2.yml}"
 VPS_APP_DIR="/opt/apps/observatorio"
 APP_NAME="observatorio"
 LOCAL_SRC="webapp/frontend"
@@ -38,6 +39,7 @@ echo "======================================================"
 
 echo ""
 echo "[1/3] Asegurando que el directorio remoto exista..."
+ssh "$VPS_HOST" "test -f '$VPS_COMPOSE_FILE' && docker compose -f '$VPS_COMPOSE_FILE' config --services | grep -Fx '$APP_NAME'"
 ssh -o StrictHostKeyChecking=no "$VPS_HOST" "mkdir -p '$VPS_APP_DIR'"
 
 echo ""
@@ -48,6 +50,7 @@ tar \
   --exclude='./.git' \
   --exclude='./.env' \
   --exclude='./.env.local' \
+  --exclude='./.env.*' \
   --exclude='./out' \
   --exclude='./dist' \
   --exclude='./build' \
@@ -72,7 +75,7 @@ ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=3 "$VPS_HOST" "
   built=0
   for i in 1 2 3; do
     echo \"--- build intento \$i/3 ---\"
-    if timeout 1800 docker compose build $APP_NAME; then
+    if timeout 1800 docker build -t apps-observatorio:latest '$VPS_APP_DIR'; then
       built=1
       break
     fi
@@ -87,7 +90,7 @@ ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=3 "$VPS_HOST" "
     echo 'ERROR: docker compose build falló 3 veces seguidas' >&2
     exit 1
   fi
-  docker compose up -d $APP_NAME
+  docker compose -f '$VPS_COMPOSE_FILE' up -d --no-deps $APP_NAME
   sleep 3
   docker ps --filter name=$APP_NAME --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
 "
@@ -96,5 +99,5 @@ echo ""
 echo "======================================================"
 echo "  Deploy completo"
 echo "  URL directa: http://187.77.54.19:3011"
-echo "  URL pública: https://observatorio.sistemaswinter.com (tras DNS + nginx)"
+echo "  URL pública: https://sateliteposadas.com"
 echo "======================================================"

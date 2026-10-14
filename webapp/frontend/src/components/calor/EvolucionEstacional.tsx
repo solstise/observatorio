@@ -1,6 +1,6 @@
 "use client";
 
-// Grafico de evolucion estacional de LST / UHI para un polígono seleccionado
+// Grafico de evolucion estacional de LST / UHI para un barrio seleccionado
 // o el promedio urbano. Tres líneas: polígono, promedio ciudad, baseline rural.
 //
 // Dark mode: se mantiene la convención cromática de la página /calor (azul

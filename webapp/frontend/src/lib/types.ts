@@ -99,10 +99,10 @@ export interface PoligonoDetalle {
 export interface DynamicWorldRow {
   poligono_id: string;
   fecha: string; // YYYY-MM
-  dw_built_mean: number;
-  dw_built_median: number;
-  dw_built_pct_ge_50: number;
-  dw_n_images?: number;
+  dw_built_mean: number | null;
+  dw_built_median: number | null;
+  dw_built_pct_ge_50: number | null;
+  n_imagenes?: number;
 }
 
 // Sentinel-1 (SAR): retrodispersion VV/VH en dB para deteccion de
@@ -293,9 +293,9 @@ export interface UhiEstacionalRow {
 // Capa social (acceso a servicios + ranking político de prioridad)
 // ---------------------------------------------------------------------------
 
-// Output de scripts/53_servicios_distancias.py. Para cada polígono, distancia
+// Output de scripts/53_servicios_distancias.py. Para cada barrio, distancia
 // mínima en metros desde el centroide a la categoría correspondiente, y
-// densidad de servicios por km² (puntos dentro del polígono / area_km2).
+// densidad de servicios por km² (puntos dentro del barrio / area_km2).
 // Las distancias pueden venir null cuando la fuente correspondiente no
 // tiene puntos en el bbox de Posadas.
 export interface SocialDistanciasRow {
@@ -537,4 +537,239 @@ export interface EventoInundacionRow {
   fuente_principal: string;
   fuente_validacion: string;
   confianza: "alta" | "media" | "baja";
+}
+
+// ---------------------------------------------------------------------------
+// Capas 1, 2, 3 — Tipología urbana, Riesgos y Calidad de vida.
+// Generadas por scripts/capas_avanzadas/compute_capas.cjs a partir de los
+// CSVs crudos del observatorio. Todos los scores son 0-100 a menos que se
+// indique lo contrario, y todos los porcentajes (pct_*) están en escala
+// 0-100, no 0-1.
+// ---------------------------------------------------------------------------
+
+// --- Capa 1 — Tipología urbana ---
+
+export type CategoriaCanopy = "rojo" | "naranja" | "amarillo" | "verde" | "sin_dato";
+
+export interface CanopyRow {
+  poligono_id: string;
+  verde_pct: number | null; // % de superficie no construida (0-100)
+  verde_m2_total: number | null;
+  m2_per_capita: number | null;
+  categoria: CategoriaCanopy;
+  fecha_referencia: string | null; // YYYY-MM del Dynamic World usado
+}
+
+export interface TechosRow {
+  poligono_id: string;
+  pct_losa: number;
+  pct_teja: number;
+  pct_chapa_nueva: number;
+  pct_chapa_vieja: number;
+  pct_asbesto: number;
+  metodo: string; // "heuristico_v1"
+  confianza: "alta" | "media" | "baja";
+}
+
+export interface DensidadVolumetricaRow {
+  poligono_id: string;
+  altura_estimada_m: number;
+  m3_total: number;
+  m3_por_km2: number;
+  edificios_2026: number;
+  superficie_km2: number;
+  fuente_edificios?: "microsoft_buildings" | "pipeline_estimado";
+  huella_media_m2?: number;
+}
+
+// Edificios reales por barrio (Microsoft Global ML Building Footprints v6).
+// Más detalle: huella, densidad, ratio vs estimación pipeline.
+export interface EdificiosRealesRow {
+  poligono_id: string;
+  n_edificios_real: number;
+  area_total_m2: number;
+  huella_media_m2: number | null;
+  confianza_media: number | null;
+  densidad_real_km2: number;
+  pct_cobertura_real: number;
+  altura_media_m: number | null;
+  n_con_altura: number;
+  edificios_estimado_pipeline: number;
+  ratio_real_vs_estimado: number | null;
+  fuente: string;
+  fecha_dataset: string;
+}
+
+// ACRI / NDAI sobre Sentinel-2 SWIR para detectar firma espectral de
+// fibrocemento por barrio. score_relativo 0-100 (min-max sobre Posadas).
+export interface NdaiAsbestoRow {
+  poligono_id: string;
+  acri_mean: number | null;
+  acri_score_relativo: number | null;
+  categoria_asbesto: "bajo" | "medio" | "alto" | "sin_dato";
+  b11_reflect_mean: number | null;
+  b12_reflect_mean: number | null;
+  n_pixeles_validos: number;
+  n_pixeles_total_poligono: number;
+  pct_pixeles_aceptados: number | null;
+  escena: string; // e.g. "S2A_21JXK_20260419"
+  fecha_escena: string; // YYYY-MM-DD
+  metodo: string; // "ACRI_v1_relativo"
+}
+
+export type CategoriaAnomalia =
+  | "estable"
+  | "crecimiento_moderado"
+  | "crecimiento_fuerte"
+  | "pérdida_moderada"
+  | "pérdida_fuerte"
+  | "sin_dato";
+
+export interface AnomaliaRow {
+  poligono_id: string;
+  z_score: number | null;
+  categoria: CategoriaAnomalia;
+  fecha_ultima: string | null;
+  valor_ultimo_db: number | null;
+  baseline_mean_db: number | null;
+}
+
+// --- Capa 2 — Riesgos ---
+
+export type CategoriaRiesgo = "bajo" | "medio" | "alto" | "muy_alto";
+
+export interface DengueRow {
+  poligono_id: string;
+  score_dengue: number;
+  categoria: CategoriaRiesgo;
+  precip_verano_mm: number | null;
+  lst_noche_verano_c: number | null;
+  vulnerabilidad: number | null;
+  densidad_hab_km2: number | null;
+  canopy_pct: number | null;
+  lluvia_14d_proj_mm: number | null;
+  tmin_avg_14d_proj_c: number | null;
+}
+
+export interface CalorSaludRow {
+  poligono_id: string;
+  score_calor: number;
+  categoria: CategoriaRiesgo;
+  dias_riesgo_alto: number;
+  dias_riesgo_extremo: number;
+  tmax_max_proj_c: number | null;
+  uhi_verano: number | null;
+  horizonte_dias: number;
+}
+
+export type NivelCalorDiario = "normal" | "moderado" | "alto" | "extremo";
+
+export interface CalorSaludDiarioRow {
+  poligono_id: string;
+  fecha: string; // YYYY-MM-DD
+  tmax_p50: number;
+  tmin_p50: number;
+  precipitation_mm: number;
+  nivel_calor: NivelCalorDiario;
+}
+
+export interface AnegamientoRow {
+  modelo?: "v1" | "v2";
+  pct_viviendas_expuestas?: number | null;
+  lluvia_max_1h?: number;
+  poligono_id: string;
+  score_anegamiento: number;
+  categoria: CategoriaRiesgo;
+  pct_impermeable: number;
+  lluvia_48h_proj_mm: number;
+  riesgo_inundacion_base: number;
+}
+
+export interface SaturacionRow {
+  poligono_id: string;
+  pct_ocupado_2026: number;
+  edificios_2026: number;
+  crecimiento_anual_edif: number;
+  anio_saturacion: number | null;
+  pop_2026: number;
+  pop_2030_proj: number;
+  tasa_crecimiento_anual: number; // % anual
+  aulas_necesarias_2030: number;
+  camas_necesarias_2030: number;
+}
+
+// --- Capa 3 — Calidad de vida ---
+
+export interface QuinceMinutosRow {
+  poligono_id: string;
+  score_15min: number | null;
+  acceso_caps: number | null;
+  acceso_escuela: number | null;
+  acceso_transporte: number | null;
+  acceso_hospital: number | null;
+  servicios_falta: string | null; // "CAPS|escuela|..." o "ninguno"
+}
+
+export type CategoriaHabitabilidad =
+  | "bajo"
+  | "medio"
+  | "bueno"
+  | "excelente";
+
+export interface HabitabilidadRow {
+  poligono_id: string;
+  score_habitabilidad: number;
+  categoria: CategoriaHabitabilidad;
+  componente_calor: number;
+  componente_verde: number;
+  componente_aire: number;
+  componente_acceso: number;
+}
+
+export type CategoriaGreenEquity =
+  | "critico"
+  | "deficitario"
+  | "aceptable"
+  | "optimo"
+  | "sin_dato";
+
+export interface GreenEquityRow {
+  poligono_id: string;
+  m2_per_capita: number | null;
+  brecha_oms_m2: number | null;
+  categoria: CategoriaGreenEquity;
+}
+
+export type CategoriaResiliencia = "baja" | "media" | "alta";
+
+export interface ResilienciaRow {
+  poligono_id: string;
+  score_resiliencia: number;
+  categoria: CategoriaResiliencia;
+  componente_permeabilidad: number;
+  componente_canopy: number;
+  componente_drenaje: number;
+  componente_calor: number;
+}
+
+export type CategoriaGentrificacion =
+  | "estable"
+  | "crecimiento_moderado"
+  | "en_transformacion";
+
+export interface GentrificacionRow {
+  poligono_id: string;
+  score_gentrificacion: number;
+  categoria: CategoriaGentrificacion;
+  cambio_edificios_pct: number;
+  cambio_construido_pct: number;
+}
+
+export interface GiniRow {
+  metrica: string;
+  gini_index: number | null;
+  n_barrios: number;
+  min_valor: number | null;
+  max_valor: number | null;
+  media: number | null;
 }

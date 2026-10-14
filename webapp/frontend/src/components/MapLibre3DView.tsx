@@ -287,7 +287,7 @@ export default function MapLibre3DView({
         return;
       }
       onSelect(id);
-      // FlyTo al centroide del polígono. Usamos el bbox del feature si está
+      // FlyTo al centroide del barrio. Usamos el bbox del feature si está
       // disponible, sino caemos al click point.
       mapRef.current?.flyTo({
         center: e.lngLat,

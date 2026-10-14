@@ -32,31 +32,32 @@ export async function Footer({ updatedAt }: FooterProps) {
       role="contentinfo"
     >
       <div className="container-obs py-10">
-        <div className="grid gap-8 md:grid-cols-3">
-          <section aria-labelledby="footer-fuentes">
+        {/* Mapa del sitio en 4 columnas alineadas con la arquitectura de
+            hubs nueva. Col 1 = identidad + publicación, Col 2 =
+            Indicadores (5 capas), Col 3 = Pronóstico (3 vistas), Col 4 =
+            Decisión + Historia + Datos fusionadas (3 + 3 entradas).
+            Mantenemos 4 columnas en md+ para que en desktop entre todo
+            sin que cada columna quede sub-utilizada; en mobile colapsa
+            a 1 col por el grid-cols-1 default. */}
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+          {/* Col 1 — Observatorio: identidad, fuentes resumidas, versión.
+              Es el ancla informativa antes de las columnas de navegación. */}
+          <section aria-labelledby="footer-observatorio">
             <h2
-              id="footer-fuentes"
+              id="footer-observatorio"
               className="text-xs font-semibold uppercase tracking-wider text-secondary dark:text-dk-muted"
             >
-              Fuentes
+              Observatorio
             </h2>
-            <ul className="mt-2 space-y-1 text-sm text-neutral-text dark:text-dk-text">
-              {SOURCES.map((src) => (
-                <li key={src}>{src}</li>
-              ))}
-            </ul>
-          </section>
-
-          <section aria-labelledby="footer-publicacion">
-            <h2
-              id="footer-publicacion"
-              className="text-xs font-semibold uppercase tracking-wider text-secondary dark:text-dk-muted"
-            >
-              Publicacion
-            </h2>
-            <dl className="mt-2 space-y-1 text-sm text-neutral-text dark:text-dk-text">
+            <p className="mt-2 text-sm leading-relaxed text-neutral-text dark:text-dk-text">
+              Plataforma abierta de monitoreo urbano de Posadas, Misiones,
+              con datos satelitales gratuitos (Sentinel-2/1, Landsat,
+              CBERS) y open data (WorldPop, OSM, Google Open Buildings).
+              Indicadores ambientales, sociales y de riesgo por barrio.
+            </p>
+            <dl className="mt-3 space-y-1 text-xs text-neutral-text dark:text-dk-text">
               <div className="flex gap-2">
-                <dt className="font-medium">Version</dt>
+                <dt className="font-medium">Versión</dt>
                 <dd>{VERSION}</dd>
               </div>
               <div className="flex gap-2">
@@ -66,57 +67,179 @@ export async function Footer({ updatedAt }: FooterProps) {
                 </dd>
               </div>
               <div className="flex gap-2">
-                <dt className="font-medium">Licencia datos</dt>
-                <dd>{LICENSES.datos}</dd>
-              </div>
-              <div className="flex gap-2">
-                <dt className="font-medium">Licencia codigo</dt>
-                <dd>{LICENSES.codigo}</dd>
+                <dt className="font-medium">Licencias</dt>
+                <dd>
+                  {LICENSES.datos} · {LICENSES.codigo}
+                </dd>
               </div>
             </dl>
+            {SOURCES.length > 0 && (
+              <p
+                className="mt-3 text-xs italic text-neutral-muted dark:text-dk-muted"
+                aria-label="Fuentes principales"
+              >
+                Fuentes: {SOURCES.join(", ")}.
+              </p>
+            )}
           </section>
 
-          <section aria-labelledby="footer-enlaces">
+          {/* Col 2 — Indicadores: 5 capas analíticas (tipología, calor,
+              aire, población, calidad de vida). Coinciden con el hub
+              /indicadores y sus 5 sub-rutas. */}
+          <section aria-labelledby="footer-indicadores">
             <h2
-              id="footer-enlaces"
+              id="footer-indicadores"
               className="text-xs font-semibold uppercase tracking-wider text-secondary dark:text-dk-muted"
             >
-              Enlaces
+              Indicadores
             </h2>
             <ul className="mt-2 space-y-1 text-sm">
               <li>
                 <Link
-                  href="/metodologia"
+                  href="/indicadores/tipologia"
                   className="text-primary underline-offset-2 hover:underline dark:text-dk-primary"
                 >
-                  Metodologia
+                  Tipología urbana
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/metodologia#frescura"
+                  href="/indicadores/calor"
                   className="text-primary underline-offset-2 hover:underline dark:text-dk-primary"
                 >
-                  Frescura de datos
+                  Calor &amp; UHI
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/descargas"
+                  href="/indicadores/aire"
+                  className="text-primary underline-offset-2 hover:underline dark:text-dk-primary"
+                >
+                  Aire
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/indicadores/poblacion"
+                  className="text-primary underline-offset-2 hover:underline dark:text-dk-primary"
+                >
+                  Población
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/indicadores/calidad-vida"
+                  className="text-primary underline-offset-2 hover:underline dark:text-dk-primary"
+                >
+                  Calidad de vida
+                </Link>
+              </li>
+            </ul>
+          </section>
+
+          {/* Col 3 — Pronóstico: futuro corto (14 días) + escenarios largos.
+              Cubre los 3 sub-routes del hub /pronostico. */}
+          <section aria-labelledby="footer-pronostico">
+            <h2
+              id="footer-pronostico"
+              className="text-xs font-semibold uppercase tracking-wider text-secondary dark:text-dk-muted"
+            >
+              Pronóstico
+            </h2>
+            <ul className="mt-2 space-y-1 text-sm">
+              <li>
+                <Link
+                  href="/pronostico/riesgos"
+                  className="text-primary underline-offset-2 hover:underline dark:text-dk-primary"
+                >
+                  Riesgos 14 días
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/pronostico/clima"
+                  className="text-primary underline-offset-2 hover:underline dark:text-dk-primary"
+                >
+                  Clima 14 días
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/pronostico/proyecciones"
+                  className="text-primary underline-offset-2 hover:underline dark:text-dk-primary"
+                >
+                  Proyecciones
+                </Link>
+              </li>
+            </ul>
+          </section>
+
+          {/* Col 4 — Fusión de Decisión + Datos (3+3 entradas). Mantenemos
+              las dos secciones lógicas legibles con sub-headings <h3>
+              para conservar la jerarquía semántica aún fusionando columna. */}
+          <section aria-labelledby="footer-decision-datos">
+            <h2
+              id="footer-decision-datos"
+              className="text-xs font-semibold uppercase tracking-wider text-secondary dark:text-dk-muted"
+            >
+              Decisión &amp; Datos
+            </h2>
+            <h3 className="mt-2 text-[0.7rem] font-semibold uppercase tracking-wider text-neutral-muted dark:text-dk-muted">
+              Decisión
+            </h3>
+            <ul className="mt-1 space-y-1 text-sm">
+              <li>
+                <Link
+                  href="/decision/prioridades"
+                  className="text-primary underline-offset-2 hover:underline dark:text-dk-primary"
+                >
+                  Prioridades
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/decision/comparar"
+                  className="text-primary underline-offset-2 hover:underline dark:text-dk-primary"
+                >
+                  Comparador
+                </Link>
+              </li>
+            </ul>
+            <h3 className="mt-3 text-[0.7rem] font-semibold uppercase tracking-wider text-neutral-muted dark:text-dk-muted">
+              Datos
+            </h3>
+            <ul className="mt-1 space-y-1 text-sm">
+              <li>
+                <Link
+                  href="/datos/historia"
+                  className="text-primary underline-offset-2 hover:underline dark:text-dk-primary"
+                >
+                  Línea de tiempo 1999-2026
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/datos/metodologia"
+                  className="text-primary underline-offset-2 hover:underline dark:text-dk-primary"
+                >
+                  Metodología
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/datos/descargas"
                   className="text-primary underline-offset-2 hover:underline dark:text-dk-primary"
                 >
                   Descargas
                 </Link>
               </li>
               <li>
-                <a
-                  href="https://github.com/"
+                <Link
+                  href="/datos/glosario"
                   className="text-primary underline-offset-2 hover:underline dark:text-dk-primary"
-                  rel="noopener noreferrer"
-                  target="_blank"
                 >
-                  Codigo abierto (GitHub)
-                </a>
+                  Glosario
+                </Link>
               </li>
             </ul>
           </section>

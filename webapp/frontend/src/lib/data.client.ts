@@ -43,6 +43,26 @@ import type {
   ViirsRow,
   VulnerabilidadRow,
   WdpaRow,
+  // Capa 1
+  CanopyRow,
+  TechosRow,
+  DensidadVolumetricaRow,
+  AnomaliaRow,
+  EdificiosRealesRow,
+  NdaiAsbestoRow,
+  // Capa 2
+  DengueRow,
+  CalorSaludRow,
+  CalorSaludDiarioRow,
+  AnegamientoRow,
+  SaturacionRow,
+  // Capa 3
+  QuinceMinutosRow,
+  HabitabilidadRow,
+  GreenEquityRow,
+  ResilienciaRow,
+  GentrificacionRow,
+  GiniRow,
 } from "./types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "";
@@ -418,7 +438,7 @@ export async function getAlertasActivas(): Promise<AlertasPayload> {
 // Capa de proyecciones a futuro (script 59)
 // ---------------------------------------------------------------------------
 
-// Devuelve las filas de proyección, opcionalmente filtradas por polígono
+// Devuelve las filas de proyección, opcionalmente filtradas por barrio
 // y/o métrica. Si el CSV no existe (primer deploy, script no corrido)
 // devolvemos []. El consumidor decide cómo degradar.
 export async function getProyecciones(
@@ -488,4 +508,167 @@ export async function getEventosInundacion(): Promise<EventoInundacionRow[]> {
   return fetchCsvOptional<EventoInundacionRow>(
     "/data/cbers_inundacion/eventos.csv",
   );
+}
+
+// ---------------------------------------------------------------------------
+// Capas 1, 2, 3 — Tipología urbana, Riesgos, Calidad de vida.
+// Todos los getters opcionales: degradan a [] si el CSV no existe.
+// ---------------------------------------------------------------------------
+
+// --- Capa 1 — Tipología urbana ---
+
+export async function getCanopy(poligonoId?: string): Promise<CanopyRow[]> {
+  const rows = await fetchCsvOptional<CanopyRow>("/data/tipologia/canopy.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getTechos(poligonoId?: string): Promise<TechosRow[]> {
+  const rows = await fetchCsvOptional<TechosRow>("/data/tipologia/techos.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getDensidadVolumetrica(
+  poligonoId?: string,
+): Promise<DensidadVolumetricaRow[]> {
+  const rows = await fetchCsvOptional<DensidadVolumetricaRow>(
+    "/data/tipologia/densidad_volumetrica.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getAnomalias(
+  poligonoId?: string,
+): Promise<AnomaliaRow[]> {
+  const rows = await fetchCsvOptional<AnomaliaRow>("/data/tipologia/anomalias.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getEdificiosReales(
+  poligonoId?: string,
+): Promise<EdificiosRealesRow[]> {
+  const rows = await fetchCsvOptional<EdificiosRealesRow>(
+    "/data/tipologia/edificios_reales.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getNdaiAsbesto(
+  poligonoId?: string,
+): Promise<NdaiAsbestoRow[]> {
+  const rows = await fetchCsvOptional<NdaiAsbestoRow>(
+    "/data/tipologia/ndai_asbesto.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+// --- Capa 2 — Riesgos ---
+
+export async function getDengue(poligonoId?: string): Promise<DengueRow[]> {
+  const rows = await fetchCsvOptional<DengueRow>("/data/riesgos/dengue.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getCalorSalud(
+  poligonoId?: string,
+): Promise<CalorSaludRow[]> {
+  const rows = await fetchCsvOptional<CalorSaludRow>(
+    "/data/riesgos/calor_salud.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getCalorSaludDiario(
+  poligonoId?: string,
+): Promise<CalorSaludDiarioRow[]> {
+  const rows = await fetchCsvOptional<CalorSaludDiarioRow>(
+    "/data/riesgos/calor_salud_diario.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows
+    .filter((r) => r.poligono_id === poligonoId)
+    .sort((a, b) => a.fecha.localeCompare(b.fecha));
+}
+
+export async function getAnegamiento(
+  poligonoId?: string,
+): Promise<AnegamientoRow[]> {
+  const rows = await fetchCsvOptional<AnegamientoRow>(
+    "/data/riesgos/anegamiento.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getSaturacion(
+  poligonoId?: string,
+): Promise<SaturacionRow[]> {
+  const rows = await fetchCsvOptional<SaturacionRow>(
+    "/data/riesgos/saturacion.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+// --- Capa 3 — Calidad de vida ---
+
+export async function getQuinceMinutos(
+  poligonoId?: string,
+): Promise<QuinceMinutosRow[]> {
+  const rows = await fetchCsvOptional<QuinceMinutosRow>(
+    "/data/calidad/quince_minutos.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getHabitabilidad(
+  poligonoId?: string,
+): Promise<HabitabilidadRow[]> {
+  const rows = await fetchCsvOptional<HabitabilidadRow>(
+    "/data/calidad/habitabilidad.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getGreenEquity(
+  poligonoId?: string,
+): Promise<GreenEquityRow[]> {
+  const rows = await fetchCsvOptional<GreenEquityRow>(
+    "/data/calidad/green_equity.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getResiliencia(
+  poligonoId?: string,
+): Promise<ResilienciaRow[]> {
+  const rows = await fetchCsvOptional<ResilienciaRow>(
+    "/data/calidad/resiliencia.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getGentrificacion(
+  poligonoId?: string,
+): Promise<GentrificacionRow[]> {
+  const rows = await fetchCsvOptional<GentrificacionRow>(
+    "/data/calidad/gentrificacion.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getGini(): Promise<GiniRow[]> {
+  return fetchCsvOptional<GiniRow>("/data/calidad/gini.csv");
 }
