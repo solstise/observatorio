@@ -1,6 +1,6 @@
 // Sitemap dinámico del Observatorio Urbano Posadas.
 // Genera /sitemap.xml en build/runtime listando rutas estáticas + una
-// ficha por cada polígono publicado en el geojson.
+// ficha por cada barrio publicado en el geojson.
 //
 // Docs: https://nextjs.org/docs/app/api-reference/file-conventions/metadata/sitemap
 //
@@ -8,9 +8,15 @@
 // - lastmod: tomamos /public/data/updated_at.txt si existe (lo escribe la
 //   pipeline en cada sync), sino usamos la fecha actual del build.
 // - changefreq: weekly para fichas y dashboards (dato satelital semanal),
-//   monthly para metodología.
-// - priority: 1.0 home, 0.8 secciones core (clima/calor), 0.7 prioridades,
-//   0.6 fichas individuales y resto.
+//   monthly para metodología y glosario.
+// - priority: 1.0 home, 0.8 hubs top-level, 0.7 sub-páginas de indicadores
+//   y pronóstico (las analíticas de uso frecuente), 0.6 sub-páginas
+//   secundarias (historia, decisión, datos auxiliares) y fichas por barrio.
+//
+// Arquitectura de rutas: 6 hubs top-level (indicadores, pronostico,
+// decision, historia, datos) más sub-rutas. Las rutas viejas (flat)
+// están redirigidas con 301 en next.config.mjs y NO se listan acá: el
+// sitemap solo debe apuntar a las URLs canónicas finales.
 
 import type { MetadataRoute } from "next";
 
@@ -21,7 +27,7 @@ import { getPoligonos } from "@/lib/data.server";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ||
-  "https://observatorio.sistemaswinter.com";
+  "https://sateliteposadas.com";
 
 // Lee la fecha del último sync de la pipeline. Si falta caemos a "ahora".
 async function getLastModified(): Promise<Date> {
@@ -41,26 +47,46 @@ async function getLastModified(): Promise<Date> {
   return new Date();
 }
 
-// Rutas estáticas del frontend, en orden visual del menú.
+// Rutas estáticas del frontend, agrupadas por hub.
 // changefreq y priority calibrados al rol de cada página.
 const STATIC_ROUTES: Array<{
   path: string;
   changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"];
   priority: number;
 }> = [
+  // Home
   { path: "/", changeFrequency: "weekly", priority: 1.0 },
-  { path: "/clima", changeFrequency: "daily", priority: 0.8 },
-  { path: "/calor", changeFrequency: "weekly", priority: 0.8 },
-  { path: "/prioridades", changeFrequency: "weekly", priority: 0.7 },
-  { path: "/comparar", changeFrequency: "weekly", priority: 0.6 },
-  { path: "/densidad", changeFrequency: "weekly", priority: 0.6 },
-  { path: "/3d", changeFrequency: "weekly", priority: 0.6 },
-  { path: "/explorar", changeFrequency: "weekly", priority: 0.6 },
-  { path: "/historia", changeFrequency: "monthly", priority: 0.6 },
-  { path: "/validacion", changeFrequency: "weekly", priority: 0.6 },
-  { path: "/eventos", changeFrequency: "weekly", priority: 0.6 },
-  { path: "/descargas", changeFrequency: "weekly", priority: 0.5 },
-  { path: "/metodologia", changeFrequency: "monthly", priority: 0.5 },
+
+  // Hub: Indicadores (5 capas analíticas)
+  { path: "/indicadores", changeFrequency: "weekly", priority: 0.8 },
+  { path: "/indicadores/tipologia", changeFrequency: "weekly", priority: 0.7 },
+  { path: "/indicadores/calor", changeFrequency: "weekly", priority: 0.8 },
+  { path: "/indicadores/aire", changeFrequency: "daily", priority: 0.7 },
+  { path: "/indicadores/poblacion", changeFrequency: "weekly", priority: 0.7 },
+  { path: "/indicadores/calidad-vida", changeFrequency: "weekly", priority: 0.7 },
+
+  // Hub: Pronóstico (14 días + escenarios)
+  { path: "/pronostico", changeFrequency: "daily", priority: 0.8 },
+  { path: "/pronostico/riesgos", changeFrequency: "daily", priority: 0.7 },
+  { path: "/pronostico/clima", changeFrequency: "daily", priority: 0.7 },
+  { path: "/pronostico/proyecciones", changeFrequency: "monthly", priority: 0.6 },
+
+  // Hub: Decisión (priorización + comparador)
+  { path: "/decision", changeFrequency: "weekly", priority: 0.8 },
+  { path: "/decision/prioridades", changeFrequency: "weekly", priority: 0.7 },
+  { path: "/decision/comparar", changeFrequency: "weekly", priority: 0.6 },
+
+  // Hub: Datos (sala de máquinas — metodología, descargas, glosario,
+  // explorar, 3d, más la línea de tiempo histórica y la validación cruzada
+  // que se reubicaron acá tras la poda del hub /historia top-level)
+  { path: "/datos", changeFrequency: "monthly", priority: 0.6 },
+  { path: "/datos/metodologia", changeFrequency: "monthly", priority: 0.5 },
+  { path: "/datos/descargas", changeFrequency: "weekly", priority: 0.5 },
+  { path: "/datos/glosario", changeFrequency: "monthly", priority: 0.5 },
+  { path: "/datos/historia", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/datos/validacion", changeFrequency: "weekly", priority: 0.6 },
+  { path: "/datos/explorar", changeFrequency: "weekly", priority: 0.6 },
+  { path: "/datos/3d", changeFrequency: "weekly", priority: 0.6 },
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

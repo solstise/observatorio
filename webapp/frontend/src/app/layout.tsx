@@ -32,7 +32,7 @@ const inter = Inter({
 const NO_FLASH_SCRIPT = `try{var t=localStorage.getItem('theme');var d=t==='dark'||(!t&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);}catch(e){}`;
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ||
-  "https://observatorio.sistemaswinter.com";
+  "https://sateliteposadas.com";
 
 // JSON-LD schema.org — ayuda a Google a entender el sitio como
 // WebSite + Organization. Inyectado como string para evitar serializar

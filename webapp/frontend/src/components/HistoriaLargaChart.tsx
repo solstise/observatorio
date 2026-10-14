@@ -182,7 +182,7 @@ export function HistoriaLargaChart({
 
       {faltantes.length > 0 && (
         <p className="text-xs italic text-neutral-muted dark:text-dk-muted">
-          {faltantes.join(", ")} sin cobertura para este polígono.
+          {faltantes.join(", ")} sin cobertura para este barrio.
         </p>
       )}
 

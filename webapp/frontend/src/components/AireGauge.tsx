@@ -80,7 +80,7 @@ export function AireGauge({ rows }: AireGaugeProps) {
           Calidad del aire
         </h3>
         <p className="mt-2 text-sm italic text-neutral-muted dark:text-dk-muted">
-          Sin datos de aire para este polígono todavía.
+          Sin datos de aire para este barrio todavía.
         </p>
       </div>
     );

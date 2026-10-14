@@ -20,54 +20,74 @@ import { useEffect, useId, useRef, useState } from "react";
 
 import { useTheme } from "@/hooks/useTheme";
 
-const NAV = [
-  { href: "/", label: "Mapa" },
-  { href: "/calor", label: "Calor" },
-  { href: "/clima", label: "Clima" },
-  { href: "/proyecciones", label: "Proyecciones" },
-  { href: "/prioridades", label: "Prioridades" },
-  { href: "/comparar", label: "Comparar" },
-  { href: "/metodologia", label: "Metodología" },
-  { href: "/descargas", label: "Descargas" },
-];
+// Re-arquitectura mayo 2026: 6 hubs top-level en vez de 17 rutas flat.
+// Cada hub agrupa sub-páginas en un dropdown predecible (3-5 ítems).
+// Las rutas viejas siguen funcionando vía 301 en next.config.mjs.
+type NavItem = { href: string; label: string };
+type NavGroup = { label: string; href: string; items?: NavItem[] };
 
-// Vistas avanzadas — agrupadas en un dropdown "Más vistas" para no saturar
-// la barra principal. Originalmente eran las rutas WebGL pesadas; con la
-// extensión CBERS sumamos /historia, /validacion y /eventos también acá
-// porque son vistas verticales (un único tópico) en vez de la experiencia
-// primaria del observatorio. Si el dropdown supera 8 items hay que migrar
-// a un panel lateral con secciones.
-const NAV_MAS = [
-  { href: "/densidad", label: "Densidad" },
-  { href: "/3d", label: "3D" },
-  { href: "/explorar", label: "Explorar" },
-  { href: "/historia", label: "Historia (1999-2026)" },
-  { href: "/validacion", label: "Validación cruzada" },
-  { href: "/eventos", label: "Eventos extremos" },
+const NAV_GROUPS: NavGroup[] = [
+  { label: "Mapa", href: "/" },
+  {
+    label: "Indicadores",
+    href: "/indicadores",
+    items: [
+      { href: "/indicadores/tipologia", label: "Tipología urbana" },
+      { href: "/indicadores/calor", label: "Calor & UHI" },
+      { href: "/indicadores/aire", label: "Aire" },
+      { href: "/indicadores/poblacion", label: "Población & densidad" },
+      { href: "/indicadores/calidad-vida", label: "Calidad de vida" },
+    ],
+  },
+  {
+    label: "Pronóstico",
+    href: "/pronostico",
+    items: [
+      { href: "/pronostico/riesgos", label: "Riesgos 14 días" },
+      { href: "/pronostico/clima", label: "Clima 14 días" },
+      { href: "/pronostico/proyecciones", label: "Proyecciones 2030+" },
+    ],
+  },
+  {
+    label: "Decisión",
+    href: "/decision",
+    items: [
+      { href: "/decision/prioridades", label: "Prioridades de inversión" },
+      { href: "/decision/comparar", label: "Comparador 2 barrios" },
+    ],
+  },
+  {
+    label: "Datos",
+    href: "/datos",
+    items: [
+      { href: "/datos/descargas", label: "Descargas CSV" },
+      { href: "/datos/metodologia", label: "Metodología" },
+      { href: "/datos/glosario", label: "Glosario" },
+      { href: "/datos/historia", label: "Línea de tiempo 1999-2026" },
+      { href: "/datos/validacion", label: "Validación cruzada" },
+      { href: "/datos/3d", label: "Visor 3D" },
+      { href: "/datos/explorar", label: "Explorar" },
+    ],
+  },
 ];
 
 export function Header() {
   const [open, setOpen] = useState(false);
-  // Estado del dropdown "Más vistas" (desktop). Se cierra al hacer click
-  // afuera, al perder foco, o al navegar. Mobile usa el panel hamburguesa
-  // y NO abre este dropdown — todo va en flat list dentro del panel.
-  const [masOpen, setMasOpen] = useState(false);
+  // Estado de dropdowns abiertos en desktop. Manejamos un único dropdown
+  // abierto a la vez (string con el label del grupo abierto, o null).
+  const [openGroup, setOpenGroup] = useState<string | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
-  const masRef = useRef<HTMLLIElement | null>(null);
+  const navRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
   const menuId = useId();
-  const masMenuId = useId();
 
-  // Cierra el panel al cambiar de ruta para que el menú no quede colgado al
-  // navegar (Next 14 conserva el estado entre rutas dentro del mismo layout).
+  // Cierra todo al cambiar de ruta.
   useEffect(() => {
     setOpen(false);
-    setMasOpen(false);
+    setOpenGroup(null);
   }, [pathname]);
 
-  // Cierre por Escape: convención WCAG/ARIA para overlays. Devuelve el foco
-  // al disparador (botón hamburguesa) para que el lector de pantalla no
-  // pierda contexto.
+  // Cierre por Escape (mobile panel).
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -80,17 +100,17 @@ export function Header() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  // Cierre del dropdown "Más vistas" al click outside o Escape.
+  // Cierre de dropdowns al clickear fuera o Escape.
   useEffect(() => {
-    if (!masOpen) return;
+    if (!openGroup) return;
     const onClickOutside = (e: MouseEvent) => {
-      if (!masRef.current) return;
-      if (!masRef.current.contains(e.target as Node)) {
-        setMasOpen(false);
+      if (!navRef.current) return;
+      if (!navRef.current.contains(e.target as Node)) {
+        setOpenGroup(null);
       }
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMasOpen(false);
+      if (e.key === "Escape") setOpenGroup(null);
     };
     document.addEventListener("mousedown", onClickOutside);
     window.addEventListener("keydown", onKey);
@@ -98,13 +118,18 @@ export function Header() {
       document.removeEventListener("mousedown", onClickOutside);
       window.removeEventListener("keydown", onKey);
     };
-  }, [masOpen]);
+  }, [openGroup]);
 
-  // Si la ruta actual está en NAV_MAS, marcamos el botón "Más vistas" como
-  // activo para preservar contexto visual.
-  const masActive = NAV_MAS.some(
-    (i) => pathname === i.href || pathname?.startsWith(i.href + "/"),
-  );
+  // ¿Está activo un grupo? Sí si la ruta actual matchea el href del grupo
+  // o alguno de sus items.
+  function isGroupActive(g: NavGroup): boolean {
+    if (!pathname) return false;
+    if (g.href === "/" && pathname === "/") return true;
+    if (g.href !== "/" && pathname.startsWith(g.href)) return true;
+    return (g.items ?? []).some(
+      (i) => pathname === i.href || pathname.startsWith(i.href + "/"),
+    );
+  }
 
   return (
     <header
@@ -128,94 +153,121 @@ export function Header() {
           </div>
         </Link>
 
-        {/* Navegación desktop (md+) */}
-        <nav aria-label="Navegación principal" className="hidden md:block">
+        {/* Navegación desktop (md+) — 6 hubs como dropdowns */}
+        <nav
+          aria-label="Navegación principal"
+          className="hidden md:block"
+          ref={navRef}
+        >
           <ul className="flex items-center gap-1 lg:gap-2">
-            {NAV.map((item) => {
-              const active =
-                pathname === item.href ||
-                (item.href !== "/" && pathname?.startsWith(item.href));
+            {NAV_GROUPS.map((group) => {
+              const active = isGroupActive(group);
+              const hasItems = !!group.items && group.items.length > 0;
+              if (!hasItems) {
+                // Hub sin dropdown (Mapa).
+                return (
+                  <li key={group.href}>
+                    <Link
+                      href={group.href}
+                      aria-current={active ? "page" : undefined}
+                      className={[
+                        "inline-flex min-h-[44px] items-center rounded px-3 py-2 text-sm font-medium transition-colors",
+                        active
+                          ? "bg-primary-50 text-primary dark:bg-dk-elevated dark:text-dk-primary"
+                          : "text-primary hover:bg-primary-50 dark:text-dk-primary dark:hover:bg-dk-elevated",
+                      ].join(" ")}
+                    >
+                      {group.label}
+                    </Link>
+                  </li>
+                );
+              }
+              const isOpen = openGroup === group.label;
               return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    aria-current={active ? "page" : undefined}
+                <li key={group.label} className="relative">
+                  <button
+                    type="button"
+                    aria-haspopup="menu"
+                    aria-expanded={isOpen}
+                    onClick={() => setOpenGroup(isOpen ? null : group.label)}
                     className={[
-                      "inline-flex min-h-[44px] items-center rounded px-3 py-2 text-sm font-medium transition-colors",
-                      active
+                      "inline-flex min-h-[44px] items-center gap-1 rounded px-3 py-2 text-sm font-medium transition-colors",
+                      active || isOpen
                         ? "bg-primary-50 text-primary dark:bg-dk-elevated dark:text-dk-primary"
                         : "text-primary hover:bg-primary-50 dark:text-dk-primary dark:hover:bg-dk-elevated",
                     ].join(" ")}
                   >
-                    {item.label}
-                  </Link>
+                    {group.label}
+                    <svg
+                      width="10"
+                      height="10"
+                      viewBox="0 0 10 10"
+                      aria-hidden="true"
+                      className={[
+                        "ml-0.5 transition-transform",
+                        isOpen ? "rotate-180" : "rotate-0",
+                      ].join(" ")}
+                    >
+                      <path
+                        d="M1 3l4 4 4-4"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                  {isOpen && (
+                    <ul
+                      role="menu"
+                      className="absolute left-0 top-full z-50 mt-1 min-w-[220px] rounded-md border border-neutral-border bg-white py-1 shadow-lg dark:border-dk-border dark:bg-dk-surface"
+                    >
+                      {/* Primer item: ir al hub overview */}
+                      <li role="none">
+                        <Link
+                          href={group.href}
+                          role="menuitem"
+                          onClick={() => setOpenGroup(null)}
+                          className="flex min-h-[40px] items-center justify-between px-4 py-2 text-sm font-semibold text-primary hover:bg-primary-50 dark:text-dk-primary dark:hover:bg-dk-elevated"
+                        >
+                          <span>Ver todo en {group.label}</span>
+                          <span aria-hidden className="text-xs opacity-60">↗</span>
+                        </Link>
+                      </li>
+                      <li
+                        role="separator"
+                        aria-hidden
+                        className="my-1 border-t border-neutral-border/60 dark:border-dk-border/60"
+                      />
+                      {group.items!.map((item) => {
+                        const itemActive =
+                          pathname === item.href ||
+                          pathname?.startsWith(item.href + "/");
+                        return (
+                          <li key={item.href} role="none">
+                            <Link
+                              href={item.href}
+                              role="menuitem"
+                              aria-current={itemActive ? "page" : undefined}
+                              onClick={() => setOpenGroup(null)}
+                              className={[
+                                "flex min-h-[40px] items-center px-4 py-2 text-sm font-medium transition-colors",
+                                itemActive
+                                  ? "bg-primary-50 text-primary dark:bg-dk-elevated dark:text-dk-primary"
+                                  : "text-primary hover:bg-primary-50 dark:text-dk-primary dark:hover:bg-dk-elevated",
+                              ].join(" ")}
+                            >
+                              {item.label}
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
                 </li>
               );
             })}
-
-            {/* Dropdown "Más vistas". Botón con aria-expanded + aria-controls,
-                panel con role="menu" según WAI-ARIA Authoring Practices. */}
-            <li className="relative" ref={masRef}>
-              <button
-                type="button"
-                aria-haspopup="menu"
-                aria-expanded={masOpen}
-                aria-controls={masMenuId}
-                onClick={() => setMasOpen((v) => !v)}
-                className={[
-                  "inline-flex min-h-[44px] items-center gap-1 rounded px-3 py-2 text-sm font-medium transition-colors",
-                  masActive || masOpen
-                    ? "bg-primary-50 text-primary dark:bg-dk-elevated dark:text-dk-primary"
-                    : "text-primary hover:bg-primary-50 dark:text-dk-primary dark:hover:bg-dk-elevated",
-                ].join(" ")}
-              >
-                Más vistas
-                <svg
-                  width="10"
-                  height="10"
-                  viewBox="0 0 10 10"
-                  aria-hidden="true"
-                  fill="currentColor"
-                  className={[
-                    "ml-0.5 transition-transform",
-                    masOpen ? "rotate-180" : "rotate-0",
-                  ].join(" ")}
-                >
-                  <path d="M1 3l4 4 4-4" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-              {masOpen && (
-                <ul
-                  id={masMenuId}
-                  role="menu"
-                  className="absolute right-0 top-full z-50 mt-1 min-w-[180px] rounded-md border border-neutral-border bg-white py-1 shadow-lg dark:border-dk-border dark:bg-dk-surface"
-                >
-                  {NAV_MAS.map((item) => {
-                    const active =
-                      pathname === item.href ||
-                      pathname?.startsWith(item.href + "/");
-                    return (
-                      <li key={item.href} role="none">
-                        <Link
-                          href={item.href}
-                          role="menuitem"
-                          aria-current={active ? "page" : undefined}
-                          onClick={() => setMasOpen(false)}
-                          className={[
-                            "flex min-h-[40px] items-center px-4 py-2 text-sm font-medium transition-colors",
-                            active
-                              ? "bg-primary-50 text-primary dark:bg-dk-elevated dark:text-dk-primary"
-                              : "text-primary hover:bg-primary-50 dark:text-dk-primary dark:hover:bg-dk-elevated",
-                          ].join(" ")}
-                        >
-                          {item.label}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </li>
           </ul>
         </nav>
 
@@ -238,8 +290,9 @@ export function Header() {
         </div>
       </div>
 
-      {/* Panel mobile (slide-down). Solo se renderiza cuando está abierto
-          para no agregar nodos al árbol cuando no se necesitan. */}
+      {/* Panel mobile (slide-down). Cada hub se muestra como sección con
+          su título + sub-items debajo. Más legible que el flat list
+          gigante anterior. */}
       {open && (
         <nav
           id={menuId}
@@ -247,60 +300,50 @@ export function Header() {
           className="border-t border-neutral-border bg-white dark:border-dk-border dark:bg-dk-surface md:hidden"
         >
           <ul className="container-obs flex flex-col py-2">
-            {NAV.map((item) => {
-              const active =
-                pathname === item.href ||
-                (item.href !== "/" && pathname?.startsWith(item.href));
+            {NAV_GROUPS.map((group, gi) => {
+              const groupActive = isGroupActive(group);
+              const hasItems = !!group.items && group.items.length > 0;
               return (
-                <li key={item.href}>
+                <li key={group.label} className={gi > 0 ? "mt-1" : ""}>
                   <Link
-                    href={item.href}
-                    aria-current={active ? "page" : undefined}
+                    href={group.href}
+                    aria-current={groupActive ? "page" : undefined}
                     onClick={() => setOpen(false)}
                     className={[
-                      "flex min-h-[44px] items-center rounded-md px-3 py-3 text-base font-medium transition-colors",
-                      active
+                      "flex min-h-[44px] items-center rounded-md px-3 py-3 text-base font-semibold transition-colors",
+                      groupActive
                         ? "bg-primary-50 text-primary dark:bg-dk-elevated dark:text-dk-primary"
                         : "text-primary hover:bg-primary-50 dark:text-dk-primary dark:hover:bg-dk-elevated",
                     ].join(" ")}
                   >
-                    {item.label}
+                    {group.label}
                   </Link>
-                </li>
-              );
-            })}
-
-            {/* Sección "Más vistas" en mobile: aparece al final como separador
-                + lista plana. No usamos dropdown anidado en mobile porque
-                duplica el costo cognitivo (ya hay un panel hamburguesa
-                por encima). */}
-            <li
-              aria-hidden="true"
-              className="mt-2 border-t border-neutral-border pt-2 dark:border-dk-border"
-            >
-              <span className="px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-secondary dark:text-dk-muted">
-                Más vistas
-              </span>
-            </li>
-            {NAV_MAS.map((item) => {
-              const active =
-                pathname === item.href ||
-                pathname?.startsWith(item.href + "/");
-              return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    aria-current={active ? "page" : undefined}
-                    onClick={() => setOpen(false)}
-                    className={[
-                      "flex min-h-[44px] items-center rounded-md px-3 py-3 text-base font-medium transition-colors",
-                      active
-                        ? "bg-primary-50 text-primary dark:bg-dk-elevated dark:text-dk-primary"
-                        : "text-primary hover:bg-primary-50 dark:text-dk-primary dark:hover:bg-dk-elevated",
-                    ].join(" ")}
-                  >
-                    {item.label}
-                  </Link>
+                  {hasItems && (
+                    <ul className="ml-3 mt-0.5 border-l border-neutral-border pl-2 dark:border-dk-border">
+                      {group.items!.map((item) => {
+                        const itemActive =
+                          pathname === item.href ||
+                          pathname?.startsWith(item.href + "/");
+                        return (
+                          <li key={item.href}>
+                            <Link
+                              href={item.href}
+                              aria-current={itemActive ? "page" : undefined}
+                              onClick={() => setOpen(false)}
+                              className={[
+                                "flex min-h-[40px] items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                                itemActive
+                                  ? "bg-primary-50 text-primary dark:bg-dk-elevated dark:text-dk-primary"
+                                  : "text-primary hover:bg-primary-50 dark:text-dk-primary dark:hover:bg-dk-elevated",
+                              ].join(" ")}
+                            >
+                              {item.label}
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
                 </li>
               );
             })}

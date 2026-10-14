@@ -112,7 +112,7 @@ export default async function Image() {
             Sentinel-2 · Open Buildings · WorldPop · CHIRPS
           </div>
           <div style={{ fontSize: 22, fontWeight: 600 }}>
-            observatorio.sistemaswinter.com
+            sateliteposadas.com
           </div>
         </div>
       </div>

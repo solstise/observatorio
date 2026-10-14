@@ -274,17 +274,27 @@ function BadgeCalidad({
 }) {
   // Prefer la calidad declarada por la fila si existe — el agente de
   // datos puede saber mejor que la heurística "1999-2013 = preliminar"
-  // para casos puntuales (ej. una imagen 2010 reprocesada con calibración
-  // moderna). Fallback a la inferida por año.
+  // para casos puntuales. Fallback a la inferida por año.
   const efectiva: "preliminar" | "estandar" = fila?.calidad ?? calidad;
+  // Identificamos el sensor a partir de `fuente_satelite` cuando viene
+  // declarado (Landsat-5/7/8 o CBERS-4 PAN10M). Si no, caemos a la
+  // heurística por año.
+  const sensor = String(fila?.fuente_satelite ?? "");
+  const isLandsat = /landsat/i.test(sensor);
+  const isCbers4 = /CBERS-4/i.test(sensor);
+
   if (efectiva === "preliminar") {
     return (
       <span
         className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/60 bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-900 dark:border-amber-600/60 dark:bg-amber-900/30 dark:text-amber-100"
-        title="Imágenes pre-2014 usan CBERS-1/2/2B/HRC, con calibración menos estable que la flota actual. Sirven para tendencias, no para mediciones absolutas."
+        title={
+          isLandsat
+            ? "Período 1999-2014 cubierto con Landsat-5/7/8 (30 m, USGS/NASA) desde Microsoft Planetary Computer. CBERS-1/2/2B no está disponible vía API abierta — INPE CDSR requiere registro manual."
+            : "Imágenes pre-2014 con calibración menos estable que la flota actual. Sirven para tendencias, no para mediciones absolutas."
+        }
       >
         <span aria-hidden>{"🟡"}</span>
-        Calibración preliminar (CBERS-1/2)
+        {isLandsat ? `${sensor} · 30 m` : "Calibración preliminar"}
       </span>
     );
   }
@@ -294,7 +304,7 @@ function BadgeCalidad({
       title="CBERS-4 (lanzado 2014) y CBERS-4A (2019) tienen calibración radiométrica estable comparable a Sentinel-2."
     >
       <span aria-hidden>{"🟢"}</span>
-      Calidad estándar (CBERS-4/4A)
+      {isCbers4 ? "CBERS-4 PAN10M · 10 m" : "Calidad estándar (CBERS-4/4A)"}
     </span>
   );
 }

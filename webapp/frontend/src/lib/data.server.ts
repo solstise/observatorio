@@ -49,6 +49,26 @@ import type {
   ViirsRow,
   VulnerabilidadRow,
   WdpaRow,
+  // Capa 1
+  CanopyRow,
+  TechosRow,
+  DensidadVolumetricaRow,
+  AnomaliaRow,
+  EdificiosRealesRow,
+  NdaiAsbestoRow,
+  // Capa 2
+  DengueRow,
+  CalorSaludRow,
+  CalorSaludDiarioRow,
+  AnegamientoRow,
+  SaturacionRow,
+  // Capa 3
+  QuinceMinutosRow,
+  HabitabilidadRow,
+  GreenEquityRow,
+  ResilienciaRow,
+  GentrificacionRow,
+  GiniRow,
 } from "./types";
 
 async function readPublicFile(relativePath: string): Promise<string> {
@@ -442,4 +462,162 @@ export async function getEventosInundacion(): Promise<EventoInundacionRow[]> {
   return readStaticCsvOptional<EventoInundacionRow>(
     "/data/cbers_inundacion/eventos.csv",
   );
+}
+
+// ---------------------------------------------------------------------------
+// Capas 1, 2, 3 — Tipología urbana, Riesgos, Calidad de vida (SSR)
+// ---------------------------------------------------------------------------
+
+export async function getCanopy(poligonoId?: string): Promise<CanopyRow[]> {
+  const rows = await readStaticCsvOptional<CanopyRow>("/data/tipologia/canopy.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getTechos(poligonoId?: string): Promise<TechosRow[]> {
+  const rows = await readStaticCsvOptional<TechosRow>("/data/tipologia/techos.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getDensidadVolumetrica(
+  poligonoId?: string,
+): Promise<DensidadVolumetricaRow[]> {
+  const rows = await readStaticCsvOptional<DensidadVolumetricaRow>(
+    "/data/tipologia/densidad_volumetrica.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getAnomalias(
+  poligonoId?: string,
+): Promise<AnomaliaRow[]> {
+  const rows = await readStaticCsvOptional<AnomaliaRow>(
+    "/data/tipologia/anomalias.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getEdificiosReales(
+  poligonoId?: string,
+): Promise<EdificiosRealesRow[]> {
+  const rows = await readStaticCsvOptional<EdificiosRealesRow>(
+    "/data/tipologia/edificios_reales.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getNdaiAsbesto(
+  poligonoId?: string,
+): Promise<NdaiAsbestoRow[]> {
+  const rows = await readStaticCsvOptional<NdaiAsbestoRow>(
+    "/data/tipologia/ndai_asbesto.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getDengue(poligonoId?: string): Promise<DengueRow[]> {
+  const rows = await readStaticCsvOptional<DengueRow>("/data/riesgos/dengue.csv");
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getCalorSalud(
+  poligonoId?: string,
+): Promise<CalorSaludRow[]> {
+  const rows = await readStaticCsvOptional<CalorSaludRow>(
+    "/data/riesgos/calor_salud.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getCalorSaludDiario(
+  poligonoId?: string,
+): Promise<CalorSaludDiarioRow[]> {
+  const rows = await readStaticCsvOptional<CalorSaludDiarioRow>(
+    "/data/riesgos/calor_salud_diario.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows
+    .filter((r) => r.poligono_id === poligonoId)
+    .sort((a, b) => a.fecha.localeCompare(b.fecha));
+}
+
+export async function getAnegamiento(
+  poligonoId?: string,
+): Promise<AnegamientoRow[]> {
+  const rows = await readStaticCsvOptional<AnegamientoRow>(
+    "/data/riesgos/anegamiento.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getSaturacion(
+  poligonoId?: string,
+): Promise<SaturacionRow[]> {
+  const rows = await readStaticCsvOptional<SaturacionRow>(
+    "/data/riesgos/saturacion.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getQuinceMinutos(
+  poligonoId?: string,
+): Promise<QuinceMinutosRow[]> {
+  const rows = await readStaticCsvOptional<QuinceMinutosRow>(
+    "/data/calidad/quince_minutos.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getHabitabilidad(
+  poligonoId?: string,
+): Promise<HabitabilidadRow[]> {
+  const rows = await readStaticCsvOptional<HabitabilidadRow>(
+    "/data/calidad/habitabilidad.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getGreenEquity(
+  poligonoId?: string,
+): Promise<GreenEquityRow[]> {
+  const rows = await readStaticCsvOptional<GreenEquityRow>(
+    "/data/calidad/green_equity.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getResiliencia(
+  poligonoId?: string,
+): Promise<ResilienciaRow[]> {
+  const rows = await readStaticCsvOptional<ResilienciaRow>(
+    "/data/calidad/resiliencia.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getGentrificacion(
+  poligonoId?: string,
+): Promise<GentrificacionRow[]> {
+  const rows = await readStaticCsvOptional<GentrificacionRow>(
+    "/data/calidad/gentrificacion.csv",
+  );
+  if (!poligonoId) return rows;
+  return rows.filter((r) => r.poligono_id === poligonoId);
+}
+
+export async function getGini(): Promise<GiniRow[]> {
+  return readStaticCsvOptional<GiniRow>("/data/calidad/gini.csv");
 }

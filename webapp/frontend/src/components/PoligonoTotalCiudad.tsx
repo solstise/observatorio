@@ -9,7 +9,7 @@
 //   - KPIs sumados: viviendas, población estimada, UHI promedio, etc.
 //   - Top 3 por categoría: más calientes (UHI), más críticos (índice
 //     prioridad), con más viviendas, con menos servicios cercanos.
-//   - NO se muestran gráficos UHI / clima individuales del polígono ciudad.
+//   - NO se muestran gráficos UHI / clima individuales del barrio ciudad.
 
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -415,14 +415,14 @@ export function PoligonoTotalCiudad({
         </section>
 
         <section className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <Link href="/prioridades" className="btn-primary">
+          <Link href="/decision/prioridades" className="btn-primary">
             Ver ranking completo de prioridades
           </Link>
-          <Link href="/comparar" className="btn-outline">
+          <Link href="/decision/comparar" className="btn-outline">
             Comparar barrios entre sí
           </Link>
-          <Link href="/calor" className="btn-outline">
-            Mapa de calor urbano
+          <Link href="/indicadores/calor" className="btn-outline">
+            Mapa de temperatura
           </Link>
         </section>
 

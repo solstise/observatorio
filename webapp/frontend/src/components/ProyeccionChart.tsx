@@ -1,7 +1,7 @@
 "use client";
 
 // Gráfico de proyección a futuro (2027 / 2030 / 2035) para una métrica
-// y un polígono dado. Combina:
+// y un barrio dado. Combina:
 //
 //   - Histórico (Line sólida, color azul institucional) — viviendas /
 //     población / % urbano / UHI verano según la métrica.

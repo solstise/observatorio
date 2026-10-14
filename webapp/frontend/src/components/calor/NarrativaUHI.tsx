@@ -1,6 +1,6 @@
 "use client";
 
-// Narrativa dinámica para el polígono seleccionado: redacta el dato clave
+// Narrativa dinámica para el barrio seleccionado: redacta el dato clave
 // con bandas de confianza explícitas.
 
 import { TerminoGlosario } from "@/components/TerminoGlosario";
@@ -42,7 +42,7 @@ export function NarrativaUHI({ poligonoId, nombre, rows }: Props) {
     return (
       <div className="card">
         <p className="text-sm italic text-neutral-muted dark:text-dk-muted">
-          Seleccioná un polígono en el mapa para ver su lectura térmica
+          Seleccioná un barrio en el mapa para ver su lectura térmica
           detallada.
         </p>
       </div>
@@ -60,7 +60,7 @@ export function NarrativaUHI({ poligonoId, nombre, rows }: Props) {
           {nombre}
         </h3>
         <p className="mt-2 text-sm text-neutral-muted dark:text-dk-muted">
-          Aún no hay datos de UHI procesados para este polígono.
+          Aún no hay datos de UHI procesados para este barrio.
         </p>
       </div>
     );

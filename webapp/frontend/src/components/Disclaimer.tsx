@@ -57,7 +57,7 @@ export function Disclaimer() {
           WorldPop, OpenStreetMap). Las cifras tienen un margen de error
           declarado.{" "}
           <Link
-            href="/metodologia"
+            href="/datos/metodologia"
             className="font-medium text-primary underline-offset-2 hover:underline dark:text-amber-50 dark:underline"
           >
             Ver metodología

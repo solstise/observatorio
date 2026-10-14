@@ -1,7 +1,7 @@
 // Helpers de formato compartidos para el frontend.
 //
 // El centro de este módulo es distinguir "no hay dato" de "el dato es 0".
-// Cuando el CSV no tiene una fila para un polígono, los getters devuelven
+// Cuando el CSV no tiene una fila para un barrio, los getters devuelven
 // `null` o `undefined`. En ese caso queremos mostrar "s/d", no "0", para
 // no confundir al usuario con un valor real cero.
 //

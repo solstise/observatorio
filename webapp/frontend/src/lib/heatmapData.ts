@@ -10,7 +10,7 @@
 //
 // 2. Centroides de barrios + UHI verano — combinación de poligonos.geojson
 //    (que trae el contorno) y `social/ranking.csv` (que trae uhi_verano por
-//    polígono). Calculamos el centroide a partir del bbox del polígono
+//    polígono). Calculamos el centroide a partir del bbox del barrio
 //    (suficientemente bueno para un heatmap a nivel barrio).
 //
 // Las funciones devuelven `HeatmapPoint[]` listo para HeatmapLayer.
@@ -65,7 +65,7 @@ export async function fetchBuildingPoints(
   return out;
 }
 
-// Devuelve, por cada polígono de la collection, un punto (centroide + UHI).
+// Devuelve, por cada barrio de la collection, un punto (centroide + UHI).
 // Usamos UHI verano como peso porque es la métrica más relevante para
 // políticas públicas de mitigación de calor; null se neutraliza a 0.
 export async function fetchUhiPoints(
@@ -109,7 +109,7 @@ export async function fetchUhiPoints(
   return out;
 }
 
-// Extrae el anillo exterior del polígono o multipolígono. Suficiente para
+// Extrae el anillo exterior del barrio o multipolígono. Suficiente para
 // un centroide aproximado por bbox.
 function extractFirstRing(
   geometry: { type: string; coordinates: unknown },

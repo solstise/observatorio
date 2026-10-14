@@ -963,4 +963,270 @@ export const GLOSARIO: TerminoGlosario[] = [
     fuente_label: "Roy et al. 2020, Remote Sensing of Environment",
     relacionados: ["sentinel-2", "awfi", "landsat", "cbers"],
   },
+  // ──────────────────────────────────────────────────────────────────────────
+  // CAPA 3 — CALIDAD DE VIDA URBANA (composite indices)
+  // ──────────────────────────────────────────────────────────────────────────
+  {
+    id: "habitabilidad",
+    termino: "Habitabilidad urbana",
+    resumen_corto:
+      "Qué tan agradable es vivir en un barrio según calor, verde, aire y acceso a servicios. Score 0-100.",
+    descripcion_larga:
+      "Índice compuesto 0-100 que sintetiza cuatro dimensiones de calidad ambiental y social en cada barrio: **calor** (cuán fresco está el barrio en verano, derivado del UHI Landsat), **verde** (m² de cobertura vegetal por habitante, Dynamic World), **aire** (calidad relativa al promedio de Posadas, TROPOMI NO2) y **acceso** (cercanía promedio a CAPS, escuela, hospital y transporte). Cada componente se normaliza 0-100 y se promedia con pesos iguales. Categorías: *bajo* (<40), *medio* (40-60), *bueno* (60-75), *excelente* (≥75). No reemplaza un estudio cualitativo, pero ordena los barrios por confort estructural y permite identificar dónde la combinación de variables medibles es más favorable.",
+    categoria: "social",
+    alias: ["calidad de vida", "livability", "confort urbano"],
+    fuente_url: "https://www.who.int/teams/social-determinants-of-health/urban-health",
+    fuente_label: "OMS — determinantes urbanos de la salud",
+    relacionados: ["uhi", "ndvi", "no2", "ciudad-15-min"],
+  },
+  {
+    id: "ciudad-15-min",
+    termino: "Ciudad de los 15 minutos",
+    resumen_corto:
+      "Idea de Carlos Moreno: tener salud, educación, transporte y comercio a 15 min caminando o en bici.",
+    descripcion_larga:
+      "Concepto de planificación urbana popularizado por **Carlos Moreno** (Sorbonne, 2016) y adoptado por París, Melbourne, Bogotá y otras ciudades: cada habitante debería poder satisfacer sus necesidades cotidianas (salud, educación, trabajo, comercio, ocio, transporte) en un radio de 15 minutos a pie o en bicicleta. En este observatorio aproximamos el indicador para Posadas usando un score 0-100 derivado de la distancia mínima del centroide de cada barrio a CAPS, escuela, hospital y transporte público — cada distancia se normaliza por umbrales caminables (<500 m óptimo, ≥1500 m problemático) y se promedia. Un score ≥75 corresponde a *acceso completo*. La métrica resalta la inequidad espacial: barrios periféricos suelen quedar lejos de servicios básicos y necesitan transporte público para no quedar aislados.",
+    categoria: "social",
+    alias: ["15-minute city", "ciudad 15 minutos", "carlos moreno"],
+    fuente_url: "https://www.moreno-web.net/",
+    fuente_label: "Carlos Moreno — La ville du quart d'heure",
+    relacionados: ["habitabilidad"],
+  },
+  {
+    id: "green-equity",
+    termino: "Equidad de áreas verdes",
+    resumen_corto:
+      "Cuántos m² de verde por habitante tiene cada barrio. OMS recomienda mínimo 9 m²/cap.",
+    descripcion_larga:
+      "Medida de **distribución** de áreas verdes urbanas por habitante. La Organización Mundial de la Salud recomienda un mínimo de **9 m² por habitante** y un óptimo de **15 m²/cap**, considerando beneficios documentados para salud mental, reducción del UHI y resiliencia a olas de calor. En el observatorio computamos m²/cap por barrio cruzando la cobertura verde Dynamic World (Sentinel-2 deep learning) con la población estimada (GHSL/WorldPop). Categorías: *crítico* (<5 m²/cap), *deficitario* (5-9), *aceptable* (9-15), *óptimo* (≥15). La brecha vs OMS es informativa para diseñar políticas de forestación y compensación verde.",
+    categoria: "social",
+    alias: ["áreas verdes per cápita", "m2 verde habitante", "espacio verde"],
+    fuente_url: "https://www.who.int/europe/news/item/30-10-2017-urban-green-space-interventions-and-health",
+    fuente_label: "OMS Europa — Urban green space interventions and health (2017)",
+    relacionados: ["ndvi", "dynamic-world", "habitabilidad"],
+  },
+  {
+    id: "resiliencia-urbana",
+    termino: "Resiliencia urbana",
+    resumen_corto:
+      "Capacidad del barrio para resistir olas de calor y lluvias intensas sin colapsar.",
+    descripcion_larga:
+      "Score 0-100 que combina cuatro componentes ambientales clave para absorber eventos climáticos extremos: **permeabilidad** del suelo (% no construido, capacidad de infiltración), **canopy** vegetal (sombra y evapotranspiración), **drenaje** (riesgo de anegamiento invertido) y **enfriamiento** (UHI bajo). Un barrio resiliente puede recibir una ola de calor o una tormenta sin que sus habitantes queden expuestos a riesgos críticos. Categorías: *baja* (<40), *media* (40-65), *alta* (≥65). Es un concepto operativo del **IPCC AR6 WGII** y del marco *Resilient Cities* de UN-Habitat. Sirve para priorizar infraestructura verde y obras de drenaje.",
+    categoria: "social",
+    alias: ["urban resilience", "resiliencia climática", "adaptación urbana"],
+    fuente_url: "https://unhabitat.org/programme/city-resilience-global-programme",
+    fuente_label: "UN-Habitat — City Resilience Global Programme",
+    relacionados: ["uhi", "ndvi", "habitabilidad"],
+  },
+  {
+    id: "gentrificacion",
+    termino: "Gentrificación",
+    resumen_corto:
+      "Proceso por el cual un barrio se valoriza rápido, sube de precio y desplaza a la población original.",
+    descripcion_larga:
+      "Proceso urbano por el cual un barrio popular o degradado experimenta un **rápido crecimiento de inversión inmobiliaria y mejoras edilicias** que valorizan el suelo, aumentan alquileres y precios, y terminan **desplazando a la población original** que ya no puede sostener el costo de vida del lugar. En el observatorio aproximamos el riesgo con un score 0-100 derivado del **cambio porcentual de edificios** entre 2018 y 2026 (Open Buildings + GHSL) y del **cambio en superficie construida** (Dynamic World). Categorías: *estable* (<30), *crecimiento moderado* (30-60), *en transformación* (≥60). Es una señal de alerta editorial — no implica desplazamiento automático, pero marca barrios donde políticas de vivienda asequible o mecanismos de protección al inquilino son relevantes.",
+    categoria: "social",
+    alias: ["gentrification", "valorización", "desplazamiento urbano"],
+    fuente_url: "https://www.urbandisplacement.org/",
+    fuente_label: "Urban Displacement Project — UC Berkeley",
+    relacionados: ["habitabilidad", "ghsl", "dynamic-world"],
+  },
+  {
+    id: "gini",
+    termino: "Coeficiente de Gini",
+    resumen_corto:
+      "Medida 0-1 de desigualdad. 0 = todos iguales, 1 = uno se lleva todo. Originalmente para ingresos.",
+    descripcion_larga:
+      "Indicador clásico de **desigualdad estadística** propuesto por Corrado Gini (1912). Toma valores entre 0 (perfecta igualdad: todos los individuos tienen el mismo valor) y 1 (máxima desigualdad: un solo individuo concentra todo el valor). Originalmente diseñado para distribución de ingresos, se aplica a cualquier variable continua sobre una población. En el observatorio computamos Gini sobre los barrios de Posadas para cada métrica clave (m² verde por habitante, score de habitabilidad, distancias a servicios, etc) para revelar qué dimensiones de la ciudad son más equitativas y cuáles tienen brecha extrema. Lectura: <0.25 muy igualitario, 0.25-0.40 moderado, 0.40-0.60 alto, >0.60 extremo. Como referencia, el Gini de ingresos típico en Argentina ronda 0.42 (INDEC).",
+    categoria: "estadistica",
+    alias: ["coeficiente gini", "gini coefficient", "desigualdad"],
+    fuente_url: "https://es.wikipedia.org/wiki/Coeficiente_de_Gini",
+    fuente_label: "Gini (1912), Variabilità e mutabilità",
+    relacionados: ["percentil"],
+  },
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // CAPA 3 — VERDE URBANO (canopy)
+  // ──────────────────────────────────────────────────────────────────────────
+  {
+    id: "canopy",
+    termino: "Canopy (cobertura verde / dosel arbóreo)",
+    resumen_corto:
+      "Qué porcentaje del barrio está cubierto por copas de árboles vistos desde arriba.",
+    descripcion_larga:
+      "Canopy (o *tree canopy cover*) es la fracción de un área urbana que, vista cenitalmente desde el satélite, queda cubierta por el dosel arbóreo. En el observatorio aproximamos canopy combinando dos señales independientes sobre Sentinel-2: (1) la clase **'trees'** de Dynamic World V1 con probabilidad ≥ 0.5 y (2) un NDVI ≥ 0.5 sostenido en al menos 3 composites mensuales consecutivos, para excluir cultivos estacionales. La intersección de ambas máscaras se reporta como % del polígono y se ranquea contra el resto de los barrios. Es una métrica heurística: árboles aislados (1-2 ejemplares por manzana) caen por debajo del píxel de 10 m y no se detectan, y un canopy denso bajo un edificio alto puede confundirse con sombra. Aún con esas limitaciones, correlaciona fuertemente (r ≈ -0.7) con la LST diurna de Landsat y es la mejor proxy disponible sin censo arbóreo de campo.",
+    categoria: "infraestructura",
+    alias: [
+      "cobertura verde",
+      "tree canopy",
+      "dosel arbóreo",
+      "canopy cover",
+      "arbolado urbano",
+    ],
+    fuente_url: "https://www.fs.usda.gov/research/treesearch/55145",
+    fuente_label:
+      "Nowak et al. 2018 — Urban tree canopy cover (USDA Forest Service)",
+    relacionados: ["ndvi", "dynamic-world", "lst", "green-equity"],
+  },
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // CAPA 1 — TIPOLOGÍA EDIFICATORIA
+  // ──────────────────────────────────────────────────────────────────────────
+  {
+    id: "tipologia-techos",
+    termino: "Tipología de techos (heurística)",
+    resumen_corto:
+      "Estimación del material del techo (chapa, teja, losa) a partir de color y temperatura satelital. Es una pista, no un censo.",
+    descripcion_larga:
+      "Clasificación heurística del material predominante de los techos en cada polígono, derivada cruzando tres señales sobre Sentinel-2 + Landsat: (1) **firma espectral RGB** (chapa galvanizada nueva → reflectancia alta uniforme; teja colorada → pico en rojo 665 nm; losa de hormigón → reflectancia media-gris), (2) **emisividad térmica** en banda Landsat ST_B10 (chapa = baja inercia, calienta y enfría rápido; losa = alta inercia, retiene calor de noche), y (3) **textura/tamaño** del footprint en Google Open Buildings (chapa típica en parcelas <100 m²; losa en multifamiliares >200 m²). La clasificación se reporta como mezcla porcentual por polígono (`pct_chapa`, `pct_teja`, `pct_losa`, `pct_indeterminado`) con un nivel de confianza por celda. **Es una heurística, no un censo de materiales**: la verdad de campo requiere relevamiento puerta a puerta. Útil como insumo para cruces con calor urbano (chapa correlaciona con LST diurna alta) y riesgo de asbesto (fibrocemento legacy bajo techos antiguos de chapa onda).",
+    categoria: "infraestructura",
+    alias: [
+      "tipologia edificatoria",
+      "materiales de techo",
+      "clasificación techos",
+      "chapa teja losa",
+    ],
+    relacionados: ["asbesto", "densidad-volumetrica", "lst", "open-buildings"],
+  },
+  {
+    id: "asbesto",
+    termino: "Asbesto / fibrocemento (riesgo legacy)",
+    resumen_corto:
+      "Las chapas viejas de fibrocemento (Eternit) liberan fibras cancerígenas. Prohibido en Argentina desde 2003 pero queda stock antiguo.",
+    descripcion_larga:
+      "El asbesto-cemento (también llamado fibrocemento o por la marca comercial Eternit) fue masivamente usado en techos de viviendas y galpones argentinos entre 1950 y 2000. Las fibras de amianto liberadas por degradación (rotura, intemperie, demolición) son **cancerígenas comprobadas** — mesotelioma pleural, cáncer de pulmón, asbestosis — y el Convenio 162 de la OIT más la Resolución MTSS 845/2000 prohibieron su producción, importación y comercialización en Argentina desde **2003**. El stock instalado pre-prohibición sigue presente y nunca se relevó sistemáticamente. En el observatorio marcamos como **riesgo posible de asbesto** a los polígonos donde la tipología de techos detecta alta proporción de chapa ondulada gris-cemento + edad de edificación >25 años (cruce con archivo histórico CBERS pre-2000). **No es un diagnóstico**: la presencia real solo se confirma con muestreo de laboratorio. La señal sirve para priorizar barrios donde política pública de remoción tendría mayor impacto sanitario.",
+    categoria: "social",
+    alias: [
+      "fibrocemento",
+      "eternit",
+      "amianto",
+      "asbesto cemento",
+      "chapa de fibrocemento",
+    ],
+    fuente_url:
+      "https://www.argentina.gob.ar/normativa/nacional/resoluci%C3%B3n-845-2000-63586",
+    fuente_label: "MTSS Argentina, Res. 845/2000 — Prohibición de asbesto",
+    relacionados: ["tipologia-techos", "habitabilidad", "calor-salud"],
+  },
+  {
+    id: "densidad-volumetrica",
+    termino: "Densidad volumétrica (m³ / km²)",
+    resumen_corto:
+      "Cuántos metros cúbicos de edificio hay por km². Mide masa construida, no solo superficie.",
+    descripcion_larga:
+      "La densidad volumétrica extiende la densidad edilicia tradicional (m² construidos / km²) a la **tercera dimensión**: `Σ (footprint_m² × altura_estimada_m) / área_polígono_km²`. La altura se estima combinando: (a) sombras en Sentinel-2 a la hora de pasada (azimut solar + longitud de sombra → altura geométrica), (b) número de plantas del catastro municipal cuando está disponible, y (c) por defecto 3.5 m por planta para residencial / 4.5 m para comercial-industrial cuando no hay otra señal. La métrica captura el matiz que la densidad de footprint no ve: dos barrios pueden tener 60% de cobertura edilicia pero uno con casas de 1 planta y otro con edificios de 8 — el segundo tiene 8× más masa térmica almacenada de noche, 8× más drenaje pluvial que diseñar, 8× más demanda de aire acondicionado. Útil como insumo de **saturación urbana** y **calor nocturno**.",
+    categoria: "infraestructura",
+    alias: [
+      "densidad 3d",
+      "volumen construido",
+      "m3 por km2",
+      "masa edilicia",
+    ],
+    relacionados: ["saturacion-urbana", "tipologia-techos", "open-buildings"],
+  },
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // CAPA 2 — RIESGOS (detección de cambio + salud ambiental)
+  // ──────────────────────────────────────────────────────────────────────────
+  {
+    id: "anomalia-sar",
+    termino: "Anomalía SAR (z-score Sentinel-1)",
+    resumen_corto:
+      "Cuán fuera de lo normal está la señal del radar respecto del historial. Detecta obra nueva, inundación o desmonte aunque haya nubes.",
+    descripcion_larga:
+      "El radar Sentinel-1 (banda C, polarización VV/VH) ve a través de las nubes y opera día y noche, lo que lo hace ideal para el clima subtropical húmedo de Posadas donde las series ópticas tienen huecos. La **anomalía SAR** se calcula como `z = (backscatter_actual - μ_histórico) / σ_histórico`, donde μ y σ son la media y desvío de los últimos 24-36 meses de pasadas Sentinel-1 sobre el mismo píxel y la misma órbita (ascendente/descendente). Un `|z| > 2` indica cambio significativo respecto del baseline. La interpretación depende del **signo y la magnitud**: z muy positivo + persistente → obra nueva (techo metálico de chapa con reflectancia speculares); z negativo agudo → posible inundación (agua liberada → backscatter colapsa); z positivo con textura granular → desmonte. Es señal direccional, no diagnóstica: requiere cruce con Sentinel-2 cuando hay imagen óptica disponible. La métrica se reporta con IC 95% por píxel y se agrega al polígono como fracción de área con anomalía significativa.",
+    categoria: "estadistica",
+    alias: [
+      "z-score sar",
+      "sentinel-1 anomaly",
+      "anomalía radar",
+      "sar change detection",
+    ],
+    fuente_url: "https://sentiwiki.copernicus.eu/web/s1-applications",
+    fuente_label: "ESA SentiWiki — Sentinel-1 applications",
+    relacionados: ["sentinel-1", "gentrificacion", "anegamiento", "ci-95"],
+  },
+  {
+    id: "dengue",
+    termino: "Dengue (Aedes aegypti, factores de riesgo)",
+    resumen_corto:
+      "Riesgo de dengue: depende del mosquito Aedes aegypti — necesita agua estancada, calor y densidad humana.",
+    descripcion_larga:
+      "El dengue es transmitido por el mosquito **Aedes aegypti**, vector urbano que se reproduce en recipientes de agua estancada (charcos, neumáticos, canaletas obstruidas, bebederos) y vuela radios cortos (~100 m). En el observatorio aproximamos un **índice de riesgo de dengue** combinando cuatro señales por polígono: (1) **temperatura promedio mensual** (Aedes aegypti se reproduce activamente entre 22°C y 32°C — Landsat LST + ERA5 aire), (2) **humedad y presencia de agua estancada** (anomalías negativas Sentinel-1 SAR + áreas pluviales con drenaje deficiente), (3) **densidad poblacional** (WorldPop — más huéspedes = más ciclos de transmisión), y (4) **historial de focos** según el Boletín Integrado de Vigilancia (BIV) del Ministerio de Salud cuando hay datos. El índice se publica con resolución de polígono y se valida contra los partes epidemiológicos provinciales. Limitaciones: el satélite no ve el interior de las viviendas (donde Aedes prospera), no detecta el reservorio domiciliario y nunca reemplaza a la vigilancia entomológica de campo. Es una capa de **priorización para fumigación y descacharrado**, no de diagnóstico clínico.",
+    categoria: "social",
+    alias: [
+      "aedes aegypti",
+      "riesgo dengue",
+      "dengue posadas",
+      "vector mosquito",
+    ],
+    fuente_url: "https://www.argentina.gob.ar/salud/glosario/dengue",
+    fuente_label: "Ministerio de Salud Argentina — Dengue",
+    relacionados: ["calor-salud", "anegamiento", "habitabilidad", "lst"],
+  },
+  {
+    id: "calor-salud",
+    termino: "Calor y salud (umbrales OMS 32°C / 35°C)",
+    resumen_corto:
+      "Por encima de 32°C aumenta la mortalidad en mayores y crónicos. Por encima de 35°C es emergencia sanitaria.",
+    descripcion_larga:
+      "La Organización Mundial de la Salud y el Servicio Meteorológico Nacional argentino definen umbrales sanitarios para olas de calor: **32°C de temperatura aparente sostenida** se asocia a un aumento estadísticamente significativo de la mortalidad en adultos mayores, crónicos cardiovasculares, embarazadas y niños menores de 5 años. **35°C aparente o más durante 3 días consecutivos** configura una **ola de calor formal** con activación de protocolos de emergencia sanitaria. El observatorio cruza la LST satelital (Landsat ST_B10 + MODIS) con la temperatura del aire estimada (ERA5-Land a 2 m) y el índice de humedad para producir un **índice de estrés térmico** por polígono. Los barrios con UHI alto + canopy bajo + alta proporción de adultos mayores (estimados con WorldPop) se marcan como **prioritarios para refugios climáticos y campañas de hidratación**. La métrica se calibra mensualmente contra estaciones SMN de Posadas Aero y la dirección municipal de Salud.",
+    categoria: "social",
+    alias: [
+      "ola de calor",
+      "estrés térmico",
+      "umbral 32 grados",
+      "umbral 35 grados",
+      "heat health",
+    ],
+    fuente_url: "https://www.smn.gob.ar/clima/calor",
+    fuente_label:
+      "SMN Argentina — Sistema de alerta temprana por olas de calor",
+    relacionados: ["uhi", "lst", "dengue", "habitabilidad", "canopy"],
+  },
+  {
+    id: "anegamiento",
+    termino: "Anegamiento (impermeable + lluvia 48 h)",
+    resumen_corto:
+      "Riesgo de inundación urbana: cuánto suelo impermeable hay vs cuánta lluvia cayó en las últimas 48 h.",
+    descripcion_larga:
+      "El **anegamiento urbano** ocurre cuando la capacidad de drenaje (natural + pluvial diseñado) es superada por la lluvia caída en una ventana corta sobre superficies impermeables (asfalto, hormigón, techos). El observatorio calcula un índice de riesgo por polígono como `f(pct_impermeable, lluvia_48h_acumulada, pendiente, drenaje_OSM)`, donde: (1) **% impermeable** sale de Dynamic World (clases 'built' + 'bare') validado contra NDBI ≥ 0.1, (2) **lluvia 48 h** se obtiene de CHIRPS diario interpolado a polígono, (3) **pendiente** del MDE SRTM 30 m (pendientes <2% acumulan, >5% drenan), y (4) **densidad de bocas de tormenta** de OSM `man_made=storm_drain`. El cruce produce 5 niveles de riesgo (muy bajo → muy alto). El indicador se actualiza con cada nueva lluvia significativa y se valida contra los reportes de Defensa Civil municipal. **No predice inundación de río**: para crecidas del Paraná usamos otra capa específica con hidrométricos del INA.",
+    categoria: "infraestructura",
+    alias: [
+      "inundación urbana",
+      "riesgo anegamiento",
+      "drenaje pluvial",
+      "impermeabilización",
+      "lluvia acumulada",
+    ],
+    fuente_url: "https://www.chc.ucsb.edu/data/chirps",
+    fuente_label: "UCSB Climate Hazards Center — CHIRPS",
+    relacionados: [
+      "ndbi",
+      "dynamic-world",
+      "anomalia-sar",
+      "saturacion-urbana",
+    ],
+  },
+  {
+    id: "saturacion-urbana",
+    termino: "Saturación urbana (huella 90 m² × construible 70%)",
+    resumen_corto:
+      "Cuán cerca está el barrio del techo de construcción posible. Cuando se satura, no quedan vacíos para verde ni drenaje.",
+    descripcion_larga:
+      "Métrica que indica qué tan lleno está un polígono respecto del máximo edilicio razonable. Se calcula como `huella_construida_actual_m² / superficie_construible_m²`, donde la superficie construible se estima como `área_polígono × 0.70` (descontando un 30% mínimo para calle, vereda, retiro y verde según código urbano típico). La huella construida sale de Google Open Buildings + MS Footprints (≈90 m² promedio por edificio en Posadas). Un valor > 0.85 indica **saturación crítica**: no quedan vacíos para parques, plazas de bolsillo, drenaje pluvial superficial ni canopy arbóreo nuevo. Los polígonos saturados correlacionan fuertemente con LST alta (UHI), índices de anegamiento y déficit de m² verdes por habitante. Es la métrica más útil para alertar a **planeamiento municipal** antes de aprobar nuevos loteos. Limitación: no contempla densificación vertical — un barrio saturado en footprint puede igual recibir edificios en altura sin tocar el indicador.",
+    categoria: "infraestructura",
+    alias: [
+      "saturacion edilicia",
+      "indice construibilidad",
+      "huella construida",
+      "cobertura edilicia maxima",
+    ],
+    relacionados: [
+      "densidad-volumetrica",
+      "open-buildings",
+      "anegamiento",
+      "canopy",
+    ],
+  },
 ];
