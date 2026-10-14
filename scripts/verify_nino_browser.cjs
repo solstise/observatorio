@@ -5,7 +5,7 @@ const path = require('node:path');
 
 (async () => {
   const base = process.env.NINO_BASE_URL || 'http://localhost:3127';
-  const output = path.resolve(__dirname, '../docs/capturas-nino');
+  const output = process.env.NINO_OUTPUT_DIR || path.resolve(__dirname, '../docs/capturas-nino');
   fs.mkdirSync(output, { recursive: true });
   const browser = await chromium.launch({ channel: 'chrome', headless: true });
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'es-AR', timezoneId: 'America/Argentina/Buenos_Aires' });

@@ -21,12 +21,10 @@ import rasterio
 import requests
 import shapely
 import yaml
-from pyproj import Transformer
-from rasterio.mask import mask
-from scipy.spatial import cKDTree
 from shapely.geometry import LineString, box
 
 from scripts.nino_model import agregar_exposicion, tipo_equipamiento
+from scripts.utils.exposicion_dem import DrainageHeightSampler, population_total
 
 CRS = "EPSG:32721"
 
@@ -164,7 +162,7 @@ def export_facilities(endpoint):
     print(f"Equipamientos públicos OSM: {len(features)}")
 
 
-def main(endpoint):
+def main(endpoint, dem_path, worldpop_path):
     payload = osm_cached(endpoint)
     lines, facilities = [], []
     for el in payload["elements"]:
@@ -192,43 +190,15 @@ def main(endpoint):
     if not lines:
         raise ValueError("Red OSM vacía: no se puede estimar exposición")
     water = gpd.GeoSeries(lines, crs=4326).to_crs(CRS)
-    tree = shapely.STRtree(water.values)
-    samples = []
-    for line in water:
-        samples.extend(line.interpolate(d) for d in np.arange(0, line.length + 30, 30))
-    xy = np.array([(p.x, p.y) for p in samples])
-    to_dem = Transformer.from_crs(CRS, 4326, always_xy=True)
-    with rasterio.open(ROOT / "data/raw/dem/posadas_dem.tif") as dem:
-        if dem.crs != rasterio.crs.CRS.from_epsg(4326):
-            to_dem = Transformer.from_crs(CRS, dem.crs, always_xy=True)
-
-        def elevations(coords):
-            xs, ys = to_dem.transform(coords[:, 0], coords[:, 1])
-            a = np.array([v[0] for v in dem.sample(zip(xs, ys), masked=True)], dtype=float)
-            if dem.nodata is not None:
-                a[a == dem.nodata] = np.nan
-            return a
-
-        water_z = elevations(xy)
-        valid = np.isfinite(water_z)
-        xy, water_z = xy[valid], water_z[valid]
-        if not len(xy):
-            raise ValueError("DEM sin cobertura de la red OSM")
-        kd = cKDTree(xy)
+    dem_path = ROOT / dem_path
+    if not dem_path.exists():
+        raise FileNotFoundError("Falta DEM: ejecutá python scripts/descargar_dem_nino.py")
+    with rasterio.open(dem_path) as dem:
+        sampler = DrainageHeightSampler(dem, water.values)
+        tree = sampler.tree
 
         def classify_points(points):
-            coords = np.array([(p.x, p.y) for p in points])
-            indices, nearest_dist = tree.query_nearest(
-                points, return_distance=True, all_matches=False
-            )
-            distances = np.full(len(points), np.inf)
-            distances[indices[0]] = nearest_dist
-            terrain = elevations(coords)
-            heights = np.full(len(points), np.nan)
-            near = kd.query_ball_point(coords, 300)
-            for i, candidates in enumerate(near):
-                if candidates and np.isfinite(terrain[i]):
-                    heights[i] = max(0, terrain[i] - water_z[candidates].min())
+            distances, heights, _ = sampler.measure(points)
             return clasificar(distances, heights)
 
         print("Leyendo footprints combinados", flush=True)
@@ -238,7 +208,10 @@ def main(endpoint):
         points = gpd.GeoDataFrame(
             geometry=gpd.points_from_xy(buildings.lon, buildings.lat), crs=4326
         ).to_crs(CRS)
-        points["clase"] = classify_points(points.geometry.values)
+        distances, heights, quality = sampler.measure(points.geometry.values)
+        points["clase"] = clasificar(distances, heights)
+        for key, value in quality.items():
+            points[key] = value
         barrios = gpd.read_file(ROOT / "config/poligonos.geojson")
         barrios = barrios[
             (barrios["id"] != "posadas_completa") & (barrios["categoria"] != "ciudad_completa")
@@ -248,22 +221,21 @@ def main(endpoint):
         duplicates = int(joined.index.duplicated().sum())
         joined = joined.sort_values("id").loc[lambda d: ~d.index.duplicated()]
         output = []
-        with rasterio.open(ROOT / "data/raw/worldpop/posadas_pop_2020.tif") as pop:
+        with rasterio.open(ROOT / worldpop_path) as pop:
             for row in barrios.itertuples():
                 geom = gpd.GeoSeries([row.geometry], crs=CRS).to_crs(pop.crs).iloc[0]
-                try:
-                    a, _ = mask(pop, [geom.__geo_interface__], crop=True, filled=False)
-                    total_pop = float(a[a >= 0].sum())
-                    if not np.isfinite(total_pop) or total_pop <= 0:
-                        total_pop = None
-                except ValueError:
-                    total_pop = None
+                total_pop, pop_coverage = population_total(pop, geom)
                 classes = joined.loc[joined["id"] == row.id, "clase"].tolist()
                 output.append(
                     {
                         "poligono_id": row.id,
                         "nombre": row.nombre,
                         **agregar_exposicion(classes, total_pop),
+                        "cobertura_worldpop": pop_coverage,
+                        "diagnostico_alturas": {
+                            key: int(joined.loc[joined["id"] == row.id, key].sum())
+                            for key in quality
+                        },
                     }
                 )
         print("Generando zonas agregadas de 60 m", flush=True)
@@ -290,12 +262,19 @@ def main(endpoint):
         zones = zones[~zones.geometry.is_empty].to_crs(4326)
     out = ROOT / "data/outputs"
     out.mkdir(parents=True, exist_ok=True)
+    dem_metadata = (
+        json.loads(dem_path.with_suffix(".json").read_text(encoding="utf-8"))
+        if dem_path.with_suffix(".json").exists()
+        else {"dataset": dem_path.name, "procedencia": "a_verificar"}
+    )
     result = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "barrios": output,
-        "metodo": "Altura relativa aproximada: cota de centroide menos mínima cota de drenajes OSM muestreados cada 30 m dentro de 300 m. No es HAND hidrológico.",
-        "dem": "Copernicus GLO-30 existente (script 46); no es SRTM 2000",
+        "metodo": "Altura relativa aproximada: cota del centroide menos mínima cota de drenajes OSM muestreados cada 30 m y punto más cercano del curso, siempre dentro de 300 m. Sin interpolación ni ampliación del radio. No es HAND hidrológico.",
+        "dem": dem_metadata["dataset"],
+        "dem_procedencia": dem_metadata,
         "poblacion": "WorldPop 2020 prorrateado por proporción de footprints expuestos; banda ±20% orientativa, no intervalo estadístico",
+        "worldpop_raster": Path(worldpop_path).name,
         "viviendas": "Footprints Google + Microsoft como proxy: un edificio no equivale necesariamente a una vivienda",
         "zonas": "Grilla 60 m disuelta por barrio, sin edificios individuales",
         "osm_downloaded_at": payload["downloaded_at"],
@@ -318,8 +297,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--overpass-url", default="https://overpass-api.de/api/interpreter")
     parser.add_argument("--equipamientos", action="store_true")
+    parser.add_argument("--dem", default="data/raw/dem/posadas_dem_nino.tif")
+    parser.add_argument("--worldpop", default="data/raw/worldpop/arg_ppp_2020.tif")
     args = parser.parse_args()
     if args.equipamientos:
         export_facilities(args.overpass_url)
     else:
-        main(args.overpass_url)
+        main(args.overpass_url, args.dem, args.worldpop)

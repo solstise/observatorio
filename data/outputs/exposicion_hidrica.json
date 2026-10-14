@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-14T03:39:18.296817+00:00",
+  "generated_at": "2026-10-14T13:36:57.189828+00:00",
   "barrios": [
     {
       "poligono_id": "a_3_2_sector_b",
@@ -12,7 +12,13 @@
       "poblacion_expuesta_estimada": 0,
       "poblacion_expuesta_min": 0,
       "poblacion_expuesta_max": 0,
-      "estado": "calculado"
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "colonia_laosiana",
@@ -25,7 +31,13 @@
       "poblacion_expuesta_estimada": 0,
       "poblacion_expuesta_min": 0,
       "poblacion_expuesta_max": 0,
-      "estado": "calculado"
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "san_jorge",
@@ -33,38 +45,56 @@
       "edificios_total": 603,
       "viviendas_muy_expuestas": 0,
       "viviendas_expuestas": 0,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 2,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "pct_viviendas_expuestas": 0.0,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 0,
+      "poblacion_expuesta_min": 0,
+      "poblacion_expuesta_max": 0,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 2
+      }
     },
     {
       "poligono_id": "23_de_septiembre",
       "nombre": "23 de Septiembre",
       "edificios_total": 876,
       "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 278,
-      "pct_viviendas_expuestas": 31.74,
+      "viviendas_expuestas": 261,
+      "pct_viviendas_expuestas": 29.79,
       "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 539,
-      "poblacion_expuesta_min": 431,
-      "poblacion_expuesta_max": 647,
-      "estado": "calculado"
+      "poblacion_expuesta_estimada": 475,
+      "poblacion_expuesta_min": 380,
+      "poblacion_expuesta_max": 570,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "villa_mola",
       "nombre": "Villa Mola",
       "edificios_total": 225,
-      "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 31,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 1,
+      "viviendas_muy_expuestas": 1,
+      "viviendas_expuestas": 33,
+      "pct_viviendas_expuestas": 14.67,
+      "edificios_a_verificar": 0,
       "poblacion_expuesta_estimada": null,
       "poblacion_expuesta_min": null,
       "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "estado": "calculado",
+      "cobertura_worldpop": "nodata_en_poligono",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 1
+      }
     },
     {
       "poligono_id": "san_marcos",
@@ -74,10 +104,16 @@
       "viviendas_expuestas": 359,
       "pct_viviendas_expuestas": 56.27,
       "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 623,
-      "poblacion_expuesta_min": 498,
-      "poblacion_expuesta_max": 748,
-      "estado": "calculado"
+      "poblacion_expuesta_estimada": 610,
+      "poblacion_expuesta_min": 488,
+      "poblacion_expuesta_max": 732,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "las_dolores",
@@ -90,20 +126,32 @@
       "poblacion_expuesta_estimada": 46,
       "poblacion_expuesta_min": 37,
       "poblacion_expuesta_max": 55,
-      "estado": "calculado"
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "el_palomar",
       "nombre": "El Palomar",
       "edificios_total": 1916,
-      "viviendas_muy_expuestas": 12,
-      "viviendas_expuestas": 292,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 3,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_muy_expuestas": 1,
+      "viviendas_expuestas": 293,
+      "pct_viviendas_expuestas": 15.29,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 558,
+      "poblacion_expuesta_min": 446,
+      "poblacion_expuesta_max": 670,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 3
+      }
     },
     {
       "poligono_id": "alta_gracia",
@@ -116,7 +164,13 @@
       "poblacion_expuesta_estimada": 0,
       "poblacion_expuesta_min": 0,
       "poblacion_expuesta_max": 0,
-      "estado": "calculado"
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "santa_rita",
@@ -124,12 +178,18 @@
       "edificios_total": 1739,
       "viviendas_muy_expuestas": 0,
       "viviendas_expuestas": 3,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 5,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "pct_viviendas_expuestas": 0.17,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 4,
+      "poblacion_expuesta_min": 3,
+      "poblacion_expuesta_max": 5,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 5
+      }
     },
     {
       "poligono_id": "san_martin",
@@ -142,7 +202,13 @@
       "poblacion_expuesta_estimada": 0,
       "poblacion_expuesta_min": 0,
       "poblacion_expuesta_max": 0,
-      "estado": "calculado"
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "villa_sarita",
@@ -155,20 +221,32 @@
       "poblacion_expuesta_estimada": 6,
       "poblacion_expuesta_min": 5,
       "poblacion_expuesta_max": 7,
-      "estado": "calculado"
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "el_brete",
       "nombre": "El Brete",
       "edificios_total": 1556,
       "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 28,
-      "pct_viviendas_expuestas": 1.8,
+      "viviendas_expuestas": 38,
+      "pct_viviendas_expuestas": 2.44,
       "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 37,
-      "poblacion_expuesta_min": 30,
-      "poblacion_expuesta_max": 44,
-      "estado": "calculado"
+      "poblacion_expuesta_estimada": 48,
+      "poblacion_expuesta_min": 38,
+      "poblacion_expuesta_max": 58,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "luis_piedrabuena",
@@ -176,25 +254,37 @@
       "edificios_total": 1336,
       "viviendas_muy_expuestas": 0,
       "viviendas_expuestas": 39,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 2,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "pct_viviendas_expuestas": 2.92,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 69,
+      "poblacion_expuesta_min": 55,
+      "poblacion_expuesta_max": 83,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 2
+      }
     },
     {
       "poligono_id": "san_lucas",
       "nombre": "San Lucas",
       "edificios_total": 1132,
       "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 474,
-      "pct_viviendas_expuestas": 41.87,
+      "viviendas_expuestas": 473,
+      "pct_viviendas_expuestas": 41.78,
       "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 690,
-      "poblacion_expuesta_min": 552,
-      "poblacion_expuesta_max": 828,
-      "estado": "calculado"
+      "poblacion_expuesta_estimada": 702,
+      "poblacion_expuesta_min": 562,
+      "poblacion_expuesta_max": 842,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "monsenor_kemerer",
@@ -202,25 +292,37 @@
       "edificios_total": 2334,
       "viviendas_muy_expuestas": 0,
       "viviendas_expuestas": 582,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 1,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "pct_viviendas_expuestas": 24.94,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 695,
+      "poblacion_expuesta_min": 556,
+      "poblacion_expuesta_max": 834,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 1
+      }
     },
     {
       "poligono_id": "rocamora",
       "nombre": "Rocamora",
       "edificios_total": 1898,
       "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 3,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 2,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_expuestas": 10,
+      "pct_viviendas_expuestas": 0.53,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 16,
+      "poblacion_expuesta_min": 13,
+      "poblacion_expuesta_max": 19,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 2
+      }
     },
     {
       "poligono_id": "yacyreta",
@@ -228,25 +330,37 @@
       "edificios_total": 2155,
       "viviendas_muy_expuestas": 0,
       "viviendas_expuestas": 8,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 1,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "pct_viviendas_expuestas": 0.37,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 12,
+      "poblacion_expuesta_min": 10,
+      "poblacion_expuesta_max": 14,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 1
+      }
     },
     {
       "poligono_id": "villa_urquiza",
       "nombre": "Villa Urquiza",
       "edificios_total": 2048,
-      "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 286,
-      "pct_viviendas_expuestas": 13.96,
+      "viviendas_muy_expuestas": 1,
+      "viviendas_expuestas": 283,
+      "pct_viviendas_expuestas": 13.82,
       "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 626,
-      "poblacion_expuesta_min": 501,
-      "poblacion_expuesta_max": 751,
-      "estado": "calculado"
+      "poblacion_expuesta_estimada": 618,
+      "poblacion_expuesta_min": 494,
+      "poblacion_expuesta_max": 742,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "complejo_habitacional_virgen_de_fatima",
@@ -256,36 +370,54 @@
       "viviendas_expuestas": 73,
       "pct_viviendas_expuestas": 7.2,
       "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 163,
-      "poblacion_expuesta_min": 130,
-      "poblacion_expuesta_max": 196,
-      "estado": "calculado"
+      "poblacion_expuesta_estimada": 167,
+      "poblacion_expuesta_min": 134,
+      "poblacion_expuesta_max": 200,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "a4_nueva_esperanza",
       "nombre": "A4 - Nueva Esperanza",
       "edificios_total": 138,
       "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 20,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 1,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_expuestas": 14,
+      "pct_viviendas_expuestas": 10.14,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 165,
+      "poblacion_expuesta_min": 132,
+      "poblacion_expuesta_max": 198,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 1
+      }
     },
     {
       "poligono_id": "el_laurel",
       "nombre": "El Laurel",
       "edificios_total": 515,
       "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 81,
-      "pct_viviendas_expuestas": 15.73,
+      "viviendas_expuestas": 80,
+      "pct_viviendas_expuestas": 15.53,
       "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 170,
-      "poblacion_expuesta_min": 136,
-      "poblacion_expuesta_max": 204,
-      "estado": "calculado"
+      "poblacion_expuesta_estimada": null,
+      "poblacion_expuesta_min": null,
+      "poblacion_expuesta_max": null,
+      "estado": "calculado",
+      "cobertura_worldpop": "nodata_en_poligono",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "cima_del_sol",
@@ -298,20 +430,32 @@
       "poblacion_expuesta_estimada": 0,
       "poblacion_expuesta_min": 0,
       "poblacion_expuesta_max": 0,
-      "estado": "calculado"
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "san_isidro",
       "nombre": "San Isidro",
       "edificios_total": 907,
       "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 64,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 2,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_expuestas": 66,
+      "pct_viviendas_expuestas": 7.28,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 123,
+      "poblacion_expuesta_min": 98,
+      "poblacion_expuesta_max": 148,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 2
+      }
     },
     {
       "poligono_id": "lomas_de_garupa",
@@ -321,10 +465,16 @@
       "viviendas_expuestas": 60,
       "pct_viviendas_expuestas": 10.99,
       "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 224,
-      "poblacion_expuesta_min": 179,
-      "poblacion_expuesta_max": 269,
-      "estado": "calculado"
+      "poblacion_expuesta_estimada": 226,
+      "poblacion_expuesta_min": 181,
+      "poblacion_expuesta_max": 271,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "santa_helena",
@@ -334,10 +484,16 @@
       "viviendas_expuestas": 10,
       "pct_viviendas_expuestas": 0.89,
       "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 14,
-      "poblacion_expuesta_min": 11,
-      "poblacion_expuesta_max": 17,
-      "estado": "calculado"
+      "poblacion_expuesta_estimada": 13,
+      "poblacion_expuesta_min": 10,
+      "poblacion_expuesta_max": 16,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "fatima",
@@ -347,10 +503,16 @@
       "viviendas_expuestas": 17,
       "pct_viviendas_expuestas": 2.25,
       "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 47,
+      "poblacion_expuesta_estimada": 48,
       "poblacion_expuesta_min": 38,
-      "poblacion_expuesta_max": 56,
-      "estado": "calculado"
+      "poblacion_expuesta_max": 58,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "don_santiago",
@@ -360,23 +522,35 @@
       "viviendas_expuestas": 72,
       "pct_viviendas_expuestas": 13.46,
       "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 93,
-      "poblacion_expuesta_min": 74,
-      "poblacion_expuesta_max": 112,
-      "estado": "calculado"
+      "poblacion_expuesta_estimada": 91,
+      "poblacion_expuesta_min": 73,
+      "poblacion_expuesta_max": 109,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "nu_pora",
       "nombre": "Ñu Porá",
       "edificios_total": 1574,
       "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 263,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 4,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_expuestas": 264,
+      "pct_viviendas_expuestas": 16.77,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 456,
+      "poblacion_expuesta_min": 365,
+      "poblacion_expuesta_max": 547,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 4
+      }
     },
     {
       "poligono_id": "miguel_lanus",
@@ -384,51 +558,75 @@
       "edificios_total": 2205,
       "viviendas_muy_expuestas": 0,
       "viviendas_expuestas": 164,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 4,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "pct_viviendas_expuestas": 7.44,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 464,
+      "poblacion_expuesta_min": 371,
+      "poblacion_expuesta_max": 557,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 4
+      }
     },
     {
       "poligono_id": "norte",
       "nombre": "Norte",
       "edificios_total": 628,
       "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 164,
-      "pct_viviendas_expuestas": 26.11,
+      "viviendas_expuestas": 170,
+      "pct_viviendas_expuestas": 27.07,
       "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "calculado"
+      "poblacion_expuesta_estimada": 874,
+      "poblacion_expuesta_min": 699,
+      "poblacion_expuesta_max": 1049,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "centro",
       "nombre": "Centro",
       "edificios_total": 4991,
       "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 281,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 2,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_expuestas": 290,
+      "pct_viviendas_expuestas": 5.81,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 708,
+      "poblacion_expuesta_min": 566,
+      "poblacion_expuesta_max": 850,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 2
+      }
     },
     {
       "poligono_id": "complejo_gervasio_artigas",
       "nombre": "Complejo Gervasio Artigas",
       "edificios_total": 752,
       "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 3,
-      "pct_viviendas_expuestas": 0.4,
+      "viviendas_expuestas": 4,
+      "pct_viviendas_expuestas": 0.53,
       "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 1,
-      "poblacion_expuesta_min": 1,
-      "poblacion_expuesta_max": 1,
-      "estado": "calculado"
+      "poblacion_expuesta_estimada": 15,
+      "poblacion_expuesta_min": 12,
+      "poblacion_expuesta_max": 18,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "federal",
@@ -438,10 +636,16 @@
       "viviendas_expuestas": 1,
       "pct_viviendas_expuestas": 0.94,
       "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "calculado"
+      "poblacion_expuesta_estimada": 10,
+      "poblacion_expuesta_min": 8,
+      "poblacion_expuesta_max": 12,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "nemesio_parma",
@@ -449,285 +653,417 @@
       "edificios_total": 4,
       "viviendas_muy_expuestas": 0,
       "viviendas_expuestas": 1,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 3,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "pct_viviendas_expuestas": 25.0,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 39,
+      "poblacion_expuesta_min": 31,
+      "poblacion_expuesta_max": 47,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "villa_cabello",
       "nombre": "Villa Cabello",
       "edificios_total": 7143,
       "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 235,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 4,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_expuestas": 225,
+      "pct_viviendas_expuestas": 3.15,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 325,
+      "poblacion_expuesta_min": 260,
+      "poblacion_expuesta_max": 390,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 4
+      }
     },
     {
       "poligono_id": "itaembe_pora",
       "nombre": "Itaembé Porá",
       "edificios_total": 5539,
-      "viviendas_muy_expuestas": 16,
-      "viviendas_expuestas": 705,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 14,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_muy_expuestas": 23,
+      "viviendas_expuestas": 708,
+      "pct_viviendas_expuestas": 12.78,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 978,
+      "poblacion_expuesta_min": 782,
+      "poblacion_expuesta_max": 1174,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 14
+      }
     },
     {
       "poligono_id": "itaembe_mini",
       "nombre": "Itaembé Miní",
       "edificios_total": 2071,
       "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 113,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 3,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_expuestas": 122,
+      "pct_viviendas_expuestas": 5.89,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 216,
+      "poblacion_expuesta_min": 173,
+      "poblacion_expuesta_max": 259,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 3
+      }
     },
     {
       "poligono_id": "aguas_corrientes",
       "nombre": "Aguas Corrientes",
       "edificios_total": 8924,
-      "viviendas_muy_expuestas": 2,
-      "viviendas_expuestas": 1608,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 2,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_muy_expuestas": 0,
+      "viviendas_expuestas": 1578,
+      "pct_viviendas_expuestas": 17.68,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 2235,
+      "poblacion_expuesta_min": 1788,
+      "poblacion_expuesta_max": 2682,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 2
+      }
     },
     {
       "poligono_id": "chacra_32",
       "nombre": "Chacra 32",
       "edificios_total": 10913,
-      "viviendas_muy_expuestas": 3,
-      "viviendas_expuestas": 1704,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 19,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_muy_expuestas": 0,
+      "viviendas_expuestas": 1714,
+      "pct_viviendas_expuestas": 15.71,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 3174,
+      "poblacion_expuesta_min": 2539,
+      "poblacion_expuesta_max": 3809,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 19
+      }
     },
     {
       "poligono_id": "bajada_vieja",
       "nombre": "Bajada Vieja",
       "edificios_total": 680,
       "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 39,
-      "pct_viviendas_expuestas": 5.74,
+      "viviendas_expuestas": 40,
+      "pct_viviendas_expuestas": 5.88,
       "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 152,
-      "poblacion_expuesta_min": 122,
-      "poblacion_expuesta_max": 182,
-      "estado": "calculado"
+      "poblacion_expuesta_estimada": null,
+      "poblacion_expuesta_min": null,
+      "poblacion_expuesta_max": null,
+      "estado": "calculado",
+      "cobertura_worldpop": "nodata_en_poligono",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "villa_bonita",
       "nombre": "Villa Bonita",
       "edificios_total": 2557,
       "viviendas_muy_expuestas": 7,
-      "viviendas_expuestas": 552,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 3,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_expuestas": 543,
+      "pct_viviendas_expuestas": 21.24,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 1765,
+      "poblacion_expuesta_min": 1412,
+      "poblacion_expuesta_max": 2118,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 3
+      }
     },
     {
       "poligono_id": "itaembe_guazu",
       "nombre": "Itaembé Guazú",
       "edificios_total": 9193,
-      "viviendas_muy_expuestas": 1,
-      "viviendas_expuestas": 913,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 490,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_muy_expuestas": 3,
+      "viviendas_expuestas": 873,
+      "pct_viviendas_expuestas": 9.5,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 306,
+      "poblacion_expuesta_min": 245,
+      "poblacion_expuesta_max": 367,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 8
+      }
     },
     {
       "poligono_id": "dm_santa_rita",
       "nombre": "DM Santa Rita",
       "edificios_total": 8742,
-      "viviendas_muy_expuestas": 19,
-      "viviendas_expuestas": 913,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 11,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_muy_expuestas": 17,
+      "viviendas_expuestas": 886,
+      "pct_viviendas_expuestas": 10.13,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 1081,
+      "poblacion_expuesta_min": 865,
+      "poblacion_expuesta_max": 1297,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 11
+      }
     },
     {
       "poligono_id": "dm_itaembe_mini_este",
       "nombre": "DM Itaembé Miní Este",
       "edificios_total": 7465,
-      "viviendas_muy_expuestas": 69,
-      "viviendas_expuestas": 1575,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 7,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_muy_expuestas": 47,
+      "viviendas_expuestas": 1484,
+      "pct_viviendas_expuestas": 19.88,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 2417,
+      "poblacion_expuesta_min": 1934,
+      "poblacion_expuesta_max": 2900,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 7
+      }
     },
     {
       "poligono_id": "dm_miguel_lanus",
       "nombre": "DM Miguel Lanús",
       "edificios_total": 3282,
-      "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 192,
-      "pct_viviendas_expuestas": 5.85,
+      "viviendas_muy_expuestas": 3,
+      "viviendas_expuestas": 235,
+      "pct_viviendas_expuestas": 7.16,
       "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 977,
-      "poblacion_expuesta_min": 782,
-      "poblacion_expuesta_max": 1172,
-      "estado": "calculado"
+      "poblacion_expuesta_estimada": 1199,
+      "poblacion_expuesta_min": 959,
+      "poblacion_expuesta_max": 1439,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "cit_riberas_del_parana",
       "nombre": "CIT Riberas del Paraná",
       "edificios_total": 5515,
       "viviendas_muy_expuestas": 13,
-      "viviendas_expuestas": 1313,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 9,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_expuestas": 1298,
+      "pct_viviendas_expuestas": 23.54,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 2489,
+      "poblacion_expuesta_min": 1991,
+      "poblacion_expuesta_max": 2987,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 9
+      }
     },
     {
       "poligono_id": "dm_villa_urquiza",
       "nombre": "DM Villa Urquiza",
       "edificios_total": 4713,
-      "viviendas_muy_expuestas": 1,
-      "viviendas_expuestas": 650,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 1,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_muy_expuestas": 3,
+      "viviendas_expuestas": 640,
+      "pct_viviendas_expuestas": 13.58,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 1105,
+      "poblacion_expuesta_min": 884,
+      "poblacion_expuesta_max": 1326,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 1
+      }
     },
     {
       "poligono_id": "fatima_sur",
       "nombre": "Fátima (sur)",
       "edificios_total": 2828,
-      "viviendas_muy_expuestas": 24,
-      "viviendas_expuestas": 475,
-      "pct_viviendas_expuestas": 16.8,
+      "viviendas_muy_expuestas": 12,
+      "viviendas_expuestas": 493,
+      "pct_viviendas_expuestas": 17.43,
       "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 1073,
-      "poblacion_expuesta_min": 858,
-      "poblacion_expuesta_max": 1288,
-      "estado": "calculado"
+      "poblacion_expuesta_estimada": 1112,
+      "poblacion_expuesta_min": 890,
+      "poblacion_expuesta_max": 1334,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "dm_santa_rita_suroeste",
       "nombre": "DM Santa Rita (suroeste)",
       "edificios_total": 11986,
-      "viviendas_muy_expuestas": 21,
-      "viviendas_expuestas": 917,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 6,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_muy_expuestas": 4,
+      "viviendas_expuestas": 910,
+      "pct_viviendas_expuestas": 7.59,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 1234,
+      "poblacion_expuesta_min": 987,
+      "poblacion_expuesta_max": 1481,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 6
+      }
     },
     {
       "poligono_id": "puerto_canela",
       "nombre": "Puerto Canela",
       "edificios_total": 10490,
-      "viviendas_muy_expuestas": 2,
-      "viviendas_expuestas": 1827,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 20,
+      "viviendas_muy_expuestas": 7,
+      "viviendas_expuestas": 1828,
+      "pct_viviendas_expuestas": 17.43,
+      "edificios_a_verificar": 0,
       "poblacion_expuesta_estimada": null,
       "poblacion_expuesta_min": null,
       "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "estado": "calculado",
+      "cobertura_worldpop": "nodata_en_poligono",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 20
+      }
     },
     {
       "poligono_id": "villa_dolores",
       "nombre": "Villa Dolores",
       "edificios_total": 8922,
       "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 586,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 3,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_expuestas": 593,
+      "pct_viviendas_expuestas": 6.65,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 872,
+      "poblacion_expuesta_min": 698,
+      "poblacion_expuesta_max": 1046,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 3
+      }
     },
     {
       "poligono_id": "dm_itaembe_mini_este_suroeste",
       "nombre": "DM Itaembé Miní Este (suroeste)",
       "edificios_total": 2149,
       "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 9,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 1,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_expuestas": 6,
+      "pct_viviendas_expuestas": 0.28,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 15,
+      "poblacion_expuesta_min": 12,
+      "poblacion_expuesta_max": 18,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 1
+      }
     },
     {
       "poligono_id": "los_patitos",
       "nombre": "Los Patitos",
       "edificios_total": 1384,
-      "viviendas_muy_expuestas": 5,
-      "viviendas_expuestas": 249,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 2,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_muy_expuestas": 4,
+      "viviendas_expuestas": 257,
+      "pct_viviendas_expuestas": 18.57,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 1173,
+      "poblacion_expuesta_min": 938,
+      "poblacion_expuesta_max": 1408,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 2
+      }
     },
     {
       "poligono_id": "cit_riberas_del_parana_oeste",
       "nombre": "CIT Riberas del Paraná (oeste)",
       "edificios_total": 8658,
-      "viviendas_muy_expuestas": 25,
-      "viviendas_expuestas": 1343,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 15,
+      "viviendas_muy_expuestas": 20,
+      "viviendas_expuestas": 1307,
+      "pct_viviendas_expuestas": 15.1,
+      "edificios_a_verificar": 0,
       "poblacion_expuesta_estimada": null,
       "poblacion_expuesta_min": null,
       "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "estado": "calculado",
+      "cobertura_worldpop": "nodata_en_poligono",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 15
+      }
     },
     {
       "poligono_id": "dm_miguel_lanus_sur",
       "nombre": "DM Miguel Lanús (sur)",
       "edificios_total": 1163,
-      "viviendas_muy_expuestas": 1,
-      "viviendas_expuestas": 151,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 4,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_muy_expuestas": 3,
+      "viviendas_expuestas": 157,
+      "pct_viviendas_expuestas": 13.5,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 787,
+      "poblacion_expuesta_min": 630,
+      "poblacion_expuesta_max": 944,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 4
+      }
     },
     {
       "poligono_id": "san_martin_sureste",
@@ -735,12 +1071,18 @@
       "edificios_total": 2323,
       "viviendas_muy_expuestas": 0,
       "viviendas_expuestas": 11,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 1,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "pct_viviendas_expuestas": 0.47,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 28,
+      "poblacion_expuesta_min": 22,
+      "poblacion_expuesta_max": 34,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 1
+      }
     },
     {
       "poligono_id": "horacio_quiroga",
@@ -748,25 +1090,37 @@
       "edificios_total": 2249,
       "viviendas_muy_expuestas": 0,
       "viviendas_expuestas": 493,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 2,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "pct_viviendas_expuestas": 21.92,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 801,
+      "poblacion_expuesta_min": 641,
+      "poblacion_expuesta_max": 961,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 2
+      }
     },
     {
       "poligono_id": "malvinas",
       "nombre": "Malvinas",
       "edificios_total": 1824,
-      "viviendas_muy_expuestas": 10,
-      "viviendas_expuestas": 327,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 1,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_muy_expuestas": 7,
+      "viviendas_expuestas": 328,
+      "pct_viviendas_expuestas": 17.98,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 855,
+      "poblacion_expuesta_min": 684,
+      "poblacion_expuesta_max": 1026,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 1
+      }
     },
     {
       "poligono_id": "la_eugenia",
@@ -776,54 +1130,102 @@
       "viviendas_expuestas": 0,
       "pct_viviendas_expuestas": 0.0,
       "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "calculado"
+      "poblacion_expuesta_estimada": 0,
+      "poblacion_expuesta_min": 0,
+      "poblacion_expuesta_max": 0,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "dm_villa_urquiza_sureste",
       "nombre": "DM Villa Urquiza (sureste)",
       "edificios_total": 675,
-      "viviendas_muy_expuestas": 7,
+      "viviendas_muy_expuestas": 6,
       "viviendas_expuestas": 169,
       "pct_viviendas_expuestas": 25.04,
       "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 1162,
-      "poblacion_expuesta_min": 930,
-      "poblacion_expuesta_max": 1394,
-      "estado": "calculado"
+      "poblacion_expuesta_estimada": 1201,
+      "poblacion_expuesta_min": 961,
+      "poblacion_expuesta_max": 1441,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      }
     },
     {
       "poligono_id": "el_portal",
       "nombre": "El Portal",
       "edificios_total": 1171,
       "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 30,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 1,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_expuestas": 27,
+      "pct_viviendas_expuestas": 2.31,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 37,
+      "poblacion_expuesta_min": 30,
+      "poblacion_expuesta_max": 44,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 1
+      }
     },
     {
       "poligono_id": "porvenir_2",
       "nombre": "Porvenir 2",
       "edificios_total": 1071,
       "viviendas_muy_expuestas": 1,
-      "viviendas_expuestas": 342,
-      "pct_viviendas_expuestas": null,
-      "edificios_a_verificar": 3,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "a_verificar"
+      "viviendas_expuestas": 346,
+      "pct_viviendas_expuestas": 32.31,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 181,
+      "poblacion_expuesta_min": 145,
+      "poblacion_expuesta_max": 217,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 3
+      }
     }
   ],
-  "metodo": "Altura relativa aproximada: cota de centroide menos mínima cota de drenajes OSM muestreados cada 30 m dentro de 300 m. No es HAND hidrológico.",
-  "dem": "Copernicus GLO-30 existente (script 46); no es SRTM 2000",
+  "metodo": "Altura relativa aproximada: cota del centroide menos mínima cota de drenajes OSM muestreados cada 30 m y punto más cercano del curso, siempre dentro de 300 m. Sin interpolación ni ampliación del radio. No es HAND hidrológico.",
+  "dem": "Copernicus DEM GLO-30 Public, release 2021",
+  "dem_procedencia": {
+    "downloaded_at": "2026-10-14T13:26:48.189537+00:00",
+    "dataset": "Copernicus DEM GLO-30 Public, release 2021",
+    "fuente": "https://registry.opendata.aws/copernicus-dem/",
+    "urls": [
+      "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_S28_00_W057_00_DEM/Copernicus_DSM_COG_10_S28_00_W057_00_DEM.tif",
+      "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_S28_00_W056_00_DEM/Copernicus_DSM_COG_10_S28_00_W056_00_DEM.tif"
+    ],
+    "bbox_barrios_margen_600m": [
+      -56.02610160956576,
+      -27.515464780785386,
+      -55.809860131721074,
+      -27.339600955625986
+    ],
+    "resampling": "ninguno: ventanas y mosaico en grilla nativa",
+    "nodata_pixels": 0,
+    "shape": [
+      1,
+      634,
+      780
+    ],
+    "sha256": "25c2dab5bc76063f3fce56cb174450a866b004da9b3259b959d55b7ee5b94628"
+  },
   "poblacion": "WorldPop 2020 prorrateado por proporción de footprints expuestos; banda ±20% orientativa, no intervalo estadístico",
+  "worldpop_raster": "arg_ppp_2020.tif",
   "viviendas": "Footprints Google + Microsoft como proxy: un edificio no equivale necesariamente a una vivienda",
   "zonas": "Grilla 60 m disuelta por barrio, sin edificios individuales",
   "osm_downloaded_at": "2026-10-14T03:39:04.526237+00:00",
