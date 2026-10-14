@@ -56,6 +56,7 @@ const STATIC_ROUTES: Array<{
 }> = [
   // Home
   { path: "/", changeFrequency: "weekly", priority: 1.0 },
+  { path: "/nino", changeFrequency: "daily", priority: 0.8 },
 
   // Hub: Indicadores (5 capas analíticas)
   { path: "/indicadores", changeFrequency: "weekly", priority: 0.8 },

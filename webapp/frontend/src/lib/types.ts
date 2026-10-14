@@ -674,6 +674,9 @@ export interface CalorSaludDiarioRow {
 }
 
 export interface AnegamientoRow {
+  modelo?: "v1" | "v2";
+  pct_viviendas_expuestas?: number | null;
+  lluvia_max_1h?: number;
   poligono_id: string;
   score_anegamiento: number;
   categoria: CategoriaRiesgo;

@@ -43,6 +43,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Pronóstico",
     href: "/pronostico",
     items: [
+      { href: "/nino", label: "Sala de situación El Niño" },
       { href: "/pronostico/riesgos", label: "Riesgos 14 días" },
       { href: "/pronostico/clima", label: "Clima 14 días" },
       { href: "/pronostico/proyecciones", label: "Proyecciones 2030+" },

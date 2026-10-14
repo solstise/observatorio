@@ -412,9 +412,8 @@ export default async function RiesgosPage() {
               offset por la isla de calor urbana del barrio (UHI verano).
             </li>
             <li>
-              <strong>Score anegamiento</strong>: porcentaje de superficie
-              impermeable + lluvia proyectada 48 h + riesgo histórico de
-              inundación.
+              <strong>Score anegamiento v2</strong>: intensidad de lluvia y exposición hídrica.
+              Detalle y cobertura en <Link href="/nino" className="underline">Modo El Niño</Link>. Modelo anterior conservado para comparación.
             </li>
             <li>
               <strong>Año de saturación</strong>: estimación de cuándo se

@@ -16,6 +16,7 @@ export const dynamic = 'force-dynamic';
 // en el server en una sola pasada.
 
 import Link from "next/link";
+import { NinoHomeBanner } from "@/components/nino/NinoHomeBanner";
 
 import { Disclaimer } from "@/components/Disclaimer";
 import { HomeDashboardClient } from "@/components/HomeDashboardClient";
@@ -266,6 +267,7 @@ export default async function HomePage() {
   return (
     <>
 <ForecastSafety generatedAt={safety.lastUpdated} />
+      <NinoHomeBanner />
       <Disclaimer />
 
       <section className="container-obs pb-2 pt-6 sm:pt-8">

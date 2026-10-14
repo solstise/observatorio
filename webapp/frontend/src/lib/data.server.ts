@@ -551,9 +551,8 @@ export async function getCalorSaludDiario(
 export async function getAnegamiento(
   poligonoId?: string,
 ): Promise<AnegamientoRow[]> {
-  const rows = await readStaticCsvOptional<AnegamientoRow>(
-    "/data/riesgos/anegamiento.csv",
-  );
+  const v2 = await readStaticCsvOptional<AnegamientoRow>("/data/riesgos/anegamiento_v2.csv");
+  const rows = v2.filter(r => typeof r.score_anegamiento === "number" && Number.isFinite(r.score_anegamiento)).map(r => ({ ...r, modelo: "v2" as const }));
   if (!poligonoId) return rows;
   return rows.filter((r) => r.poligono_id === poligonoId);
 }

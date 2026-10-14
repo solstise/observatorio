@@ -49,7 +49,7 @@ export function AnegamientoCard({ rows, features }: Props) {
       <header className="mb-3 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-secondary dark:text-dk-muted">
-            <span aria-hidden>💧</span> Anegamiento 48h
+            <span aria-hidden>💧</span> Anegamiento v2 · 72 h
           </p>
           <h2
             id="anegamiento-card-title"
@@ -72,9 +72,9 @@ export function AnegamientoCard({ rows, features }: Props) {
       </header>
 
       <p className="mb-3 text-xs leading-relaxed text-neutral-text dark:text-dk-text">
-        Riesgo de saturación de drenaje urbano: <strong>impermeabilidad</strong>{" "}
-        del suelo + <strong>lluvia proyectada 48 h</strong> + riesgo base de
-        inundación según historial del barrio.
+        Impacto experimental: intensidad de lluvia y exposición hídrica medida.
+        Solo se listan barrios con cálculo completo; los faltantes no significan riesgo nulo.
+        <Link className="ml-1 underline" href="/nino">Ver cobertura, lluvia horaria y limitaciones</Link>.
       </p>
 
       {top.length === 0 ? (
@@ -111,7 +111,7 @@ export function AnegamientoCard({ rows, features }: Props) {
                   </Link>
                   <span className="text-[10px] text-neutral-muted dark:text-dk-muted">
                     Impermeable:{" "}
-                    <strong>{formatoNum(r.pct_impermeable, 0)}%</strong> · Lluvia
+                    <strong>{formatoNum(r.pct_viviendas_expuestas, 0)}% expuestas</strong> · Lluvia
                     48h: <strong>{formatoNum(r.lluvia_48h_proj_mm, 0)} mm</strong>
                   </span>
                 </div>

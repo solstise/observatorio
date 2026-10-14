@@ -287,9 +287,9 @@ function AnegamientoCard({ row }: { row: AnegamientoRow | null }) {
       <ScoreGauge score={row.score_anegamiento} categoria={row.categoria} />
       <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
         <div>
-          <dt className="text-secondary dark:text-dk-muted">% impermeable</dt>
+          <dt className="text-secondary dark:text-dk-muted">% viviendas expuestas</dt>
           <dd className="font-semibold text-primary dark:text-dk-primary">
-            {formatNumber(row.pct_impermeable, "s/d", {
+            {formatNumber(row.pct_viviendas_expuestas, "s/d", {
               decimals: 0,
               suffix: " %",
             })}
@@ -306,12 +306,12 @@ function AnegamientoCard({ row }: { row: AnegamientoRow | null }) {
         </div>
         <div className="col-span-2">
           <dt className="text-secondary dark:text-dk-muted">
-            Riesgo base inundación
+            Intensidad máxima 1 h (v2)
           </dt>
           <dd className="font-semibold text-primary dark:text-dk-primary">
-            {formatNumber(row.riesgo_inundacion_base, "s/d", { decimals: 2 })}{" "}
+            {formatNumber(row.lluvia_max_1h, "s/d", { decimals: 2 })}{" "}
             <span className="text-[10px] font-normal text-neutral-muted dark:text-dk-muted">
-              (índice 0–1)
+              mm/h · estimación experimental
             </span>
           </dd>
         </div>
