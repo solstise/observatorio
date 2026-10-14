@@ -1,0 +1,41 @@
+{
+  "checked_at": "2026-10-14T04:17:52.263040+00:00",
+  "url": "https://sateliteposadas.com",
+  "checks": [
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/nino",
+      "status": 200
+    },
+    {
+      "path": "/pronostico/riesgos",
+      "status": 200
+    },
+    {
+      "path": "/datos/metodologia",
+      "status": 200
+    },
+    {
+      "path": "/poligono/villa_urquiza",
+      "status": 200
+    },
+    {
+      "path": "/data/forecast/_metadata.json",
+      "generated_at": "2026-10-14T04:12:43+00:00",
+      "age_hours": 0.086
+    },
+    {
+      "path": "/data/nino/estado.json",
+      "generated_at": "2026-10-14T04:12:43+00:00",
+      "age_hours": 0.086
+    },
+    {
+      "path": "/nino/opengraph-image",
+      "status": 200,
+      "format": "PNG"
+    }
+  ]
+}

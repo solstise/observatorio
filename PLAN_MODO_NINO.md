@@ -6,7 +6,8 @@ Reconocimiento: 14 de octubre de 2026 (Argentina). Rama `feature/modo-nino`.
 
 - `main`: `ddafcb7bca428933f3b80017449c8fe0c61c76f3`.
 - El checkout tenía numerosos cambios y rutas nuevas sin commit. Inventario conservado en `.git/modo-nino-baseline-status.txt`. No se deben descartar ni incorporar silenciosamente como trabajo de esta tarea.
-- GitHub CLI autenticado. Acceso SSH a `vps2` comprobado. `deploy-vps.sh` sincroniza `webapp/frontend` y construye el servicio Docker `observatorio`. Actualmente ese contenedor no existe; se debe identificar el proceso que sirve producción antes de desplegar y preservar su artefacto.
+- GitHub CLI autenticado. Acceso SSH a `vps2` comprobado, pero ese host no sirve el contenedor. Se identificó producción en `root@187.77.54.19` (alias `vps`, IPv6 intermitente), con `/opt/apps/migrated-vps2.yml` y la imagen `apps-observatorio:latest`. El script de deploy se corrigió para ese método real y conserva variables de override.
+- Rollback preservado: imagen `sha256:36483f5a79f3a0ee9af12589b2d535e05b919b6f397d8f47c747bdd72165530a`, tag `apps-observatorio:rollback-modo-nino-20261014`; backup del código remoto en `/opt/apps/observatorio-pre-nino-20261014.tar.gz`.
 
 ## Hallazgos
 

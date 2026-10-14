@@ -12,7 +12,7 @@ Trabajo del 14/10/2026, zona horaria Argentina. Rama `feature/modo-nino`.
 5. `/nino`: encabezado y frescura, lluvia horaria, mapa Leaflet, tabla ordenable con desplazamiento en celular, equipamientos, eventos enlazados, recuadro fijo 103/SMN y descargas. Hay 674 equipamientos públicos OSM. No se publican contactos personales; solo nombre público, tipo y enlace OSM. Todos se presentan como equipamiento cercano, sin atribuir carácter de refugio oficial. OG dinámica PNG con nivel y tres barrios con exposición completa; degradación explícita con pronóstico vencido. Enlace en menú Pronóstico y banner de home solo para nivel alto/muy alto vigente. Metodología nueva con fórmulas y límites.
 6. Eliminado “creció ~X%” del glosario VIIRS. Las otras observaciones de credibilidad se listan abajo; no se reescribieron sus afirmaciones.
 7. Tests, build, lint y pruebas de navegador completados. Se corrigieron errores de hooks previos que impedían lint y la diferencia de espacios/horario entre ICU y Chrome que causaba hidratación incorrecta. `sharp` permite renderizar OG en Windows y producción; se incluye fuente DejaVu en Docker.
-8. Estado del deploy y smoke: ver cierre al final. No se debe considerar una compilación local como prueba de despliegue.
+8. Merge normal a `main`, despliegue local y corrida completa desde GitHub Actions aprobados. Smoke público posterior aprobado; no fue necesario rollback. Ver cierre con hora, imagen y resultados.
 
 ## Diagnóstico del cron y reparación
 
@@ -93,4 +93,18 @@ Rollback sin force push:
 ssh root@187.77.54.19 'docker tag apps-observatorio:rollback-modo-nino-20261014 apps-observatorio:latest && docker compose -f /opt/apps/migrated-vps2.yml up -d --no-deps --force-recreate --no-build observatorio'
 ```
 
-Estado al cerrar la validación local: condiciones de Fase 8 comprobadas; resultado de merge/deploy/smoke pendiente de registrar antes de la entrega.
+### Cierre del despliegue
+
+- URL final: https://sateliteposadas.com/nino.
+- Código desplegado: `aabeb11bfa726f6c0a8329a3256e37ad03a34c75`, con merges normales desde `feature/modo-nino`; sin force push.
+- Primer deploy operativo: 14/10/2026 a las 01:10:36 ART. Se había cancelado un build anterior antes del reemplazo del contenedor para incluir la aclaración de cobertura parcial; el reintento concluyó correctamente. La versión anterior permaneció en servicio durante esa compilación.
+- Verificación inicial del cron sin deploy: [run 38509103069](https://github.com/solstise/observatorio/actions/runs/38509103069), aprobado. Generó, sincronizó, publicó en Upstash y guardó los snapshots en `data`.
+- Verificación completa del cron desde `main`, con deploy: [run 38510103171](https://github.com/solstise/observatorio/actions/runs/38510103171), aprobado. Quedó comprobado también el acceso SSH de GitHub Actions al destino real.
+- Deploy automático final: 14/10/2026, 01:17:33 ART. Imagen activa: `sha256:ae5b7eec86a15e325c8b18c4ee93ae3a27c62c467565c643c0c1bdcfb9556d2e`.
+- Smoke final: 01:17:52 ART. Home, `/nino`, `/pronostico/riesgos`, `/datos/metodologia` y `/poligono/villa_urquiza`: **200**. OG de `/nino`: **200, PNG válido**.
+- Forecast y estado de `/nino` emitidos a las `2026-10-14T04:12:43+00:00` (01:12:43 ART), con edad 0,086 h al verificar: menos de 24 h.
+- Comprobación visual adicional en producción a 390×844: sin desborde horizontal ni errores React; 103 visible. Evidencias finales en `docs/capturas-nino/produccion*.json` y `produccion-mobile.png`.
+- CI de los merges: tests y lint aprobados; [tests finales](https://github.com/solstise/observatorio/actions/runs/38509674323), [lint final](https://github.com/solstise/observatorio/actions/runs/38509674311).
+- Se preservó la imagen original y el backup del código para el rollback indicado arriba. No se borraron imágenes ni contenedores de otras aplicaciones. El servidor local de prueba se detuvo al terminar.
+
+Las limitaciones de exposición, fuentes históricas pendientes e inconsistencias heredadas listadas arriba siguen vigentes. No se publicaron como validadas ni se rellenaron datos para completar barrios.
