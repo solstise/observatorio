@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-14T04:01:12+00:00",
+  "generated_at": "2026-10-14T04:12:43+00:00",
   "lluvia": {
     "lluvia_max_1h": 0.0,
     "lluvia_max_3h": 0.0,
@@ -450,7 +450,7 @@
     ],
     "alcance": "Una celda para Posadas; no distingue lluvia entre barrios",
     "acumulados": "Máximo móvil de 24/48 h dentro de las próximas 72 h",
-    "generated_at": "2026-10-14T04:01:12+00:00",
+    "generated_at": "2026-10-14T04:12:43+00:00",
     "umbrales": {
       "atencion": {
         "mm_1h": 20,
@@ -495,7 +495,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 37.3,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "chacra_32",
@@ -517,7 +517,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 61.4,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "aguas_corrientes",
@@ -539,7 +539,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 60.7,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "dm_itaembe_mini_este",
@@ -561,7 +561,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 53.0,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "cit_riberas_del_parana_oeste",
@@ -583,7 +583,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 55.2,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "cit_riberas_del_parana",
@@ -605,7 +605,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 56.2,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "dm_santa_rita_suroeste",
@@ -627,7 +627,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 60.0,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "itaembe_guazu",
@@ -649,7 +649,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 50.7,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "dm_santa_rita",
@@ -671,7 +671,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 57.0,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "itaembe_pora",
@@ -693,7 +693,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 55.1,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "dm_villa_urquiza",
@@ -715,7 +715,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 59.4,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "villa_dolores",
@@ -737,7 +737,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 58.4,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "monsenor_kemerer",
@@ -759,7 +759,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 60.6,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "villa_bonita",
@@ -781,7 +781,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 56.9,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "horacio_quiroga",
@@ -803,7 +803,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 53.6,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "fatima_sur",
@@ -825,7 +825,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 49.8,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "san_lucas",
@@ -847,7 +847,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 61.4,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "san_marcos",
@@ -869,7 +869,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 54.6,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "porvenir_2",
@@ -891,7 +891,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 49.9,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "malvinas",
@@ -913,7 +913,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 38.3,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "el_palomar",
@@ -935,7 +935,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 62.1,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "villa_urquiza",
@@ -957,7 +957,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 60.9,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "centro",
@@ -979,7 +979,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 61.9,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "23_de_septiembre",
@@ -1001,7 +1001,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 62.0,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "nu_pora",
@@ -1023,7 +1023,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 61.2,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "los_patitos",
@@ -1045,7 +1045,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": null,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "villa_cabello",
@@ -1067,7 +1067,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 55.6,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "dm_miguel_lanus",
@@ -1089,7 +1089,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 38.7,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "dm_villa_urquiza_sureste",
@@ -1111,7 +1111,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 54.3,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "miguel_lanus",
@@ -1133,7 +1133,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 58.8,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "norte",
@@ -1155,7 +1155,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 36.4,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "dm_miguel_lanus_sur",
@@ -1177,7 +1177,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 36.9,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "itaembe_mini",
@@ -1199,7 +1199,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 53.7,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "el_laurel",
@@ -1221,7 +1221,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 41.2,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "complejo_habitacional_virgen_de_fatima",
@@ -1243,7 +1243,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 61.1,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "don_santiago",
@@ -1265,7 +1265,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 61.0,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "san_isidro",
@@ -1287,7 +1287,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 60.4,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "lomas_de_garupa",
@@ -1309,7 +1309,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 52.5,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "luis_piedrabuena",
@@ -1331,7 +1331,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 53.4,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "bajada_vieja",
@@ -1353,7 +1353,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 57.7,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "villa_mola",
@@ -1375,7 +1375,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 52.7,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "el_portal",
@@ -1397,7 +1397,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 53.9,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "el_brete",
@@ -1419,7 +1419,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 59.3,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "a4_nueva_esperanza",
@@ -1441,7 +1441,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 60.2,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "fatima",
@@ -1463,7 +1463,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 49.7,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "las_dolores",
@@ -1485,7 +1485,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 50.1,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "san_martin_sureste",
@@ -1507,7 +1507,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 57.2,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "santa_helena",
@@ -1529,7 +1529,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 56.6,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "dm_itaembe_mini_este_suroeste",
@@ -1551,7 +1551,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 44.2,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "yacyreta",
@@ -1573,7 +1573,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 61.8,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "villa_sarita",
@@ -1595,7 +1595,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 61.7,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "santa_rita",
@@ -1617,7 +1617,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 61.4,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "rocamora",
@@ -1639,7 +1639,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 61.8,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "complejo_gervasio_artigas",
@@ -1661,7 +1661,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 33.6,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "federal",
@@ -1683,7 +1683,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 29.5,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "nemesio_parma",
@@ -1705,7 +1705,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 30.0,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "a_3_2_sector_b",
@@ -1727,7 +1727,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 62.0,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "colonia_laosiana",
@@ -1749,7 +1749,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 29.1,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "san_jorge",
@@ -1771,7 +1771,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 58.2,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "alta_gracia",
@@ -1793,7 +1793,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 61.4,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "san_martin",
@@ -1815,7 +1815,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 62.0,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "cima_del_sol",
@@ -1837,7 +1837,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 42.5,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     },
     {
       "poligono_id": "la_eugenia",
@@ -1859,7 +1859,7 @@
       "pct_impermeable": null,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": null,
-      "generated_at": "2026-10-14T04:01:12+00:00"
+      "generated_at": "2026-10-14T04:12:43+00:00"
     }
   ],
   "exposicion_generated_at": "2026-10-14T03:39:18.296817+00:00",
