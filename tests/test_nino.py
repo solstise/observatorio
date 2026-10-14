@@ -14,10 +14,26 @@ from scripts.nino_model import (
     resumen_ensemble,
     rolling_max,
     score_impacto,
+    tipo_equipamiento,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
 T = yaml.safe_load((ROOT / "config/alertas.yaml").read_text(encoding="utf-8"))["anegamiento_v2"]
+
+
+@pytest.mark.parametrize(
+    "tags,expected",
+    [
+        ({"name": "Cavas"}, None),
+        ({"name": "Centro de Atención al Cliente"}, None),
+        ({"name": "Escuela de inglés", "amenity": "language_school"}, None),
+        ({"name": "Centro de Atención al Vecino - Las Heras"}, "CAV"),
+        ({"name": "CAV Itaembé"}, "CAV"),
+        ({"amenity": "school"}, "Escuela"),
+    ],
+)
+def test_facilities_do_not_invent_cav(tags, expected):
+    assert tipo_equipamiento(tags) == expected
 
 
 @pytest.mark.parametrize(

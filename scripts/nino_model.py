@@ -1,8 +1,30 @@
 """Cálculos puros de anegamiento v2. Calibración inicial, sin alertas oficiales."""
 
+import re
+import unicodedata
 from datetime import datetime, timedelta, timezone
 
 import numpy as np
+
+
+def tipo_equipamiento(tags):
+    name = (
+        unicodedata.normalize("NFKD", tags.get("name", ""))
+        .encode("ascii", "ignore")
+        .decode()
+        .lower()
+    )
+    if re.search(r"\bcav\b", name) or "centro de atencion al vecino" in name:
+        return "CAV"
+    labels = {
+        "school": "Escuela",
+        "hospital": "Hospital",
+        "clinic": "Centro de salud",
+        "doctors": "Atención de salud",
+        "community_centre": "Centro comunitario",
+        "sports_centre": "Centro deportivo",
+    }
+    return labels.get(tags.get("amenity", tags.get("leisure", "")))
 
 
 def nivel_lluvia(max_1h, max_24h, thresholds):

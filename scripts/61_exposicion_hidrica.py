@@ -26,7 +26,7 @@ from rasterio.mask import mask
 from scipy.spatial import cKDTree
 from shapely.geometry import LineString, box
 
-from scripts.nino_model import agregar_exposicion
+from scripts.nino_model import agregar_exposicion, tipo_equipamiento
 
 CRS = "EPSG:32721"
 
@@ -134,13 +134,16 @@ def export_facilities(endpoint):
             continue
         tags = el.get("tags", {})
         kind = tags.get("amenity", tags.get("leisure", "CAV"))
+        label = tipo_equipamiento(tags)
+        if label is None:
+            continue
         features.append(
             {
                 "type": "Feature",
                 "geometry": {"type": "Point", "coordinates": [pos["lon"], pos["lat"]]},
                 "properties": {
                     "nombre": tags.get("name", labels.get(kind, "Equipamiento sin nombre")),
-                    "tipo": labels.get(kind, "CAV"),
+                    "tipo": label,
                     "osm_url": f"https://www.openstreetmap.org/{el['type']}/{el['id']}",
                 },
             }
