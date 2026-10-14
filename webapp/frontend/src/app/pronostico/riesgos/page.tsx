@@ -259,16 +259,15 @@ export default async function RiesgosPage() {
                 </span>
                 <span className="text-red-900 dark:text-red-100">
                   <strong className="tabular-nums">{nAnegAlto}</strong>{" "}
-                  barrio{nAnegAlto === 1 ? "" : "s"} con riesgo de anegamiento
-                  alto en 48 h
+                  barrio{nAnegAlto === 1 ? "" : "s"} con cálculo completo y riesgo de anegamiento
+                  alto en 72 h
                 </span>
               </li>
             </ul>
           ) : (
             <p className="text-sm text-emerald-900 dark:text-emerald-100">
-              Ningún barrio cae actualmente en categoría alto o muy alto para
-              dengue, anegamiento, ni acumula 3 o más días de calor extremo
-              en el horizonte de pronóstico.
+              No se detectaron categorías altas entre los barrios con datos disponibles.
+              Los faltantes no permiten descartar riesgo; consultá la cobertura en Modo El Niño.
             </p>
           )}
         </section>

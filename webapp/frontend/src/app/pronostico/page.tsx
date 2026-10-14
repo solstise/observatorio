@@ -233,7 +233,7 @@ export default async function PronosticoHubPage() {
           >
             {hayAlertas
               ? "Alertas activas en Posadas"
-              : "Sin alertas críticas en los próximos 14 días"}
+              : "Sin categorías críticas en los datos disponibles"}
           </h2>
           {hayAlertas ? (
             <ul className="grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-4">
@@ -263,7 +263,7 @@ export default async function PronosticoHubPage() {
                 </span>
                 <span className="text-red-900 dark:text-red-100">
                   <strong className="tabular-nums">{nAnegAlto}</strong>{" "}
-                  barrio{nAnegAlto === 1 ? "" : "s"} con anegamiento alto
+                  barrio{nAnegAlto === 1 ? "" : "s"} con cálculo completo y anegamiento alto
                   previsto en 48 h
                 </span>
               </li>
@@ -280,10 +280,8 @@ export default async function PronosticoHubPage() {
             </ul>
           ) : (
             <p className="text-sm text-emerald-900 dark:text-emerald-100">
-              Ningún barrio cae actualmente en categoría alto o muy alto de
-              dengue ni anegamiento, ningún barrio acumula 3 o más días de
-              calor extremo en el horizonte de 14 días, y no se detectan
-              barrios en transformación urbana activa.
+              No se detectaron categorías críticas en los datos disponibles.
+              Los barrios sin cálculo completo siguen a verificar; la ausencia de datos no descarta riesgo.
             </p>
           )}
         </section>

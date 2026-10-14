@@ -110,8 +110,8 @@ export function AnegamientoCard({ rows, features }: Props) {
                     {nombre}
                   </Link>
                   <span className="text-[10px] text-neutral-muted dark:text-dk-muted">
-                    Impermeable:{" "}
-                    <strong>{formatoNum(r.pct_viviendas_expuestas, 0)}% expuestas</strong> · Lluvia
+                    Viviendas expuestas:{" "}
+                    <strong>{formatoNum(r.pct_viviendas_expuestas, 0)}%</strong> · Lluvia
                     48h: <strong>{formatoNum(r.lluvia_48h_proj_mm, 0)} mm</strong>
                   </span>
                 </div>
