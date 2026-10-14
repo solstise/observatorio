@@ -190,7 +190,7 @@ export const GLOSARIO: TerminoGlosario[] = [
     resumen_corto:
       "Imágenes nocturnas del satélite NOAA: muestran luces de calles, autos y edificios.",
     descripcion_larga:
-      "El sensor VIIRS (Visible Infrared Imaging Radiometer Suite) a bordo de los satélites Suomi NPP y NOAA-20 captura emisiones de luz nocturna a 500 m con su banda Day-Night Band (DNB). El producto mensual `NOAA/VIIRS/DNB/MONTHLY_V1/VCMSLCFG` está libre de luz lunar y nubes. Es un proxy de actividad económica, electrificación y densidad poblacional efectiva. Para Posadas trackeamos: brillo total del aglomerado (creció ~X% inter-anual), nuevos focos en bordes peri-urbanos (indicador adelantado de loteos), y deficiencias de iluminación en barrios populares (contraste con Black Marble diario).",
+      "El sensor VIIRS (Visible Infrared Imaging Radiometer Suite) a bordo de los satélites Suomi NPP y NOAA-20 captura emisiones de luz nocturna a 500 m con su banda Day-Night Band (DNB). El producto mensual `NOAA/VIIRS/DNB/MONTHLY_V1/VCMSLCFG` está libre de luz lunar y nubes. Es un proxy de actividad económica, electrificación y densidad poblacional efectiva. Para Posadas trackeamos: brillo total del aglomerado, nuevos focos en bordes peri-urbanos (indicador adelantado de loteos), y deficiencias de iluminación en barrios populares (contraste con Black Marble diario).",
     categoria: "satelital",
     alias: ["nightlights", "luces nocturnas", "VIIRS DNB", "NOAA nightlights"],
     fuente_url:
