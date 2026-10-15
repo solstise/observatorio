@@ -1,0 +1,596 @@
+{
+  "generated_at": "2026-10-14T13:32:28.539992+00:00",
+  "version": "Diagnóstico del raster y algoritmo PREVIOS; no describe la cobertura corregida",
+  "raster": {
+    "crs": "EPSG:4326",
+    "bounds": [
+      -56.00016632825527,
+      -27.500035961222505,
+      -55.79993185142503,
+      -27.299801484392262
+    ],
+    "shape": [
+      743,
+      743
+    ],
+    "nodata": null,
+    "pixeles_sin_dato": 0
+  },
+  "barrios": [
+    {
+      "poligono_id": "23_de_septiembre",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "a4_nueva_esperanza",
+      "a_verificar": 1,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 1,
+      "distancia_min": 299.91956338979315,
+      "distancia_max": 299.91956338979315,
+      "muestra_mas_cercana_max": 300.21487624839466
+    },
+    {
+      "poligono_id": "a_3_2_sector_b",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "aguas_corrientes",
+      "a_verificar": 2,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 2,
+      "distancia_min": 298.2685669714266,
+      "distancia_max": 298.92344781531045,
+      "muestra_mas_cercana_max": 301.6692248842066
+    },
+    {
+      "poligono_id": "alta_gracia",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "bajada_vieja",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "centro",
+      "a_verificar": 2,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 2,
+      "distancia_min": 299.404344259279,
+      "distancia_max": 299.8929624175835,
+      "muestra_mas_cercana_max": 301.9537473895688
+    },
+    {
+      "poligono_id": "chacra_32",
+      "a_verificar": 19,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 19,
+      "distancia_min": 295.94978078671505,
+      "distancia_max": 299.9577674283915,
+      "muestra_mas_cercana_max": 304.642907885094
+    },
+    {
+      "poligono_id": "cima_del_sol",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "cit_riberas_del_parana",
+      "a_verificar": 9,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 9,
+      "distancia_min": 294.65784340785603,
+      "distancia_max": 299.8952049738986,
+      "muestra_mas_cercana_max": 303.829984397328
+    },
+    {
+      "poligono_id": "cit_riberas_del_parana_oeste",
+      "a_verificar": 15,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 15,
+      "distancia_min": 293.41111181756344,
+      "distancia_max": 299.47850638104364,
+      "muestra_mas_cercana_max": 306.26387494221143
+    },
+    {
+      "poligono_id": "colonia_laosiana",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "complejo_gervasio_artigas",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "complejo_habitacional_virgen_de_fatima",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "dm_itaembe_mini_este",
+      "a_verificar": 7,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 7,
+      "distancia_min": 296.7263772015659,
+      "distancia_max": 299.99729173361993,
+      "muestra_mas_cercana_max": 303.09982883108717
+    },
+    {
+      "poligono_id": "dm_itaembe_mini_este_suroeste",
+      "a_verificar": 1,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 1,
+      "distancia_min": 299.97866962719695,
+      "distancia_max": 299.97866962719695,
+      "muestra_mas_cercana_max": 300.8406210600329
+    },
+    {
+      "poligono_id": "dm_miguel_lanus",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "dm_miguel_lanus_sur",
+      "a_verificar": 4,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 4,
+      "distancia_min": 298.1286082116517,
+      "distancia_max": 299.67618158893885,
+      "muestra_mas_cercana_max": 302.0141163406633
+    },
+    {
+      "poligono_id": "dm_santa_rita",
+      "a_verificar": 11,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 11,
+      "distancia_min": 296.88697865921256,
+      "distancia_max": 299.9401952323319,
+      "muestra_mas_cercana_max": 303.0834370813075
+    },
+    {
+      "poligono_id": "dm_santa_rita_suroeste",
+      "a_verificar": 6,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 6,
+      "distancia_min": 296.7664530706227,
+      "distancia_max": 299.69622032247804,
+      "muestra_mas_cercana_max": 303.16571842498917
+    },
+    {
+      "poligono_id": "dm_villa_urquiza",
+      "a_verificar": 1,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 1,
+      "distancia_min": 299.89357533053214,
+      "distancia_max": 299.89357533053214,
+      "muestra_mas_cercana_max": 301.0054785319695
+    },
+    {
+      "poligono_id": "dm_villa_urquiza_sureste",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "don_santiago",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "el_brete",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "el_laurel",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "el_palomar",
+      "a_verificar": 3,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 3,
+      "distancia_min": 298.59015226586945,
+      "distancia_max": 299.8433406402819,
+      "muestra_mas_cercana_max": 300.50065629004075
+    },
+    {
+      "poligono_id": "el_portal",
+      "a_verificar": 1,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 1,
+      "distancia_min": 299.6041684995065,
+      "distancia_max": 299.6041684995065,
+      "muestra_mas_cercana_max": 302.2584193169642
+    },
+    {
+      "poligono_id": "fatima",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "fatima_sur",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "federal",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "horacio_quiroga",
+      "a_verificar": 2,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 2,
+      "distancia_min": 298.0090090187248,
+      "distancia_max": 298.96113841500744,
+      "muestra_mas_cercana_max": 301.2746723263724
+    },
+    {
+      "poligono_id": "itaembe_guazu",
+      "a_verificar": 490,
+      "sin_altura_terreno": 483,
+      "sin_muestra_drenaje": 100,
+      "distancia_min": 101.61029513860905,
+      "distancia_max": 299.71647236324105,
+      "muestra_mas_cercana_max": 445.5949013490027
+    },
+    {
+      "poligono_id": "itaembe_mini",
+      "a_verificar": 3,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 3,
+      "distancia_min": 298.6191442276929,
+      "distancia_max": 299.73844274191333,
+      "muestra_mas_cercana_max": 301.742997384347
+    },
+    {
+      "poligono_id": "itaembe_pora",
+      "a_verificar": 14,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 14,
+      "distancia_min": 295.25271919371016,
+      "distancia_max": 299.8717371786326,
+      "muestra_mas_cercana_max": 305.03176476339723
+    },
+    {
+      "poligono_id": "la_eugenia",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "las_dolores",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "lomas_de_garupa",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "los_patitos",
+      "a_verificar": 2,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 2,
+      "distancia_min": 299.62557735510836,
+      "distancia_max": 299.8627970175107,
+      "muestra_mas_cercana_max": 301.9054125518088
+    },
+    {
+      "poligono_id": "luis_piedrabuena",
+      "a_verificar": 2,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 2,
+      "distancia_min": 298.9074027027447,
+      "distancia_max": 299.50645510848983,
+      "muestra_mas_cercana_max": 300.32463707481935
+    },
+    {
+      "poligono_id": "malvinas",
+      "a_verificar": 1,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 1,
+      "distancia_min": 298.9960046247965,
+      "distancia_max": 298.9960046247965,
+      "muestra_mas_cercana_max": 300.1785582591277
+    },
+    {
+      "poligono_id": "miguel_lanus",
+      "a_verificar": 4,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 4,
+      "distancia_min": 294.9037073414068,
+      "distancia_max": 299.8189901074356,
+      "muestra_mas_cercana_max": 301.7831748132975
+    },
+    {
+      "poligono_id": "monsenor_kemerer",
+      "a_verificar": 1,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 1,
+      "distancia_min": 299.80988719582706,
+      "distancia_max": 299.80988719582706,
+      "muestra_mas_cercana_max": 300.16452105102525
+    },
+    {
+      "poligono_id": "nemesio_parma",
+      "a_verificar": 3,
+      "sin_altura_terreno": 3,
+      "sin_muestra_drenaje": 3,
+      "distancia_min": 100.7889988244715,
+      "distancia_max": 104.03477866789532,
+      "muestra_mas_cercana_max": 858.8435483165556
+    },
+    {
+      "poligono_id": "norte",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "nu_pora",
+      "a_verificar": 4,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 4,
+      "distancia_min": 296.0570067435804,
+      "distancia_max": 298.1121132287182,
+      "muestra_mas_cercana_max": 303.38080452657044
+    },
+    {
+      "poligono_id": "porvenir_2",
+      "a_verificar": 3,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 3,
+      "distancia_min": 295.5125552334582,
+      "distancia_max": 298.90116120214986,
+      "muestra_mas_cercana_max": 301.6373759651201
+    },
+    {
+      "poligono_id": "puerto_canela",
+      "a_verificar": 20,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 20,
+      "distancia_min": 296.3959578578099,
+      "distancia_max": 299.9774789909934,
+      "muestra_mas_cercana_max": 302.45956368334066
+    },
+    {
+      "poligono_id": "rocamora",
+      "a_verificar": 2,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 2,
+      "distancia_min": 299.8780560306807,
+      "distancia_max": 299.98346074004814,
+      "muestra_mas_cercana_max": 303.12636743543806
+    },
+    {
+      "poligono_id": "san_isidro",
+      "a_verificar": 2,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 2,
+      "distancia_min": 299.0085029564987,
+      "distancia_max": 299.9385859222398,
+      "muestra_mas_cercana_max": 302.19111820866596
+    },
+    {
+      "poligono_id": "san_jorge",
+      "a_verificar": 2,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 2,
+      "distancia_min": 298.9102984645881,
+      "distancia_max": 299.20001052275245,
+      "muestra_mas_cercana_max": 302.9427384068896
+    },
+    {
+      "poligono_id": "san_lucas",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "san_marcos",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "san_martin",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "san_martin_sureste",
+      "a_verificar": 1,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 1,
+      "distancia_min": 299.83658541909256,
+      "distancia_max": 299.83658541909256,
+      "muestra_mas_cercana_max": 300.15069277456524
+    },
+    {
+      "poligono_id": "santa_helena",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "santa_rita",
+      "a_verificar": 5,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 5,
+      "distancia_min": 296.27887216299337,
+      "distancia_max": 299.2244410380247,
+      "muestra_mas_cercana_max": 302.9729328110574
+    },
+    {
+      "poligono_id": "villa_bonita",
+      "a_verificar": 3,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 3,
+      "distancia_min": 298.1013174352709,
+      "distancia_max": 299.78785821839733,
+      "muestra_mas_cercana_max": 300.7696257090751
+    },
+    {
+      "poligono_id": "villa_cabello",
+      "a_verificar": 4,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 4,
+      "distancia_min": 297.9830856617353,
+      "distancia_max": 299.7943741816641,
+      "muestra_mas_cercana_max": 303.6717023288677
+    },
+    {
+      "poligono_id": "villa_dolores",
+      "a_verificar": 3,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 3,
+      "distancia_min": 299.30182765997716,
+      "distancia_max": 299.712689355309,
+      "muestra_mas_cercana_max": 302.4991221260296
+    },
+    {
+      "poligono_id": "villa_mola",
+      "a_verificar": 1,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 1,
+      "distancia_min": 299.3968605416654,
+      "distancia_max": 299.3968605416654,
+      "muestra_mas_cercana_max": 301.55885599335573
+    },
+    {
+      "poligono_id": "villa_sarita",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "villa_urquiza",
+      "a_verificar": 0,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 0,
+      "distancia_min": null,
+      "distancia_max": null,
+      "muestra_mas_cercana_max": null
+    },
+    {
+      "poligono_id": "yacyreta",
+      "a_verificar": 1,
+      "sin_altura_terreno": 0,
+      "sin_muestra_drenaje": 1,
+      "distancia_min": 299.63705776679996,
+      "distancia_max": 299.63705776679996,
+      "muestra_mas_cercana_max": 303.91457316834146
+    }
+  ],
+  "totales": {
+    "a_verificar": 655,
+    "sin_altura_terreno": 486,
+    "sin_muestra_drenaje": 265,
+    "solo_terreno": 390,
+    "solo_drenaje": 169,
+    "ambos": 96
+  }
+}

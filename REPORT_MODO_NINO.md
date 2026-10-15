@@ -1,5 +1,7 @@
 # Modo El Niño — reporte
 
+Actualización posterior: [revisión del DEM y exposición completa](REPORT_DEM_EXPOSICION.md). Las cifras de 26 barrios completos y 37 pendientes que siguen en este documento describen el estado histórico anterior a esa revisión.
+
 Trabajo del 14/10/2026, zona horaria Argentina. Rama `feature/modo-nino`.
 
 ## Resultado por fase
