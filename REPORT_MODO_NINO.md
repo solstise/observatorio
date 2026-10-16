@@ -133,4 +133,12 @@ node scripts/verify_nino_clarity.cjs
 python scripts/smoke_nino.py
 ```
 
-Despliegue y verificación pública: pendiente de completar al finalizar la corrida. Rollback preparado con la etiqueta `apps-observatorio:rollback-nino-claro-20261016`; se conserva el procedimiento por imagen indicado arriba, sustituyendo la etiqueta. Los cambios ajenos al trabajo permanecen sin incorporar.
+CI del merge `c93c440`: [tests aprobados](https://github.com/solstise/observatorio/actions/runs/38964950003), 130 aprobados y 8 omitidos tanto en Python 3.11 como en 3.12; [lint aprobado](https://github.com/solstise/observatorio/actions/runs/38964950021). Se inició la [corrida de actualización y despliegue](https://github.com/solstise/observatorio/actions/runs/38965265992) después de esa validación.
+
+Despliegue aprobado: contenedor iniciado el **16/10/2026 a las 18:01:16 ART** (`21:01:16 UTC`), código `c93c440`, imagen `sha256:749d5548d4db48f816c73e8f1129eea433b8df4f30bf79c100669927535717d7`. URL: [Sala de situación El Niño](https://sateliteposadas.com/nino).
+
+Smoke público aprobado a las 18:01 ART: home, `/nino`, riesgos, metodología y Villa Urquiza respondieron 200; OG PNG válida. Pronóstico emitido `2026-10-16T20:53:25+00:00`, con unos ocho minutos de antigüedad. Chrome en producción aprobó también `/pronostico`, búsqueda sin tildes, ordenamiento, mostrar más, selección de barrio, modos del mapa, ambas escalas, población faltante explícita, 320/390/768/1440 px sin desborde y tema oscuro. Se probó además el vencimiento a las 25 h en el reloj del navegador: no se presenta un nivel vigente. Sin errores JavaScript.
+
+Las cinco descargas (CSV de barrios, GeoJSON, KML, antecedentes y cálculo v1) respondieron 200 y sus contenidos se pudieron parsear. El CSV actual contiene 63 filas. Se verificó directamente el estado publicado: los 63 barrios siguen calculados, cinco poblaciones siguen sin estimación y los totales, edificios expuestos, porcentajes y estimaciones poblacionales coinciden con los agregados anteriores. Evidencias en `docs/capturas-nino-claro/produccion/`, `produccion-smoke.json` y `produccion-descargas.json`.
+
+No fue necesario rollback. Quedó preparada la etiqueta `apps-observatorio:rollback-nino-claro-20261016`, imagen `sha256:4024526d20cfbd3353237432a0c122cb70e00ffa49e7e97d0738bcbca3cf3bf7`; se conserva el procedimiento por imagen indicado arriba, sustituyendo la etiqueta. El servidor local quedó detenido y los cambios ajenos al trabajo permanecen sin incorporar.
