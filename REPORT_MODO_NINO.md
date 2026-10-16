@@ -110,3 +110,27 @@ ssh root@187.77.54.19 'docker tag apps-observatorio:rollback-modo-nino-20261014 
 - Se preservó la imagen original y el backup del código para el rollback indicado arriba. No se borraron imágenes ni contenedores de otras aplicaciones. El servidor local de prueba se detuvo al terminar.
 
 Las limitaciones de exposición, fuentes históricas pendientes e inconsistencias heredadas listadas arriba siguen vigentes. No se publicaron como validadas ni se rellenaron datos para completar barrios.
+
+## Revisión de comprensión — 16/10/2026
+
+Solicitud: hacer `/nino` más entendible para usuarios sin formación técnica, tanto gráficos como texto. Rama `codex/nino-mas-claro`, base `5bf272b`. Se conservan los datos, los umbrales y las cinco poblaciones sin estimación. La exposición completa de los 63 barrios describe cobertura del cálculo, no certeza de inundación.
+
+- Resumen del pronóstico en lenguaje cotidiano, emisión y hora de Posadas visibles. La estimación central se distingue de los demás escenarios. Los datos vencidos conservan el aviso y no informan un nivel actual.
+- Gráfico con escala adaptativa para no esconder cantidades pequeñas; vista independiente para comparar con los límites de atención, alto y muy alto. Leyenda explícita, ayuda al tocar una hora y explicación de milímetros. Se aclara que los períodos de 1/3/24/48 horas se superponen y no deben sumarse. Percentiles, escenarios y calibración quedan en una explicación desplegable.
+- Buscador de barrios que acepta nombres sin tildes, ordenamiento y lista que funciona en celular sin desplazar una tabla hacia los costados. Se muestran edificios expuestos sobre el total y su proporción mediante una barra, población aproximada con banda orientativa y el impacto estimado en palabras. El índice interno de 0 a 100 no se presenta como probabilidad de inundación.
+- Dos vistas separadas del mapa: zonas expuestas y efecto combinado con la lluvia prevista. Selector de barrio y enlace desde cada resultado para acercarse. Las zonas azules no representan agua observada. Equipamientos sin atribución de refugio oficial.
+- Antecedentes con fechas legibles, sin inventar días; incertidumbre visible y notas de verificación disponibles al desplegar. Descargas con explicación de formatos; imagen para compartir y enlace de home con texto actualizado. Canales oficiales fijos con 103 visible, sin ocupar un recuadro tan alto en celular.
+
+Validación local: build, typecheck y lint aprobados (lint conserva advertencias ajenas en explorar/aire/glosario). `node scripts/verify_nino_clarity.cjs` prueba búsqueda, mostrar más, orden, enlace al mapa, separación de capas, escala, población faltante y recuperación de búsquedas vacías; verifica 320, 390, 768 y 1440 px sin desborde y tema oscuro. Sus fixtures **solo locales** comprueban lluvia fuerte, falta de serie, pronóstico vencido y snapshot ausente, y restauran el archivo original en `finally`. No se publican fixtures. `scripts/verify_nino_browser.cjs` verifica seis rutas, mapa, 103, móvil, vencimiento a las 25 h y OG PNG. Sin errores JavaScript. Capturas y resultados: `docs/capturas-nino-claro/`.
+
+Para probar en producción sin mutar archivos ni usar fixtures:
+
+```powershell
+$env:NINO_BASE_URL='https://sateliteposadas.com'
+$env:NINO_READ_ONLY='1'
+$env:NINO_OUTPUT_DIR='docs/capturas-nino-claro/produccion'
+node scripts/verify_nino_clarity.cjs
+python scripts/smoke_nino.py
+```
+
+Despliegue y verificación pública: pendiente de completar al finalizar la corrida. Rollback preparado con la etiqueta `apps-observatorio:rollback-nino-claro-20261016`; se conserva el procedimiento por imagen indicado arriba, sustituyendo la etiqueta. Los cambios ajenos al trabajo permanecen sin incorporar.

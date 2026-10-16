@@ -1,0 +1,20 @@
+{
+  "checked_at": "2026-10-16T20:46:59.941Z",
+  "base": "http://localhost:3127",
+  "readOnly": false,
+  "checks": [
+    "Cantidades pequeñas, cero y dato ausente se distinguen; búsqueda sin tildes.",
+    "Buscar sin tildes, mostrar más, localizar barrio y separar las dos capas del mapa.",
+    "Población faltante explícita, búsqueda vacía recuperable y orden alfabético.",
+    {
+      "prueba": "Escala adaptativa y comparación con los límites",
+      "adaptiveScale": "Lluvia estimada por hora. Escala de 0 a 1 milímetros. Línea azul: estimación central. Franja celeste: variación entre escenarios.",
+      "comparisonScale": "Lluvia estimada por hora. Escala de 0 a 79 milímetros. Línea azul: estimación central. Franja celeste: variación entre escenarios."
+    },
+    "320/390/768/1440 px sin desborde; modo oscuro, unidad mm y 103 visibles.",
+    "Fixture local con lluvia fuerte: mensaje y escala reflejan valores altos.",
+    "Sin serie no se dibuja un gráfico ficticio; dato vencido oculta niveles y marca mapa sin pronóstico.",
+    "Snapshot ausente: mensaje explícito, sin cifras ni niveles inventados."
+  ],
+  "errors": []
+}
