@@ -448,7 +448,7 @@
   ],
   "alcance": "Una celda para Posadas; no distingue lluvia entre barrios",
   "acumulados": "Máximo móvil de 24/48 h dentro de las próximas 72 h",
-  "generated_at": "2026-10-16T20:29:27+00:00",
+  "generated_at": "2026-10-16T20:53:25+00:00",
   "umbrales": {
     "atencion": {
       "mm_1h": 20,
