@@ -1,0 +1,30 @@
+{
+  "checked_at": "2026-10-16T21:02:25.997239+00:00",
+  "checks": [
+    {
+      "archivo": "barrios.csv",
+      "status": 200,
+      "bytes": 14653
+    },
+    {
+      "archivo": "exposicion_hidrica.geojson",
+      "status": 200,
+      "bytes": 442714
+    },
+    {
+      "archivo": "exposicion_hidrica.kml",
+      "status": 200,
+      "bytes": 426593
+    },
+    {
+      "archivo": "eventos_anegamiento.csv",
+      "status": 200,
+      "bytes": 1606
+    },
+    {
+      "archivo": "anegamiento_v1.csv",
+      "status": 200,
+      "bytes": 2823
+    }
+  ]
+}

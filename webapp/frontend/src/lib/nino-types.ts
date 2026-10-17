@@ -15,6 +15,7 @@ export interface NinoRain {
   horas: Array<{ time: string; p10: number; p50: number; p90: number }>;
 }
 export interface NinoRow {
+  edificios_total?: number;
   cobertura_worldpop?: string;
   poligono_id: string;
   nombre: string;
