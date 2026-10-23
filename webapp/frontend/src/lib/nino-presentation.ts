@@ -71,6 +71,8 @@ export function agoText(time: string | null, now: number) {
 // modelos (o el único disponible), igual que el consenso diario de 66_ambiente_granizo.py.
 // Las horas de Open-Meteo vienen en hora de Posadas (UTC−3, sin horario de verano).
 const HAIL_ORDER: HailLevel[] = ["bajo", "moderado", "alto"];
+// Palabras de probabilidad, no de intensidad: "granizo moderado" se lee como cantidad.
+export const HAIL_LIKELIHOOD: Record<HailLevel, string> = { bajo: "poco probable", moderado: "posible", alto: "muy posible" };
 export function hailNext(hail: NinoHail | null, now: number, hours = 12): { nivel: HailLevel | null; modelos: number } {
   const cuts = hail?.cortes ?? { moderado: 0.5, alto: 1 };
   const levels = Object.values(hail?.modelos ?? {}).flatMap(model => {

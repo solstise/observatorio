@@ -1,16 +1,15 @@
 "use client";
 
-import type { HailLevel, NinoClimate, NinoHail } from "@/lib/nino-types";
+import type { NinoClimate, NinoHail } from "@/lib/nino-types";
 import type { NinoAhora } from "@/lib/nino-live/types";
 import { directionName } from "@/lib/nino-live/parse";
 import { timesPerYear } from "@/lib/nino-escurrimiento";
-import { agoText, alertHeadline, alertSummary, clockTime, formatMeters, formatNinoNumber as num, formatRain, hailNext, rainIntensity, whenText, type HeroState } from "@/lib/nino-presentation";
+import { agoText, alertHeadline, alertSummary, clockTime, formatMeters, formatNinoNumber as num, formatRain, HAIL_LIKELIHOOD, hailNext, rainIntensity, whenText, type HeroState } from "@/lib/nino-presentation";
 import { NinoIcon } from "./NinoIcons";
 import { NinoSky } from "./NinoSky";
 import styles from "./nino.module.css";
 
 const HERO_ICON = { roja: "alert", naranja: "alert", amarilla: "alert", informativa: "alert", tormenta: "storm", lluvia: "rain", calma: "check", sin_datos: "alert" } as const;
-const HAIL_CHANCE: Record<HailLevel, string> = { bajo: "Baja", moderado: "Moderada", alto: "Alta" };
 
 export function NinoNow({ live, hero, now, climate, hail, loading }: { live: NinoAhora | null; hero: HeroState; now: number; climate: NinoClimate | null; hail: NinoHail | null; loading: boolean }) {
   const alerts = live?.alertas.datos;
@@ -29,10 +28,11 @@ export function NinoNow({ live, hero, now, climate, hail, loading }: { live: Nin
   const hailSeen = live?.metar.datos?.granizo_12h ?? [];
   const hailOfficial = !!alerts?.posadas.some(alert => alert.menciona_granizo);
   const hailModels = hailNext(hail, now);
-  const hailChip = hailSeen.length ? { label: "Granizo", value: `Cayó a las ${clockTime(hailSeen[0])}`, sub: "en el aeropuerto" }
-    : hailOfficial && (!hailModels.nivel || hailModels.nivel === "bajo") ? { label: "Granizo", value: "Posible", sub: "lo menciona la alerta del SMN" }
-    : hailModels.nivel ? { label: "Chance de granizo", value: HAIL_CHANCE[hailModels.nivel], sub: hailOfficial ? "próximas 12 h · lo menciona el SMN" : `próximas 12 h · ${hailModels.modelos} modelos` }
-    : { label: "Granizo", value: "Sin datos", sub: "" };
+  const likelihood = hailModels.nivel ? HAIL_LIKELIHOOD[hailModels.nivel] : null;
+  const hailChip = hailSeen.length ? { value: `Cayó a las ${clockTime(hailSeen[0])}`, sub: "en el aeropuerto" }
+    : hailOfficial && (!hailModels.nivel || hailModels.nivel === "bajo") ? { value: "Posible", sub: "lo menciona la alerta del SMN" }
+    : likelihood ? { value: likelihood.charAt(0).toUpperCase() + likelihood.slice(1), sub: hailOfficial ? "próximas 12 h · lo menciona el SMN" : `próximas 12 h · ${hailModels.modelos} modelos` }
+    : { value: "Sin datos", sub: "" };
   const hailHot = hailSeen.length > 0 || hailModels.nivel === "alto" || (hailOfficial && hailModels.nivel === "moderado");
   const summary = top ? alertSummary(top) : "";
   const freqText = !freq || freq.count === 0 ? "estación del SMN"
@@ -68,7 +68,7 @@ export function NinoNow({ live, hero, now, climate, hail, loading }: { live: Nin
       </a></li>
       <li><a href="#granizo" className={styles.chip} data-hot={hailHot ? "1" : undefined}>
         <NinoIcon name="hail" size={20} />
-        <span className={styles.chipLabel}>{hailChip.label}</span>
+        <span className={styles.chipLabel}>Granizo</span>
         <span className={styles.chipValue}>{hailChip.value}</span>
         <span className={styles.chipSub}>{hailChip.sub}</span>
       </a></li>
