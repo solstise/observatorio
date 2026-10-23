@@ -201,3 +201,30 @@ ssh root@187.77.54.19 'docker tag apps-observatorio:rollback-nino-tiempo-real-20
 ```
 
 No fue necesario usarlo. Pendientes: estimación satelital de lluvia (GSMaP o IMERG) y radar, sin acceso automático hoy; calibrar los umbrales de suelo con eventos medidos.
+
+## Sala interactiva con estimaciones y mapa propio — 23/10/2026
+
+Pedido: interfaz más legible e interactiva (animaciones, mapa propio, filtros en lugar de colores mezclados), revisar los rayos ("dice que no hubo pero los escuché"), algo sobre granizo y estimaciones con rigor científico, siempre sin inventar datos. Rama `feature/nino-interactiva`.
+
+### Rayos: qué pasaba
+
+Cuenta independiente sobre los archivos crudos del GLM (GOES-19): entre las 22:50 y las 23:40 del 22/10 hubo cientos de rayos a menos de 30 km (el más cercano a 2 km); desde las 23:40, ninguno a menos de 30 km, y en los últimos 20 minutos de la consulta volvieron a 35–50 km. El detector coincidía con producción. El problema era la presentación: "Ninguno en los últimos 15 minutos" dentro de un radio fijo de 30 km. Ahora se informa siempre el rayo más cercano (hasta 100 km) con rumbo y antigüedad, la distancia mínima en tramos de 10 minutos, si se acerca o se aleja (recta sobre 40 minutos) y la hora del último trueno informado por el aeropuerto.
+
+### Estimaciones
+
+- Escurrimiento por barrio: número de curva SCS (USDA-NRCS TR-55) con rango suelo B–C, techos de las huellas de edificios como piso de superficie impermeable y porcentaje TR-55 por tamaño de lote como techo, ponderado por la parte urbanizada. Condición antecedente según la lluvia medida en 5 días (NEH-4) y ecuaciones de Chow, Maidment y Mays. El simulador muestra, para cualquier lluvia de un día, cuánta agua escurriría en la ciudad (en piletas olímpicas) y en cada barrio. La capacidad de los desagües pluviales no es pública: se dice explícitamente.
+- Granizo: índice SHIP del SPC (NOAA) con GFS, ECMWF e ICON; categoría del día por consenso de al menos dos modelos, junto con la mención de granizo en la alerta del SMN y lo informado por el aeropuerto. Para el 23/10: GFS 0,51, ECMWF 0,97, ICON 0,09 (moderado).
+- Climatología: frecuencias empíricas de lluvia de 1 y 3 días y meses típicos, solo con años con 90 % de días informados. GHCN-Daily de la NOAA para Posadas se descartó: años sin días secos, máximos diarios de 400–500 mm y más de la mitad de los días faltantes desde 2006. El registro SYNOP desde 2000 se completa por tramos (Ogimet tarda unos 2 minutos por consulta y dio un 504); la climatología se publica sola cuando el registro llega a la rama `data`.
+
+### Interfaz
+
+Encabezado como ventana al cielo con lluvia y relámpagos según el parte real del aeropuerto y los rayos del satélite, radar polar de rayos, pluviómetro animado con "¿es mucho?", simulador, pronóstico en tarjetas deslizables, granizo con tres fuentes, regla del Paraná y fuentes compactas. Mapa MapLibre con OpenFreeMap (calles y nombres), agua animada en el sentido de la corriente de los arroyos de OSM, filtros por capa, escurrimiento por barrio enlazado al simulador y "Mi ubicación". Se quitó el mapa Leaflet.
+
+Además se corrigió que el snapshot tomaba un período futuro vacío de Dynamic World: `pct_impermeable` estaba vacío en producción para los 63 barrios.
+
+### Validación y producción
+
+- `pytest` (39 aprobados localmente; CI 3.11 y 3.12 aprobados), `node --test` (13 aprobados), `tsc`, `next lint` y `npm run build` aprobados. SHIP y SCS con casos calculados a mano.
+- `scripts/verify_nino_clarity.cjs` adaptado (MapLibre, filtros, simulador) y aprobado sin errores de JavaScript, localmente y contra producción en modo solo lectura. Evidencias en `docs/capturas-nino-v3/`.
+- Merge `f2ecb48` sin force push. [Run 39900667987](https://github.com/solstise/observatorio/actions/runs/39900667987) aprobado; contenedor iniciado el 23/10/2026 a las 01:38:34 ART, imagen `sha256:936984c85e7d758d23c8ff21617b824ce417c102aaa75c84bba61a1d855196ab`. Smoke: cinco rutas 200, snapshot con 0,13 h, seis fuentes en vivo `ok`, OG PNG válida; `granizo.json`, `escurrimiento_barrios.json` y `arroyos_nino.geojson` servidos.
+- Rollback: imagen anterior `sha256:0cfd211b74a01b329788cc88c954e815ad114bca5ebf405a19309b5d2afed1db` etiquetada `apps-observatorio:rollback-nino-interactiva-20261023` (mismo procedimiento que arriba, cambiando la etiqueta).
