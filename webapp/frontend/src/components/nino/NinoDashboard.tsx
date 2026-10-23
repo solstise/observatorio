@@ -76,8 +76,7 @@ export function NinoDashboard({ snapshot, barrios, zones, facilities, events, re
   const [simMm, setSimMm] = useState(() => Math.max(5, Math.round(rain?.lluvia_24h ?? 30)));
   const mm5 = live?.lluvia.datos?.totales.find(t => t.horas === 120)?.mm ?? null;
   const todayAmc = amcFromAntecedent(mm5);
-  const [amcChoice, setAmcChoice] = useState<Amc | null>(null);
-  const simAmc: Amc = amcChoice ?? todayAmc ?? "II";
+  const simAmc: Amc = todayAmc ?? "II";
 
   const refresh = useCallback(async () => {
     try {
@@ -147,7 +146,7 @@ export function NinoDashboard({ snapshot, barrios, zones, facilities, events, re
       <NinoObserved live={live?.lluvia.datos} record={record} climate={climate} config={config} now={clock} threshold24h={rain?.umbrales.atencion?.mm_24h ?? 50} />
     </div>
 
-    <NinoSimulator hydro={hydro} rain={rain} wrf={snapshot?.wrf_smn} alert={officialAlert} mm5days={mm5} todayAmc={todayAmc} amc={simAmc} onAmc={setAmcChoice} mm={simMm} onMm={setSimMm} selectedId={selectedId} onSelect={setSelectedId} />
+    <NinoSimulator hydro={hydro} rain={rain} wrf={snapshot?.wrf_smn} alert={officialAlert} mm5days={mm5} amc={todayAmc} mm={simMm} onMm={setSimMm} selectedId={selectedId} onSelect={setSelectedId} onShowPaths={() => { setLayers(current => ({ ...current, anegamientos: true })); document.getElementById("mapa")?.scrollIntoView({ behavior: "smooth" }); }} />
 
     <section id="mapa" className={styles.card} aria-labelledby="mapa-heading">
       <div className={styles.cardHead}>
@@ -180,7 +179,10 @@ export function NinoDashboard({ snapshot, barrios, zones, facilities, events, re
         <p className={styles.bigLine}>{selectedRow?.nombre ?? selectedHydro?.nombre}</p>
         <ul>
           {selectedRow?.estado === "calculado" && <li><strong>{num(selectedRow.viviendas_expuestas)}</strong> de {num(selectedRow.edificios_total)} edificios en zonas bajas o cerca de arroyos</li>}
-          {selectedHydro && <li>Con {simMm} mm, escurren <strong>{barrioRunoff(selectedHydro, simMm, simAmc).porcentaje.join(" a ")}</strong> de cada 100 litros</li>}
+          {selectedHydro && (() => {
+            const [low, high] = barrioRunoff(selectedHydro, simMm, simAmc).porcentaje.map(p => Math.round(p / 10));
+            return <li>Si caen {simMm} mm, <strong>{low === high ? `unos ${low}` : `entre ${low} y ${high}`}</strong> de cada 10 litros van a la calle</li>;
+          })()}
           {selectedRow && fresh && selectedRow.score_anegamiento != null && <li>Impacto estimado con la lluvia prevista: <strong>{IMPACT_LABEL[selectedRow.nivel]}</strong></li>}
         </ul>
         <Link href={`/poligono/${selectedId}`} className={styles.textLink}>Ver todo sobre el barrio</Link>
