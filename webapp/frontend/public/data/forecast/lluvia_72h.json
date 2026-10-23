@@ -577,7 +577,7 @@
   "metodo": "mediana de los picos de cada escenario",
   "alcance": "Una celda para Posadas; no distingue lluvia entre barrios",
   "acumulados": "Máximo móvil de 24/48 h dentro de las próximas 72 h",
-  "generated_at": "2026-10-23T03:15:01+00:00",
+  "generated_at": "2026-10-23T03:31:26+00:00",
   "umbrales": {
     "atencion": {
       "mm_1h": 20,
