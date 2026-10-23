@@ -1,0 +1,168 @@
+"""Registro automático de lluvia medida en la estación SMN Posadas Aero (87178).
+
+Los reportes SYNOP son los mensajes oficiales que la estación del SMN envía a la
+red de la OMM. Ogimet los redistribuye sin cambios. El día pluviométrico va de
+las 9 a las 9 hora argentina (12 a 12 UTC), igual que en los registros del SMN.
+Un día sin reporte de 24 h queda vacío: nunca se completa con cero.
+"""
+
+import argparse
+import sys
+import time
+from datetime import date, datetime, timedelta, timezone
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+import pandas as pd
+import requests
+import yaml
+
+ESTACION = "87178"
+OGIMET = "https://www.ogimet.com/cgi-bin/getsynop"
+DESTINO = ROOT / "webapp/frontend/public/data/nino/lluvia_observada_diaria.csv"
+COLUMNAS = ["fecha", "mm", "tormenta", "granizo", "reportes", "fuente"]
+FUENTE = "SMN, estación Posadas Aero (SYNOP 87178 vía Ogimet)"
+# Tiempo presente (ww) de la tabla 4677 de la OMM.
+WW_TORMENTA = {17, 29, *range(91, 100)}
+WW_GRANIZO = {27, 87, 88, 89, 90, 93, 94, 96, 99}
+
+
+def _rrr(code):
+    """Tabla 3590 de la OMM: 990 es lluvia inapreciable, 991-999 décimas."""
+    value = int(code)
+    if value == 990:
+        return 0.0
+    return (value - 990) / 10 if value > 990 else float(value)
+
+
+def decodificar(linea):
+    """Devuelve hora UTC, lluvia de 24 h (si se informa) y tiempo presente."""
+    partes = linea.strip().rstrip("=").split(",")
+    if len(partes) < 7 or partes[0] != ESTACION:
+        return None
+    y, m, d, h = (int(x) for x in partes[1:5])
+    grupos = partes[6].split()
+    if len(grupos) < 5 or grupos[0] != "AAXX":
+        return None
+    cuerpo = grupos[3:]
+    seccion3 = cuerpo[cuerpo.index("333") + 1 :] if "333" in cuerpo else []
+    seccion1 = cuerpo[: cuerpo.index("333")] if "333" in cuerpo else cuerpo
+    ir = seccion1[0][0] if seccion1 and seccion1[0] else "/"
+    lluvia = {}
+    ww = None
+    siguiente = 1
+    # Grupos de la sección 1 en orden 1..9; los dos primeros son obligatorios.
+    for grupo in seccion1[2:]:
+        if len(grupo) != 5 or not grupo[0].isdigit() or int(grupo[0]) < siguiente:
+            continue
+        siguiente = int(grupo[0]) + 1
+        if grupo[0] == "6" and grupo[1:4].isdigit() and grupo[4] in "1234":
+            lluvia[{"1": 6, "2": 12, "3": 18, "4": 24}[grupo[4]]] = _rrr(grupo[1:4])
+        if grupo[0] == "7" and grupo[1:3].isdigit():
+            ww = int(grupo[1:3])
+    for grupo in seccion3:
+        if len(grupo) == 5 and grupo[0] == "7" and grupo[1:].isdigit() and 24 not in lluvia:
+            valor = int(grupo[1:])
+            lluvia[24] = 0.0 if valor == 9999 else valor / 10
+    # iR=3: la estación no tuvo lluvia y omite el grupo.
+    if ir == "3" and h % 6 == 0:
+        lluvia.setdefault(24 if h == 12 else 6, 0.0)
+    return {
+        "utc": datetime(y, m, d, h, tzinfo=timezone.utc),
+        "mm_24h": lluvia.get(24) if h == 12 else None,
+        "ww": ww,
+    }
+
+
+def resumir_por_dia(reportes):
+    """Un día pluviométrico termina a las 12 UTC de su fecha (12 UTC incluido)."""
+    dias = {}
+    for r in reportes:
+        fin = r["utc"].date() + timedelta(days=0 if r["utc"].hour <= 12 else 1)
+        dia = dias.setdefault(fin, {"mm": None, "tormenta": False, "granizo": False, "n": 0})
+        dia["n"] += 1
+        if r["utc"].hour == 12 and r["mm_24h"] is not None:
+            dia["mm"] = r["mm_24h"]
+        if r["ww"] in WW_TORMENTA:
+            dia["tormenta"] = True
+        if r["ww"] in WW_GRANIZO:
+            dia["granizo"] = True
+    return [
+        {
+            "fecha": fecha.isoformat(),
+            "mm": valores["mm"],
+            "tormenta": valores["tormenta"],
+            "granizo": valores["granizo"],
+            "reportes": valores["n"],
+            "fuente": FUENTE,
+        }
+        for fecha, valores in sorted(dias.items())
+    ]
+
+
+def descargar(desde, hasta, sesion=None):
+    sesion = sesion or requests.Session()
+    params = {
+        "block": ESTACION,
+        "begin": desde.strftime("%Y%m%d%H%M"),
+        "end": hasta.strftime("%Y%m%d%H%M"),
+    }
+    respuesta = sesion.get(
+        OGIMET, params=params, timeout=60, headers={"User-Agent": "sateliteposadas.com"}
+    )
+    respuesta.raise_for_status()
+    lineas = [line for line in respuesta.text.splitlines() if line.startswith(ESTACION + ",")]
+    if not lineas and "Status" in respuesta.text:
+        raise RuntimeError(f"Ogimet respondió sin datos: {respuesta.text[:200]}")
+    return [r for r in (decodificar(line) for line in lineas) if r]
+
+
+def fusionar(existente, nuevos):
+    """Los valores nuevos reemplazan a los anteriores, salvo que vengan vacíos."""
+    tabla = {row["fecha"]: row for row in existente}
+    for row in nuevos:
+        previo = tabla.get(row["fecha"])
+        if previo is not None and row["mm"] is None and pd.notna(previo.get("mm")):
+            row = {**row, "mm": previo["mm"]}
+        tabla[row["fecha"]] = row
+    return [tabla[fecha] for fecha in sorted(tabla)]
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--dias", type=int, default=10, help="días hacia atrás a consultar")
+    parser.add_argument("--desde", help="AAAA-MM-DD para completar el registro histórico")
+    args = parser.parse_args()
+    cfg = yaml.safe_load((ROOT / "config/alertas.yaml").read_text(encoding="utf-8"))
+    umbral = cfg["nino_tiempo_real"]["dia_fuerte_registro_mm"]
+    ahora = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
+    inicio = (
+        datetime.combine(date.fromisoformat(args.desde), datetime.min.time(), timezone.utc)
+        if args.desde
+        else ahora - timedelta(days=args.dias)
+    )
+    # Ogimet limita el tamaño de cada consulta: se pide por tramos con pausa.
+    reportes, tramo, sesion = [], inicio, requests.Session()
+    while tramo < ahora:
+        fin = min(tramo + timedelta(days=25), ahora)
+        reportes += descargar(tramo, fin, sesion)
+        tramo = fin
+        if tramo < ahora:
+            time.sleep(20)
+    if not reportes:
+        raise SystemExit("Ogimet no devolvió reportes; se conserva el registro anterior.")
+    existente = pd.read_csv(DESTINO).to_dict("records") if DESTINO.exists() else []
+    filas = fusionar(existente, resumir_por_dia(reportes))
+    DESTINO.parent.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(filas, columns=COLUMNAS).to_csv(DESTINO, index=False)
+    fuertes = [f for f in filas if pd.notna(f["mm"]) and f["mm"] >= umbral]
+    print(
+        f"Lluvia observada: {len(filas)} días en el registro, {len(fuertes)} con "
+        f"{umbral} mm o más. Último reporte: {max(r['utc'] for r in reportes).isoformat()}"
+    )
+
+
+if __name__ == "__main__":
+    main()

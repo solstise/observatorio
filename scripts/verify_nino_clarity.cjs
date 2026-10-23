@@ -39,6 +39,11 @@ checks.push('Cantidades pequeñas, cero y dato ausente se distinguen; búsqueda 
     await page.locator('.leaflet-container').waitFor();
     await expect(page.getByText('Datos a verificar', { exact: true })).toHaveCount(0);
   };
+  // El detalle hora por hora vive en un desplegable de "Lo que viene".
+  const openHourly = async () => {
+    const details = page.locator('#lluvia details').filter({ hasText: 'Ver hora por hora' });
+    if ((await details.getAttribute('open')) === null) await details.locator('summary').first().click();
+  };
   try {
     await load();
     await expect(page.locator('#nino-barrio-list > li')).toHaveCount(8);
@@ -69,6 +74,22 @@ checks.push('Cantidades pequeñas, cero y dato ausente se distinguen; búsqueda 
     assert.deepEqual(names, [...names].sort((a, b) => a.localeCompare(b, 'es')));
     checks.push('Población faltante explícita, búsqueda vacía recuperable y orden alfabético.');
 
+    // Datos en vivo de fuentes oficiales: estado, lluvia medida, río, fuentes y API.
+    await expect(page.locator('#ahora h2')).not.toHaveText('');
+    await expect(page.locator('#lo-que-llovio')).toContainText('Últimas 24 horas');
+    await expect(page.locator('#rio')).toBeVisible();
+    await expect(page.locator('#fuentes ul > li')).toHaveCount(8);
+    const lightningToggle = page.getByLabel('Rayos de la última hora', { exact: true });
+    await lightningToggle.uncheck();
+    await expect(page.getByText(/^Rayos hace:/)).toHaveCount(0);
+    await lightningToggle.check();
+    const api = await page.request.get(base + '/api/nino/ahora');
+    assert.equal(api.status(), 200);
+    const live = await api.json();
+    for (const key of ['alertas', 'metar', 'smn_ahora', 'lluvia', 'rayos', 'rio']) assert.ok(['ok', 'desactualizado', 'sin_datos'].includes(live[key].estado), key);
+    checks.push({ prueba: 'Datos en vivo y API', estados: Object.fromEntries(['alertas', 'metar', 'smn_ahora', 'lluvia', 'rayos', 'rio'].map(k => [k, live[k].estado])) });
+
+    await openHourly();
     const chart = page.getByRole('img', { name: /^Lluvia estimada por hora/ });
     const adaptiveScale = await chart.getAttribute('aria-label');
     await page.getByRole('button', { name: 'Comparar niveles', exact: true }).click();
@@ -107,17 +128,21 @@ checks.push('Cantidades pequeñas, cero y dato ausente se distinguen; búsqueda 
       fixture.lluvia.horas[0] = { ...fixture.lluvia.horas[0], p10: 20, p50: 40, p90: 70 };
       fs.writeFileSync(snapshotPath, JSON.stringify(fixture));
       await load();
-      await expect(page.getByText('Se prevén lluvias fuertes', { exact: true })).toBeVisible();
+      await expect(page.getByText('Se prevén lluvias fuertes', { exact: true }).first()).toBeVisible();
+      await openHourly();
       assert.ok(!(await chart.getAttribute('aria-label')).includes('Escala de 0 a 1 milímetros'));
       checks.push('Fixture local con lluvia fuerte: mensaje y escala reflejan valores altos.');
 
       fixture.lluvia.horas = [];
       fs.writeFileSync(snapshotPath, JSON.stringify(fixture));
       await load();
+      await openHourly();
       await expect(page.getByText('No hay datos horarios suficientes para dibujar el gráfico.', { exact: true })).toBeVisible();
       fixture.generated_at = new Date(Date.now() - 25 * 3600 * 1000).toISOString();
       fs.writeFileSync(snapshotPath, JSON.stringify(fixture));
       await page.reload({ waitUntil: 'domcontentloaded' });
+      // El mapa solo existe tras hidratar: recién ahí los botones responden.
+      await page.locator('.leaflet-container').waitFor();
       await expect(page.getByRole('alert').filter({ hasText: 'Datos de pronóstico desactualizados' })).toBeVisible();
       await expect(page.getByText('Datos a verificar', { exact: true })).toBeVisible();
       await page.getByRole('button', { name: 'Impacto con la lluvia', exact: true }).click();
@@ -126,6 +151,8 @@ checks.push('Cantidades pequeñas, cero y dato ausente se distinguen; búsqueda 
 
       fs.writeFileSync(snapshotPath, 'null');
       await page.reload({ waitUntil: 'domcontentloaded' });
+      // El mapa solo existe tras hidratar: recién ahí los botones responden.
+      await page.locator('.leaflet-container').waitFor();
       await expect(page.getByText('Datos a verificar', { exact: true })).toBeVisible();
       await expect(page.locator('#nino-barrio-list > li')).toHaveCount(0);
       checks.push('Snapshot ausente: mensaje explícito, sin cifras ni niveles inventados.');

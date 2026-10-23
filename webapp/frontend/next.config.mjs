@@ -17,6 +17,11 @@ const nextConfig = {
   // correr el server en producción con `node server.js`. Imprescindible para
   // el Dockerfile multi-stage (ver webapp/frontend/Dockerfile).
   output: "standalone",
+  // h5wasm lee los archivos de rayos del GOES-19 (HDF5) en el servidor. Trae el
+  // WASM embebido en su JS: se carga desde node_modules sin pasar por webpack.
+  experimental: {
+    serverComponentsExternalPackages: ["h5wasm"],
+  },
   // ESLint corre como check separado (`npm run lint`) y como pre-commit hook;
   // durante `next build` lo desactivamos para que un warning estilístico en
   // una página no bloquee el deploy. La calidad de código sigue garantizada

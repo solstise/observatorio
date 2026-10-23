@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { memo, useEffect, useMemo } from "react";
 import L from "leaflet";
-import { MapContainer, TileLayer, GeoJSON, CircleMarker, Popup, LayersControl, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, CircleMarker, LayerGroup, Popup, LayersControl, useMap } from "react-leaflet";
 import type { FeatureCollection, Point } from "geojson";
 import type { NinoRow } from "@/lib/nino-types";
-import { IMPACT_LABEL, formatNinoNumber as num } from "@/lib/nino-presentation";
+import { IMPACT_LABEL, formatNinoNumber as num, lightningColor } from "@/lib/nino-presentation";
 import "leaflet/dist/leaflet.css";
 
 function FocusBarrio({ barrios, selectedId }: { barrios: FeatureCollection; selectedId: string }) {
@@ -20,9 +20,11 @@ function FocusBarrio({ barrios, selectedId }: { barrios: FeatureCollection; sele
   return null;
 }
 
-export default function NinoMap({ barrios, zones, facilities, rows, fresh, mode, selectedId }: { barrios: FeatureCollection; zones: FeatureCollection; facilities: FeatureCollection; rows: NinoRow[]; fresh: boolean; mode: "exposicion" | "impacto"; selectedId: string }) {
+function NinoMap({ barrios, zones, facilities, rows, fresh, mode, selectedId, lightning = [], showLightning = false }: { barrios: FeatureCollection; zones: FeatureCollection; facilities: FeatureCollection; rows: NinoRow[]; fresh: boolean; mode: "exposicion" | "impacto"; selectedId: string; lightning?: Array<[number, number, number]>; showLightning?: boolean }) {
   const scores = new Map(rows.map(row => [row.poligono_id, row]));
-  return <MapContainer center={[-27.40, -55.95]} zoom={12} scrollWheelZoom={false} style={{ height: 420, width: "100%", zIndex: 0 }} aria-label="Mapa de zonas expuestas y barrios de Posadas">
+  // Canvas solo para los marcadores numerosos; los polígonos siguen en SVG.
+  const canvas = useMemo(() => L.canvas({ padding: 0.5 }), []);
+  return <MapContainer center={[-27.40, -55.95]} zoom={12} scrollWheelZoom={false} style={{ height: "var(--nino-map-height)", width: "100%", zIndex: 0 }} aria-label="Mapa de zonas expuestas, barrios y rayos de Posadas">
     <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
     <FocusBarrio barrios={barrios} selectedId={selectedId} />
     <GeoJSON key={`${mode}-${fresh}-${selectedId}`} data={barrios} style={feature => {
@@ -44,9 +46,16 @@ export default function NinoMap({ barrios, zones, facilities, rows, fresh, mode,
       layer.bindPopup(element);
     }} />
     {mode === "exposicion" && <GeoJSON data={zones} interactive={false} style={{ color: "#147caa", fillColor: "#38a3cd", weight: 1, fillOpacity: .48 }} />}
-    <LayersControl position="topright"><LayersControl.Overlay name="Escuelas, salud y otros lugares"><>{facilities.features.filter(feature => feature.geometry.type === "Point").map((feature, index) => {
+    {/* Los más viejos primero, para que los recientes queden arriba. */}
+    {showLightning && <LayerGroup>{[...lightning].sort((a, b) => b[2] - a[2]).map(([lat, lon, minutes], index) => <CircleMarker key={`${index}-${lat}-${lon}`} center={[lat, lon]} radius={4} interactive={false} renderer={canvas} pathOptions={{ color: "#ffffff", weight: 1, fillColor: lightningColor(minutes), fillOpacity: .9 }} />)}</LayerGroup>}
+    {/* Un solo LayerGroup por capa: con los marcadores sueltos, el control de capas
+        de Leaflet los registraba uno por uno y cada actualización era cuadrática. */}
+    <LayersControl position="topright"><LayersControl.Overlay name="Escuelas, salud y otros lugares"><LayerGroup>{facilities.features.filter(feature => feature.geometry.type === "Point").map((feature, index) => {
       const [lon, lat] = (feature.geometry as Point).coordinates;
-      return <CircleMarker key={index} center={[lat, lon]} radius={4} pathOptions={{ color: "#292524" }}><Popup>{String(feature.properties?.nombre)}<br />Lugar de referencia. No es un refugio oficial.</Popup></CircleMarker>;
-    })}</></LayersControl.Overlay></LayersControl>
+      return <CircleMarker key={index} center={[lat, lon]} radius={4} renderer={canvas} pathOptions={{ color: "#292524" }}><Popup>{String(feature.properties?.nombre)}<br />Lugar de referencia. No es un refugio oficial.</Popup></CircleMarker>;
+    })}</LayerGroup></LayersControl.Overlay></LayersControl>
   </MapContainer>;
 }
+
+// El panel se re-renderiza con el reloj y los datos en vivo; el mapa solo si cambian sus datos.
+export default memo(NinoMap);

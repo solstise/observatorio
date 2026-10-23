@@ -24,7 +24,7 @@ export function NinoBarrios({ rows, fresh, onLocate }: { rows: NinoRow[]; fresh:
     return (bv ?? -1) - (av ?? -1) || b.viviendas_expuestas - a.viviendas_expuestas || a.nombre.localeCompare(b.nombre, "es");
   });
   return <section id="barrios" className={styles.section} aria-labelledby="barrios-heading">
-    <p className={styles.eyebrow}>02 · Tu barrio</p>
+    <p className={styles.eyebrow}>Tu barrio</p>
     <h2 id="barrios-heading" className={styles.sectionTitle}>Buscá tu barrio</h2>
     <p className={styles.intro}>La lluvia cambia de un día a otro. La cercanía a arroyos y las zonas bajas cambian mucho menos. Combinamos ambos datos para estimar dónde podría haber más problemas.</p>
     <div className={styles.searchControls}>

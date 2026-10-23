@@ -142,3 +142,46 @@ Smoke público aprobado a las 18:01 ART: home, `/nino`, riesgos, metodología y 
 Las cinco descargas (CSV de barrios, GeoJSON, KML, antecedentes y cálculo v1) respondieron 200 y sus contenidos se pudieron parsear. El CSV actual contiene 63 filas. Se verificó directamente el estado publicado: los 63 barrios siguen calculados, cinco poblaciones siguen sin estimación y los totales, edificios expuestos, porcentajes y estimaciones poblacionales coinciden con los agregados anteriores. Evidencias en `docs/capturas-nino-claro/produccion/`, `produccion-smoke.json` y `produccion-descargas.json`.
 
 No fue necesario rollback. Quedó preparada la etiqueta `apps-observatorio:rollback-nino-claro-20261016`, imagen `sha256:4024526d20cfbd3353237432a0c122cb70e00ffa49e7e97d0738bcbca3cf3bf7`; se conserva el procedimiento por imagen indicado arriba, sustituyendo la etiqueta. El servidor local quedó detenido y los cambios ajenos al trabajo permanecen sin incorporar.
+
+## Datos oficiales en vivo y rediseño mobile-first — 22 y 23/10/2026
+
+Solicitud: después de varios días de lluvia y caída de granizo, revisar si faltaban datos. Luego: incorporar todas las fuentes oficiales posibles, todo automático (sin reportes de vecinos), mobile first y una interfaz más amable. Rama `feature/nino-tiempo-real`, base `ef2c0c1`.
+
+### Diagnóstico
+
+- La sala solo mostraba un pronóstico a 72 h. Durante el temporal del 21–22/10 publicó "Sin señal de lluvia intensa" en las 12 actualizaciones desde el 20/10 (historial de la rama `data`), mientras la estación SMN Posadas Aero midió 75 mm en las 24 h hasta las 9 del 22/10 y unos 91 mm en 72 h. Su propio umbral de atención es 50 mm en 24 h.
+- El SMN tenía alerta amarilla por tormentas para Posadas (40–70 mm, granizo, ráfagas de hasta 90 km/h) y avisos a muy corto plazo por granizo en Misiones y Corrientes. La página no consultaba ninguna alerta.
+- Error de método: se tomaba el máximo de la mediana hora por hora. Como cada miembro del ensamble ubica la tormenta a otra hora, la mediana aplanaba los picos. Con el ensamble del 22/10: 24 h 20,6 mm (método anterior) contra 38,9 mm (mediana de los picos de cada miembro; P90 61,5 mm); 1 h 2,4 contra 6,4 mm.
+- Las fallas del cron del 20/10 y 22/10 fueron timeouts SSH al VPS por IPv4; los datos se guardaron igual.
+- Las probabilidades de tormenta y ráfagas de los modelos globales resultaron muy bajas (3 %) con alerta oficial vigente: se calculan y exportan, pero no se muestran como titular. Para tormentas manda el SMN.
+
+### Fuentes incorporadas (todas automáticas)
+
+| Dato | Fuente | Acceso | Frecuencia |
+|---|---|---|---|
+| Alertas por zona y avisos a muy corto plazo | SMN, CAP (CC BY 4.0) | `ssl.smn.gob.ar/CAP/AR.php` y un XML por alerta; Posadas se evalúa por polígono | 3 min, en el servidor |
+| Estado del tiempo | SMN datos abiertos (`tiepre`) | ZIP con texto | 10 min |
+| Tormenta y granizo en el aeropuerto | METAR SARP vía NOAA Aviation Weather | JSON | 5 min |
+| Lluvia medida | SYNOP 87178 (SMN) vía Ogimet | bloques de 6 h; día de 9 a 9 h | 15 min en vivo; registro diario cada 6 h |
+| Rayos | NOAA GOES-19 GLM | archivos de 20 s en S3, leídos con `h5wasm` | 3 min, incremental |
+| Río Paraná | Prefectura Naval (actual) e INA serie 14 (30 días) | HTML y API a5 | 60 min y 6 h |
+| Modelo de alta resolución | SMN WRF 4 km (AWS Open Data) | lectura por rangos HTTP solo de `PP` | cada 6 h en el cron |
+
+No se encontró acceso automático a radar: las imágenes del SMN están detrás de un desafío anti-bots. El espejo CAP de la OMM tenía alertas del SMN viejas (7/9) y se descartó. La estimación satelital de lluvia (GSMaP vía Earth Engine) queda como siguiente paso: no se pudo probar localmente sin credenciales de Earth Engine.
+
+### Cambios
+
+- `scripts/nino_model.py`: mediana de los picos por miembro y percentil 90; totales por día local (P10/P50/P90, probabilidad de superar 20 mm y el nivel de atención); probabilidad de tormenta y ráfagas con su propio número de miembros (`None` si faltan, nunca cero). Umbrales nuevos en `config/alertas.yaml` (`nino_tiempo_real`).
+- `scripts/63_lluvia_observada.py`: registro diario acumulativo en `nino/lluvia_observada_diaria.csv`, recuperado de la rama `data` en cada corrida; la primera vez se completa desde el 1/1/2026 (296 días, 16 con 30 mm o más). Un día sin reporte de 24 h queda vacío.
+- `scripts/64_wrf_smn.py`: última corrida completa, caja de 7 × 7 celdas alrededor de Posadas, valor del centro y máximo de la zona. Si no hay corrida completa publica `no_disponible`.
+- `webapp/frontend/src/lib/nino-live/`: parsers puros (CAP, SYNOP, METAR, SMN, Prefectura, rayos), caché en memoria con último dato bueno y hora real, y `/api/nino/ahora`. El SMN limita los XML a 200 pedidos cada 10 minutos por IP: se leen una sola vez por emisión, se omiten las regiones Patagonia y Cordillera, y ante un 429 se pausa 10 minutos. Si quedan archivos sin leer o las alertas están desactualizadas, la página no afirma "Sin alertas".
+- `/nino` rediseñado mobile-first: estado principal con la alerta oficial y sus recomendaciones, "Ahora en Posadas", lluvia medida con barras por día y registro, pronóstico por día con rango, mediana y WRF, mapa con rayos de la última hora, río con medidor y 30 días, y "De dónde salen los datos". Se actualiza solo cada 3 minutos. La estimación propia aparece en tono neutro y subordinada a la alerta del SMN. OG e inicio priorizan la alerta oficial.
+- Rendimiento: los 674 lugares del mapa estaban sueltos dentro del control de capas de Leaflet y cada actualización era cuadrática. Con los datos en vivo eso bloqueaba el navegador unos 100 s. Ahora van en un `LayerGroup`, los marcadores en canvas y el mapa memoizado: la página responde en segundos.
+- CI: job `frontend-unit` (Node 24) y SSH del deploy con tiempo de espera corto y tres reintentos.
+
+### Validación local
+
+- `pytest tests/test_nino.py tests/test_nino_tiempo_real.py`: 37 aprobados (el test geoespacial requiere rasterio, presente en CI). `ruff` y `black --check` aprobados en los archivos tocados.
+- `node --test tests/unit/nino-live.test.mjs`: 11 aprobados, con muestras reales del 22/10 (los totales de 63 mm en 24 h y 91 mm en 72 h coinciden con el cálculo manual).
+- `tsc --noEmit`, `next lint` sobre lo nuevo y `npm run build` aprobados; `h5wasm` queda incluido en el paquete standalone y la API respondió con las seis fuentes en modo producción.
+- `scripts/verify_nino_clarity.cjs` actualizado y aprobado sin errores de JavaScript: búsqueda, mapa, escalas, datos en vivo y API, 320/390/768/1440 px sin desborde, y fixtures de lluvia fuerte, serie vacía, vencimiento y snapshot ausente. Evidencias en `docs/capturas-nino-tiempo-real/local/`. El modo oscuro real se comprobó con el botón de tema del sitio; la captura `mobile-dark.png` del script agrega la clase a mano y conserva el fondo claro, igual que en la verificación anterior.

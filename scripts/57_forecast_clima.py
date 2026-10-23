@@ -206,7 +206,8 @@ def llamar_ensemble(
     params = {
         "latitude": lat,
         "longitude": lon,
-        "hourly": "temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m",
+        "hourly": "temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,"
+        "weather_code,wind_gusts_10m",
         "daily": "temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code",
         "models": ",".join(ENSEMBLE_MODELS),
         "timezone": TIMEZONE,
@@ -678,10 +679,9 @@ def main(
 
     # Proyección por barrio.
     generated_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    thresholds = yaml.safe_load(resolve_path("config/alertas.yaml").read_text(encoding="utf-8"))[
-        "anegamiento_v2"
-    ]
-    rain = resumen_ensemble(j_ens, thresholds)
+    alertas_cfg = yaml.safe_load(resolve_path("config/alertas.yaml").read_text(encoding="utf-8"))
+    thresholds = alertas_cfg["anegamiento_v2"]
+    rain = resumen_ensemble(j_ens, thresholds, opciones=alertas_cfg.get("nino_tiempo_real"))
     rain.update(generated_at=generated_at, umbrales=thresholds, modelos=ENSEMBLE_MODELS)
     (out_path / "lluvia_72h.json").write_text(
         json.dumps(rain, ensure_ascii=False, indent=2), encoding="utf-8"

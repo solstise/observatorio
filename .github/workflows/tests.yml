@@ -56,3 +56,16 @@ jobs:
           name: coverage-${{ matrix.python-version }}
           path: .coverage
           if-no-files-found: ignore
+
+  frontend-unit:
+    # Parsers de fuentes oficiales en vivo (/nino). Sin dependencias: Node 24
+    # ejecuta TypeScript directamente.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Tests de /nino en vivo
+        working-directory: webapp/frontend
+        run: node --test tests/unit/nino-live.test.mjs

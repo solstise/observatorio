@@ -91,6 +91,73 @@ def test_ensemble_probability_uses_members_and_excludes_missing(ensemble):
     assert datetime.fromisoformat(r["horas"][0]["time"]) > now
 
 
+def _hourly_payload(now, members, extra=None):
+    start = now.replace(tzinfo=None, minute=0) - timedelta(hours=3)
+    hourly = {"time": [(start + timedelta(hours=h)).isoformat() for h in range(100)]}
+    for n, series in enumerate(members, 1):
+        hourly[f"precipitation_member{n:02d}"] = series
+    hourly.update(extra or {})
+    return {"utc_offset_seconds": -10800, "hourly": hourly}
+
+
+def test_storm_at_different_hours_is_not_flattened():
+    # Tres escenarios con 30 mm en una hora distinta: la mediana hora por hora
+    # da cero, pero en todos los escenarios llueve fuerte en algún momento.
+    now = datetime(2026, 10, 22, 21, 30, tzinfo=timezone.utc)
+    members = []
+    for shift in (10, 20, 30):
+        series = [0.0] * 100
+        series[shift] = 30.0
+        members.append(series)
+    r = resumen_ensemble(_hourly_payload(now, members), T, now)
+    assert max(h["p50"] for h in r["horas"]) == 0
+    assert r["lluvia_max_1h"] == 30
+    assert r["lluvia_24h"] == 30
+    assert r["nivel"] == "atencion"
+    assert r["probabilidades"]["atencion"] == 100
+
+
+def test_daily_totals_close_at_midnight_local():
+    # 21:30 UTC = 18:30 en Posadas. La serie arranca a las 18:00 locales, así que
+    # el índice 1 es la hora que termina a las 19:00.
+    now = datetime(2026, 10, 22, 21, 30, tzinfo=timezone.utc)
+    series = [0.0] * 100
+    series[6] = 12.0  # hora que termina a las 00:00 del 23: pertenece al 22
+    series[7] = 5.0  # hora que termina a la 01:00 del 23
+    r = resumen_ensemble(_hourly_payload(now, [series, series]), T, now)
+    days = {d["fecha"]: d for d in r["dias"]}
+    assert days["2026-10-22"]["p50"] == 12
+    assert days["2026-10-22"]["horas"] == 6
+    assert days["2026-10-23"]["p50"] == 5
+    assert days["2026-10-23"]["horas"] == 24
+    assert sum(d["horas"] for d in r["dias"]) == 72
+
+
+def test_storm_and_gust_probabilities_use_their_own_members():
+    now = datetime(2026, 10, 22, 21, 30, tzinfo=timezone.utc)
+    rain = [[0.0] * 100] * 4
+    codes = {
+        "weather_code_member01": [95] + [3] * 99,
+        "weather_code_member02": [3] * 100,
+        "weather_code_member03": [None] * 100,
+        "weather_code_member04": [3] * 50 + [99] + [3] * 49,
+    }
+    gusts = {"wind_gusts_10m_member01": [70.0] * 100, "wind_gusts_10m_member02": [20.0] * 100}
+    r = resumen_ensemble(_hourly_payload(now, rain, {**codes, **gusts}), T, now)
+    # El primer valor (95) es pasado; el 99 cae dentro de las 72 h futuras.
+    assert r["tormenta"]["n_miembros_tormenta"] == 3
+    assert r["tormenta"]["prob_tormenta"] == pytest.approx(33.3)
+    assert r["tormenta"]["prob_rafagas"] == 50
+    assert r["tormenta"]["n_miembros_rafagas"] == 2
+
+
+def test_storm_probability_missing_is_none_not_zero(ensemble):
+    now, data = ensemble
+    r = resumen_ensemble(data, T, now)
+    assert r["tormenta"]["prob_tormenta"] is None
+    assert all(d["prob_rafagas"] is None for d in r["dias"])
+
+
 def test_missing_horizon_rejected(ensemble):
     now, data = ensemble
     data["hourly"]["time"] = data["hourly"]["time"][:50]
