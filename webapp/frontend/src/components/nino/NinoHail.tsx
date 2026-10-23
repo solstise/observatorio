@@ -44,6 +44,7 @@ export function NinoHail({ hail, alert, hailSeen, now }: { hail: Hail | null; al
       <div className={styles.detailsBody}>
         <p>Es el índice SHIP que usa el Centro de Predicción de Tormentas de EE. UU. (NOAA). Combina la energía disponible para tormentas, la humedad, el enfriamiento con la altura y el cambio del viento con la altura. Con 1 o más, el ambiente favorece granizo grande, de 5 cm o más; entre 0,5 y 1 es moderado. Puede caer granizo chico con valores más bajos.</p>
         <p>No es la probabilidad de que caiga granizo en tu casa: dice si el ambiente que prevé cada modelo lo favorece. Mostramos los tres modelos para que se vea cuándo coinciden y cuándo no. Las alertas por granizo son las del SMN.</p>
+        <p>Arriba, en la ventana principal, la “chance de granizo” de las próximas 12 horas es el nivel más alto que alcanzan al menos dos de los tres modelos. Si el aeropuerto informó granizo, eso va primero.</p>
       </div>
     </details>
   </section>;

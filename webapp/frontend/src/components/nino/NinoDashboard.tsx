@@ -132,7 +132,7 @@ export function NinoDashboard({ snapshot, barrios, zones, facilities, events, re
       </nav>
     </header>
 
-    <NinoNow live={live} hero={hero} now={clock} climate={climate} loading={loading} />
+    <NinoNow live={live} hero={hero} now={clock} climate={climate} hail={hail} loading={loading} />
 
     <div className={styles.duo}>
       <NinoLightning rayos={live?.rayos} metar={live?.metar.datos} now={clock} />
