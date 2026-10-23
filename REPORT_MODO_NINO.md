@@ -228,3 +228,38 @@ Además se corrigió que el snapshot tomaba un período futuro vacío de Dynamic
 - `scripts/verify_nino_clarity.cjs` adaptado (MapLibre, filtros, simulador) y aprobado sin errores de JavaScript, localmente y contra producción en modo solo lectura. Evidencias en `docs/capturas-nino-v3/`.
 - Merge `f2ecb48` sin force push. [Run 39900667987](https://github.com/solstise/observatorio/actions/runs/39900667987) aprobado; contenedor iniciado el 23/10/2026 a las 01:38:34 ART, imagen `sha256:936984c85e7d758d23c8ff21617b824ce417c102aaa75c84bba61a1d855196ab`. Smoke: cinco rutas 200, snapshot con 0,13 h, seis fuentes en vivo `ok`, OG PNG válida; `granizo.json`, `escurrimiento_barrios.json` y `arroyos_nino.geojson` servidos.
 - Rollback: imagen anterior `sha256:0cfd211b74a01b329788cc88c954e815ad114bca5ebf405a19309b5d2afed1db` etiquetada `apps-observatorio:rollback-nino-interactiva-20261023` (mismo procedimiento que arriba, cambiando la etiqueta).
+
+## Registro de lluvia 2000–2026 y control de calidad — 23/10/2026
+
+Pedido: que "¿es mucho?" se apoye en un registro largo y confiable de la estación, sin inventar ni corregir datos. Ramas `fix/nino-control-synop` y `fix/nino-registro-isd`.
+
+### Registro
+
+- Fuente principal: el ISD de la NOAA, que guarda el texto original de los SYNOP y METAR de Posadas Aero (87178) en un archivo por año; cubre del 1/1/2000 al 24/08/2025. Ogimet completa los huecos del ISD (sobre todo sep-2018 a feb-2019) y todo lo posterior.
+- Resultado: 9.763 días (8.866 desde el ISD y 897 desde Ogimet); 30 días sin ningún mensaje, todos entre marzo y junio de 2007. ISD y Ogimet coinciden en 8.834 de 8.842 días comparables.
+- Frente al registro anterior, que salía solo de Ogimet, coinciden 8.900 de 8.909 días. Las nueve diferencias son errores del decodificador viejo: leía como lluvia grupos que vienen después de la sección 3 (51,8 mm el 19/06/2010, 91,8 mm el 01/06/2022 y 141,7 mm el 29/04/2025, con la estación informando que no llovió) y mensajes con dos "333" pegados (181,7 mm el 11/05/2001).
+- Los 291 días de 2026 que ya estaban en producción quedaron iguales.
+
+### Control de calidad
+
+Reglas en `/datos/metodologia#control-lluvia`. Los totales de 24 h se contrastan con las partes de 6 h, con el tiempo presente informado y con la intensidad del METAR de cada hora. 62 días quedan descartados y se muestran como "Dato descartado"; 160 no tienen total de 24 h. Se descartan, por ejemplo, 919 mm el 12/05/2004 y 371 mm el 26/10/2008, y también el 31/07/2014, que no tiene ninguna señal de lluvia. Se conservan 223 mm el 21/10/2017, coherentes con los más de 320 mm que informó el SMN para la tormenta, y 270 mm el 07/10/2009. Este último se avisa, porque Encarnación midió 26 mm ese día.
+
+### Climatología
+
+- Años usados: 25, del 2000 al 2025 sin 2007, porque solo cuentan los años con 90 % de los días informados.
+- Lluvia anual: el promedio de los días informados da 1.838 mm. El máximo es 2014, con 3.033 mm.
+- Días con mucha lluvia, por año: 21 con 30 mm o más, 9,6 con 50 mm, 3,2 con 75 mm, 1,4 con 100 mm y 0,4 con 150 mm.
+- Octubre: mediana de 221 mm (p25 151, p75 314).
+
+En producción, hoy: 50 mm en 24 h ("Pasa unas 10 veces por año en Posadas") y octubre con 350 mm, contra 221 mm en un octubre típico.
+
+### Validación y producción
+
+- `pytest tests/test_nino_tiempo_real.py` (18 aprobados), `node --test` (15 aprobados), `tsc`, `next lint` y `npm run build` aprobados.
+- Commits `521a867`, `0349f8a` y `39bb193`; merge `d7e7a67` a `main` sin force push. El registro reconstruido se subió a la rama `data` (`e98abb9`).
+- El paso de lluvia del workflow tiene ahora límite propio de 12 minutos y no frena el resto. Con el registro presente solo baja lo reciente: en esta corrida tardó 11 segundos.
+- [Run 39935233429](https://github.com/solstise/observatorio/actions/runs/39935233429) aprobado al primer intento. Contenedor iniciado el 23/10/2026 a las 07:04:58 ART, imagen `sha256:3dbcc44547fca6017736a56713813fe97dabfc656099c8f27fb5c9538faf4247`.
+- Smoke: cinco rutas 200, snapshot con 0,16 h, seis fuentes en vivo `ok`, OG PNG válida y `climatologia.json` servido con 25 años. `scripts/verify_nino_clarity.cjs` contra producción en modo solo lectura: aprobado, sin errores de JavaScript.
+- Rollback: imagen anterior `sha256:936984c85e7d758d23c8ff21617b824ce417c102aaa75c84bba61a1d855196ab` etiquetada `apps-observatorio:rollback-nino-registro-isd-20261023` (mismo procedimiento que arriba, cambiando la etiqueta).
+
+Límites: es un solo punto, el aeropuerto. El registro no reemplaza a las estadísticas oficiales del SMN. 2007 queda afuera: tiene 77 % de los días con total válido y los huecos no están en ninguna de las dos fuentes.
