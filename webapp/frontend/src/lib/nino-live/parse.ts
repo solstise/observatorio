@@ -244,9 +244,13 @@ export function parseSynop(text: string, station = "87178"): SynopReport[] {
     const groups = parts[6].split(/\s+/);
     if (groups[0] !== "AAXX" || groups.length < 5) continue;
     const body = groups.slice(3);
+    // Sección 1 hasta "333"; sección 3 hasta "444" o "555" (la 555 es nacional:
+    // su grupo 7 no es lluvia y leerlo así inventaba totales).
+    const stop = (list: string[], marks: string[]) => { const i = list.findIndex(g => marks.includes(g)); return i < 0 ? list.length : i; };
     const s3 = body.indexOf("333");
-    const s1 = s3 >= 0 ? body.slice(0, s3) : body;
-    const sec3 = s3 >= 0 ? body.slice(s3 + 1) : [];
+    const s1 = body.slice(0, stop(body, ["333", "444", "555"]));
+    const rest = s3 >= 0 ? body.slice(s3 + 1) : [];
+    const sec3 = rest.slice(0, stop(rest, ["444", "555"]));
     const lluvia: Record<number, number> = {};
     let ww: number | null = null;
     let next = 1;
@@ -264,6 +268,7 @@ export function parseSynop(text: string, station = "87178"): SynopReport[] {
   return out.sort((a, b) => a.utc.localeCompare(b.utc));
 }
 
+const MAX_BLOQUE_6H = 200;
 const WW_TORMENTA = new Set([17, 29, 91, 92, 93, 94, 95, 96, 97, 98, 99]);
 const WW_GRANIZO = new Set([27, 87, 88, 89, 90, 93, 94, 96, 99]);
 const HOUR = 3_600_000;
@@ -282,7 +287,11 @@ export function rainBlocks(reports: SynopReport[]): RainBlock[] {
     if (hour !== 12) mm = r.lluvia[6] ?? null;
     else if (r.lluvia[24] !== undefined) {
       const prev = [18, 12, 6].map(back => byTime.get(t - back * HOUR)?.lluvia[6]);
-      if (prev.every(v => v !== undefined)) mm = Math.max(0, Math.round((r.lluvia[24] - prev.reduce((a, b) => a! + b!, 0)!) * 10) / 10);
+      if (prev.every(v => v !== undefined)) {
+        // Control de calidad: si el total no cuadra con sus partes, el bloque queda sin dato.
+        const derived = r.lluvia[24] - prev.reduce((a, b) => a! + b!, 0)!;
+        mm = derived < -1 || derived > MAX_BLOQUE_6H ? null : Math.max(0, Math.round(derived * 10) / 10);
+      }
     }
     blocks.push({ desde: iso(t - 6 * HOUR), hasta: iso(t), mm });
   }

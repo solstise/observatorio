@@ -100,6 +100,21 @@ test("SYNOP: un bloque sin informar no se convierte en cero", () => {
   assert.equal(summary.totales.find(t => t.horas === 24).completo, false);
 });
 
+test("SYNOP: la sección 555 no es lluvia y un total incoherente queda sin dato", () => {
+  // 02/03/2017: sin lluvia (iR=3); 72518 está en la sección nacional 555.
+  const r = parseSynop("87178,2017,03,02,12,00,AAXX 02124 87178 32970 10506 10262 20227 39934 40076 52012 81070 333 10283 20237 56000 81360 555 10090 60851 72518=");
+  assert.equal(r[0].lluvia[24], 0);
+  // 12/05/2004: 919 mm en 24 h con 0 + 0 + 0,3 mm en las partes de 6 h.
+  const lines = [
+    "87178,2004,05,11,18,00,AAXX 11184 87178 32970 70909 10247 20169 39966 40111 57032 87070 333 56070 87360=",
+    "87178,2004,05,12,00,00,AAXX 12004 87178 32970 80906 10209 20172 39972 40117 51005 8807/ 333 10250 20187 56009 88360=",
+    "87178,2004,05,12,06,00,AAXX 12064 87178 11270 81104 10196 20185 39954 40097 57017 69931 72052 8467/ 333 56009 84704 88360 96450=",
+    "87178,2004,05,12,12,00,AAXX 12124 87178 01230 81602 10196 20187 39972 40116 52013 69194 71052 886// 333 10210 20192 56099 69961 84705 88610=",
+  ].join("\n");
+  const block = rainBlocks(parseSynop(lines)).find(b => b.hasta === "2004-05-12T12:00:00.000Z");
+  assert.equal(block.mm, null);
+});
+
 test("METAR: tormenta actual y descripción en castellano", () => {
   const rows = JSON.parse(fixture("metar_sarp.json"));
   const latest = Math.max(...rows.map(r => r.obsTime)) * 1000;

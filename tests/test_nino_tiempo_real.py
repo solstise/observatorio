@@ -146,3 +146,36 @@ def test_climatologia_solo_usa_anios_completos():
     assert 200.0 not in datos["diarios_desde_10mm"]
     assert datos["tres_dias_desde_20mm"] == [60.0] * 6
     assert datos["mensual"]["04"]["mediana"] == 60.0
+
+
+# Mensajes reales con errores, tal como los publica Ogimet.
+SYNOP_2017_555 = (
+    "87178,2017,03,02,12,00,AAXX 02124 87178 32970 10506 10262 20227 39934 40076 52012 "
+    "81070 333 10283 20237 56000 81360 555 10090 60851 72518="
+)
+SYNOP_2004 = [
+    "87178,2004,05,11,18,00,AAXX 11184 87178 32970 70909 10247 20169 39966 40111 57032 87070 333 56070 87360=",
+    "87178,2004,05,12,00,00,AAXX 12004 87178 32970 80906 10209 20172 39972 40117 51005 8807/ 333 10250 20187 56009 88360=",
+    "87178,2004,05,12,06,00,AAXX 12064 87178 11270 81104 10196 20185 39954 40097 57017 69931 72052 8467/ 333 56009 84704 88360 96450=",
+    "87178,2004,05,12,12,00,AAXX 12124 87178 01230 81602 10196 20187 39972 40116 52013 69194 71052 886// 333 10210 20192 56099 69961 84705 88610=",
+]
+
+
+def test_seccion_555_no_es_lluvia():
+    r = obs.decodificar(SYNOP_2017_555)
+    # iR=3: sin lluvia. El grupo 72518 de la sección 555 no es un total de 24 h.
+    assert r["mm_24h"] == 0
+
+
+def test_total_incoherente_con_sus_partes_queda_sin_dato():
+    dias = {d["fecha"]: d for d in obs.resumir_por_dia([obs.decodificar(x) for x in SYNOP_2004])}
+    # 919 mm informados con 0 + 0 + 0,3 mm en los grupos de 6 h: error de tipeo.
+    assert dias["2004-05-12"]["mm"] is None
+    assert obs.control_dia(75, [3, 25, 30]) == 75
+    assert obs.control_dia(414, [0, 14, 0]) is None
+    assert obs.control_dia(5, [10]) is None
+    assert obs.control_dia(250, []) == 250
+    assert obs.control_dia(400, []) is None
+    # Día partido entre consultas (falta la parte de las 18 UTC): solo el tope general.
+    assert obs.control_dia(280, [40, 30], completas=False) == 280
+    assert obs.control_dia(280, [40, 30], completas=True) is None
