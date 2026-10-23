@@ -248,9 +248,7 @@ def ship(cape, punto_rocio, presion, t500, t700, z500, z700, v500, d500, v10, d1
     cizalla = np.hypot(u5 - u0, w5 - w0)
     mezcla = razon_mezcla(np.asarray(punto_rocio, float), np.asarray(presion, float))
     t500c = np.minimum(np.asarray(t500, float), -5.5)
-    valor = (
-        cape * np.clip(mezcla, 11, 13.6) * lapse * (-t500c) * np.clip(cizalla, 7, 27) / 42e6
-    )
+    valor = cape * np.clip(mezcla, 11, 13.6) * lapse * (-t500c) * np.clip(cizalla, 7, 27) / 42e6
     valor = np.where(cape < 1300, valor * cape / 1300, valor)
     valor = np.where(lapse < 5.8, valor * lapse / 5.8, valor)
     nivel_0c = np.asarray(nivel_0c, dtype=float)
