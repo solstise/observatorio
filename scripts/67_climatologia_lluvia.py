@@ -77,7 +77,7 @@ def climatologia(tabla):
             }
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "fuente": "SMN, estación Posadas Aero (SYNOP 87178 vía Ogimet), día de 9 a 9 h",
+        "fuente": "SMN, estación Posadas Aero (SYNOP 87178 vía NOAA ISD y Ogimet), día de 9 a 9 h",
         "primer_dato": str(serie.first_valid_index().date()),
         "anios_completos": completos,
         "n_anios": len(completos),
