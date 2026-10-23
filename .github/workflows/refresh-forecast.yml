@@ -155,13 +155,21 @@ jobs:
             echo "::warning::scripts/58_alertas_clima.py no existe todavía (lo crea L1). Saltando."
           fi
 
-      - name: Lluvia medida (SMN Posadas Aero) y modelo WRF del SMN
+      - name: Lluvia medida (SMN Posadas Aero)
+        # Ogimet es lento: el paso tiene su propio límite y no frena el resto. El script
+        # guarda cada tramo, así que si se corta la próxima corrida sigue desde ahí.
+        timeout-minutes: 12
+        continue-on-error: true
         run: |
-          # Si el registro no existe todavía, se completa desde el 1/1/2000 (unos 30 min).
+          # Si el registro no existe todavía, se rehace desde 2000 con el ISD de la NOAA
+          # y, para los huecos y lo reciente, Ogimet.
           registro=webapp/frontend/public/data/nino/lluvia_observada_diaria.csv
-          desde=$([[ -f "$registro" ]] || echo "--desde 2000-01-01 --tramo-dias 120")
+          desde=$([[ -f "$registro" ]] || echo "--historico 2000")
           python scripts/63_lluvia_observada.py $desde \
             || echo "::warning::Ogimet no respondió; se conserva el registro anterior."
+
+      - name: Modelo WRF del SMN, granizo y climatología
+        run: |
           # El WRF publica estado no_disponible si no hay corrida completa: no falla el job.
           python scripts/64_wrf_smn.py
           # Granizo (SHIP con GFS, ECMWF e ICON) y climatología del registro de la estación.
