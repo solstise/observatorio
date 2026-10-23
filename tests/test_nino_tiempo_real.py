@@ -215,7 +215,14 @@ SYNOP_2008 = [
 ]
 METAR_2008 = [
     f"SARP,2008,10,26,{h:02d},00,METAR SARP 26{h:02d}00Z 11008KT 8000 {tiempo} SCT020 OVC040 SCT045CB 20/19 Q1008"
-    for h, tiempo in [(7, "-TSRA"), (8, "TSRA"), (9, "-TSRA"), (10, "-TSRA"), (11, "-TSRA"), (12, "-TSRA")]
+    for h, tiempo in [
+        (7, "-TSRA"),
+        (8, "TSRA"),
+        (9, "-TSRA"),
+        (10, "-TSRA"),
+        (11, "-TSRA"),
+        (12, "-TSRA"),
+    ]
 ]
 
 
