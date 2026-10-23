@@ -276,3 +276,21 @@ test("frecuencia empírica de lluvias", async () => {
   assert.equal(m.frequencyText(50, values, 2), "Pasa unas 4 veces por año");
   assert.equal(m.frequencyText(200, values, 20), "No pasó en los 20 años con registro completo");
 });
+
+test("granizo en las próximas 12 horas: consenso de al menos dos modelos", async () => {
+  const { hailNext } = await import("../../src/lib/nino-presentation.ts");
+  const now = Date.parse("2026-10-23T10:30:00-03:00");
+  // Horas locales de Open-Meteo: 10:00 a 23:00 del 23/10.
+  const serie = peak => ({ nombre: "x", horas: Array.from({ length: 14 }, (_, i) => ({ time: `2026-10-23T${String(10 + i).padStart(2, "0")}:00`, ship: i === 6 ? peak : 0.1 })) });
+  const hail = modelos => ({ generated_at: "", estado: "disponible", cortes: { moderado: 0.5, alto: 1 }, modelos, dias: [] });
+  // GFS 0,57, ECMWF 0,97 e ICON 0,09 (23/10): dos modelos llegan a moderado.
+  assert.deepEqual(hailNext(hail({ gfs: serie(0.57), ecmwf: serie(0.97), icon: serie(0.09) }), now), { nivel: "moderado", modelos: 3 });
+  // Un solo modelo en alto no alcanza: queda el nivel que comparten dos.
+  assert.equal(hailNext(hail({ gfs: serie(1.4), ecmwf: serie(0.2), icon: serie(0.1) }), now).nivel, "bajo");
+  assert.equal(hailNext(hail({ gfs: serie(1.4), ecmwf: serie(1.1), icon: serie(0.1) }), now).nivel, "alto");
+  // El pico de las 16:00 queda fuera de una ventana de 3 horas.
+  assert.equal(hailNext(hail({ gfs: serie(1.4), ecmwf: serie(1.1) }), now, 3).nivel, "bajo");
+  // Pronóstico vencido o sin modelos: sin dato, nunca "bajo".
+  assert.deepEqual(hailNext(hail({ gfs: serie(1.4) }), Date.parse("2026-10-25T10:00:00-03:00")), { nivel: null, modelos: 0 });
+  assert.deepEqual(hailNext(null, now), { nivel: null, modelos: 0 });
+});

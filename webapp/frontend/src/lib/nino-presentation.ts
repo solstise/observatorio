@@ -1,4 +1,4 @@
-import type { NinoLevel } from "./nino-types";
+import type { HailLevel, NinoHail, NinoLevel } from "./nino-types";
 import type { AlertColor, SmnAlert } from "./nino-live/parse";
 import type { NinoAhora } from "./nino-live/types";
 
@@ -65,6 +65,29 @@ export function agoText(time: string | null, now: number) {
   const hours = Math.round(minutes / 60);
   if (hours < 24) return `hace ${hours} h`;
   return `hace ${Math.round(hours / 24)} días`;
+}
+
+// Ambiente para granizo en las próximas horas: el nivel más alto que alcanzan al menos dos
+// modelos (o el único disponible), igual que el consenso diario de 66_ambiente_granizo.py.
+// Las horas de Open-Meteo vienen en hora de Posadas (UTC−3, sin horario de verano).
+const HAIL_ORDER: HailLevel[] = ["bajo", "moderado", "alto"];
+export function hailNext(hail: NinoHail | null, now: number, hours = 12): { nivel: HailLevel | null; modelos: number } {
+  const cuts = hail?.cortes ?? { moderado: 0.5, alto: 1 };
+  const levels = Object.values(hail?.modelos ?? {}).flatMap(model => {
+    const values = model.horas
+      .filter(h => {
+        const t = Date.parse(`${h.time}:00-03:00`);
+        return t > now - 3_600_000 && t <= now + hours * 3_600_000;
+      })
+      .map(h => h.ship)
+      .filter((v): v is number => v != null && Number.isFinite(v));
+    if (!values.length) return [];
+    const max = Math.max(...values);
+    return [max >= cuts.alto ? "alto" : max >= cuts.moderado ? "moderado" : "bajo"] satisfies HailLevel[];
+  });
+  if (levels.length <= 1) return { nivel: levels[0] ?? null, modelos: levels.length };
+  const reached = (level: HailLevel) => levels.filter(l => HAIL_ORDER.indexOf(l) >= HAIL_ORDER.indexOf(level)).length;
+  return { nivel: [...HAIL_ORDER].reverse().find(level => reached(level) >= 2) ?? "bajo", modelos: levels.length };
 }
 
 export const RAIN_COPY: Record<NinoLevel, { title: string; description: string }> = {
