@@ -29,7 +29,7 @@ def anios_completos(serie):
     for anio, grupo in serie.groupby(serie.index.year):
         if anio >= hoy.year:
             continue
-        dias = 366 if pd.Timestamp(anio, 12, 31).dayofyear == 366 else 365
+        dias = 366 if pd.Timestamp(anio, 12, 31).day_of_year == 366 else 365
         if grupo.notna().sum() / dias >= COMPLETITUD:
             resultado.append(int(anio))
     return resultado
