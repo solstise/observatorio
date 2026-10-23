@@ -95,9 +95,10 @@ ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=3 "$VPS_HOST" "
   docker ps --filter name=$APP_NAME --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
   # Cada build deja la imagen anterior (~6 GB con los datos) sin etiqueta: el 23/10/2026
   # llenaron el disco y frenaron el deploy. Solo se borra lo que no tiene etiqueta ni
-  # contenedor y la caché de build de más de un día; nunca volúmenes ni imágenes etiquetadas.
+  # contenedor y la caché de build que pase de 10 GB (queda la más reciente); nunca
+  # volúmenes ni imágenes etiquetadas.
   docker image prune -f | tail -1
-  docker builder prune -f --filter until=24h | tail -1
+  docker builder prune -f --max-used-space 10gb | tail -1
   df -h / | tail -1
 "
 
