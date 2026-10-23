@@ -68,6 +68,15 @@ checks.push('Cantidades pequeñas, cero y dato ausente se distinguen; búsqueda 
     await expect(page.locator('#mapa')).not.toContainText('Zonas bajas o cerca de arroyos');
     await water.click();
     await runoff.click();
+    // Anegamientos: caminos del agua y obras del municipio, con su explicación y validación.
+    const flooding = page.getByRole('button', { name: 'Anegamientos', exact: true });
+    await expect(flooding).toHaveAttribute('aria-pressed', 'false');
+    await flooding.click();
+    await expect(page.locator('#mapa')).toContainText('Por dónde baja el agua en una tormenta');
+    await expect(page.locator('#mapa')).toContainText('No hay un registro público de dónde se anega Posadas');
+    await expect(page.locator('#mapa')).toContainText(/de las obras de desagüe que hizo el municipio/);
+    await flooding.click();
+    await expect(page.locator('#mapa')).not.toContainText('Por dónde baja el agua en una tormenta');
     checks.push('Buscar sin tildes, mostrar más, localizar barrio en mapa y simulador, y prender o apagar capas.');
 
     await page.getByLabel('Nombre del barrio', { exact: true }).fill('Villa Mola');
@@ -86,7 +95,7 @@ checks.push('Cantidades pequeñas, cero y dato ausente se distinguen; búsqueda 
     await expect(page.locator('#ahora h2')).not.toHaveText('');
     await expect(page.locator('#lo-que-llovio').getByRole('button', { name: '24 horas', exact: true })).toBeVisible();
     await expect(page.locator('#rio')).toBeVisible();
-    await expect(page.locator('#fuentes [aria-label="Estado de cada fuente"] > li')).toHaveCount(11);
+    await expect(page.locator('#fuentes [aria-label="Estado de cada fuente"] > li')).toHaveCount(12);
     const lightningFilter = page.getByRole('button', { name: 'Rayos', exact: true });
     await expect(page.locator('#mapa').getByText(/Rayos hace:/)).toHaveCount(0);
     await lightningFilter.click();

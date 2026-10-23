@@ -8,10 +8,14 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { useTheme } from "@/hooks/useTheme";
 import { LIGHTNING_COLORS } from "@/lib/nino-presentation";
 
-export type MapLayerKey = "agua" | "escurrimiento" | "rayos" | "lugares";
+export type MapLayerKey = "agua" | "anegamientos" | "escurrimiento" | "rayos" | "lugares";
 
 const STYLE = { light: "https://tiles.openfreemap.org/styles/positron", dark: "https://tiles.openfreemap.org/styles/dark" };
 const WATER = { light: "#bfd9e8", dark: "#1b3550" };
+// Caminos del agua según el terreno (script 68) y obras de desagüe del municipio;
+// la leyenda usa los mismos colores (--nino-path y --nino-works).
+const WATER_PATH = { light: "#0f766e", dark: "#5eead4" };
+const DRAIN_WORKS = { light: "#475569", dark: "#cbd5e1" };
 const POSADAS: [number, number] = [-55.8967, -27.3667];
 // Secuencia de guiones que avanza: así se ve el agua corriendo en el sentido del arroyo.
 const DASHES: number[][] = [
@@ -55,11 +59,21 @@ function NinoMapGL({ barrios, zones, facilities, lightning, runoff, layers, sele
   const { resolved } = useTheme();
   const theme = resolved === "dark" ? "dark" : "light";
   const [arroyos, setArroyos] = useState<FeatureCollection | null>(null);
+  const [paths, setPaths] = useState<FeatureCollection | null>(null);
+  const [works, setWorks] = useState<FeatureCollection | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     fetch("/data/nino/arroyos_nino.geojson").then(r => (r.ok ? r.json() : null)).then(setArroyos).catch(() => setArroyos(null));
   }, []);
+
+  // Se bajan recién cuando se prende el filtro.
+  useEffect(() => {
+    if (!layers.anegamientos || paths) return;
+    const get = (url: string) => fetch(url).then(r => (r.ok ? r.json() : null)).catch(() => null);
+    get("/data/nino/anegamientos_terreno.geojson").then(setPaths);
+    get("/data/nino/obras_pluviales.geojson").then(setWorks);
+  }, [layers.anegamientos, paths]);
 
   const barriosData = useMemo<FeatureCollection>(() => ({
     type: "FeatureCollection",
@@ -159,6 +173,17 @@ function NinoMapGL({ barrios, zones, facilities, lightning, runoff, layers, sele
       <Layer id="arroyos-base" type="line" layout={{ "line-cap": "round", "line-join": "round" }} paint={{ "line-color": "#2f86c0", "line-width": ["interpolate", ["linear"], ["zoom"], 11, 1.2, 15, 3.5], "line-opacity": 0.55 }} />
       <Layer id="arroyos-flujo" type="line" layout={{ "line-cap": "butt", "line-join": "round" }} paint={{ "line-color": theme === "dark" ? "#bfe6ff" : "#ffffff", "line-width": ["interpolate", ["linear"], ["zoom"], 11, 0.8, 15, 2.2], "line-dasharray": DASHES[0] }} />
       <Layer id="arroyos-nombre" type="symbol" minzoom={13} layout={{ "symbol-placement": "line", "text-field": ["get", "nombre"], "text-font": ["Noto Sans Italic"], "text-size": 12 }} paint={{ "text-color": "#1f6fa3", "text-halo-color": theme === "dark" ? "#0e1320" : "#ffffff", "text-halo-width": 1.5 }} />
+    </Source>}
+    {layers.anegamientos && paths && <Source id="caminos" type="geojson" data={paths}>
+      <Layer id="caminos-line" type="line" filter={["==", ["get", "sobre_arroyo"], false]} layout={{ "line-cap": "round", "line-join": "round" }} paint={{
+        "line-color": WATER_PATH[theme],
+        "line-width": ["interpolate", ["linear"], ["zoom"], 11, ["match", ["get", "clase"], "grande", 2.6, "medio", 1.8, 1], 15, ["match", ["get", "clase"], "grande", 6, "medio", 4.5, 3]],
+        "line-opacity": 0.9,
+      }} />
+    </Source>}
+    {layers.anegamientos && works && <Source id="obras" type="geojson" data={works}>
+      <Layer id="obras-line" type="line" filter={["==", ["geometry-type"], "LineString"]} paint={{ "line-color": DRAIN_WORKS[theme], "line-width": 2, "line-dasharray": [1, 1] }} />
+      <Layer id="obras-punto" type="circle" filter={["==", ["geometry-type"], "Point"]} paint={{ "circle-radius": ["interpolate", ["linear"], ["zoom"], 11, 2, 15, 4.5], "circle-color": DRAIN_WORKS[theme], "circle-stroke-color": theme === "dark" ? "#0e1320" : "#ffffff", "circle-stroke-width": 1 }} />
     </Source>}
     {layers.lugares && <Source id="lugares" type="geojson" data={facilities}>
       <Layer id="lugares-punto" type="circle" minzoom={12} paint={{ "circle-radius": 4, "circle-color": "#6d4c9f", "circle-stroke-color": "#fff", "circle-stroke-width": 1 }} />

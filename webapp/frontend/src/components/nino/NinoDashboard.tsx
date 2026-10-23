@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Feature, FeatureCollection } from "geojson";
-import type { NinoClimate, NinoConfig, NinoEvent, NinoHail as Hail, NinoHydro, NinoObservedDay, NinoSnapshot } from "@/lib/nino-types";
+import type { NinoClimate, NinoConfig, NinoEvent, NinoHail as Hail, NinoHydro, NinoObservedDay, NinoSnapshot, WaterPathsCheck } from "@/lib/nino-types";
 import type { NinoAhora } from "@/lib/nino-live/types";
 import { insidePolygon } from "@/lib/nino-live/parse";
 import { type Amc, amcFromAntecedent, barrioRunoff } from "@/lib/nino-escurrimiento";
@@ -26,6 +26,7 @@ const NinoMapGL = dynamic(() => import("./NinoMapGL"), { ssr: false, loading: ()
 const REFRESH_MS = 3 * 60_000;
 const LAYERS: Array<{ key: MapLayerKey; label: string }> = [
   { key: "agua", label: "Arroyos y zonas bajas" },
+  { key: "anegamientos", label: "Anegamientos" },
   { key: "escurrimiento", label: "Cuánto escurre" },
   { key: "rayos", label: "Rayos" },
   { key: "lugares", label: "Escuelas y salud" },
@@ -66,7 +67,8 @@ export function NinoDashboard({ snapshot, barrios, zones, facilities, events, re
   const [now, setNow] = useState<number | null>(null);
   const [live, setLive] = useState<NinoAhora | null>(initialLive);
   const [loading, setLoading] = useState(!initialLive);
-  const [layers, setLayers] = useState<Record<MapLayerKey, boolean>>({ agua: true, escurrimiento: false, rayos: false, lugares: false });
+  const [layers, setLayers] = useState<Record<MapLayerKey, boolean>>({ agua: true, anegamientos: false, escurrimiento: false, rayos: false, lugares: false });
+  const [pathsCheck, setPathsCheck] = useState<WaterPathsCheck | null>(null);
   const [selectedId, setSelectedId] = useState("");
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [locating, setLocating] = useState<"idle" | "busy" | "fuera" | "error">("idle");
@@ -98,6 +100,12 @@ export function NinoDashboard({ snapshot, barrios, zones, facilities, events, re
     document.addEventListener("visibilitychange", onVisible);
     return () => { clearInterval(clock); clearInterval(timer); document.removeEventListener("visibilitychange", onVisible); };
   }, [initialLive, refresh]);
+
+  // Validación de los caminos del agua contra las obras del municipio (script 68).
+  useEffect(() => {
+    if (!layers.anegamientos || pathsCheck) return;
+    fetch("/data/nino/anegamientos_terreno.json").then(r => (r.ok ? r.json() : null)).then(data => setPathsCheck(data?.validacion_obras ?? null)).catch(() => setPathsCheck(null));
+  }, [layers.anegamientos, pathsCheck]);
 
   const timestamp = Date.parse(snapshot?.generated_at ?? "");
   const fresh = now !== null && Number.isFinite(timestamp) && now - timestamp <= 86_400_000 && timestamp - now <= 300_000;
@@ -157,10 +165,17 @@ export function NinoDashboard({ snapshot, barrios, zones, facilities, events, re
       <div className={styles.mapLegend}>
         {layers.agua && <span><i className={styles.legendFlow} />Arroyos: el agua se mueve en el sentido de la corriente</span>}
         {layers.agua && <span><i style={{ background: "#3a9bd1", opacity: 0.45 }} />Zonas bajas o cerca de arroyos</span>}
+        {layers.anegamientos && <span><i className={styles.legendPath} />Por dónde baja el agua en una tormenta, fuera de los arroyos (según el terreno)</span>}
+        {layers.anegamientos && <span><i className={`${styles.legendDot} ${styles.legendWorks}`} />Obras de desagüe del municipio, 2019–2025</span>}
         {layers.escurrimiento && <span><i className={styles.legendRamp} />Escurre con {simMm} mm: poco → mucho</span>}
         {layers.rayos && <span>Rayos hace: {LIGHTNING_COLORS.map(([limit, color], index) => <span key={limit} className={styles.legendInline}><i className={styles.legendDot} style={{ background: color }} />{index === 0 ? `0–${limit}` : `${LIGHTNING_COLORS[index - 1][0]}–${limit}`} min</span>)} · anillos de 15 y 30 km</span>}
         {layers.lugares && <span><i className={styles.legendDot} style={{ background: "#6d4c9f" }} />Escuelas y salud (no son refugios oficiales)</span>}
       </div>
+      {layers.anegamientos && <p className={styles.footnote}>
+        No hay un registro público de dónde se anega Posadas. Estas líneas muestran por dónde baja y se junta el agua según el relieve: es donde primero se acumula cuando los desagües no alcanzan.
+        {pathsCheck?.obras_cerca_pct != null && ` El ${num(pathsCheck.obras_cerca_pct)} % de las obras de desagüe que hizo el municipio está a menos de 60 m de una de ellas, contra el ${num(pathsCheck.edificios_cerca_pct)} % de las casas.`}
+        {" "}Probamos también el radar satelital y no sirvió para ver agua en las calles. <Link href="/datos/metodologia#anegamientos" className={styles.textLink}>Cómo se calcula</Link>
+      </p>}
       {selectedId && (selectedRow || selectedHydro) && <div className={styles.barrioCard}>
         <p className={styles.bigLine}>{selectedRow?.nombre ?? selectedHydro?.nombre}</p>
         <ul>
