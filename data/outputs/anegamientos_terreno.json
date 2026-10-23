@@ -1,0 +1,24 @@
+{
+ "generated_at": "2026-10-23T13:47:51+00:00",
+ "metodo": "Relleno de depresiones con prioridad (Barnes et al. 2014), D8 y área de aporte",
+ "terreno": "Copernicus GLO-30 2021 (modelo de superficie, 30 m)",
+ "cauces": "Arroyos oficiales de la IDE Posadas, marcados 3 m más abajo",
+ "aporte_minimo_ha": 10,
+ "clases_ha": {
+  "grande": 200,
+  "medio": 50,
+  "chico": 10
+ },
+ "validacion_obras": {
+  "obras": 911,
+  "edificios": 160705,
+  "obras_cerca_pct": 21.8,
+  "edificios_cerca_pct": 9.6,
+  "razon": 2.28
+ },
+ "fuentes": [
+  "Copernicus DEM GLO-30 (ESA / Airbus)",
+  "IDE Posadas: Arroyos_Posadas00, cuencas_hidrograficas_posadas10, obras_hidraulicos_Ejecutadas_gestion, obras_hidraulicas_Ejecutadas_linea",
+  "Google Open Buildings + Microsoft Building Footprints"
+ ]
+}

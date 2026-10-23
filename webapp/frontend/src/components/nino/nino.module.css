@@ -14,6 +14,8 @@
   --nino-tint: color-mix(in oklch, var(--color-primary) 5%, var(--color-bg));
   --nino-ink-soft: color-mix(in oklch, var(--color-text) 78%, var(--color-bg));
   --nino-soil: oklch(48% 0.07 45);
+  /* Mismos colores que WATER_PATH y DRAIN_WORKS del mapa (nino-presentation.ts). */
+  --nino-path: #0f766e; --nino-works: #475569;
   --tone-amarilla: oklch(84% 0.15 92); --tone-amarilla-ink: oklch(30% 0.06 75);
   --tone-naranja: oklch(73% 0.16 55); --tone-naranja-ink: oklch(28% 0.07 45);
   --tone-roja: oklch(60% 0.2 27); --tone-roja-ink: oklch(98% 0.01 27);
@@ -22,6 +24,7 @@
   padding-bottom: calc(96px + env(safe-area-inset-bottom));
 }
 :global(.dark) .page {
+  --nino-path: #5eead4; --nino-works: #cbd5e1;
   --nino-rain: oklch(72% 0.1 232);
   --nino-rain-strong: oklch(84% 0.08 232);
   --nino-rain-soft: oklch(45% 0.06 232);
@@ -305,6 +308,8 @@ a.chip:active { background: rgba(255,255,255,.2); }
 .mapLegend i.legendDot { width: 10px; height: 10px; border-radius: 50%; }
 .legendFlow { width: 22px !important; height: 4px !important; border-radius: 2px; background: repeating-linear-gradient(90deg, #2f86c0 0 6px, #ffffff 6px 9px); background-size: 9px 4px; animation: flowx 1s linear infinite; }
 @keyframes flowx { to { background-position: 9px 0; } }
+.legendPath { width: 22px !important; height: 4px !important; border-radius: 2px; background: var(--nino-path); }
+.legendWorks { background: var(--nino-works); }
 .legendRamp { width: 48px !important; background: linear-gradient(90deg, #e3f0f7, #4f97c4, #0b2f57); }
 .barrioCard { margin-top: var(--space-md); padding: 14px; border-radius: 16px; background: var(--nino-tint); }
 .barrioCard ul { display: grid; gap: 4px; margin-top: 6px; font-size: .9375rem; line-height: 1.45; }

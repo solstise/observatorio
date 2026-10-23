@@ -111,6 +111,10 @@ def main():
         # Capas estáticas de escurrimiento (script 65).
         "escurrimiento_barrios.json",
         "arroyos_nino.geojson",
+        # Caminos del agua según el terreno y obras pluviales del municipio (script 68).
+        "anegamientos_terreno.geojson",
+        "anegamientos_terreno.json",
+        "obras_pluviales.geojson",
     ):
         source = ROOT / "data/outputs" / name
         if source.exists():
