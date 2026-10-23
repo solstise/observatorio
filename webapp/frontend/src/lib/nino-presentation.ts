@@ -1,26 +1,71 @@
 import type { NinoLevel } from "./nino-types";
+import type { AlertColor, SmnAlert } from "./nino-live/parse";
+import type { NinoAhora } from "./nino-live/types";
+
+const TZ = "America/Argentina/Buenos_Aires";
 
 export const formatNinoNumber = (value: number | null | undefined) =>
   value == null || !Number.isFinite(value)
     ? "Sin datos"
     : value.toLocaleString("es-AR", { maximumFractionDigits: 1 });
 
+// Alturas del río: dos decimales, como las publica Prefectura.
+export const formatMeters = (value: number | null | undefined) =>
+  value == null || !Number.isFinite(value)
+    ? "Sin datos"
+    : value.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
 // No redondear una cantidad positiva muy pequeña a cero.
-export const formatRain = (value: number | null | undefined) =>
+export const formatRain =(value: number | null | undefined) =>
   value != null && value > 0 && value < 0.1 ? "menos de 0,1" : formatNinoNumber(value);
 
 export const ninoDate = (time: string) =>
   new Date(time).toLocaleString("es-AR", {
-    timeZone: "America/Argentina/Buenos_Aires",
+    timeZone: TZ,
     weekday: "short", day: "numeric", month: "short",
     hour: "2-digit", minute: "2-digit", hourCycle: "h23",
   }).replace(/\s/g, " ");
 
 export const ninoHour = (time: string) =>
   new Date(time).toLocaleString("es-AR", {
-    timeZone: "America/Argentina/Buenos_Aires",
+    timeZone: TZ,
     weekday: "short", hour: "2-digit", hourCycle: "h23",
   }).replace(/\s/g, " ");
+
+export const clockTime = (time: string) =>
+  new Date(time).toLocaleTimeString("es-AR", { timeZone: TZ, hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+
+const localDay = (ms: number) => new Date(ms).toLocaleDateString("en-CA", { timeZone: TZ });
+
+// "hoy", "mañana" o el día de la semana, para fechas AAAA-MM-DD en hora de Posadas.
+export function dayName(isoDate: string, now: number, capitalize = false) {
+  const today = localDay(now);
+  const tomorrow = localDay(now + 86_400_000);
+  const yesterday = localDay(now - 86_400_000);
+  const name = isoDate === today ? "hoy" : isoDate === tomorrow ? "mañana" : isoDate === yesterday ? "ayer"
+    : new Date(`${isoDate}T12:00:00-03:00`).toLocaleDateString("es-AR", { timeZone: TZ, weekday: "long", day: "numeric" });
+  return capitalize ? name.charAt(0).toUpperCase() + name.slice(1) : name;
+}
+
+// "hoy 22:42", "mañana 9:00", "sábado 24, 15:00".
+export function whenText(time: string | null, now: number) {
+  if (!time) return "sin fecha";
+  const ms = Date.parse(time);
+  if (!Number.isFinite(ms)) return "sin fecha";
+  const day = dayName(localDay(ms), now);
+  return `${/\d/.test(day) ? "el " : ""}${day} a las ${clockTime(time)}`;
+}
+
+export function agoText(time: string | null, now: number) {
+  if (!time) return "sin datos";
+  const minutes = Math.round((now - Date.parse(time)) / 60_000);
+  if (!Number.isFinite(minutes)) return "sin datos";
+  if (minutes < 1) return "recién";
+  if (minutes < 60) return `hace ${minutes} min`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `hace ${hours} h`;
+  return `hace ${Math.round(hours / 24)} días`;
+}
 
 export const RAIN_COPY: Record<NinoLevel, { title: string; description: string }> = {
   sin_umbral: {
@@ -50,6 +95,61 @@ export const IMPACT_LABEL: Record<NinoLevel, string> = {
   muy_alto: "Muy alto", a_verificar: "Sin datos suficientes",
 };
 
+export const ALERT_LABEL: Record<AlertColor, string> = {
+  roja: "Alerta roja", naranja: "Alerta naranja", amarilla: "Alerta amarilla", informativa: "Aviso",
+};
+
+// Rayos por antigüedad en minutos: rampa de un solo tono validada (más oscuro = más reciente).
+export const LIGHTNING_COLORS = [[15, "#7c2d12"], [30, "#c2410c"], [60, "#f97316"]] as const;
+export const lightningColor = (minutes: number) => LIGHTNING_COLORS.find(([limit]) => minutes <= limit)?.[1] ?? "#f97316";
+
 export function normalizeBarrio(value: string) {
-  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("es").trim();
+  return value.normalize("NFD").replace(/[̀-ͯ]/g, "").toLocaleLowerCase("es").trim();
+}
+
+export function alertHeadline(alert: SmnAlert) {
+  const event = alert.evento ? alert.evento.charAt(0).toUpperCase() + alert.evento.slice(1).toLowerCase() : "Fenómeno meteorológico";
+  return alert.tipo === "aviso_corto_plazo"
+    ? `Aviso ${alert.color === "informativa" ? "" : alert.color + " "}a muy corto plazo: ${event.toLowerCase()}`
+    : `${ALERT_LABEL[alert.color]} por ${event.toLowerCase()}`;
+}
+
+export type HeroTone = AlertColor | "tormenta" | "lluvia" | "calma" | "sin_datos";
+
+export interface HeroState { tone: HeroTone; title: string; detail: string }
+
+// Prioridad: alerta oficial vigente > alerta próxima > tormenta observada > pronóstico propio.
+export function heroState(live: NinoAhora | null, forecastLevel: NinoLevel, forecastFresh: boolean, now: number): HeroState {
+  const alerts = live?.alertas.datos?.posadas ?? [];
+  const active = alerts.filter(a => !a.inicio || Date.parse(a.inicio) <= now);
+  const upcoming = alerts.filter(a => a.inicio && Date.parse(a.inicio) > now);
+  if (active.length) {
+    const top = active[0];
+    return { tone: top.color, title: alertHeadline(top), detail: `El SMN la emitió para Posadas. Vigente hasta ${whenText(top.fin, now)}.` };
+  }
+  if (upcoming.length) {
+    const next = upcoming[0];
+    return { tone: next.color, title: alertHeadline(next), detail: `Empieza ${whenText(next.inicio, now)} y sigue hasta ${whenText(next.fin, now)}.` };
+  }
+  const lightning = live?.rayos.estado === "ok" ? live.rayos.datos : null;
+  const stormNow = live?.metar.datos?.tormenta_ultima_hora || (lightning?.cerca_15min ?? 0) > 0;
+  // Solo se afirma que no hay alerta si se leyeron todas las alertas del SMN.
+  const alertsComplete = live?.alertas.estado === "ok" && (live.alertas.datos?.pendientes ?? 0) === 0;
+  if (stormNow) {
+    const where = lightning?.mas_cercano_km != null ? ` El rayo más cercano cayó a ${lightning.mas_cercano_km} km.` : "";
+    const official = alertsComplete ? "Sin alerta del SMN para la ciudad en este momento." : "Todavía no pudimos confirmar las alertas del SMN.";
+    return { tone: "tormenta", title: "Hay tormenta en Posadas", detail: `${official}${where}` };
+  }
+  if (live?.alertas.estado === "sin_datos") {
+    return live.alertas.error
+      ? { tone: "sin_datos", title: "No pudimos consultar las alertas del SMN", detail: "Revisalas directamente en smn.gob.ar/alertas." }
+      : { tone: "sin_datos", title: "Consultando las alertas del SMN…", detail: "En unos segundos aparece si hay alertas para Posadas." };
+  }
+  if (!alertsComplete) {
+    return { tone: "sin_datos", title: "No pudimos revisar todas las alertas del SMN", detail: "Lo reintentamos en unos minutos. Mientras tanto, revisalas en smn.gob.ar/alertas." };
+  }
+  if (forecastFresh && ["atencion", "alto", "muy_alto"].includes(forecastLevel)) {
+    return { tone: "lluvia", title: RAIN_COPY[forecastLevel].title, detail: "Sin alertas del SMN para Posadas por ahora. Es una estimación de este observatorio." };
+  }
+  return { tone: "calma", title: "Sin alertas para Posadas", detail: "El SMN no tiene alertas vigentes para la ciudad." };
 }
