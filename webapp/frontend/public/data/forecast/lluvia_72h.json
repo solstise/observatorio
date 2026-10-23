@@ -3,10 +3,10 @@
   "lluvia_max_1h_p90": 13.03,
   "lluvia_max_3h": 15.6,
   "lluvia_max_3h_p90": 33.84,
-  "lluvia_24h": 42.95,
-  "lluvia_24h_p90": 72.45,
-  "lluvia_48h": 46.45,
-  "lluvia_48h_p90": 77.38,
+  "lluvia_24h": 42.75,
+  "lluvia_24h_p90": 71.87,
+  "lluvia_48h": 45.4,
+  "lluvia_48h_p90": 76.19,
   "nivel": "sin_umbral",
   "probabilidades": {
     "atencion": 35.9,
@@ -24,12 +24,12 @@
   "dias": [
     {
       "fecha": "2026-10-23",
-      "horas": 15,
-      "desde": "2026-10-23T09:00:00-03:00",
+      "horas": 14,
+      "desde": "2026-10-23T10:00:00-03:00",
       "hasta": "2026-10-24T00:00:00-03:00",
-      "p10": 2.4,
-      "p50": 11.2,
-      "p90": 25.5,
+      "p10": 2.1,
+      "p50": 10.1,
+      "p90": 25.1,
       "max_1h": 2.5,
       "prob_lluvioso": 17.4,
       "prob_atencion": 0.0,
@@ -66,9 +66,9 @@
     },
     {
       "fecha": "2026-10-26",
-      "horas": 9,
+      "horas": 10,
       "desde": "2026-10-26T00:00:00-03:00",
-      "hasta": "2026-10-26T09:00:00-03:00",
+      "hasta": "2026-10-26T10:00:00-03:00",
       "p10": 0.0,
       "p50": 0.0,
       "p90": 0.0,
@@ -83,13 +83,6 @@
   "ventana_inicio": "2026-10-24T03:00:00-03:00",
   "ventana_fin": "2026-10-24T04:00:00-03:00",
   "horas": [
-    {
-      "time": "2026-10-23T10:00:00-03:00",
-      "p10": 0.0,
-      "p50": 0.5,
-      "p90": 2.28,
-      "media": 1.01
-    },
     {
       "time": "2026-10-23T11:00:00-03:00",
       "p10": 0.0,
@@ -586,12 +579,19 @@
       "p50": 0.0,
       "p90": 0.0,
       "media": 0.0
+    },
+    {
+      "time": "2026-10-26T10:00:00-03:00",
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 0.0,
+      "media": 0.0
     }
   ],
   "metodo": "mediana de los picos de cada escenario",
   "alcance": "Una celda para Posadas; no distingue lluvia entre barrios",
   "acumulados": "Máximo móvil de 24/48 h dentro de las próximas 72 h",
-  "generated_at": "2026-10-23T12:59:20+00:00",
+  "generated_at": "2026-10-23T13:15:20+00:00",
   "umbrales": {
     "atencion": {
       "mm_1h": 20,
