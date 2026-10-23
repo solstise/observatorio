@@ -23,6 +23,11 @@ export async function getNinoEvents(): Promise<NinoEvent[]> {
     return Papa.parse<NinoEvent>(csv, { header: true, skipEmptyLines: true }).data;
   } catch { return []; }
 }
+// Archivos JSON de la sala (granizo, climatología, escurrimiento): null si faltan.
+export async function getNinoJson<T>(name: string): Promise<T | null> {
+  try { return JSON.parse(await readFile(path.join(process.cwd(), "public/data/nino", name), "utf8")) as T; }
+  catch { return null; }
+}
 // Registro diario de lluvia medida en Posadas Aero, armado por scripts/63_lluvia_observada.py.
 export async function getObservedRecord(): Promise<NinoObservedDay[]> {
   try {

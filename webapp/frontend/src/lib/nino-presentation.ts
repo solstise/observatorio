@@ -116,7 +116,32 @@ export function alertHeadline(alert: SmnAlert) {
 
 export type HeroTone = AlertColor | "tormenta" | "lluvia" | "calma" | "sin_datos";
 
-export interface HeroState { tone: HeroTone; title: string; detail: string }
+// title/detail: texto completo (accesible); badge/headline: versión corta para la tarjeta.
+export interface HeroState { tone: HeroTone; title: string; detail: string; badge: string; headline: string }
+
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+// Lo que dice el texto oficial, en una línea: lluvia, granizo y ráfagas.
+export function alertSummary(alert: SmnAlert) {
+  const parts: string[] = [];
+  if (alert.lluvia_mm) parts.push(`${alert.lluvia_mm[0]} a ${alert.lluvia_mm[1]} mm`);
+  if (alert.menciona_granizo) parts.push("granizo");
+  const gust = alert.descripcion.match(/r[aá]fagas[^.]*?(\d{2,3})\s*km\/h/i);
+  if (gust) parts.push(`ráfagas de hasta ${gust[1]} km/h`);
+  if (/el[eé]ctrica/i.test(alert.descripcion)) parts.push("muchos rayos");
+  if (!parts.length) return "";
+  const last = parts.pop()!;
+  return capitalize(parts.length ? `${parts.join(", ")} y ${last}` : last) + ".";
+}
+
+// Intensidad para la animación, según el último parte del aeropuerto (no se inventa lluvia).
+export function rainIntensity(live: NinoAhora | null): 0 | 1 | 2 | 3 {
+  const now = live?.metar.datos?.ultimo;
+  if (!now) return 0;
+  if (now.lluvia_fuerte) return 3;
+  if (/lluvia(?! débil)|chaparrones(?! débiles)/.test(now.texto)) return 2;
+  return /lluvia|llovizna|chaparrones/.test(now.texto) ? 1 : 0;
+}
 
 // Prioridad: alerta oficial vigente > alerta próxima > tormenta observada > pronóstico propio.
 export function heroState(live: NinoAhora | null, forecastLevel: NinoLevel, forecastFresh: boolean, now: number): HeroState {
@@ -125,11 +150,13 @@ export function heroState(live: NinoAhora | null, forecastLevel: NinoLevel, fore
   const upcoming = alerts.filter(a => a.inicio && Date.parse(a.inicio) > now);
   if (active.length) {
     const top = active[0];
-    return { tone: top.color, title: alertHeadline(top), detail: `El SMN la emitió para Posadas. Vigente hasta ${whenText(top.fin, now)}.` };
+    return { tone: top.color, title: alertHeadline(top), detail: `El SMN la emitió para Posadas. Vigente hasta ${whenText(top.fin, now)}.`,
+      badge: `${top.tipo === "aviso_corto_plazo" ? "Aviso" : ALERT_LABEL[top.color]} del SMN`, headline: `${capitalize(top.evento.toLowerCase())} hasta ${whenText(top.fin, now)}` };
   }
   if (upcoming.length) {
     const next = upcoming[0];
-    return { tone: next.color, title: alertHeadline(next), detail: `Empieza ${whenText(next.inicio, now)} y sigue hasta ${whenText(next.fin, now)}.` };
+    return { tone: next.color, title: alertHeadline(next), detail: `Empieza ${whenText(next.inicio, now)} y sigue hasta ${whenText(next.fin, now)}.`,
+      badge: `${ALERT_LABEL[next.color]} del SMN`, headline: `${capitalize(next.evento.toLowerCase())} desde ${whenText(next.inicio, now)}` };
   }
   const lightning = live?.rayos.estado === "ok" ? live.rayos.datos : null;
   const stormNow = live?.metar.datos?.tormenta_ultima_hora || (lightning?.cerca_15min ?? 0) > 0;
@@ -138,18 +165,18 @@ export function heroState(live: NinoAhora | null, forecastLevel: NinoLevel, fore
   if (stormNow) {
     const where = lightning?.mas_cercano_km != null ? ` El rayo más cercano cayó a ${lightning.mas_cercano_km} km.` : "";
     const official = alertsComplete ? "Sin alerta del SMN para la ciudad en este momento." : "Todavía no pudimos confirmar las alertas del SMN.";
-    return { tone: "tormenta", title: "Hay tormenta en Posadas", detail: `${official}${where}` };
+    return { tone: "tormenta", title: "Hay tormenta en Posadas", detail: `${official}${where}`, badge: "Tormenta ahora", headline: "Hay tormenta en Posadas" };
   }
   if (live?.alertas.estado === "sin_datos") {
     return live.alertas.error
-      ? { tone: "sin_datos", title: "No pudimos consultar las alertas del SMN", detail: "Revisalas directamente en smn.gob.ar/alertas." }
-      : { tone: "sin_datos", title: "Consultando las alertas del SMN…", detail: "En unos segundos aparece si hay alertas para Posadas." };
+      ? { tone: "sin_datos", title: "No pudimos consultar las alertas del SMN", detail: "Revisalas directamente en smn.gob.ar/alertas.", badge: "SMN", headline: "No pudimos consultar las alertas" }
+      : { tone: "sin_datos", title: "Consultando las alertas del SMN…", detail: "En unos segundos aparece si hay alertas para Posadas.", badge: "SMN", headline: "Consultando las alertas…" };
   }
   if (!alertsComplete) {
-    return { tone: "sin_datos", title: "No pudimos revisar todas las alertas del SMN", detail: "Lo reintentamos en unos minutos. Mientras tanto, revisalas en smn.gob.ar/alertas." };
+    return { tone: "sin_datos", title: "No pudimos revisar todas las alertas del SMN", detail: "Lo reintentamos en unos minutos. Mientras tanto, revisalas en smn.gob.ar/alertas.", badge: "SMN", headline: "No pudimos revisar todas las alertas" };
   }
   if (forecastFresh && ["atencion", "alto", "muy_alto"].includes(forecastLevel)) {
-    return { tone: "lluvia", title: RAIN_COPY[forecastLevel].title, detail: "Sin alertas del SMN para Posadas por ahora. Es una estimación de este observatorio." };
+    return { tone: "lluvia", title: RAIN_COPY[forecastLevel].title, detail: "Sin alertas del SMN para Posadas por ahora. Es una estimación de este observatorio.", badge: "Estimación del observatorio", headline: RAIN_COPY[forecastLevel].title };
   }
-  return { tone: "calma", title: "Sin alertas para Posadas", detail: "El SMN no tiene alertas vigentes para la ciudad." };
+  return { tone: "calma", title: "Sin alertas para Posadas", detail: "El SMN no tiene alertas vigentes para la ciudad.", badge: "SMN", headline: "Sin alertas para Posadas" };
 }

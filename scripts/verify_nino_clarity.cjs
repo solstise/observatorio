@@ -36,7 +36,7 @@ checks.push('Cantidades pequeñas, cero y dato ausente se distinguen; búsqueda 
   const load = async () => {
     const response = await page.goto(base + '/nino', { waitUntil: 'domcontentloaded', timeout: 60000 });
     assert.equal(response.status(), 200);
-    await page.locator('.leaflet-container').waitFor();
+    await page.locator('.maplibregl-map').waitFor({ timeout: 60000 });
     await expect(page.getByText('Datos a verificar', { exact: true })).toHaveCount(0);
   };
   // El detalle hora por hora vive en un desplegable de "Lo que viene".
@@ -53,14 +53,22 @@ checks.push('Cantidades pequeñas, cero y dato ausente se distinguen; búsqueda 
     await expect(page.locator('[data-barrio="itaembe_mini"]')).toBeVisible();
     await expect(page.locator('#nino-barrio-list')).toContainText('Itaembé Miní');
     await page.locator('[data-barrio="itaembe_mini"]').getByRole('link', { name: 'Ver en el mapa' }).click();
-    await expect(page.getByLabel('Acercar a un barrio', { exact: true })).toHaveValue('itaembe_mini');
-    const blueZones = page.locator('.leaflet-overlay-pane path[fill="#38a3cd"]');
-    assert.ok(await blueZones.count() > 0);
-    await page.getByRole('button', { name: 'Impacto con la lluvia', exact: true }).click();
-    await expect(blueZones).toHaveCount(0);
-    await page.getByRole('button', { name: 'Zonas expuestas', exact: true }).click();
-    assert.ok(await blueZones.count() > 0);
-    checks.push('Buscar sin tildes, mostrar más, localizar barrio y separar las dos capas del mapa.');
+    // El barrio elegido aparece en la ficha debajo del mapa y en el simulador.
+    await expect(page.locator('#mapa')).toContainText('Itaembé Miní');
+    await expect(page.locator('#sim-barrio')).toHaveValue('itaembe_mini');
+    // Filtros del mapa: cada capa se prende y se apaga con su propia leyenda.
+    const water = page.getByRole('button', { name: 'Arroyos y zonas bajas', exact: true });
+    const runoff = page.getByRole('button', { name: 'Cuánto escurre', exact: true });
+    await expect(water).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#mapa')).toContainText('Zonas bajas o cerca de arroyos');
+    await runoff.click();
+    await expect(runoff).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#mapa')).toContainText('Escurre con');
+    await water.click();
+    await expect(page.locator('#mapa')).not.toContainText('Zonas bajas o cerca de arroyos');
+    await water.click();
+    await runoff.click();
+    checks.push('Buscar sin tildes, mostrar más, localizar barrio en mapa y simulador, y prender o apagar capas.');
 
     await page.getByLabel('Nombre del barrio', { exact: true }).fill('Villa Mola');
     await expect(page.locator('#nino-barrio-list')).toContainText('Sin estimación');
@@ -76,13 +84,21 @@ checks.push('Cantidades pequeñas, cero y dato ausente se distinguen; búsqueda 
 
     // Datos en vivo de fuentes oficiales: estado, lluvia medida, río, fuentes y API.
     await expect(page.locator('#ahora h2')).not.toHaveText('');
-    await expect(page.locator('#lo-que-llovio')).toContainText('Últimas 24 horas');
+    await expect(page.locator('#lo-que-llovio').getByRole('button', { name: '24 horas', exact: true })).toBeVisible();
     await expect(page.locator('#rio')).toBeVisible();
-    await expect(page.locator('#fuentes ul > li')).toHaveCount(8);
-    const lightningToggle = page.getByLabel('Rayos de la última hora', { exact: true });
-    await lightningToggle.uncheck();
-    await expect(page.getByText(/^Rayos hace:/)).toHaveCount(0);
-    await lightningToggle.check();
+    await expect(page.locator('#fuentes [aria-label="Estado de cada fuente"] > li')).toHaveCount(11);
+    const lightningFilter = page.getByRole('button', { name: 'Rayos', exact: true });
+    await expect(page.locator('#mapa').getByText(/Rayos hace:/)).toHaveCount(0);
+    await lightningFilter.click();
+    await expect(page.locator('#mapa').getByText(/Rayos hace:/)).toHaveCount(1);
+    await lightningFilter.click();
+    // Simulador: el resultado cambia con la lluvia y con el estado del suelo.
+    const slider = page.locator('#sim-mm');
+    await slider.fill('100');
+    const wet = await page.locator('#simulador').textContent();
+    await page.locator('#simulador').getByRole('button', { name: /^Seco/ }).click();
+    assert.notEqual(await page.locator('#simulador').textContent(), wet);
+    await expect(page.locator('#rayos svg[role="img"]')).toBeVisible();
     const api = await page.request.get(base + '/api/nino/ahora');
     assert.equal(api.status(), 200);
     const live = await api.json();
@@ -142,17 +158,16 @@ checks.push('Cantidades pequeñas, cero y dato ausente se distinguen; búsqueda 
       fs.writeFileSync(snapshotPath, JSON.stringify(fixture));
       await page.reload({ waitUntil: 'domcontentloaded' });
       // El mapa solo existe tras hidratar: recién ahí los botones responden.
-      await page.locator('.leaflet-container').waitFor();
+      await page.locator('.maplibregl-map').waitFor({ timeout: 60000 });
       await expect(page.getByRole('alert').filter({ hasText: 'Datos de pronóstico desactualizados' })).toBeVisible();
       await expect(page.getByText('Datos a verificar', { exact: true })).toBeVisible();
-      await page.getByRole('button', { name: 'Impacto con la lluvia', exact: true }).click();
-      await expect(page.getByText('Sin pronóstico vigente: los barrios aparecen en gris. Eso no significa que no haya riesgo.', { exact: true })).toBeVisible();
+      await expect(page.locator('#nino-barrio-list').getByText('Sin pronóstico vigente').first()).toBeVisible();
       checks.push('Sin serie no se dibuja un gráfico ficticio; dato vencido oculta niveles y marca mapa sin pronóstico.');
 
       fs.writeFileSync(snapshotPath, 'null');
       await page.reload({ waitUntil: 'domcontentloaded' });
       // El mapa solo existe tras hidratar: recién ahí los botones responden.
-      await page.locator('.leaflet-container').waitFor();
+      await page.locator('.maplibregl-map').waitFor({ timeout: 60000 });
       await expect(page.getByText('Datos a verificar', { exact: true })).toBeVisible();
       await expect(page.locator('#nino-barrio-list > li')).toHaveCount(0);
       checks.push('Snapshot ausente: mensaje explícito, sin cifras ni niveles inventados.');

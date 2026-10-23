@@ -53,14 +53,11 @@ export interface NinoWrf {
 export interface NinoConfig {
   rafaga_fuerte_kmh: number;
   dia_lluvioso_mm: number;
-  suelo_mojado_mm_72h: number;
-  suelo_saturado_mm_72h: number;
   dia_fuerte_registro_mm: number;
   rayos_cerca_km: number;
 }
 export const NINO_CONFIG_DEFAULT: NinoConfig = {
-  rafaga_fuerte_kmh: 60, dia_lluvioso_mm: 20, suelo_mojado_mm_72h: 30,
-  suelo_saturado_mm_72h: 60, dia_fuerte_registro_mm: 30, rayos_cerca_km: 30,
+  rafaga_fuerte_kmh: 60, dia_lluvioso_mm: 20, dia_fuerte_registro_mm: 30, rayos_cerca_km: 30,
 };
 export interface NinoRow {
   edificios_total?: number;
@@ -97,6 +94,45 @@ export interface NinoEvent {
   fuente_medio: string;
   fuente_url: string;
   notas: string;
+}
+export type HailLevel = "bajo" | "moderado" | "alto";
+export interface NinoHail {
+  generated_at: string;
+  estado: "disponible" | "no_disponible";
+  cortes: { moderado: number; alto: number };
+  modelos: Record<string, { nombre: string; horas: Array<{ time: string; ship: number | null }> }>;
+  dias: Array<{
+    fecha: string;
+    consenso: HailLevel | null;
+    modelos: Record<string, { ship_max: number; hora: string | null; cape_max: number; categoria: HailLevel | null } | null>;
+  }>;
+}
+export interface NinoClimate {
+  generated_at: string;
+  fuente: string;
+  primer_dato: string;
+  anios_completos: number[];
+  n_anios: number;
+  diarios_desde_10mm: number[];
+  tres_dias_desde_20mm: number[];
+  mensual: Record<string, { mediana: number; p25: number; p75: number; maximo: number; n_anios: number }>;
+}
+export interface NinoHydroBarrio {
+  poligono_id: string;
+  nombre: string;
+  area_m2: number;
+  edificios: number;
+  techos_frac: number | null;
+  construido_frac: number | null;
+  lote_medio_m2: number | null;
+  impermeable_alto: number;
+  cn_ii_min: number;
+  cn_ii_max: number;
+}
+export interface NinoHydro {
+  generated_at: string;
+  metodo: string;
+  barrios: NinoHydroBarrio[];
 }
 export interface NinoObservedDay {
   fecha: string;
