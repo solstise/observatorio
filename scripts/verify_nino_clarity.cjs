@@ -101,12 +101,21 @@ checks.push('Cantidades pequeñas, cero y dato ausente se distinguen; búsqueda 
     await lightningFilter.click();
     await expect(page.locator('#mapa').getByText(/Rayos hace:/)).toHaveCount(1);
     await lightningFilter.click();
-    // Simulador: el resultado cambia con la lluvia y con el estado del suelo.
+    // Simulador: una frase con diez gotas que cambia con la lluvia y con el barrio,
+    // y el botón que lleva al mapa con los caminos del agua.
     const slider = page.locator('#sim-mm');
     await slider.fill('100');
-    const wet = await page.locator('#simulador').textContent();
-    await page.locator('#simulador').getByRole('button', { name: /^Seco/ }).click();
-    assert.notEqual(await page.locator('#simulador').textContent(), wet);
+    const answer = page.locator('#simulador').getByText(/de cada 10 litros van a la calle/).first();
+    const heavy = await answer.textContent();
+    await expect(page.locator('#simulador [data-kind="calle"]').first()).toBeVisible();
+    await slider.fill('10');
+    assert.notEqual(await answer.textContent(), heavy);
+    await expect(page.locator('#simulador')).toContainText('tanques de 1.000 litros');
+    await page.locator('#sim-barrio').selectOption('');
+    await expect(page.locator('#simulador')).not.toContainText('entre los barrios que');
+    await page.locator('#simulador').getByRole('button', { name: 'Ver en el mapa por dónde baja el agua' }).click();
+    await expect(page.getByRole('button', { name: 'Anegamientos', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await page.getByRole('button', { name: 'Anegamientos', exact: true }).click();
     await expect(page.locator('#rayos svg[role="img"]')).toBeVisible();
     const api = await page.request.get(base + '/api/nino/ahora');
     assert.equal(api.status(), 200);

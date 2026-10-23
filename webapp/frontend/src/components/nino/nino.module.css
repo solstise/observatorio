@@ -171,16 +171,6 @@ a.chip:active { background: rgba(255,255,255,.2); }
 .recordMm { font-weight: 750; color: var(--color-text); }
 
 /* --- Simulador ------------------------------------------------------------------- */
-.soilRow { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: var(--space-lg); align-items: center; }
-.soilRow + .segmented { margin-top: var(--space-md); }
-.sponge { width: 120px; height: auto; }
-.spongeSoil { fill: var(--nino-soil); }
-.spongePore { fill: color-mix(in oklch, var(--nino-soil) 60%, black); opacity: .55; }
-.spongeDrop { fill: var(--nino-rain); animation: drop 1.5s ease-in infinite; opacity: 0; }
-@keyframes drop { 0% { transform: translateY(-6px); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(16px); opacity: 0; } }
-.sliderBlock { margin-top: var(--space-xl); }
-.sliderLabel { display: block; font-size: 1rem; color: var(--nino-ink-soft); }
-.sliderLabel strong { font-size: 1.75rem; font-weight: 800; color: var(--color-text); }
 .sliderWrap { position: relative; margin-top: var(--space-sm); height: 44px; display: flex; align-items: center; }
 .sliderBand { position: absolute; top: 50%; height: 22px; transform: translateY(-50%); border-radius: 6px; background: color-mix(in oklch, var(--tone-amarilla) 55%, transparent); }
 .slider { position: relative; width: 100%; height: 44px; background: transparent; -webkit-appearance: none; appearance: none; cursor: pointer; }
@@ -196,19 +186,25 @@ a.chip:active { background: rgba(255,255,255,.2); }
 .preset[data-kind="smn"] { border-color: var(--tone-amarilla); }
 .preset[aria-pressed="true"] { background: var(--color-primary); color: var(--color-bg); border-color: var(--color-primary); }
 .preset[aria-pressed="true"] strong { color: var(--color-bg); }
-.simResults { display: grid; gap: var(--space-lg); margin-top: var(--space-xl); }
-.simCity, .simBarrio { display: grid; gap: 4px; padding: 14px; border-radius: 16px; background: var(--nino-tint); }
 .select { width: 100%; min-height: 44px; margin: 2px 0 6px; padding: 0 var(--space-md); background: var(--color-surface); border: 1px solid var(--color-muted); border-radius: 10px; color: var(--color-text); font-size: 1rem; }
-.flowBar { display: flex; height: 12px; margin-top: 6px; border-radius: 999px; overflow: hidden; background: color-mix(in oklch, var(--nino-rain) 12%, var(--color-surface)); }
-.flowBar span { display: block; height: 100%; background: var(--nino-rain); transition: width .5s cubic-bezier(.22, 1, .36, 1); }
-.flowBar span[data-range="1"] { background: repeating-linear-gradient(-45deg, var(--nino-rain) 0 6px, var(--nino-rain-soft) 6px 12px); background-size: 17px 17px; animation: flow 1.2s linear infinite; }
-@keyframes flow { to { background-position: 17px 0; } }
-.ranking { display: grid; gap: 4px; margin-top: var(--space-lg); }
-.ranking button { width: 100%; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) 3rem; gap: var(--space-sm); align-items: center; min-height: 40px; padding: 0 8px; border-radius: 10px; text-align: left; font-size: .875rem; color: var(--color-text); }
-.ranking button[aria-pressed="true"] { background: var(--nino-tint); font-weight: 700; }
-.ranking strong { text-align: right; font-variant-numeric: tabular-nums; }
-.rankBar { height: 8px; border-radius: 999px; background: var(--nino-tint); overflow: hidden; }
-.rankBar i { display: block; height: 100%; background: var(--nino-rain); border-radius: inherit; }
+/* Simulador: una frase, diez gotas y su clave. */
+.simSentence { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-size: 1.125rem; color: var(--nino-ink-soft); }
+.simSentence strong { font-size: 1.75rem; font-weight: 800; color: var(--color-text); }
+.simSentence .select { width: auto; max-width: 100%; margin: 0; font-size: 1rem; font-weight: 650; color: var(--color-text); }
+.simAnswer { display: grid; gap: 10px; margin-top: var(--space-lg); padding: 16px; border-radius: 16px; background: var(--nino-tint); }
+.simNotes { display: grid; gap: var(--space-sm); justify-items: start; margin-top: var(--space-md); }
+.drops { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; max-width: 420px; }
+.drops svg { display: block; width: 100%; height: auto; }
+.drops path { stroke: var(--nino-rain-strong); stroke-width: 1.5; }
+.drops pattern rect { fill: var(--nino-rain-strong); }
+.drops svg[data-kind="calle"] path { fill: var(--nino-rain-strong); }
+.drops svg[data-kind="suelo"] path { fill: color-mix(in oklch, var(--nino-soil) 45%, transparent); stroke: color-mix(in oklch, var(--nino-soil) 70%, transparent); }
+.dropsKey { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .8125rem; color: var(--nino-ink-soft); }
+.dropsKey span { display: inline-flex; align-items: center; gap: 6px; }
+.dropsKey i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.dropsKey i[data-kind="calle"] { background: var(--nino-rain-strong); }
+.dropsKey i[data-kind="quizas"] { background: repeating-linear-gradient(45deg, var(--nino-rain-strong) 0 2px, transparent 2px 4px); box-shadow: inset 0 0 0 1px var(--nino-rain-strong); }
+.dropsKey i[data-kind="suelo"] { background: color-mix(in oklch, var(--nino-soil) 45%, transparent); }
 
 /* --- Granizo --------------------------------------------------------------------- */
 .sourcesTriad { display: grid; gap: 6px; }
@@ -357,9 +353,9 @@ a.chip:active { background: rgba(255,255,255,.2); }
 .official .phone { display: inline-flex; gap: var(--space-sm); align-items: center; min-height: 48px; padding: 0 var(--space-lg); background: var(--color-primary); color: var(--color-bg); border-radius: 13px; font-size: 1.0625rem; font-weight: 750; text-decoration: none; white-space: nowrap; }
 
 @media (prefers-reduced-motion: reduce) {
-  .liveDot[data-live="1"], .polarSweep, .polarFresh, .gaugeWave, .riverWave, .spongeDrop, .flowBar span[data-range="1"], .legendFlow { animation: none; }
+  .liveDot[data-live="1"], .polarSweep, .polarFresh, .gaugeWave, .riverWave, .legendFlow { animation: none; }
   .polarSweep { display: none; }
-  .gaugeWater, .flowBar span, .trendBar, .hailTrack i, .details > summary::after, .heroTodo > summary::after { transition: none; }
+  .gaugeWater, .trendBar, .hailTrack i, .details > summary::after, .heroTodo > summary::after { transition: none; }
 }
 
 /* --- Pantallas más anchas ----------------------------------------------------------------- */
@@ -375,7 +371,6 @@ a.chip:active { background: rgba(255,255,255,.2); }
   .filters { margin-inline: 0; padding-inline: 0; flex-wrap: wrap; overflow: visible; }
   .dayCards { margin-inline: 0; padding-inline: 0; overflow: visible; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
   .dayCard { width: auto; }
-  .simResults { grid-template-columns: 1fr 1fr; }
   .waterGrid { grid-template-columns: 120px minmax(0, 1fr); }
   .gauge { width: 120px; }
   .rainTotals { grid-template-columns: repeat(4, minmax(0, 1fr)); }
