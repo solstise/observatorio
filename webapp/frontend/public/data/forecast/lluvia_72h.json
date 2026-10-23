@@ -5,8 +5,8 @@
   "lluvia_max_3h_p90": 33.84,
   "lluvia_24h": 42.5,
   "lluvia_24h_p90": 71.84,
-  "lluvia_48h": 44.55,
-  "lluvia_48h_p90": 75.36,
+  "lluvia_48h": 44.0,
+  "lluvia_48h_p90": 73.79,
   "nivel": "sin_umbral",
   "probabilidades": {
     "atencion": 35.9,
@@ -24,14 +24,14 @@
   "dias": [
     {
       "fecha": "2026-10-23",
-      "horas": 13,
-      "desde": "2026-10-23T11:00:00-03:00",
+      "horas": 11,
+      "desde": "2026-10-23T13:00:00-03:00",
       "hasta": "2026-10-24T00:00:00-03:00",
-      "p10": 1.6,
-      "p50": 9.2,
-      "p90": 23.0,
-      "max_1h": 2.4,
-      "prob_lluvioso": 16.3,
+      "p10": 1.0,
+      "p50": 8.5,
+      "p90": 21.8,
+      "max_1h": 2.3,
+      "prob_lluvioso": 10.9,
       "prob_atencion": 0.0,
       "prob_tormenta": 4.3,
       "prob_rafagas": 0.0
@@ -66,9 +66,9 @@
     },
     {
       "fecha": "2026-10-26",
-      "horas": 11,
+      "horas": 13,
       "desde": "2026-10-26T00:00:00-03:00",
-      "hasta": "2026-10-26T11:00:00-03:00",
+      "hasta": "2026-10-26T13:00:00-03:00",
       "p10": 0.0,
       "p50": 0.0,
       "p90": 0.0,
@@ -83,20 +83,6 @@
   "ventana_inicio": "2026-10-24T03:00:00-03:00",
   "ventana_fin": "2026-10-24T04:00:00-03:00",
   "horas": [
-    {
-      "time": "2026-10-23T12:00:00-03:00",
-      "p10": 0.0,
-      "p50": 0.25,
-      "p90": 2.8,
-      "media": 0.91
-    },
-    {
-      "time": "2026-10-23T13:00:00-03:00",
-      "p10": 0.0,
-      "p50": 0.0,
-      "p90": 1.59,
-      "media": 0.53
-    },
     {
       "time": "2026-10-23T14:00:00-03:00",
       "p10": 0.0,
@@ -586,12 +572,26 @@
       "p50": 0.0,
       "p90": 0.0,
       "media": 0.0
+    },
+    {
+      "time": "2026-10-26T12:00:00-03:00",
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 0.0,
+      "media": 0.0
+    },
+    {
+      "time": "2026-10-26T13:00:00-03:00",
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 0.0,
+      "media": 0.0
     }
   ],
   "metodo": "mediana de los picos de cada escenario",
   "alcance": "Una celda para Posadas; no distingue lluvia entre barrios",
   "acumulados": "Máximo móvil de 24/48 h dentro de las próximas 72 h",
-  "generated_at": "2026-10-23T14:40:59+00:00",
+  "generated_at": "2026-10-23T16:26:25+00:00",
   "umbrales": {
     "atencion": {
       "mm_1h": 20,
