@@ -120,20 +120,50 @@ def descargar(desde, hasta, sesion=None):
 
 
 def fusionar(existente, nuevos):
-    """Los valores nuevos reemplazan a los anteriores, salvo que vengan vacíos."""
+    """Los valores nuevos reemplazan a los anteriores, salvo que vengan vacíos.
+
+    Un día de 12 a 12 UTC puede llegar partido entre dos consultas: las marcas de
+    tormenta y granizo se combinan, no se pisan.
+    """
     tabla = {row["fecha"]: row for row in existente}
     for row in nuevos:
         previo = tabla.get(row["fecha"])
-        if previo is not None and row["mm"] is None and pd.notna(previo.get("mm")):
-            row = {**row, "mm": previo["mm"]}
+        if previo is not None:
+            row = {
+                **row,
+                "mm": row["mm"] if row["mm"] is not None else previo.get("mm"),
+                "tormenta": bool(row["tormenta"]) or bool(previo.get("tormenta")),
+                "granizo": bool(row["granizo"]) or bool(previo.get("granizo")),
+                "reportes": max(row["reportes"], int(previo.get("reportes") or 0)),
+            }
+            if pd.isna(row["mm"]):
+                row["mm"] = None
         tabla[row["fecha"]] = row
     return [tabla[fecha] for fecha in sorted(tabla)]
+
+
+def descargar_con_reintentos(desde, hasta, sesion, intentos=4):
+    for intento in range(intentos):
+        try:
+            return descargar(desde, hasta, sesion)
+        except (requests.RequestException, RuntimeError):
+            if intento == intentos - 1:
+                raise
+            time.sleep(30 * 2**intento)
+
+
+def guardar(filas):
+    DESTINO.parent.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(filas, columns=COLUMNAS).to_csv(DESTINO, index=False)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dias", type=int, default=10, help="días hacia atrás a consultar")
     parser.add_argument("--desde", help="AAAA-MM-DD para completar el registro histórico")
+    parser.add_argument(
+        "--tramo-dias", type=int, default=25, help="días por consulta (Ogimet acepta hasta ~180)"
+    )
     args = parser.parse_args()
     cfg = yaml.safe_load((ROOT / "config/alertas.yaml").read_text(encoding="utf-8"))
     umbral = cfg["nino_tiempo_real"]["dia_fuerte_registro_mm"]
@@ -143,24 +173,27 @@ def main():
         if args.desde
         else ahora - timedelta(days=args.dias)
     )
-    # Ogimet limita el tamaño de cada consulta: se pide por tramos con pausa.
-    reportes, tramo, sesion = [], inicio, requests.Session()
+    # Ogimet limita el tamaño de cada consulta: se pide por tramos con pausa y se
+    # guarda después de cada uno, para no perder lo bajado si una consulta falla.
+    filas = pd.read_csv(DESTINO).to_dict("records") if DESTINO.exists() else []
+    tramo, sesion, ultimo, nuevos = inicio, requests.Session(), None, 0
     while tramo < ahora:
-        fin = min(tramo + timedelta(days=25), ahora)
-        reportes += descargar(tramo, fin, sesion)
+        fin = min(tramo + timedelta(days=args.tramo_dias), ahora)
+        reportes = descargar_con_reintentos(tramo, fin, sesion)
+        if reportes:
+            filas = fusionar(filas, resumir_por_dia(reportes))
+            guardar(filas)
+            ultimo = max(r["utc"] for r in reportes)
+            nuevos += len(reportes)
         tramo = fin
         if tramo < ahora:
             time.sleep(20)
-    if not reportes:
+    if not nuevos:
         raise SystemExit("Ogimet no devolvió reportes; se conserva el registro anterior.")
-    existente = pd.read_csv(DESTINO).to_dict("records") if DESTINO.exists() else []
-    filas = fusionar(existente, resumir_por_dia(reportes))
-    DESTINO.parent.mkdir(parents=True, exist_ok=True)
-    pd.DataFrame(filas, columns=COLUMNAS).to_csv(DESTINO, index=False)
     fuertes = [f for f in filas if pd.notna(f["mm"]) and f["mm"] >= umbral]
     print(
         f"Lluvia observada: {len(filas)} días en el registro, {len(fuertes)} con "
-        f"{umbral} mm o más. Último reporte: {max(r['utc'] for r in reportes).isoformat()}"
+        f"{umbral} mm o más. Último reporte: {ultimo.isoformat()}"
     )
 
 

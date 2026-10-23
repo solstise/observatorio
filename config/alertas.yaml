@@ -69,8 +69,6 @@ anegamiento_v2:
 nino_tiempo_real:
   rafaga_fuerte_kmh: 60        # escenarios del ensamble con ráfagas de al menos este valor
   dia_lluvioso_mm: 20          # día con lluvia para tener en cuenta
-  suelo_mojado_mm_72h: 30      # lluvia medida en 72 h: el suelo absorbe menos
-  suelo_saturado_mm_72h: 60    # lluvia medida en 72 h: cualquier chaparrón anega antes
   dia_fuerte_registro_mm: 30   # días que se guardan en el registro de lluvias medidas
   rayos_cerca_km: 30           # radio para "rayos cerca de Posadas"
   wrf_radio_celdas: 3          # celdas de 4 km alrededor de Posadas (3 → caja de 28 km)

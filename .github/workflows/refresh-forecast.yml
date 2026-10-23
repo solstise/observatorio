@@ -157,13 +157,16 @@ jobs:
 
       - name: Lluvia medida (SMN Posadas Aero) y modelo WRF del SMN
         run: |
-          # Si el registro no existe todavía, se completa desde el 1/1/2026.
+          # Si el registro no existe todavía, se completa desde el 1/1/2000 (unos 30 min).
           registro=webapp/frontend/public/data/nino/lluvia_observada_diaria.csv
-          desde=$([[ -f "$registro" ]] || echo "--desde 2026-01-01")
+          desde=$([[ -f "$registro" ]] || echo "--desde 2000-01-01 --tramo-dias 120")
           python scripts/63_lluvia_observada.py $desde \
             || echo "::warning::Ogimet no respondió; se conserva el registro anterior."
           # El WRF publica estado no_disponible si no hay corrida completa: no falla el job.
           python scripts/64_wrf_smn.py
+          # Granizo (SHIP con GFS, ECMWF e ICON) y climatología del registro de la estación.
+          python scripts/66_ambiente_granizo.py
+          python scripts/67_climatologia_lluvia.py
 
       - name: Sincronizar y validar snapshot publicado
         run: |

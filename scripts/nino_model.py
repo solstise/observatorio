@@ -214,3 +214,68 @@ def agregar_exposicion(classes, population=None):
         "poblacion_expuesta_max": round(pop * 1.2) if pop is not None else None,
         "estado": "calculado" if pct is not None else "a_verificar",
     }
+
+
+# --- Granizo: índice SHIP del Storm Prediction Center (NOAA) --------------------
+# SHIP = MUCAPE × razón de mezcla × gradiente 700–500 hPa × (−T500) × cizalladura 0–6 km
+#        / 42 000 000, con los topes y ajustes publicados por el SPC.
+# SHIP ≥ 1 indica ambiente favorable a granizo grande (≥ 5 cm). Con los datos de
+# Open-Meteo se usan aproximaciones: CAPE del modelo en lugar de MUCAPE, razón de
+# mezcla con el punto de rocío a 2 m y cizalladura entre 10 m y 500 hPa.
+SHIP_CORTES = {"moderado": 0.5, "alto": 1.0}
+
+
+def razon_mezcla(punto_rocio_c, presion_hpa):
+    """g/kg, con la presión de vapor de Bolton (1980)."""
+    e = 6.112 * np.exp(17.67 * punto_rocio_c / (punto_rocio_c + 243.5))
+    return 1000 * 0.622 * e / (presion_hpa - e)
+
+
+def _viento_uv(velocidad_kmh, direccion_deg):
+    v = np.asarray(velocidad_kmh, dtype=float) / 3.6
+    r = np.radians(direccion_deg)
+    return -v * np.sin(r), -v * np.cos(r)
+
+
+def ship(cape, punto_rocio, presion, t500, t700, z500, z700, v500, d500, v10, d10, nivel_0c):
+    """Índice SHIP horario. Entradas en unidades de Open-Meteo; faltantes como NaN."""
+    cape = np.asarray(cape, dtype=float)
+    lapse = (np.asarray(t700, float) - np.asarray(t500, float)) / (
+        (np.asarray(z500, float) - np.asarray(z700, float)) / 1000
+    )
+    u5, w5 = _viento_uv(v500, d500)
+    u0, w0 = _viento_uv(v10, d10)
+    cizalla = np.hypot(u5 - u0, w5 - w0)
+    mezcla = razon_mezcla(np.asarray(punto_rocio, float), np.asarray(presion, float))
+    t500c = np.minimum(np.asarray(t500, float), -5.5)
+    valor = (
+        cape * np.clip(mezcla, 11, 13.6) * lapse * (-t500c) * np.clip(cizalla, 7, 27) / 42e6
+    )
+    valor = np.where(cape < 1300, valor * cape / 1300, valor)
+    valor = np.where(lapse < 5.8, valor * lapse / 5.8, valor)
+    nivel_0c = np.asarray(nivel_0c, dtype=float)
+    # Sin nivel de congelación (ECMWF) no se aplica ese ajuste: solo reduce si es < 2400 m.
+    valor = np.where(np.isfinite(nivel_0c) & (nivel_0c < 2400), valor * nivel_0c / 2400, valor)
+    return np.maximum(valor, 0)
+
+
+def categoria_granizo(valor):
+    if valor is None or not np.isfinite(valor):
+        return None
+    if valor >= SHIP_CORTES["alto"]:
+        return "alto"
+    return "moderado" if valor >= SHIP_CORTES["moderado"] else "bajo"
+
+
+def consenso_granizo(categorias):
+    """La categoría más alta que alcanzan al menos dos modelos (o la única disponible)."""
+    disponibles = [c for c in categorias if c]
+    if not disponibles:
+        return None
+    orden = ["bajo", "moderado", "alto"]
+    if len(disponibles) == 1:
+        return disponibles[0]
+    for nivel in reversed(orden):
+        if sum(orden.index(c) >= orden.index(nivel) for c in disponibles) >= 2:
+            return nivel
+    return "bajo"

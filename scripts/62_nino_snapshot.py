@@ -44,7 +44,10 @@ def main():
     dw_path = public / "dynamic_world.csv"
     dw = {}
     if dw_path.exists():
-        table = pd.read_csv(dw_path).sort_values("fecha").groupby("poligono_id").tail(1)
+        table = pd.read_csv(dw_path)
+        # Hay períodos futuros sin imágenes (valor vacío): usar el último con datos.
+        table = table[(table.n_imagenes > 0) & table.dw_built_pct_ge_50.notna()]
+        table = table.sort_values("fecha").groupby("poligono_id").tail(1)
         dw = table.set_index("poligono_id").to_dict("index")
     rows = []
     for row in exposure["barrios"]:
@@ -105,6 +108,9 @@ def main():
         "exposicion_hidrica.geojson",
         "exposicion_hidrica.kml",
         "equipamientos_nino.geojson",
+        # Capas estáticas de escurrimiento (script 65).
+        "escurrimiento_barrios.json",
+        "arroyos_nino.geojson",
     ):
         source = ROOT / "data/outputs" / name
         if source.exists():
