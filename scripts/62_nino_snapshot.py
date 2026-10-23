@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 import pandas as pd
+import yaml
 
 from scripts.nino_model import score_impacto
 
@@ -43,7 +44,10 @@ def main():
     dw_path = public / "dynamic_world.csv"
     dw = {}
     if dw_path.exists():
-        table = pd.read_csv(dw_path).sort_values("fecha").groupby("poligono_id").tail(1)
+        table = pd.read_csv(dw_path)
+        # Hay períodos futuros sin imágenes (valor vacío): usar el último con datos.
+        table = table[(table.n_imagenes > 0) & table.dw_built_pct_ge_50.notna()]
+        table = table.sort_values("fecha").groupby("poligono_id").tail(1)
         dw = table.set_index("poligono_id").to_dict("index")
     rows = []
     for row in exposure["barrios"]:
@@ -77,12 +81,21 @@ def main():
             }
         )
     rows.sort(key=lambda r: (r["score_anegamiento"] or 0, r["viviendas_expuestas"]), reverse=True)
+    config = yaml.safe_load((ROOT / "config/alertas.yaml").read_text(encoding="utf-8"))
+    wrf_path = dest / "wrf_smn.json"
     payload = {
         "generated_at": rain["generated_at"],
         "lluvia": rain,
         "barrios": rows,
         "exposicion_generated_at": exposure.get("generated_at"),
         "estado_exposicion": "calculado" if rows else "a_verificar",
+        # Umbrales de suelo, rayos y registro: la página los lee de acá.
+        "config": config.get("nino_tiempo_real", {}),
+        "wrf_smn": (
+            json.loads(wrf_path.read_text(encoding="utf-8"))
+            if wrf_path.exists()
+            else {"estado": "no_disponible", "motivo": "sin corrida procesada"}
+        ),
     }
     (dest / "estado.json").write_text(
         json.dumps(payload, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8"
@@ -95,6 +108,9 @@ def main():
         "exposicion_hidrica.geojson",
         "exposicion_hidrica.kml",
         "equipamientos_nino.geojson",
+        # Capas estáticas de escurrimiento (script 65).
+        "escurrimiento_barrios.json",
+        "arroyos_nino.geojson",
     ):
         source = ROOT / "data/outputs" / name
         if source.exists():

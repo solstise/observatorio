@@ -29,6 +29,7 @@ scikit-image>=0.22
 
 # --- Análisis de datos ---
 numpy>=1.26
+h5py>=3.10
 pandas>=2.1
 scikit-learn>=1.3
 
