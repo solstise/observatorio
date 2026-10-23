@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   capColor, capLinks, describeWx, isCapFeed, distanceToRingKm, parseCap, parseMetars, parsePrefectura,
-  parseSynop, parseTiepre, rainBlocks, selectAlerts, splitInstructions,
+  controlDay, parseSynop, parseTiepre, rainBlocks, selectAlerts, splitInstructions,
   summarizeFlashes, summarizeSynop, POSADAS, bearingDeg, directionName, lightningTrend,
 } from "../../src/lib/nino-live/parse.ts";
 
@@ -96,8 +96,13 @@ test("SYNOP: un bloque sin informar no se convierte en cero", () => {
   const lines = fixture("synop_87178.txt").split("\n").filter(l => !l.startsWith("87178,2026,10,22,06,"));
   const summary = summarizeSynop(parseSynop(lines.join("\n")));
   const blocks = rainBlocks(parseSynop(lines.join("\n")));
-  assert.equal(blocks.find(b => b.hasta === "2026-10-22T12:00:00.000Z").mm, null);
+  assert.equal(blocks.find(b => b.hasta === "2026-10-22T06:00:00.000Z"), undefined);
+  // El de las 12 UTC trae su propio grupo de 6 h: no hace falta deducirlo.
+  assert.equal(blocks.find(b => b.hasta === "2026-10-22T12:00:00.000Z").mm, 17);
   assert.equal(summary.totales.find(t => t.horas === 24).completo, false);
+  // Sin el grupo de 6 h ni el reporte de las 06, el bloque de las 12 no se deduce.
+  const sin6h = lines.join("\n").replace(" 60171 ", " ");
+  assert.equal(rainBlocks(parseSynop(sin6h)).find(b => b.hasta === "2026-10-22T12:00:00.000Z").mm, null);
 });
 
 test("SYNOP: la sección 555 no es lluvia y un total incoherente queda sin dato", () => {
@@ -113,6 +118,23 @@ test("SYNOP: la sección 555 no es lluvia y un total incoherente queda sin dato"
   ].join("\n");
   const block = rainBlocks(parseSynop(lines)).find(b => b.hasta === "2004-05-12T12:00:00.000Z");
   assert.equal(block.mm, null);
+  const day = summarizeSynop(parseSynop(lines)).dias.find(d => d.fecha === "2004-05-12");
+  assert.deepEqual([day.mm, day.control], [null, "dudoso"]);
+});
+
+test("SYNOP: mensaje pegado con otro 333, iR=3 y lluvia de 6 h en la sección 3", () => {
+  // 11/05/2001: un segundo "333" pegado traía 71817 (181,7 mm); iR=3 dice que no llovió.
+  const [pegado] = parseSynop("87178,2001,05,11,12,00,AAXX 11124 87178 32970 11103 10127 20094 30041 40190 52020 81070 333 10147 20106 56030 81360 333 10191 60251 64210 65046 71817 74166 88957 90000=");
+  assert.deepEqual([pegado.lluvia[24], pegado.lluvia[6], pegado.llovio], [0, 0, false]);
+  // 22/10/2026 a las 12 UTC: 75 mm en 24 h (sección 1) y 17 mm en 6 h (sección 3, 60171).
+  const reports = parseSynop(fixture("synop_87178.txt"));
+  const r12 = reports.find(r => r.utc === "2026-10-22T12:00:00.000Z");
+  assert.deepEqual([r12.lluvia[24], r12.lluvia[6], r12.llovio], [75, 17, true]);
+  assert.equal(controlDay(75, new Map([[18, 3], [0, 25], [6, 30], [12, 17]]), new Set()), "ok");
+  // Lo que no explican las partes necesita un reporte de lluvia en esos tramos.
+  assert.equal(controlDay(182, new Map([[18, 18], [0, 2], [6, 0]]), new Set()), "dudoso");
+  assert.equal(controlDay(182, new Map([[18, 18], [0, 2], [6, 0]]), new Set([12])), "ok");
+  assert.equal(controlDay(undefined, new Map(), new Set()), "sin_total");
 });
 
 test("METAR: tormenta actual y descripción en castellano", () => {

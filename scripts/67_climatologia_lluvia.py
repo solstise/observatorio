@@ -29,7 +29,7 @@ def anios_completos(serie):
     for anio, grupo in serie.groupby(serie.index.year):
         if anio >= hoy.year:
             continue
-        dias = 366 if pd.Timestamp(anio, 12, 31).dayofyear == 366 else 365
+        dias = 366 if pd.Timestamp(anio, 12, 31).day_of_year == 366 else 365
         if grupo.notna().sum() / dias >= COMPLETITUD:
             resultado.append(int(anio))
     return resultado
@@ -77,7 +77,7 @@ def climatologia(tabla):
             }
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "fuente": "SMN, estación Posadas Aero (SYNOP 87178 vía Ogimet), día de 9 a 9 h",
+        "fuente": "SMN, estación Posadas Aero (SYNOP 87178 vía NOAA ISD y Ogimet), día de 9 a 9 h",
         "primer_dato": str(serie.first_valid_index().date()),
         "anios_completos": completos,
         "n_anios": len(completos),

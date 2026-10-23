@@ -28,9 +28,13 @@ export interface SmnAlert {
 export interface SynopReport {
   utc: string;
   ww: number | null;
-  // Lluvia por período informado, en horas (6 o 24) → mm.
+  // Lluvia por período informado, en horas (6, 24…) → mm.
   lluvia: Record<number, number>;
+  // Algún indicio de lluvia en la hora del reporte (tiempo presente o pasado, o lluvia de hasta 6 h).
+  llovio: boolean;
 }
+
+export type RainControl = "ok" | "dudoso" | "sin_total";
 
 export interface RainBlock { desde: string; hasta: string; mm: number | null }
 
@@ -38,7 +42,7 @@ export interface ObservedRain {
   ultimo_reporte: string | null;
   bloques: RainBlock[];
   totales: Array<{ horas: number; desde: string; hasta: string; mm: number; completo: boolean }>;
-  dias: Array<{ fecha: string; mm: number | null; parcial: boolean; tormenta: boolean; granizo: boolean }>;
+  dias: Array<{ fecha: string; mm: number | null; parcial: boolean; tormenta: boolean; granizo: boolean; control: RainControl }>;
   horas_tormenta_24h: number;
   granizo_24h: boolean;
 }
@@ -244,55 +248,111 @@ export function parseSynop(text: string, station = "87178"): SynopReport[] {
     const groups = parts[6].split(/\s+/);
     if (groups[0] !== "AAXX" || groups.length < 5) continue;
     const body = groups.slice(3);
-    // Sección 1 hasta "333"; sección 3 hasta "444" o "555" (la 555 es nacional:
-    // su grupo 7 no es lluvia y leerlo así inventaba totales).
-    const stop = (list: string[], marks: string[]) => { const i = list.findIndex(g => marks.includes(g)); return i < 0 ? list.length : i; };
+    // Sección 1 hasta "333"; sección 3 hasta "444", "555" u otro "333" (mensajes
+    // pegados). La 555 es nacional: su grupo 7 no es lluvia y leerlo así inventaba totales.
+    const stop = (list: string[]) => { const i = list.findIndex(g => g === "333" || g === "444" || g === "555"); return i < 0 ? list.length : i; };
     const s3 = body.indexOf("333");
-    const s1 = body.slice(0, stop(body, ["333", "444", "555"]));
+    const s1 = body.slice(0, stop(body));
     const rest = s3 >= 0 ? body.slice(s3 + 1) : [];
-    const sec3 = rest.slice(0, stop(rest, ["444", "555"]));
-    const lluvia: Record<number, number> = {};
+    const sec3 = rest.slice(0, stop(rest));
+    // Grupos con su indicador en orden creciente; los que rompen el orden se descartan.
+    const ordered = (list: string[], first: number) => {
+      let next = first;
+      return list.filter(g => { if (!/^\d[\d/]{4}$/.test(g) || Number(g[0]) < next) return false; next = Number(g[0]); return true; });
+    };
+    const rain = (g: string) => g[0] === "6" && /^\d{3}$/.test(g.slice(1, 4)) && g[4] in TR_HORAS;
+    let lluvia: Record<number, number> = {};
     let ww: number | null = null;
-    let next = 1;
-    for (const g of s1.slice(2)) {
-      if (!/^\d[\d/]{4}$/.test(g) || Number(g[0]) < next) continue;
-      next = Number(g[0]) + 1;
-      if (g[0] === "6" && /^\d{3}$/.test(g.slice(1, 4)) && "1234".includes(g[4])) lluvia[{ 1: 6, 2: 12, 3: 18, 4: 24 }[Number(g[4]) as 1 | 2 | 3 | 4]] = rrr(g.slice(1, 4));
-      if (g[0] === "7" && /^\d{2}$/.test(g.slice(1, 3))) ww = Number(g.slice(1, 3));
+    let past: number[] = [];
+    for (const g of ordered(s1.slice(2), 1)) {
+      if (rain(g)) lluvia[TR_HORAS[g[4]]] ??= rrr(g.slice(1, 4));
+      if (g[0] === "7" && /^\d{2}$/.test(g.slice(1, 3))) { ww = Number(g.slice(1, 3)); past = [...g.slice(3, 5)].filter(c => /\d/.test(c)).map(Number); }
     }
-    for (const g of sec3) if (/^7\d{4}$/.test(g) && lluvia[24] === undefined) lluvia[24] = g === "79999" ? 0 : Number(g.slice(1)) / 10;
-    // iR=3: sin lluvia en el período; el grupo se omite.
-    if (s1[0]?.[0] === "3" && h % 6 === 0 && lluvia[6] === undefined && lluvia[24] === undefined) lluvia[h === 12 ? 24 : 6] = 0;
-    out.push({ utc: new Date(Date.UTC(y, m - 1, d, h)).toISOString(), ww, lluvia });
+    let total3: number | undefined;
+    for (const g of ordered(sec3, 0)) {
+      if (rain(g)) lluvia[TR_HORAS[g[4]]] ??= rrr(g.slice(1, 4));
+      if (/^7\d{4}$/.test(g)) total3 = g === "79999" ? 0 : Number(g.slice(1)) / 10;
+    }
+    if (total3 !== undefined) lluvia[24] ??= total3;
+    // iR=3: no llovió y la estación omite los grupos (tabla 1819 de la OMM); si aun así
+    // informa un total de 24 h positivo, el mensaje se contradice y ese total no se usa.
+    if (s1[0]?.[0] === "3") lluvia = total3 ? { 6: 0 } : { 6: 0, 24: 0 };
+    const llovio = (ww !== null && WW_LLUVIA(ww)) || past.some(w => w >= 5) || Object.entries(lluvia).some(([hours, mm]) => Number(hours) <= 6 && mm > 0);
+    out.push({ utc: new Date(Date.UTC(y, m - 1, d, h)).toISOString(), ww, lluvia, llovio });
   }
   return out.sort((a, b) => a.utc.localeCompare(b.utc));
 }
 
-const MAX_BLOQUE_6H = 200;
+// Duración del grupo 6RRRtR (tabla 4019 de la OMM), en horas.
+const TR_HORAS: Record<string, number> = { 1: 6, 2: 12, 3: 18, 4: 24, 5: 1, 6: 2, 7: 3, 8: 9, 9: 15 };
 const WW_TORMENTA = new Set([17, 29, 91, 92, 93, 94, 95, 96, 97, 98, 99]);
 const WW_GRANIZO = new Set([27, 87, 88, 89, 90, 93, 94, 96, 99]);
+// Lluvia, llovizna, chaparrón o tormenta, en el momento o en la última hora.
+const WW_LLUVIA = (ww: number) => ww === 17 || (ww >= 20 && ww <= 27) || ww === 29 || ww >= 50;
 const HOUR = 3_600_000;
 const iso = (ms: number) => new Date(ms).toISOString();
 
-// Bloques de 6 h: 00, 06 y 18 UTC informan 6 h; a las 12 UTC llega el total de 24 h
-// y el bloque de 06 a 12 se obtiene por diferencia, solo si están los otros tres.
+// Control de calidad del total de 24 h, igual que scripts/63_lluvia_observada.py
+// (salvo el tope por intensidad de los METAR, que se aplica al registro guardado).
+const TOLERANCIA_MM = 2;
+const MAX_SIN_EXPLICAR = 25;
+const MAX_DIA_SIN_PARTES = 300;
+const TRAMOS = [18, 0, 6, 12];
+
+// partes: lluvia de 6 h por hora UTC de cierre; conLluvia: tramos con algún reporte de lluvia.
+export function controlDay(total: number | undefined, parts: Map<number, number>, wet: Set<number>): RainControl {
+  if (total === undefined) return "sin_total";
+  const rest = total - [...parts.values()].reduce((s, v) => s + v, 0);
+  const missing = TRAMOS.filter(t => !parts.has(t));
+  if (!missing.length) return Math.abs(rest) <= Math.max(TOLERANCIA_MM, 0.1 * total) ? "ok" : "dudoso";
+  const explained = rest >= -TOLERANCIA_MM && total <= MAX_DIA_SIN_PARTES && (rest <= MAX_SIN_EXPLICAR || missing.some(t => wet.has(t)));
+  return explained ? "ok" : "dudoso";
+}
+
+// Día pluviométrico (de 12 a 12 UTC, 9 a 9 en Posadas) con fecha del día en que termina.
+const rainDay = (t: number) => {
+  const d = new Date(t);
+  const sameDay = d.getUTCHours() < 12 || (d.getUTCHours() === 12 && d.getUTCMinutes() === 0);
+  return new Date(t + (sameDay ? 0 : 24 * HOUR)).toISOString().slice(0, 10);
+};
+// Hora de cierre (18, 0, 6 o 12) del tramo de 6 h al que pertenece un reporte.
+const windowEnd = (t: number) => (Math.ceil(new Date(t).getUTCHours() / 6) * 6) % 24;
+
+interface DayParts { total?: number; parts: Map<number, number>; wet: Set<number> }
+
+function dayControls(reports: SynopReport[]): Map<string, RainControl> {
+  const days = new Map<string, DayParts>();
+  for (const r of reports) {
+    const t = Date.parse(r.utc);
+    const hour = new Date(t).getUTCHours();
+    const day: DayParts = days.get(rainDay(t)) ?? { parts: new Map(), wet: new Set() };
+    if (hour % 6 === 0 && r.lluvia[6] !== undefined) day.parts.set(hour, r.lluvia[6]);
+    if (hour === 12) day.total = r.lluvia[24];
+    if (r.llovio) day.wet.add(windowEnd(t));
+    days.set(rainDay(t), day);
+  }
+  return new Map([...days].map(([fecha, d]) => [fecha, controlDay(d.total, d.parts, d.wet)]));
+}
+
+// Bloques de 6 h: cada reporte de 00, 06, 12 y 18 UTC informa sus 6 h; si el de las
+// 12 UTC no la trae, sale del total de 24 h menos los otros tres. Los bloques de un
+// día cuyo total no cuadra con sus partes quedan sin dato.
 export function rainBlocks(reports: SynopReport[]): RainBlock[] {
   const byTime = new Map(reports.map(r => [Date.parse(r.utc), r]));
+  const controls = dayControls(reports);
   const times = reports.map(r => Date.parse(r.utc)).filter(t => new Date(t).getUTCHours() % 6 === 0);
   const blocks: RainBlock[] = [];
   for (const t of times) {
     const r = byTime.get(t)!;
-    const hour = new Date(t).getUTCHours();
-    let mm: number | null = null;
-    if (hour !== 12) mm = r.lluvia[6] ?? null;
-    else if (r.lluvia[24] !== undefined) {
+    let mm: number | null = r.lluvia[6] ?? null;
+    if (mm === null && new Date(t).getUTCHours() === 12 && r.lluvia[24] !== undefined) {
       const prev = [18, 12, 6].map(back => byTime.get(t - back * HOUR)?.lluvia[6]);
       if (prev.every(v => v !== undefined)) {
-        // Control de calidad: si el total no cuadra con sus partes, el bloque queda sin dato.
         const derived = r.lluvia[24] - prev.reduce((a, b) => a! + b!, 0)!;
-        mm = derived < -1 || derived > MAX_BLOQUE_6H ? null : Math.max(0, Math.round(derived * 10) / 10);
+        mm = derived < -TOLERANCIA_MM ? null : Math.max(0, Math.round(derived * 10) / 10);
       }
     }
+    if (controls.get(rainDay(t)) === "dudoso") mm = null;
     blocks.push({ desde: iso(t - 6 * HOUR), hasta: iso(t), mm });
   }
   return blocks;
@@ -308,20 +368,23 @@ export function summarizeSynop(reports: SynopReport[], windows = [24, 72, 120, 1
     return { horas: hours, desde: iso(from), hasta: iso(lastEnd), mm: Math.round(known.reduce((s, b) => s + b.mm!, 0) * 10) / 10, completo: inside.length === hours / 6 && known.length === inside.length };
   });
   // Día pluviométrico: de 12 a 12 UTC (9 a 9 en Posadas), con fecha del día en que termina.
-  const days = new Map<string, { mm: number | null; parcial: boolean; tormenta: boolean; granizo: boolean }>();
+  // Un total que no cuadra con los demás reportes del día queda sin dato.
+  const controls = dayControls(reports);
+  const days = new Map<string, ObservedRain["dias"][number]>();
   for (const r of reports) {
     const t = Date.parse(r.utc);
-    const end = new Date(t + (new Date(t).getUTCHours() <= 12 ? 0 : 24 * HOUR)).toISOString().slice(0, 10);
-    const day = days.get(end) ?? { mm: null, parcial: true, tormenta: false, granizo: false };
-    if (new Date(t).getUTCHours() === 12 && r.lluvia[24] !== undefined) { day.mm = r.lluvia[24]; day.parcial = false; }
+    const fecha = rainDay(t);
+    const control = controls.get(fecha) ?? "sin_total";
+    const day = days.get(fecha) ?? { fecha, mm: null, parcial: true, tormenta: false, granizo: false, control };
+    if (new Date(t).getUTCHours() === 12 && r.lluvia[24] !== undefined) { day.mm = control === "ok" ? r.lluvia[24] : null; day.parcial = false; }
     if (r.ww !== null && WW_TORMENTA.has(r.ww)) day.tormenta = true;
     if (r.ww !== null && WW_GRANIZO.has(r.ww)) day.granizo = true;
-    days.set(end, day);
+    days.set(fecha, day);
   }
   // El día en curso suma los bloques informados desde las 12 UTC.
   const last = reports.length ? Date.parse(reports[reports.length - 1].utc) : null;
   if (last !== null) {
-    const end = new Date(last + (new Date(last).getUTCHours() <= 12 ? 0 : 24 * HOUR)).toISOString().slice(0, 10);
+    const end = rainDay(last);
     const current = days.get(end);
     if (current?.parcial) {
       const start = Date.parse(`${end}T12:00:00Z`) - 24 * HOUR;
@@ -334,7 +397,7 @@ export function summarizeSynop(reports: SynopReport[], windows = [24, 72, 120, 1
     ultimo_reporte: reports.length ? reports[reports.length - 1].utc : null,
     bloques: blocks,
     totales,
-    dias: [...days.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([fecha, v]) => ({ fecha, ...v })),
+    dias: [...days.values()].sort((a, b) => a.fecha.localeCompare(b.fecha)),
     horas_tormenta_24h: recent.filter(r => r.ww !== null && WW_TORMENTA.has(r.ww)).length,
     granizo_24h: recent.some(r => r.ww !== null && WW_GRANIZO.has(r.ww)),
   };

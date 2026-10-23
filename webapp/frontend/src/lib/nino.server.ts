@@ -37,6 +37,7 @@ export async function getObservedRecord(): Promise<NinoObservedDay[]> {
       mm: row.mm === "" || row.mm == null ? null : Number(row.mm),
       tormenta: row.tormenta === "True" || row.tormenta === "true",
       granizo: row.granizo === "True" || row.granizo === "true",
-    })).filter(row => /^\d{4}-\d{2}-\d{2}$/.test(row.fecha));
+      control: row.control === "dudoso" || row.control === "sin_total" ? row.control : "ok",
+    } as NinoObservedDay)).filter(row => /^\d{4}-\d{2}-\d{2}$/.test(row.fecha));
   } catch { return []; }
 }

@@ -139,4 +139,6 @@ export interface NinoObservedDay {
   mm: number | null;
   tormenta: boolean;
   granizo: boolean;
+  // "dudoso": el total informado no cuadra con los demás reportes del día y se descartó.
+  control?: "ok" | "dudoso" | "sin_total";
 }

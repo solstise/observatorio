@@ -8,21 +8,25 @@ import { frequencyText } from "@/lib/nino-escurrimiento";
 import { clockTime, dayName, formatRain, formatNinoNumber as num } from "@/lib/nino-presentation";
 import styles from "./nino.module.css";
 
-interface Day { fecha: string; mm: number | null; parcial: boolean; tormenta: boolean; granizo: boolean }
+interface Day { fecha: string; mm: number | null; parcial: boolean; tormenta: boolean; granizo: boolean; descartado: boolean }
 
 const TZ = "America/Argentina/Buenos_Aires";
 const longDate = (fecha: string) => new Date(`${fecha}T12:00:00-03:00`).toLocaleDateString("es-AR", { timeZone: TZ, day: "numeric", month: "long", year: "numeric" });
 const MONTHS = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 
 // El registro guardado cubre años; el dato en vivo, los últimos 8 días con el día en curso.
+// Un total descartado por el control de calidad (en vivo o en el registro) queda sin dato.
 export function mergeDays(record: NinoObservedDay[], live: ObservedRain | null | undefined): Day[] {
-  const days = new Map<string, Day>(record.map(d => [d.fecha, { ...d, parcial: false }]));
+  const days = new Map<string, Day>(record.map(d => [d.fecha, { fecha: d.fecha, mm: d.mm, tormenta: d.tormenta, granizo: d.granizo, parcial: false, descartado: d.control === "dudoso" }]));
   for (const d of live?.dias ?? []) {
     const previous = days.get(d.fecha);
-    days.set(d.fecha, { ...d, mm: d.mm ?? previous?.mm ?? null, tormenta: d.tormenta || !!previous?.tormenta, granizo: d.granizo || !!previous?.granizo });
+    const descartado = d.control === "dudoso" || !!previous?.descartado;
+    days.set(d.fecha, { fecha: d.fecha, parcial: d.parcial, descartado, mm: descartado ? null : d.mm ?? previous?.mm ?? null, tormenta: d.tormenta || !!previous?.tormenta, granizo: d.granizo || !!previous?.granizo });
   }
   return [...days.values()].sort((a, b) => a.fecha.localeCompare(b.fecha));
 }
+
+const noData = (day: Day) => (day.descartado ? "Dato descartado: no cuadra con los demás reportes" : "Sin dato");
 
 // Pluviómetro: el agua sube hasta lo medido y su superficie se mueve.
 function RainGauge({ mm, scale }: { mm: number; scale: number }) {
@@ -79,7 +83,7 @@ export function NinoObserved({ live, record, climate, config, now, threshold24h 
           <XAxis dataKey="label" tickLine={false} axisLine={{ stroke: "var(--nino-grid)" }} tick={{ fontSize: 11, fill: "var(--color-muted)" }} interval={0} />
           <Tooltip cursor={{ fill: "var(--nino-hover)" }} content={({ active, payload }) => {
             const day = payload?.[0]?.payload as (Day & { label: string }) | undefined;
-            return active && day ? <div className={styles.tooltip}><p className="font-semibold">{longDate(day.fecha)}</p><p>{day.mm == null ? "Sin dato" : `${formatRain(day.mm)} mm`}{day.parcial ? " hasta ahora" : ""}</p>{(day.tormenta || day.granizo) && <p className="text-sm">{day.granizo ? "Tormenta con granizo" : "Hubo tormenta"}</p>}</div> : null;
+            return active && day ? <div className={styles.tooltip}><p className="font-semibold">{longDate(day.fecha)}</p><p>{day.mm == null ? noData(day) : `${formatRain(day.mm)} mm`}{day.parcial ? " hasta ahora" : ""}</p>{(day.tormenta || day.granizo) && <p className="text-sm">{day.granizo ? "Tormenta con granizo" : "Hubo tormenta"}</p>}</div> : null;
           }} />
           <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={22}>
             {last.map(day => <Cell key={day.fecha} fill={day.parcial ? "var(--nino-rain-soft)" : day.value >= threshold24h ? "var(--nino-rain-strong)" : "var(--nino-rain)"} />)}
@@ -93,7 +97,7 @@ export function NinoObserved({ live, record, climate, config, now, threshold24h 
     <details className={styles.details}>
       <summary>Ver la lista y los días con mucha lluvia</summary>
       <div className={styles.detailsBody}>
-        <ul className={styles.dayTable}>{[...last].reverse().map(day => <li key={day.fecha}><span>{dayName(day.fecha, now, true)}</span><span>{day.mm == null ? "Sin dato" : `${formatRain(day.mm)} mm`}{day.parcial ? " (hasta ahora)" : ""}</span><span>{day.granizo ? "Tormenta con granizo" : day.tormenta ? "Hubo tormenta" : ""}</span></li>)}</ul>
+        <ul className={styles.dayTable}>{[...last].reverse().map(day => <li key={day.fecha}><span>{dayName(day.fecha, now, true)}</span><span>{day.mm == null ? noData(day) : `${formatRain(day.mm)} mm`}{day.parcial ? " (hasta ahora)" : ""}</span><span>{day.granizo ? "Tormenta con granizo" : day.tormenta ? "Hubo tormenta" : ""}</span></li>)}</ul>
         {strong.length > 0 && <>
           <h3 className={styles.subTitle}>Días con {num(config.dia_fuerte_registro_mm)} mm o más</h3>
           <ol className={styles.recordList}>{strong.slice(0, 15).map(day => <li key={day.fecha}><span className={styles.recordMm}>{formatRain(day.mm)} mm</span><span>{longDate(day.fecha)}</span><span className={styles.muted}>{day.granizo ? "tormenta con granizo" : day.tormenta ? "con tormenta" : ""}</span></li>)}</ol>
