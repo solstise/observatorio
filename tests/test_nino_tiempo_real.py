@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -57,11 +58,18 @@ def test_dia_pluviometrico_termina_a_las_12_utc():
 
 
 def test_fusion_no_borra_un_valor_con_un_vacio():
-    previo = [{"fecha": "2026-10-22", "mm": 75.0, "tormenta": True, "granizo": False}]
-    nuevo = [{"fecha": "2026-10-22", "mm": None, "tormenta": True, "granizo": True}]
+    previo = [
+        {"fecha": "2026-10-22", "mm": 75.0, "tormenta": True, "granizo": False, "reportes": 11}
+    ]
+    nuevo = [
+        {"fecha": "2026-10-22", "mm": None, "tormenta": False, "granizo": True, "reportes": 13}
+    ]
     fila = obs.fusionar(previo, nuevo)[0]
     assert fila["mm"] == 75.0
+    # Día partido entre dos consultas: las marcas se combinan.
     assert fila["granizo"] is True
+    assert fila["tormenta"] is True
+    assert fila["reportes"] == 13
     corregido = obs.fusionar(previo, [{**nuevo[0], "mm": 76.0}])[0]
     assert corregido["mm"] == 76.0
 
@@ -94,3 +102,47 @@ def test_wrf_indice_mas_cercano():
     lat, lon = np.meshgrid(np.linspace(-28, -27, 11), np.linspace(-56.5, -55.5, 11), indexing="ij")
     j, i = wrf.indice_cercano(lat, lon, (-27.4, -55.9))
     assert (round(float(lat[j, i]), 2), round(float(lon[j, i]), 2)) == (-27.4, -55.9)
+
+
+def test_ship_caso_calculado_a_mano():
+    from scripts.nino_model import categoria_granizo, consenso_granizo, ship
+
+    # CAPE 2000, mezcla 14,9 g/kg (tope 13,6), gradiente 16 °C / 2,7 km, −T500 = 8,
+    # cizalladura 20 m/s (72 km/h del oeste en 500 hPa, calma en superficie).
+    valor = ship(2000, 20, 1000, -8, 8, 5800, 3100, 72, 270, 0, 0, 4000)
+    assert float(valor) == pytest.approx(0.614, abs=0.005)
+    # Con poca energía: escala con el CAPE y además se multiplica por CAPE / 1300.
+    bajo = ship(650, 20, 1000, -8, 8, 5800, 3100, 72, 270, 0, 0, 4000)
+    assert float(bajo) == pytest.approx(0.614 * (650 / 2000) * (650 / 1300), abs=0.003)
+    # Sin nivel de congelación (ECMWF) no se aplica ese ajuste.
+    assert float(ship(2000, 20, 1000, -8, 8, 5800, 3100, 72, 270, 0, 0, np.nan)) == pytest.approx(
+        0.614, abs=0.005
+    )
+    assert categoria_granizo(1.2) == "alto"
+    assert categoria_granizo(0.5) == "moderado"
+    assert categoria_granizo(0.49) == "bajo"
+    assert categoria_granizo(np.nan) is None
+    assert consenso_granizo(["moderado", "moderado", "bajo"]) == "moderado"
+    assert consenso_granizo(["alto", "bajo", "bajo"]) == "bajo"
+    assert consenso_granizo(["alto", "moderado", "bajo"]) == "moderado"
+    assert consenso_granizo([None, "alto"]) == "alto"
+    assert consenso_granizo([None, None]) is None
+
+
+def test_climatologia_solo_usa_anios_completos():
+    clima = _load("67_climatologia_lluvia")
+    filas = []
+    for anio in range(2010, 2016):
+        for dia in pd.date_range(f"{anio}-01-01", f"{anio}-12-31"):
+            filas.append(
+                {"fecha": dia.date().isoformat(), "mm": 60.0 if dia.dayofyear == 100 else 0.0}
+            )
+    # 2016 con apenas 100 días informados: no entra en la estadística.
+    for dia in pd.date_range("2016-01-01", periods=100):
+        filas.append({"fecha": dia.date().isoformat(), "mm": 200.0 if dia.dayofyear == 50 else 0.0})
+    datos = clima.climatologia(pd.DataFrame(filas))
+    assert datos["anios_completos"] == list(range(2010, 2016))
+    assert datos["diarios_desde_10mm"] == [60.0] * 6
+    assert 200.0 not in datos["diarios_desde_10mm"]
+    assert datos["tres_dias_desde_20mm"] == [60.0] * 6
+    assert datos["mensual"]["04"]["mediana"] == 60.0

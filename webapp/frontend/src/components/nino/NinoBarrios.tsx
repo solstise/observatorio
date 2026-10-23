@@ -23,10 +23,11 @@ export function NinoBarrios({ rows, fresh, onLocate }: { rows: NinoRow[]; fresh:
     if (bv == null && av != null) return -1;
     return (bv ?? -1) - (av ?? -1) || b.viviendas_expuestas - a.viviendas_expuestas || a.nombre.localeCompare(b.nombre, "es");
   });
-  return <section id="barrios" className={styles.section} aria-labelledby="barrios-heading">
-    <p className={styles.eyebrow}>Tu barrio</p>
-    <h2 id="barrios-heading" className={styles.sectionTitle}>Buscá tu barrio</h2>
-    <p className={styles.intro}>La lluvia cambia de un día a otro. La cercanía a arroyos y las zonas bajas cambian mucho menos. Combinamos ambos datos para estimar dónde podría haber más problemas.</p>
+  return <section id="barrios" className={styles.card} aria-labelledby="barrios-heading">
+    <div className={styles.cardHead}>
+      <h2 id="barrios-heading" className={styles.cardTitle}>Buscá tu barrio</h2>
+      <span className={styles.cardMeta}>edificios cerca de arroyos o en zonas bajas</span>
+    </div>
     <div className={styles.searchControls}>
       <div><label htmlFor="nino-barrio-search">Nombre del barrio</label><input id="nino-barrio-search" type="search" value={query} placeholder="Por ejemplo, Santa Rita" onChange={event => { setQuery(event.target.value); setVisible(8); }} aria-controls="nino-barrio-list" /></div>
       <div><label htmlFor="nino-barrio-order">Ordenar barrios</label><select id="nino-barrio-order" value={order} onChange={event => { setOrder(event.target.value as Order); setVisible(8); }}>

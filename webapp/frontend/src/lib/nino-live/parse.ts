@@ -20,6 +20,9 @@ export interface SmnAlert {
   afecta_posadas: boolean;
   distancia_km: number;
   url: string;
+  // Del texto oficial: rango de lluvia acumulada y mención de granizo.
+  lluvia_mm: [number, number] | null;
+  menciona_granizo: boolean;
 }
 
 export interface SynopReport {
@@ -55,6 +58,8 @@ export interface MetarNow {
 export interface MetarSummary {
   ultimo: MetarNow | null;
   tormenta_ultima_hora: boolean;
+  // Último parte con tormenta (truenos oídos en el aeropuerto) en las últimas 12 h.
+  ultimo_trueno: string | null;
   granizo_12h: string[];
   reportes_tormenta_12h: number;
 }
@@ -85,8 +90,19 @@ export interface LightningSummary {
   cerca_60min: number;
   zona_60min: number;
   mas_cercano_km: number | null;
+  // Rayo más cercano de la zona (aunque esté fuera del radio cercano).
+  cercano: { km: number; rumbo: number; hace_min: number } | null;
+  tendencia: LightningTrend;
   // [lat, lon, minutos desde el rayo]: compacto para el navegador.
   puntos: Array<[number, number, number]>;
+}
+
+export interface LightningTrend {
+  // Distancia del rayo más cercano en tramos de 10 minutos, del más viejo al actual.
+  tramos: Array<{ hace_min: number; km: number | null }>;
+  estado: "se_acerca" | "se_aleja" | "estable" | "sin_datos";
+  velocidad_kmh: number | null;
+  llegada_min: number | null;
 }
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
@@ -174,6 +190,8 @@ export function parseCap(xmlRaw: string, url: string, point = POSADAS): SmnAlert
   const distance = Math.min(...rings.map(r => distanceToRingKm(point, r)));
   const headline = tag(xml, "headline");
   const sent = tag(xml, "sent") || null;
+  const description = tag(xml, "description");
+  const range = description.match(/entre\s+(\d+)\s+y\s+(\d+)\s*mm/i);
   return {
     id: tag(xml, "identifier") || url,
     tipo: url.includes("/avisocortoplazo/") ? "aviso_corto_plazo" : "alerta",
@@ -183,12 +201,14 @@ export function parseCap(xmlRaw: string, url: string, point = POSADAS): SmnAlert
     inicio: tag(xml, "onset") || sent,
     fin: tag(xml, "expires") || null,
     emitido: sent,
-    descripcion: tag(xml, "description"),
+    descripcion: description,
     instrucciones: splitInstructions(tag(xml, "instruction")),
     zona: tag(xml, "areaDesc").replace(/\.\s*$/, ""),
     afecta_posadas: distance === 0,
     distancia_km: Math.round(distance),
     url,
+    lluvia_mm: range ? [Number(range[1]), Number(range[2])] : null,
+    menciona_granizo: /granizo/i.test(`${headline} ${description}`),
   };
 }
 
@@ -269,7 +289,7 @@ export function rainBlocks(reports: SynopReport[]): RainBlock[] {
   return blocks;
 }
 
-export function summarizeSynop(reports: SynopReport[], windows = [24, 72, 168]): ObservedRain {
+export function summarizeSynop(reports: SynopReport[], windows = [24, 72, 120, 168]): ObservedRain {
   const blocks = rainBlocks(reports);
   const lastEnd = blocks.length ? Date.parse(blocks[blocks.length - 1].hasta) : null;
   const totales = lastEnd === null ? [] : windows.map(hours => {
@@ -362,6 +382,7 @@ export function parseMetars(rows: MetarJson[], now: number): MetarSummary {
   return {
     ultimo: parsed[0] ?? null,
     tormenta_ultima_hora: within(1.1).some(r => r.tormenta),
+    ultimo_trueno: within(12).find(r => r.tormenta)?.hora ?? null,
     granizo_12h: within(12).filter(r => r.granizo).map(r => r.hora),
     reportes_tormenta_12h: within(12).filter(r => r.tormenta).length,
   };
@@ -406,12 +427,48 @@ export function parsePrefectura(html: string, port = "POSADAS"): RiverReading | 
 // --- Resumen de rayos (GOES-19 GLM) ----------------------------------------------
 
 // Los conteos usan todos los rayos; al mapa viajan los más recientes dentro de mapKm.
+// Rumbo desde Posadas, en grados (0 = norte, 90 = este).
+export function bearingDeg(to: { lat: number; lon: number }, from = POSADAS) {
+  const dx = (to.lon - from.lon) * Math.cos(from.lat * Math.PI / 180);
+  const dy = to.lat - from.lat;
+  return Math.round((Math.atan2(dx, dy) * 180 / Math.PI + 360) % 360);
+}
+
+const DIRECTIONS = ["norte", "noreste", "este", "sureste", "sur", "suroeste", "oeste", "noroeste"];
+export const directionName = (deg: number) => DIRECTIONS[Math.round(deg / 45) % 8];
+
+// Tendencia simple: recta sobre la distancia mínima de los últimos 40 minutos.
+// No es un seguimiento de celdas: si hay varias tormentas, sigue a la más cercana.
+export function lightningTrend(flashes: Array<{ t: number; km: number }>, now: number): LightningTrend {
+  const tramos = [50, 40, 30, 20, 10, 0].map(start => {
+    const inBin = flashes.filter(f => now - f.t > start * 60_000 && now - f.t <= (start + 10) * 60_000);
+    return { hace_min: start, km: inBin.length ? Math.round(Math.min(...inBin.map(f => f.km))) : null };
+  });
+  const recent = tramos.slice(-4).filter((b): b is { hace_min: number; km: number } => b.km !== null);
+  if (recent.length < 3 || tramos[tramos.length - 1].km === null && tramos[tramos.length - 2].km === null) {
+    return { tramos, estado: "sin_datos", velocidad_kmh: null, llegada_min: null };
+  }
+  const xs = recent.map(b => -b.hace_min), ys = recent.map(b => b.km);
+  const mx = xs.reduce((a, b) => a + b, 0) / xs.length, my = ys.reduce((a, b) => a + b, 0) / ys.length;
+  const slope = xs.reduce((s, x, i) => s + (x - mx) * (ys[i] - my), 0) / xs.reduce((s, x) => s + (x - mx) ** 2, 0);
+  const kmh = Math.round(slope * 60);
+  const estado = kmh <= -10 ? "se_acerca" : kmh >= 10 ? "se_aleja" : "estable";
+  const last = recent[recent.length - 1].km;
+  const llegada = estado === "se_acerca" && last > 5 ? Math.round((last / -kmh) * 60) : null;
+  return { tramos, estado, velocidad_kmh: kmh, llegada_min: llegada !== null && llegada <= 180 ? llegada : null };
+}
+
 export function summarizeFlashes(flashes: Array<{ t: number; lat: number; lon: number }>, now: number, nearKm: number, lastFile: string | null, zoneKm = 100, maxPoints = 1500): LightningSummary {
   const withDistance = flashes.filter(f => now - f.t <= HOUR).map(f => ({ ...f, km: distanceKm(POSADAS, f) })).filter(f => f.km <= zoneKm);
   const near = withDistance.filter(f => f.km <= nearKm);
   const near15 = near.filter(f => now - f.t <= 15 * 60_000);
-  const mapKm = nearKm * 2;
+  const mapKm = zoneKm;
+  const recentZone = withDistance.filter(f => now - f.t <= 15 * 60_000);
+  const pool = recentZone.length ? recentZone : withDistance;
+  const closest = pool.length ? pool.reduce((a, b) => (b.km < a.km ? b : a)) : null;
   return {
+    cercano: closest ? { km: Math.round(closest.km), rumbo: bearingDeg(closest), hace_min: Math.round((now - closest.t) / 60_000) } : null,
+    tendencia: lightningTrend(withDistance, now),
     ultimo_archivo: lastFile,
     radio_km: nearKm,
     zona_km: zoneKm,
@@ -424,13 +481,3 @@ export function summarizeFlashes(flashes: Array<{ t: number; lat: number; lon: n
   };
 }
 
-// --- Suelo: cuánta lluvia ya cayó --------------------------------------------------
-
-export type SoilState = "seco" | "mojado" | "saturado" | "sin_dato";
-
-export function soilState(observed72h: number | null | undefined, thresholds: { suelo_mojado_mm_72h: number; suelo_saturado_mm_72h: number }): SoilState {
-  if (observed72h == null || !Number.isFinite(observed72h)) return "sin_dato";
-  if (observed72h >= thresholds.suelo_saturado_mm_72h) return "saturado";
-  if (observed72h >= thresholds.suelo_mojado_mm_72h) return "mojado";
-  return "seco";
-}

@@ -5,8 +5,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   capColor, capLinks, describeWx, isCapFeed, distanceToRingKm, parseCap, parseMetars, parsePrefectura,
-  parseSynop, parseTiepre, rainBlocks, selectAlerts, soilState, splitInstructions,
-  summarizeFlashes, summarizeSynop, POSADAS,
+  parseSynop, parseTiepre, rainBlocks, selectAlerts, splitInstructions,
+  summarizeFlashes, summarizeSynop, POSADAS, bearingDeg, directionName, lightningTrend,
 } from "../../src/lib/nino-live/parse.ts";
 
 const fixture = name => readFileSync(new URL(`./fixtures/${name}`, import.meta.url), "utf8");
@@ -24,6 +24,8 @@ test("alerta CAP del SMN que cubre Posadas", () => {
   assert.match(alert.descripcion, /granizo/);
   assert.equal(alert.instrucciones.length, 6);
   assert.equal(alert.instrucciones[0], "Evitá salir.");
+  assert.deepEqual(alert.lluvia_mm, [40, 70]);
+  assert.equal(alert.menciona_granizo, true);
 });
 
 test("aviso a muy corto plazo con prefijo cap: y color en el título", () => {
@@ -82,6 +84,7 @@ test("SYNOP de Posadas Aero: bloques de 6 h y día pluviométrico", () => {
   assert.equal(total(24).mm, 63);
   assert.equal(total(24).hasta, "2026-10-23T00:00:00.000Z");
   assert.equal(total(72).mm, 91);
+  assert.ok(total(120).mm >= 91);
   const day = summary.dias.find(d => d.fecha === "2026-10-22");
   assert.deepEqual([day.mm, day.parcial, day.tormenta], [75, false, true]);
   const today = summary.dias.find(d => d.fecha === "2026-10-23");
@@ -104,6 +107,7 @@ test("METAR: tormenta actual y descripción en castellano", () => {
   assert.equal(summary.ultimo.texto, "tormenta con lluvia débil");
   assert.equal(summary.ultimo.tormenta, true);
   assert.equal(summary.tormenta_ultima_hora, true);
+  assert.equal(summary.ultimo_trueno, summary.ultimo.hora);
   assert.equal(describeWx("+TSRAGR"), "tormenta con lluvia y granizo fuerte");
   assert.equal(describeWx("VCTS"), "tormenta en las cercanías");
   assert.equal(describeWx("+SHRA"), "chaparrones fuertes");
@@ -137,8 +141,13 @@ test("rayos: radio, ventana de tiempo y distancia mínima", () => {
   assert.equal(s.cerca_60min, 2);
   assert.equal(s.zona_60min, 3);
   assert.equal(s.mas_cercano_km, 4);
-  // Al mapa van solo los de hasta el doble del radio cercano.
-  assert.equal(s.puntos.length, 2);
+  // Al mapa y al gráfico polar van todos los de la zona.
+  assert.equal(s.puntos.length, 3);
+  // El más cercano se informa aunque esté fuera del radio cercano.
+  const lejos = summarizeFlashes([{ t: now - 2 * 60_000, lat: -27.05, lon: -55.9 }], now, 30, null, 100);
+  assert.equal(lejos.cerca_15min, 0);
+  assert.equal(lejos.cercano.km, 35);
+  assert.equal(directionName(lejos.cercano.rumbo), "norte");
   assert.equal(summarizeFlashes(flashes, now, 30, "x.nc", 100).zona_60min, 2);
   const many = Array.from({ length: 50 }, (_, i) => ({ t: now - i * 1000, lat: -27.37, lon: -55.9 }));
   const capped = summarizeFlashes(many, now, 30, null, 100, 10);
@@ -146,13 +155,21 @@ test("rayos: radio, ventana de tiempo y distancia mínima", () => {
   assert.equal(capped.cerca_60min, 50);
 });
 
-test("suelo: umbrales inclusivos y dato faltante", () => {
-  const t = { suelo_mojado_mm_72h: 30, suelo_saturado_mm_72h: 60 };
-  assert.equal(soilState(91, t), "saturado");
-  assert.equal(soilState(60, t), "saturado");
-  assert.equal(soilState(30, t), "mojado");
-  assert.equal(soilState(29.9, t), "seco");
-  assert.equal(soilState(null, t), "sin_dato");
+test("rayos: rumbo y tendencia de la tormenta más cercana", () => {
+  assert.equal(directionName(bearingDeg({ lat: POSADAS.lat, lon: POSADAS.lon + 0.5 })), "este");
+  assert.equal(directionName(bearingDeg({ lat: POSADAS.lat - 0.5, lon: POSADAS.lon - 0.5 })), "suroeste");
+  const now = 10_000_000;
+  // Se acerca 5 km cada 10 minutos (30 km/h): de 50 a 35 km.
+  const approaching = [35, 25, 15, 5].map((ago, i) => ({ t: now - ago * 60_000, km: 50 - i * 5 }));
+  const trend = lightningTrend(approaching, now);
+  assert.equal(trend.estado, "se_acerca");
+  assert.equal(trend.velocidad_kmh, -30);
+  assert.equal(trend.llegada_min, 70);
+  const leaving = [35, 25, 15, 5].map((ago, i) => ({ t: now - ago * 60_000, km: 10 + i * 10 }));
+  assert.equal(lightningTrend(leaving, now).estado, "se_aleja");
+  // Sin rayos en los últimos 20 minutos no se infiere nada.
+  const old = [55, 45, 35].map(ago => ({ t: now - ago * 60_000, km: 20 }));
+  assert.equal(lightningTrend(old, now).estado, "sin_datos");
 });
 
 test("estado principal: prioridad de la alerta oficial y sin afirmaciones no confirmadas", async () => {
@@ -192,4 +209,33 @@ test("estado principal: prioridad de la alerta oficial y sin afirmaciones no con
   assert.match(heroState({ ...partial, rayos: source({ cerca_15min: 2, mas_cercano_km: 5 }) }, "sin_umbral", true, now).detail, /Todavía no pudimos confirmar/);
   const stale = { ...none, alertas: source({ posadas: [], cerca: [], total_pais: 0, pendientes: 0 }, "desactualizado") };
   assert.notEqual(heroState(stale, "sin_umbral", true, now).tone, "calma");
+});
+
+test("escurrimiento SCS: valores de referencia y condición antecedente", async () => {
+  const m = await import("../../src/lib/nino-escurrimiento.ts");
+  // CN 80, P 50 mm: S = 63,5 mm, Ia = 12,7 mm, Q = 37,3² / 100,8 = 13,8 mm.
+  assert.equal(Math.round(m.scsRunoff(50, 80) * 10) / 10, 13.8);
+  assert.equal(m.scsRunoff(10, 80), 0);
+  assert.equal(m.scsRunoff(0, 90), 0);
+  assert.equal(Math.round(m.adjustCn(80, "I") * 10) / 10, 62.7);
+  assert.equal(Math.round(m.adjustCn(80, "III") * 10) / 10, 90.2);
+  assert.equal(m.amcFromAntecedent(20), "I");
+  assert.equal(m.amcFromAntecedent(35.6), "II");
+  assert.equal(m.amcFromAntecedent(91), "III");
+  assert.equal(m.amcFromAntecedent(null), null);
+  const b = { poligono_id: "x", nombre: "X", area_m2: 1_000_000, cn_ii_min: 70, cn_ii_max: 90 };
+  const r = m.barrioRunoff(b, 50, "III");
+  assert.ok(r.mm[0] < r.mm[1] && r.porcentaje[1] <= 100);
+  assert.equal(r.m3[1], Math.round(r.mm[1] / 1000 * 1_000_000));
+  // Suelo saturado: más escurrimiento con la misma lluvia.
+  assert.ok(m.barrioRunoff(b, 50, "III").mm[0] > m.barrioRunoff(b, 50, "I").mm[0]);
+});
+
+test("frecuencia empírica de lluvias", async () => {
+  const m = await import("../../src/lib/nino-escurrimiento.ts");
+  const values = [120, 90, 80, 75, 60, 55, 52, 50, 40, 30];
+  assert.equal(m.frequencyText(75, values, 4), "Pasa más o menos una vez por año");
+  assert.equal(m.frequencyText(100, values, 10), "Pasa en promedio una vez cada 10 años");
+  assert.equal(m.frequencyText(50, values, 2), "Pasa unas 4 veces por año");
+  assert.equal(m.frequencyText(200, values, 20), "No pasó en los 20 años con registro completo");
 });
