@@ -185,3 +185,19 @@ No se encontró acceso automático a radar: las imágenes del SMN están detrás
 - `node --test tests/unit/nino-live.test.mjs`: 11 aprobados, con muestras reales del 22/10 (los totales de 63 mm en 24 h y 91 mm en 72 h coinciden con el cálculo manual).
 - `tsc --noEmit`, `next lint` sobre lo nuevo y `npm run build` aprobados; `h5wasm` queda incluido en el paquete standalone y la API respondió con las seis fuentes en modo producción.
 - `scripts/verify_nino_clarity.cjs` actualizado y aprobado sin errores de JavaScript: búsqueda, mapa, escalas, datos en vivo y API, 320/390/768/1440 px sin desborde, y fixtures de lluvia fuerte, serie vacía, vencimiento y snapshot ausente. Evidencias en `docs/capturas-nino-tiempo-real/local/`. El modo oscuro real se comprobó con el botón de tema del sitio; la captura `mobile-dark.png` del script agrega la clase a mano y conserva el fondo claro, igual que en la verificación anterior.
+
+### Producción
+
+- Merge normal `5b6a49a` a `main`, sin force push. CI del merge: [tests aprobados](https://github.com/solstise/observatorio/actions/runs/39893799400) (Python 3.11 y 3.12, y `frontend-unit`) y [lint aprobado](https://github.com/solstise/observatorio/actions/runs/39893799461).
+- Despliegue por el workflow de actualización: [run 39893807345](https://github.com/solstise/observatorio/actions/runs/39893807345), aprobado al primer intento. Corrieron 57, 58, 63 (registro completado desde el 1/1/2026: 296 días, 16 con 30 mm o más), 64 (WRF de las 00 UTC del 23/10) y el snapshot. Contenedor iniciado el **23/10/2026 a las 00:29:07 ART** (`03:29:07 UTC`), imagen `sha256:9023f42cf70cf57e1807371ef37473b4b33abfb427394594414b3c85acc04b9f`.
+- Smoke público (`scripts/smoke_nino.py`, ahora también revisa `/api/nino/ahora`): las cinco rutas 200, pronóstico y estado con 0,25 h de antigüedad, las seis fuentes en vivo en `ok` y OG PNG válida.
+- Datos en producción a las 00:30 ART: alerta amarilla del SMN por tormentas vigente para Posadas hasta el 24/10 a las 14:59, leída completa desde el VPS (sin archivos pendientes); SMN "Parcialmente nublado con tormenta sin precipitación"; METAR con tormenta en la última hora; 63 mm medidos en 24 h y 91 mm en 72 h; 9 rayos a menos de 30 km en la última hora; Paraná 9,96 m, bajando. WRF del SMN para el sábado 24: 42,5 mm en el centro, hasta 54,7 mm en la zona y 45,6 mm en una hora en algún punto.
+- Chrome contra producción en modo solo lectura (`NINO_READ_ONLY=1`): aprobado, sin errores de JavaScript. Evidencias en `docs/capturas-nino-tiempo-real/produccion/`.
+
+Rollback preparado sin force push: imagen anterior `sha256:b3534d5cfcbb462ff7352fef4dbf1c856ffda655a4f136c4174d3f54835628e0` etiquetada `apps-observatorio:rollback-nino-tiempo-real-20261023`.
+
+```bash
+ssh root@187.77.54.19 'docker tag apps-observatorio:rollback-nino-tiempo-real-20261023 apps-observatorio:latest && docker compose -f /opt/apps/migrated-vps2.yml up -d --no-deps --force-recreate --no-build observatorio'
+```
+
+No fue necesario usarlo. Pendientes: estimación satelital de lluvia (GSMaP o IMERG) y radar, sin acceso automático hoy; calibrar los umbrales de suelo con eventos medidos.

@@ -19,7 +19,7 @@ def main(base):
             body = response.read().decode("utf-8")
             if response.status != 200:
                 raise ValueError(f"{path}: {response.status}")
-            if path == "/nino" and ("103" not in body or "no emite alertas oficiales" not in body):
+            if path == "/nino" and ("103" not in body or "no emite alertas" not in body):
                 raise ValueError("Aviso de canales oficiales ausente")
             results.append({"path": path, "status": response.status})
     for path in ("/data/forecast/_metadata.json", "/data/nino/estado.json"):
@@ -33,6 +33,14 @@ def main(base):
         results.append(
             {"path": path, "generated_at": data["generated_at"], "age_hours": round(age / 3600, 3)}
         )
+    # Fuentes oficiales en vivo: cada una informa su estado, nunca un dato inventado.
+    with urlopen(base + "/api/nino/ahora", timeout=60) as response:
+        live = json.load(response)
+    fuentes = ("alertas", "metar", "smn_ahora", "lluvia", "rayos", "rio")
+    estados = {k: live[k]["estado"] for k in fuentes}
+    if any(e not in ("ok", "desactualizado", "sin_datos") for e in estados.values()):
+        raise ValueError(f"Estado de fuente inválido: {estados}")
+    results.append({"path": "/api/nino/ahora", "estados": estados})
     with urlopen(base + "/nino/opengraph-image", timeout=30) as response:
         if response.status != 200 or response.read(8) != b"\x89PNG\r\n\x1a\n":
             raise ValueError("OG inválida")
