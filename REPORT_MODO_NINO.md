@@ -263,3 +263,61 @@ En producción, hoy: 50 mm en 24 h ("Pasa unas 10 veces por año en Posadas") y 
 - Rollback: imagen anterior `sha256:936984c85e7d758d23c8ff21617b824ce417c102aaa75c84bba61a1d855196ab` etiquetada `apps-observatorio:rollback-nino-registro-isd-20261023` (mismo procedimiento que arriba, cambiando la etiqueta).
 
 Límites: es un solo punto, el aeropuerto. El registro no reemplaza a las estadísticas oficiales del SMN. 2007 queda afuera: tiene 77 % de los días con total válido y los huecos no están en ninguna de las dos fuentes.
+
+## Granizo, disco del VPS y filtro de anegamientos — 23/10/2026
+
+### Granizo en la ventana principal
+
+- **Cambio:** la tarjeta "Suelo" se reemplazó por "Granizo". El estado del suelo solo aparece ahora en el simulador de escurrimiento, donde cambia el resultado.
+- **Orden de lo que muestra la tarjeta:**
+  1. Si el aeropuerto informó granizo en las últimas 12 horas, eso.
+  2. Si la alerta del SMN menciona granizo y los modelos dan nivel bajo, "Posible".
+  3. Si no, el nivel SHIP que comparten al menos dos de los tres modelos en las próximas 12 horas.
+- **Palabras:** "granizo moderado" se leía como cantidad. En la ventana, en el pronóstico y en la sección de granizo ahora se usa "poco probable", "posible" o "muy posible". El índice se muestra con dos decimales: con uno, 0,97 aparecía como 1, justo el corte del nivel más alto.
+
+### Disco del VPS
+
+El deploy del cambio de palabras falló dos veces: [run 39957320321](https://github.com/solstise/observatorio/actions/runs/39957320321), issues #175 y #176.
+- **Primer intento:** el puerto SSH no respondió durante unos minutos.
+- **Segundo intento:** "no space left on device", con el disco al 99 %. Lo ocupaban cinco etiquetas de rollback de esta jornada (6,2 GB cada una, porque la imagen incluye los datos) y 27 GB de caché de build.
+
+**Arreglo:**
+- Se borraron esas etiquetas y la caché huérfana, sin tocar imágenes de otras apps ni volúmenes.
+- `deploy-vps.sh` ahora borra las imágenes sin etiqueta después de cada deploy y deja la caché de build en 10 GB como máximo.
+- Ya no se dejan etiquetas de rollback: para volver atrás se redespliega un commit anterior.
+- Después del último deploy el disco quedó en 70 %.
+
+### Filtro de anegamientos
+
+**Fuentes oficiales.** Se investigó qué publican el municipio, la provincia, la EBY, el IGN y las universidades. No hay un registro de anegamientos, ni un mapa de riesgo, ni la red pluvial. La zonificación que encarga la Ordenanza XVIII-74 (2003) no está publicada.
+
+Lo que sí hay en la IDE Posadas (WFS abierto, verificado):
+- arroyos oficiales: 404 tramos;
+- cuencas: 41 subcuencas;
+- obras hidráulicas de 2019 a 2025: 804 puntos y 120 líneas;
+- materialidad de calles: 4.838 tramos.
+
+El IGN tiene un MDE de 5 m de Posadas (vuelo de 2016) que entrega a pedido por correo. El servidor de la IDE Misiones ya no existe en DNS.
+
+**Caminos del agua** (`scripts/68_anegamientos_terreno.py`):
+- **Método:** Copernicus GLO-30 con los arroyos oficiales marcados 3 m más abajo; relleno de depresiones con prioridad (Barnes et al. 2014); D8 y área de aporte.
+- **Qué se dibuja:** las celdas que reciben agua de 10 ha o más y están a más de 90 m de un arroyo oficial. Son 479 líneas.
+- **Validación:** el 21,8 % de las 911 obras hidráulicas del municipio está a menos de 60 m de una de esas líneas, contra el 9,6 % de 160.705 edificios. Es 2,3 veces lo esperable por azar.
+
+**Radar Sentinel-1** (RTC de Planetary Computer, sin publicar):
+- **Cobertura:** solo la órbita 170 cubre la ciudad, a las 6:05.
+- **Máscara de lo que el radar no puede ver:** a menos de 20 m de un edificio (huellas de edificios), árboles y agua permanente (ESA WorldCover 2021 y JRC Global Surface Water), y superficies oscuras o variables en días secos. Queda visible cerca del 30 % de la zona y casi nada del centro.
+- **Pasadas revisadas:** 21, después de lluvias de 27 a 172 mm. Se ubicaron con los partes de 6 horas y los METAR.
+- **Resultado:** el detector encontró entre 0 y 1,6 ha de agua nueva por pasada. En pasadas secas marca lo mismo: mediana de 0,5 ha, con picos de más de 200 ha.
+- **Prueba floja:** con un criterio más flojo, las pasadas con lluvia tienen menos píxeles oscuros que el 96 % de las secas. El suelo mojado devuelve más señal y no aparece agua quieta.
+
+**Validación y producción:**
+- Pruebas: `pytest` (21 aprobados, 3 nuevos con relieves sintéticos), `node --test` (16), `tsc`, `next lint`, `black` y `ruff`.
+- `scripts/verify_nino_clarity.cjs`, ampliado con el filtro, aprobado en local y contra producción en modo solo lectura.
+- Merge `517cfa6` sin force push. [Run 39965356431](https://github.com/solstise/observatorio/actions/runs/39965356431) aprobado.
+- Smoke: cinco rutas 200, las seis fuentes en vivo `ok`, y `anegamientos_terreno.geojson`, `anegamientos_terreno.json` y `obras_pluviales.geojson` servidos.
+
+**Pendientes:**
+- Pedir al IGN el MDE de 5 m para seguir calles y cordones.
+- Pedir al municipio por acceso a la información los reclamos por anegamiento y la red pluvial.
+- Cuando estén publicados, sumar los datos de la Mesa de Emergencias Climáticas.

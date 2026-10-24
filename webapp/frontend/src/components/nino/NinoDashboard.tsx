@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Feature, FeatureCollection } from "geojson";
-import type { NinoClimate, NinoConfig, NinoEvent, NinoHail as Hail, NinoHydro, NinoObservedDay, NinoSnapshot } from "@/lib/nino-types";
+import type { NinoClimate, NinoConfig, NinoEvent, NinoHail as Hail, NinoHydro, NinoObservedDay, NinoSnapshot, WaterPathsCheck } from "@/lib/nino-types";
 import type { NinoAhora } from "@/lib/nino-live/types";
 import { insidePolygon } from "@/lib/nino-live/parse";
 import { type Amc, amcFromAntecedent, barrioRunoff } from "@/lib/nino-escurrimiento";
@@ -26,6 +26,7 @@ const NinoMapGL = dynamic(() => import("./NinoMapGL"), { ssr: false, loading: ()
 const REFRESH_MS = 3 * 60_000;
 const LAYERS: Array<{ key: MapLayerKey; label: string }> = [
   { key: "agua", label: "Arroyos y zonas bajas" },
+  { key: "anegamientos", label: "Anegamientos" },
   { key: "escurrimiento", label: "Cuánto escurre" },
   { key: "rayos", label: "Rayos" },
   { key: "lugares", label: "Escuelas y salud" },
@@ -66,7 +67,8 @@ export function NinoDashboard({ snapshot, barrios, zones, facilities, events, re
   const [now, setNow] = useState<number | null>(null);
   const [live, setLive] = useState<NinoAhora | null>(initialLive);
   const [loading, setLoading] = useState(!initialLive);
-  const [layers, setLayers] = useState<Record<MapLayerKey, boolean>>({ agua: true, escurrimiento: false, rayos: false, lugares: false });
+  const [layers, setLayers] = useState<Record<MapLayerKey, boolean>>({ agua: true, anegamientos: false, escurrimiento: false, rayos: false, lugares: false });
+  const [pathsCheck, setPathsCheck] = useState<WaterPathsCheck | null>(null);
   const [selectedId, setSelectedId] = useState("");
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [locating, setLocating] = useState<"idle" | "busy" | "fuera" | "error">("idle");
@@ -74,8 +76,7 @@ export function NinoDashboard({ snapshot, barrios, zones, facilities, events, re
   const [simMm, setSimMm] = useState(() => Math.max(5, Math.round(rain?.lluvia_24h ?? 30)));
   const mm5 = live?.lluvia.datos?.totales.find(t => t.horas === 120)?.mm ?? null;
   const todayAmc = amcFromAntecedent(mm5);
-  const [amcChoice, setAmcChoice] = useState<Amc | null>(null);
-  const simAmc: Amc = amcChoice ?? todayAmc ?? "II";
+  const simAmc: Amc = todayAmc ?? "II";
 
   const refresh = useCallback(async () => {
     try {
@@ -99,6 +100,12 @@ export function NinoDashboard({ snapshot, barrios, zones, facilities, events, re
     return () => { clearInterval(clock); clearInterval(timer); document.removeEventListener("visibilitychange", onVisible); };
   }, [initialLive, refresh]);
 
+  // Validación de los caminos del agua contra las obras del municipio (script 68).
+  useEffect(() => {
+    if (!layers.anegamientos || pathsCheck) return;
+    fetch("/data/nino/anegamientos_terreno.json").then(r => (r.ok ? r.json() : null)).then(data => setPathsCheck(data?.validacion_obras ?? null)).catch(() => setPathsCheck(null));
+  }, [layers.anegamientos, pathsCheck]);
+
   const timestamp = Date.parse(snapshot?.generated_at ?? "");
   const fresh = now !== null && Number.isFinite(timestamp) && now - timestamp <= 86_400_000 && timestamp - now <= 300_000;
   const rows = snapshot?.barrios ?? [];
@@ -107,6 +114,8 @@ export function NinoDashboard({ snapshot, barrios, zones, facilities, events, re
   const clock = now ?? (Date.parse(live?.generado ?? snapshot?.generated_at ?? "") || 0);
   const hero = heroState(live, level, fresh, clock);
   const lightning = live?.rayos.datos;
+  // Rayos a menos de 30 km del centro en los últimos 15 minutos: se avisa en el filtro del mapa.
+  const lightningNear = !!lightning?.cercano && lightning.cercano.hace_min <= 15 && lightning.cercano.km <= 30;
   const officialAlert = live?.alertas.datos?.posadas[0];
   const runoff = useMemo(() => Object.fromEntries((hydro?.barrios ?? []).map(b => [b.poligono_id, barrioRunoff(b, simMm, simAmc).porcentaje[1]])), [hydro, simMm, simAmc]);
   const selectedRow = rows.find(r => r.poligono_id === selectedId);
@@ -132,14 +141,14 @@ export function NinoDashboard({ snapshot, barrios, zones, facilities, events, re
       </nav>
     </header>
 
-    <NinoNow live={live} hero={hero} now={clock} climate={climate} loading={loading} />
+    <NinoNow live={live} hero={hero} now={clock} climate={climate} hail={hail} loading={loading} userLocation={userLocation} />
 
     <div className={styles.duo}>
-      <NinoLightning rayos={live?.rayos} metar={live?.metar.datos} now={clock} />
+      <NinoLightning rayos={live?.rayos} metar={live?.metar.datos} now={clock} userLocation={userLocation} />
       <NinoObserved live={live?.lluvia.datos} record={record} climate={climate} config={config} now={clock} threshold24h={rain?.umbrales.atencion?.mm_24h ?? 50} />
     </div>
 
-    <NinoSimulator hydro={hydro} rain={rain} wrf={snapshot?.wrf_smn} alert={officialAlert} mm5days={mm5} todayAmc={todayAmc} amc={simAmc} onAmc={setAmcChoice} mm={simMm} onMm={setSimMm} selectedId={selectedId} onSelect={setSelectedId} />
+    <NinoSimulator hydro={hydro} rain={rain} wrf={snapshot?.wrf_smn} alert={officialAlert} mm5days={mm5} amc={todayAmc} mm={simMm} onMm={setSimMm} selectedId={selectedId} onSelect={setSelectedId} onShowPaths={() => { setLayers(current => ({ ...current, anegamientos: true })); document.getElementById("mapa")?.scrollIntoView({ behavior: "smooth" }); }} />
 
     <section id="mapa" className={styles.card} aria-labelledby="mapa-heading">
       <div className={styles.cardHead}>
@@ -149,7 +158,7 @@ export function NinoDashboard({ snapshot, barrios, zones, facilities, events, re
       {locating === "fuera" && <p className={styles.smallLine}>Tu ubicación está fuera de los barrios que analizamos.</p>}
       {locating === "error" && <p className={styles.smallLine}>No pudimos acceder a tu ubicación. Elegí tu barrio en la lista.</p>}
       <div className={styles.filters} role="group" aria-label="Qué mostrar en el mapa">
-        {LAYERS.map(layer => <button key={layer.key} type="button" className={styles.filter} data-layer={layer.key} aria-pressed={layers[layer.key]} onClick={() => setLayers(current => ({ ...current, [layer.key]: !current[layer.key] }))}>{layer.label}</button>)}
+        {LAYERS.map(layer => <button key={layer.key} type="button" className={styles.filter} data-layer={layer.key} data-hot={layer.key === "rayos" && lightningNear ? "1" : undefined} aria-pressed={layers[layer.key]} onClick={() => setLayers(current => ({ ...current, [layer.key]: !current[layer.key] }))}>{layer.label}{layer.key === "rayos" && lightningNear ? " · hay cerca" : ""}</button>)}
       </div>
       <div className={styles.mapWrap}>
         <NinoMapGL barrios={barrios} zones={zones} facilities={facilities} lightning={lightning?.puntos ?? []} runoff={runoff} layers={layers} selectedId={selectedId} userLocation={userLocation} onSelect={setSelectedId} />
@@ -157,15 +166,25 @@ export function NinoDashboard({ snapshot, barrios, zones, facilities, events, re
       <div className={styles.mapLegend}>
         {layers.agua && <span><i className={styles.legendFlow} />Arroyos: el agua se mueve en el sentido de la corriente</span>}
         {layers.agua && <span><i style={{ background: "#3a9bd1", opacity: 0.45 }} />Zonas bajas o cerca de arroyos</span>}
+        {layers.anegamientos && <span><i className={styles.legendPath} />Por dónde baja el agua en una tormenta, fuera de los arroyos (según el terreno)</span>}
+        {layers.anegamientos && <span><i className={`${styles.legendDot} ${styles.legendWorks}`} />Obras de desagüe del municipio, 2019–2025</span>}
         {layers.escurrimiento && <span><i className={styles.legendRamp} />Escurre con {simMm} mm: poco → mucho</span>}
         {layers.rayos && <span>Rayos hace: {LIGHTNING_COLORS.map(([limit, color], index) => <span key={limit} className={styles.legendInline}><i className={styles.legendDot} style={{ background: color }} />{index === 0 ? `0–${limit}` : `${LIGHTNING_COLORS[index - 1][0]}–${limit}`} min</span>)} · anillos de 15 y 30 km</span>}
         {layers.lugares && <span><i className={styles.legendDot} style={{ background: "#6d4c9f" }} />Escuelas y salud (no son refugios oficiales)</span>}
       </div>
+      {layers.anegamientos && <p className={styles.footnote}>
+        No hay un registro público de dónde se anega Posadas. Estas líneas muestran por dónde baja y se junta el agua según el relieve: es donde primero se acumula cuando los desagües no alcanzan.
+        {pathsCheck?.obras_cerca_pct != null && ` El ${num(pathsCheck.obras_cerca_pct)} % de las obras de desagüe que hizo el municipio está a menos de 60 m de una de ellas, contra el ${num(pathsCheck.edificios_cerca_pct)} % de las casas.`}
+        {" "}Probamos también el radar satelital y no sirvió para ver agua en las calles. <Link href="/datos/metodologia#anegamientos" className={styles.textLink}>Cómo se calcula</Link>
+      </p>}
       {selectedId && (selectedRow || selectedHydro) && <div className={styles.barrioCard}>
         <p className={styles.bigLine}>{selectedRow?.nombre ?? selectedHydro?.nombre}</p>
         <ul>
           {selectedRow?.estado === "calculado" && <li><strong>{num(selectedRow.viviendas_expuestas)}</strong> de {num(selectedRow.edificios_total)} edificios en zonas bajas o cerca de arroyos</li>}
-          {selectedHydro && <li>Con {simMm} mm, escurren <strong>{barrioRunoff(selectedHydro, simMm, simAmc).porcentaje.join(" a ")}</strong> de cada 100 litros</li>}
+          {selectedHydro && (() => {
+            const [low, high] = barrioRunoff(selectedHydro, simMm, simAmc).porcentaje.map(p => Math.round(p / 10));
+            return <li>Si caen {simMm} mm, <strong>{low === high ? `unos ${low}` : `entre ${low} y ${high}`}</strong> de cada 10 litros van a la calle</li>;
+          })()}
           {selectedRow && fresh && selectedRow.score_anegamiento != null && <li>Impacto estimado con la lluvia prevista: <strong>{IMPACT_LABEL[selectedRow.nivel]}</strong></li>}
         </ul>
         <Link href={`/poligono/${selectedId}`} className={styles.textLink}>Ver todo sobre el barrio</Link>

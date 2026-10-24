@@ -129,6 +129,14 @@ export interface NinoHydroBarrio {
   cn_ii_min: number;
   cn_ii_max: number;
 }
+// Caminos del agua (script 68): obras de desagüe del municipio y casas cerca de ellos.
+export interface WaterPathsCheck {
+  obras: number;
+  edificios: number;
+  obras_cerca_pct: number | null;
+  edificios_cerca_pct: number;
+  razon: number | null;
+}
 export interface NinoHydro {
   generated_at: string;
   metodo: string;

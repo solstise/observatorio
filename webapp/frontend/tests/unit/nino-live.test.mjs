@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 import {
   capColor, capLinks, describeWx, isCapFeed, distanceToRingKm, parseCap, parseMetars, parsePrefectura,
   controlDay, parseSynop, parseTiepre, rainBlocks, selectAlerts, splitInstructions,
-  summarizeFlashes, summarizeSynop, POSADAS, bearingDeg, directionName, lightningTrend,
+  summarizeFlashes, summarizeSynop, POSADAS, bearingDeg, directionName, lightningTrend, nearestLightning,
 } from "../../src/lib/nino-live/parse.ts";
 
 const fixture = name => readFileSync(new URL(`./fixtures/${name}`, import.meta.url), "utf8");
@@ -275,4 +275,37 @@ test("frecuencia empírica de lluvias", async () => {
   assert.equal(m.frequencyText(100, values, 10), "Pasa en promedio una vez cada 10 años");
   assert.equal(m.frequencyText(50, values, 2), "Pasa unas 4 veces por año");
   assert.equal(m.frequencyText(200, values, 20), "No pasó en los 20 años con registro completo");
+});
+
+test("granizo en las próximas 12 horas: consenso de al menos dos modelos", async () => {
+  const { hailNext } = await import("../../src/lib/nino-presentation.ts");
+  const now = Date.parse("2026-10-23T10:30:00-03:00");
+  // Horas locales de Open-Meteo: 10:00 a 23:00 del 23/10.
+  const serie = peak => ({ nombre: "x", horas: Array.from({ length: 14 }, (_, i) => ({ time: `2026-10-23T${String(10 + i).padStart(2, "0")}:00`, ship: i === 6 ? peak : 0.1 })) });
+  const hail = modelos => ({ generated_at: "", estado: "disponible", cortes: { moderado: 0.5, alto: 1 }, modelos, dias: [] });
+  // GFS 0,57, ECMWF 0,97 e ICON 0,09 (23/10): dos modelos llegan a moderado.
+  assert.deepEqual(hailNext(hail({ gfs: serie(0.57), ecmwf: serie(0.97), icon: serie(0.09) }), now), { nivel: "moderado", modelos: 3 });
+  // Un solo modelo en alto no alcanza: queda el nivel que comparten dos.
+  assert.equal(hailNext(hail({ gfs: serie(1.4), ecmwf: serie(0.2), icon: serie(0.1) }), now).nivel, "bajo");
+  assert.equal(hailNext(hail({ gfs: serie(1.4), ecmwf: serie(1.1), icon: serie(0.1) }), now).nivel, "alto");
+  // El pico de las 16:00 queda fuera de una ventana de 3 horas.
+  assert.equal(hailNext(hail({ gfs: serie(1.4), ecmwf: serie(1.1) }), now, 3).nivel, "bajo");
+  // Pronóstico vencido o sin modelos: sin dato, nunca "bajo".
+  assert.deepEqual(hailNext(hail({ gfs: serie(1.4) }), Date.parse("2026-10-25T10:00:00-03:00")), { nivel: null, modelos: 0 });
+  assert.deepEqual(hailNext(null, now), { nivel: null, modelos: 0 });
+});
+
+test("rayo más cercano a la persona, no al centro", () => {
+  const chacra32 = { lat: -27.3988, lon: -55.9063 };
+  // Un rayo sobre la Chacra 32 hace 3 min, otro sobre el centro hace 2 min y uno viejo encima.
+  const points = [[-27.399, -55.906, 3], [POSADAS.lat, POSADAS.lon, 2], [-27.3988, -55.9063, 40]];
+  const mine = nearestLightning(points, chacra32);
+  assert.equal(mine.km, 0);
+  assert.equal(mine.hace_min, 3);
+  // Desde el centro, el más cercano es el que cayó encima del centro.
+  assert.equal(nearestLightning(points, POSADAS).hace_min, 2);
+  // Solo cuentan los últimos 15 minutos: sin rayos recientes no hay "más cercano".
+  assert.equal(nearestLightning([[-27.3988, -55.9063, 40]], chacra32), null);
+  // El rumbo va desde la persona: un rayo al norte de la Chacra 32 está al norte.
+  assert.equal(directionName(nearestLightning([[-27.30, -55.9063, 1]], chacra32).rumbo), "norte");
 });

@@ -68,6 +68,15 @@ checks.push('Cantidades pequeñas, cero y dato ausente se distinguen; búsqueda 
     await expect(page.locator('#mapa')).not.toContainText('Zonas bajas o cerca de arroyos');
     await water.click();
     await runoff.click();
+    // Anegamientos: caminos del agua y obras del municipio, con su explicación y validación.
+    const flooding = page.getByRole('button', { name: 'Anegamientos', exact: true });
+    await expect(flooding).toHaveAttribute('aria-pressed', 'false');
+    await flooding.click();
+    await expect(page.locator('#mapa')).toContainText('Por dónde baja el agua en una tormenta');
+    await expect(page.locator('#mapa')).toContainText('No hay un registro público de dónde se anega Posadas');
+    await expect(page.locator('#mapa')).toContainText(/de las obras de desagüe que hizo el municipio/);
+    await flooding.click();
+    await expect(page.locator('#mapa')).not.toContainText('Por dónde baja el agua en una tormenta');
     checks.push('Buscar sin tildes, mostrar más, localizar barrio en mapa y simulador, y prender o apagar capas.');
 
     await page.getByLabel('Nombre del barrio', { exact: true }).fill('Villa Mola');
@@ -86,19 +95,32 @@ checks.push('Cantidades pequeñas, cero y dato ausente se distinguen; búsqueda 
     await expect(page.locator('#ahora h2')).not.toHaveText('');
     await expect(page.locator('#lo-que-llovio').getByRole('button', { name: '24 horas', exact: true })).toBeVisible();
     await expect(page.locator('#rio')).toBeVisible();
-    await expect(page.locator('#fuentes [aria-label="Estado de cada fuente"] > li')).toHaveCount(11);
-    const lightningFilter = page.getByRole('button', { name: 'Rayos', exact: true });
+    await expect(page.locator('#fuentes [aria-label="Estado de cada fuente"] > li')).toHaveCount(12);
+    const lightningFilter = page.getByRole('button', { name: /^Rayos( · hay cerca)?$/ });
     await expect(page.locator('#mapa').getByText(/Rayos hace:/)).toHaveCount(0);
     await lightningFilter.click();
     await expect(page.locator('#mapa').getByText(/Rayos hace:/)).toHaveCount(1);
     await lightningFilter.click();
-    // Simulador: el resultado cambia con la lluvia y con el estado del suelo.
+    // Simulador: una frase con diez gotas que cambia con la lluvia y con el barrio,
+    // y el botón que lleva al mapa con los caminos del agua.
     const slider = page.locator('#sim-mm');
     await slider.fill('100');
-    const wet = await page.locator('#simulador').textContent();
-    await page.locator('#simulador').getByRole('button', { name: /^Seco/ }).click();
-    assert.notEqual(await page.locator('#simulador').textContent(), wet);
+    const answer = page.locator('#simulador').getByText(/de cada 10 litros van a la calle/).first();
+    const heavy = await answer.textContent();
+    await expect(page.locator('#simulador [data-kind="calle"]').first()).toBeVisible();
+    await slider.fill('10');
+    assert.notEqual(await answer.textContent(), heavy);
+    await expect(page.locator('#simulador')).toContainText('tanques de 1.000 litros');
+    await page.locator('#sim-barrio').selectOption('');
+    await expect(page.locator('#simulador')).not.toContainText('entre los barrios que');
+    await page.locator('#simulador').getByRole('button', { name: 'Ver en el mapa por dónde baja el agua' }).click();
+    await expect(page.getByRole('button', { name: 'Anegamientos', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await page.getByRole('button', { name: 'Anegamientos', exact: true }).click();
     await expect(page.locator('#rayos svg[role="img"]')).toBeVisible();
+    // Las distancias dicen desde dónde se miden y nunca "0 km".
+    await expect(page.locator('#rayos')).toContainText(/desde el centro de Posadas|Sin datos del satélite/);
+    await expect(page.locator('#rayos')).not.toContainText(/\b0 km\b/);
+    await expect(page.locator('#ahora a[href="#rayos"]')).not.toContainText(/A 0 km/);
     const api = await page.request.get(base + '/api/nino/ahora');
     assert.equal(api.status(), 200);
     const live = await api.json();

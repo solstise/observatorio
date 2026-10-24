@@ -3,13 +3,12 @@
 import { ForecastSafety } from "@/components/ForecastSafety";
 import type { NinoHail, NinoRain, NinoWrf } from "@/lib/nino-types";
 import type { SmnAlert } from "@/lib/nino-live/parse";
-import { RAIN_COPY, alertHeadline, clockTime, dayName, formatRain, formatNinoNumber as num, ninoDate, whenText } from "@/lib/nino-presentation";
+import { HAIL_LIKELIHOOD, RAIN_COPY, alertHeadline, clockTime, dayName, formatRain, formatNinoNumber as num, ninoDate, whenText } from "@/lib/nino-presentation";
 import { NinoRainChart } from "./NinoRainChart";
 import styles from "./nino.module.css";
 
 const TZ = "America/Argentina/Buenos_Aires";
 const localDate = (iso: string) => new Date(iso).toLocaleDateString("en-CA", { timeZone: TZ });
-const HAIL_TEXT = { bajo: "bajo", moderado: "moderado", alto: "alto" } as const;
 
 export function NinoOutlook({ rain, wrf, hail, fresh, now, officialAlert, issuedAt }: { rain: NinoRain | undefined; wrf: NinoWrf | undefined; hail: NinoHail | null; fresh: boolean; now: number; officialAlert?: SmnAlert; issuedAt: string }) {
   const threshold = rain?.umbrales.atencion?.mm_24h ?? 50;
@@ -52,7 +51,7 @@ export function NinoOutlook({ rain, wrf, hail, fresh, now, officialAlert, issued
         </div>
         <ul className={styles.dayChips}>
           {alertCovers(day.fecha) && <li data-kind="smn">Alerta SMN</li>}
-          {hailLevel && hailLevel !== "bajo" && <li data-kind="hail">Granizo: {HAIL_TEXT[hailLevel]}</li>}
+          {hailLevel && hailLevel !== "bajo" && <li data-kind="hail">Granizo {HAIL_LIKELIHOOD[hailLevel]}</li>}
           {day.prob_atencion != null && day.prob_atencion >= 20 && <li>{num(day.prob_atencion)}% llega al nivel de atención</li>}
         </ul>
         {w && <p className={styles.dayWrf}>Modelo del SMN: {formatRain(w.centro)} mm en el centro, hasta <strong>{formatRain(w.max_zona)}</strong> en la zona</p>}

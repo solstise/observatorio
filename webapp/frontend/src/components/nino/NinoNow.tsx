@@ -1,18 +1,17 @@
 "use client";
 
-import type { NinoClimate } from "@/lib/nino-types";
+import type { NinoClimate, NinoHail } from "@/lib/nino-types";
 import type { NinoAhora } from "@/lib/nino-live/types";
-import { directionName } from "@/lib/nino-live/parse";
-import { amcFromAntecedent, timesPerYear } from "@/lib/nino-escurrimiento";
-import { agoText, alertHeadline, alertSummary, formatMeters, formatNinoNumber as num, formatRain, rainIntensity, whenText, type HeroState } from "@/lib/nino-presentation";
+import { directionName, nearestLightning } from "@/lib/nino-live/parse";
+import { timesPerYear } from "@/lib/nino-escurrimiento";
+import { agoText, alertHeadline, alertSummary, clockTime, formatMeters, formatNinoNumber as num, formatRain, HAIL_LIKELIHOOD, LIGHTNING_NEAR_KM, hailNext, rainIntensity, whenText, type HeroState } from "@/lib/nino-presentation";
 import { NinoIcon } from "./NinoIcons";
 import { NinoSky } from "./NinoSky";
 import styles from "./nino.module.css";
 
 const HERO_ICON = { roja: "alert", naranja: "alert", amarilla: "alert", informativa: "alert", tormenta: "storm", lluvia: "rain", calma: "check", sin_datos: "alert" } as const;
-const SOIL_LABEL = { I: "Seco", II: "Normal", III: "Muy mojado" } as const;
 
-export function NinoNow({ live, hero, now, climate, loading }: { live: NinoAhora | null; hero: HeroState; now: number; climate: NinoClimate | null; loading: boolean }) {
+export function NinoNow({ live, hero, now, climate, hail, loading, userLocation }: { live: NinoAhora | null; hero: HeroState; now: number; climate: NinoClimate | null; hail: NinoHail | null; loading: boolean; userLocation: [number, number] | null }) {
   const alerts = live?.alertas.datos;
   const top = alerts?.posadas[0];
   const others = alerts?.posadas.slice(1) ?? [];
@@ -21,12 +20,22 @@ export function NinoNow({ live, hero, now, climate, loading }: { live: NinoAhora
   const lightning = live?.rayos.datos;
   const river = live?.rio.datos;
   const total = (hours: number) => rain?.totales.find(t => t.horas === hours);
-  const mm5 = total(120)?.mm ?? null;
-  const amc = amcFromAntecedent(mm5);
-  const closest = lightning?.cercano;
-  const recentClose = !!closest && closest.hace_min <= 15;
+  // Con la ubicación de la persona, el rayo más cercano a ella; si no, al centro de Posadas.
+  const mine = lightning && userLocation ? nearestLightning(lightning.puntos, { lat: userLocation[0], lon: userLocation[1] }) : null;
+  const closest = mine ?? (lightning?.cercano && lightning.cercano.hace_min <= 15 ? lightning.cercano : null);
+  const trendWord = !mine && lightning?.tendencia.estado === "se_acerca" ? " · se acerca" : !mine && lightning?.tendencia.estado === "se_aleja" ? " · se aleja" : "";
   const nearLightning = (lightning?.cerca_15min ?? 0) > 0;
   const freq = total(24) && climate ? timesPerYear(total(24)!.mm, climate.diarios_desde_10mm, climate.n_anios) : null;
+  // Granizo: lo informado por el aeropuerto manda; después la alerta del SMN y el ambiente de los modelos.
+  const hailSeen = live?.metar.datos?.granizo_12h ?? [];
+  const hailOfficial = !!alerts?.posadas.some(alert => alert.menciona_granizo);
+  const hailModels = hailNext(hail, now);
+  const likelihood = hailModels.nivel ? HAIL_LIKELIHOOD[hailModels.nivel] : null;
+  const hailChip = hailSeen.length ? { value: `Cayó a las ${clockTime(hailSeen[0])}`, sub: "en el aeropuerto" }
+    : hailOfficial && (!hailModels.nivel || hailModels.nivel === "bajo") ? { value: "Posible", sub: "lo menciona la alerta del SMN" }
+    : likelihood ? { value: likelihood.charAt(0).toUpperCase() + likelihood.slice(1), sub: hailOfficial ? "próximas 12 h · lo menciona el SMN" : `próximas 12 h · ${hailModels.modelos} modelos` }
+    : { value: "Sin datos", sub: "" };
+  const hailHot = hailSeen.length > 0 || hailModels.nivel === "alto" || (hailOfficial && hailModels.nivel === "moderado");
   const summary = top ? alertSummary(top) : "";
   const freqText = !freq || freq.count === 0 ? "estación del SMN"
     : freq.porAnio >= 1.5 ? `~${Math.round(freq.porAnio)} veces por año`
@@ -47,11 +56,11 @@ export function NinoNow({ live, hero, now, climate, loading }: { live: NinoAhora
     </div>
 
     <ul className={styles.chips} aria-label="Ahora en Posadas">
-      <li><a href="#rayos" className={styles.chip} data-hot={recentClose && closest!.km <= 30 ? "1" : undefined}>
+      <li><a href="#rayos" className={styles.chip} data-hot={closest && closest.km <= 30 ? "1" : undefined}>
         <NinoIcon name="bolt" size={20} />
         <span className={styles.chipLabel}>Rayos</span>
-        <span className={styles.chipValue}>{!lightning ? "Sin datos" : recentClose ? `A ${closest!.km} km` : "Lejos"}</span>
-        <span className={styles.chipSub}>{!lightning ? "" : recentClose ? `al ${directionName(closest!.rumbo)}${lightning.tendencia.estado === "se_acerca" ? " · se acerca" : lightning.tendencia.estado === "se_aleja" ? " · se aleja" : ""}` : "nada en 15 min"}</span>
+        <span className={styles.chipValue}>{!lightning ? "Sin datos" : !closest ? "Lejos" : closest.km < LIGHTNING_NEAR_KM ? `A menos de ${LIGHTNING_NEAR_KM} km` : `A ${closest.km} km`}</span>
+        <span className={styles.chipSub}>{!lightning ? "" : !closest ? "nada en 15 min" : `${closest.km < LIGHTNING_NEAR_KM ? "" : `al ${directionName(closest.rumbo)} `}${mine ? "de vos" : "del centro"}${trendWord}`}</span>
       </a></li>
       <li><a href="#lo-que-llovio" className={styles.chip}>
         <NinoIcon name="drop" size={20} />
@@ -59,11 +68,11 @@ export function NinoNow({ live, hero, now, climate, loading }: { live: NinoAhora
         <span className={styles.chipValue}>{total(24) ? `${formatRain(total(24)!.mm)} mm` : "Sin datos"}</span>
         <span className={styles.chipSub}>{freqText}</span>
       </a></li>
-      <li><a href="#simulador" className={styles.chip}>
-        <NinoIcon name="ground" size={20} />
-        <span className={styles.chipLabel}>Suelo</span>
-        <span className={styles.chipValue}>{amc ? SOIL_LABEL[amc] : "Sin datos"}</span>
-        <span className={styles.chipSub}>{mm5 != null ? `${num(Math.round(mm5))} mm en 5 días` : ""}</span>
+      <li><a href="#granizo" className={styles.chip} data-hot={hailHot ? "1" : undefined}>
+        <NinoIcon name="hail" size={20} />
+        <span className={styles.chipLabel}>Granizo</span>
+        <span className={styles.chipValue}>{hailChip.value}</span>
+        <span className={styles.chipSub}>{hailChip.sub}</span>
       </a></li>
       <li><a href="#rio" className={styles.chip}>
         <NinoIcon name="river" size={20} />

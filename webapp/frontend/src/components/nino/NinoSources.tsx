@@ -22,6 +22,7 @@ export function NinoSources({ live, snapshot, hail, climate, now }: { live: Nino
     { name: "Modelo de alta resolución", what: "WRF 4 km del Servicio Meteorológico Nacional, publicado como datos abiertos.", ok: wrf?.estado === "disponible", when: wrf?.estado === "disponible" && wrf.corrida ? `Corrida ${ninoDate(wrf.corrida)}` : STATUS.sin_datos },
     { name: "Ambiente para granizo", what: "Índice SHIP (NOAA) con los modelos GFS, ECMWF e ICON vía Open-Meteo.", ok: hail?.estado === "disponible", when: hail?.estado === "disponible" ? `Calculado ${ninoDate(hail.generated_at)}` : STATUS.sin_datos },
     { name: "Climatología", what: "Registro diario de la estación Posadas Aero; solo años con 90 % de los días informados.", ok: !!climate, when: climate ? `${climate.n_anios} años completos` : STATUS.sin_datos },
+    { name: "Anegamientos", what: "Caminos del agua con el relieve Copernicus GLO-30 y los arroyos oficiales; obras de desagüe 2019–2025, de la IDE de la Municipalidad de Posadas.", ok: true, when: "Capa fija" },
     { name: "Mapa", what: "Calles y nombres de OpenStreetMap (OpenFreeMap); arroyos de OpenStreetMap.", ok: true, when: "Base cartográfica" },
   ];
   return <section id="fuentes" className={styles.card} aria-labelledby="fuentes-heading">
