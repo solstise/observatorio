@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-24T03:30:13+00:00",
+ "generated_at": "2026-10-24T10:17:58+00:00",
  "estado": "disponible",
  "metodo": "SHIP (Storm Prediction Center, NOAA) con aproximaciones de Open-Meteo",
  "cortes": {
@@ -12,7 +12,7 @@
    "horas": [
     {
      "time": "2026-10-24T00:00",
-     "ship": 0.0
+     "ship": 0.01
     },
     {
      "time": "2026-10-24T01:00",
@@ -44,39 +44,39 @@
     },
     {
      "time": "2026-10-24T08:00",
-     "ship": 0.01
+     "ship": 0.0
     },
     {
      "time": "2026-10-24T09:00",
-     "ship": 0.03
+     "ship": 0.02
     },
     {
      "time": "2026-10-24T10:00",
-     "ship": 0.04
+     "ship": 0.02
     },
     {
      "time": "2026-10-24T11:00",
-     "ship": 0.17
+     "ship": 0.02
     },
     {
      "time": "2026-10-24T12:00",
-     "ship": 0.25
+     "ship": 0.34
     },
     {
      "time": "2026-10-24T13:00",
-     "ship": 0.21
+     "ship": 0.41
     },
     {
      "time": "2026-10-24T14:00",
-     "ship": 0.23
+     "ship": 0.29
     },
     {
      "time": "2026-10-24T15:00",
-     "ship": 0.16
+     "ship": 0.01
     },
     {
      "time": "2026-10-24T16:00",
-     "ship": 0.0
+     "ship": 0.01
     },
     {
      "time": "2026-10-24T17:00",
@@ -305,83 +305,83 @@
    "horas": [
     {
      "time": "2026-10-24T00:00",
-     "ship": 0.35
+     "ship": 0.29
     },
     {
      "time": "2026-10-24T01:00",
-     "ship": 0.27
+     "ship": 0.22
     },
     {
      "time": "2026-10-24T02:00",
-     "ship": 0.16
+     "ship": 0.12
     },
     {
      "time": "2026-10-24T03:00",
-     "ship": 0.11
+     "ship": 0.07
     },
     {
      "time": "2026-10-24T04:00",
-     "ship": 0.15
+     "ship": 0.07
     },
     {
      "time": "2026-10-24T05:00",
-     "ship": 0.23
+     "ship": 0.1
     },
     {
      "time": "2026-10-24T06:00",
-     "ship": 0.32
+     "ship": 0.12
     },
     {
      "time": "2026-10-24T07:00",
-     "ship": 0.36
+     "ship": 0.14
     },
     {
      "time": "2026-10-24T08:00",
-     "ship": 0.37
-    },
-    {
-     "time": "2026-10-24T09:00",
-     "ship": 0.36
-    },
-    {
-     "time": "2026-10-24T10:00",
-     "ship": 0.33
-    },
-    {
-     "time": "2026-10-24T11:00",
-     "ship": 0.3
-    },
-    {
-     "time": "2026-10-24T12:00",
-     "ship": 0.28
-    },
-    {
-     "time": "2026-10-24T13:00",
-     "ship": 0.32
-    },
-    {
-     "time": "2026-10-24T14:00",
-     "ship": 0.35
-    },
-    {
-     "time": "2026-10-24T15:00",
-     "ship": 0.38
-    },
-    {
-     "time": "2026-10-24T16:00",
-     "ship": 0.28
-    },
-    {
-     "time": "2026-10-24T17:00",
      "ship": 0.16
     },
     {
+     "time": "2026-10-24T09:00",
+     "ship": 0.2
+    },
+    {
+     "time": "2026-10-24T10:00",
+     "ship": 0.29
+    },
+    {
+     "time": "2026-10-24T11:00",
+     "ship": 0.4
+    },
+    {
+     "time": "2026-10-24T12:00",
+     "ship": 0.43
+    },
+    {
+     "time": "2026-10-24T13:00",
+     "ship": 0.42
+    },
+    {
+     "time": "2026-10-24T14:00",
+     "ship": 0.39
+    },
+    {
+     "time": "2026-10-24T15:00",
+     "ship": 0.34
+    },
+    {
+     "time": "2026-10-24T16:00",
+     "ship": 0.27
+    },
+    {
+     "time": "2026-10-24T17:00",
+     "ship": 0.18
+    },
+    {
      "time": "2026-10-24T18:00",
-     "ship": 0.06
+     "ship": 0.1
     },
     {
      "time": "2026-10-24T19:00",
-     "ship": 0.02
+     "ship": 0.04
     },
     {
      "time": "2026-10-24T20:00",
@@ -658,7 +658,7 @@
     },
     {
      "time": "2026-10-24T15:00",
-     "ship": 0.0
+     "ship": 0.01
     },
     {
      "time": "2026-10-24T16:00",
@@ -892,21 +892,21 @@
    "fecha": "2026-10-24",
    "modelos": {
     "gfs_seamless": {
-     "ship_max": 0.25,
-     "hora": "12:00",
-     "cape_max": 1070,
+     "ship_max": 0.41,
+     "hora": "13:00",
+     "cape_max": 1340,
      "categoria": "bajo"
     },
     "ecmwf_ifs025": {
-     "ship_max": 0.38,
-     "hora": "15:00",
-     "cape_max": 1360,
+     "ship_max": 0.43,
+     "hora": "12:00",
+     "cape_max": 1590,
      "categoria": "bajo"
     },
     "icon_seamless": {
-     "ship_max": 0.0,
-     "hora": "13:00",
-     "cape_max": 120,
+     "ship_max": 0.01,
+     "hora": "15:00",
+     "cape_max": 170,
      "categoria": "bajo"
     }
    },
@@ -918,18 +918,18 @@
     "gfs_seamless": {
      "ship_max": 0.0,
      "hora": "16:00",
-     "cape_max": 80,
+     "cape_max": 140,
      "categoria": "bajo"
     },
     "ecmwf_ifs025": {
      "ship_max": 0.0,
      "hora": "00:00",
-     "cape_max": 130,
+     "cape_max": 100,
      "categoria": "bajo"
     },
     "icon_seamless": {
      "ship_max": 0.0,
-     "hora": "13:00",
+     "hora": "15:00",
      "cape_max": 50,
      "categoria": "bajo"
     }
@@ -942,7 +942,7 @@
     "gfs_seamless": {
      "ship_max": 0.0,
      "hora": "17:00",
-     "cape_max": 50,
+     "cape_max": 20,
      "categoria": "bajo"
     },
     "ecmwf_ifs025": {
@@ -953,7 +953,7 @@
     },
     "icon_seamless": {
      "ship_max": 0.0,
-     "hora": "14:00",
+     "hora": "12:00",
      "cape_max": 10,
      "categoria": "bajo"
     }
