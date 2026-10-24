@@ -96,7 +96,7 @@ checks.push('Cantidades pequeñas, cero y dato ausente se distinguen; búsqueda 
     await expect(page.locator('#lo-que-llovio').getByRole('button', { name: '24 horas', exact: true })).toBeVisible();
     await expect(page.locator('#rio')).toBeVisible();
     await expect(page.locator('#fuentes [aria-label="Estado de cada fuente"] > li')).toHaveCount(12);
-    const lightningFilter = page.getByRole('button', { name: 'Rayos', exact: true });
+    const lightningFilter = page.getByRole('button', { name: /^Rayos( · hay cerca)?$/ });
     await expect(page.locator('#mapa').getByText(/Rayos hace:/)).toHaveCount(0);
     await lightningFilter.click();
     await expect(page.locator('#mapa').getByText(/Rayos hace:/)).toHaveCount(1);
@@ -117,6 +117,10 @@ checks.push('Cantidades pequeñas, cero y dato ausente se distinguen; búsqueda 
     await expect(page.getByRole('button', { name: 'Anegamientos', exact: true })).toHaveAttribute('aria-pressed', 'true');
     await page.getByRole('button', { name: 'Anegamientos', exact: true }).click();
     await expect(page.locator('#rayos svg[role="img"]')).toBeVisible();
+    // Las distancias dicen desde dónde se miden y nunca "0 km".
+    await expect(page.locator('#rayos')).toContainText(/desde el centro de Posadas|Sin datos del satélite/);
+    await expect(page.locator('#rayos')).not.toContainText(/\b0 km\b/);
+    await expect(page.locator('#ahora a[href="#rayos"]')).not.toContainText(/A 0 km/);
     const api = await page.request.get(base + '/api/nino/ahora');
     assert.equal(api.status(), 200);
     const live = await api.json();
