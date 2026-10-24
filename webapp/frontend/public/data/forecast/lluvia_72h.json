@@ -1,15 +1,15 @@
 {
   "lluvia_max_1h": 5.7,
   "lluvia_max_1h_p90": 10.07,
-  "lluvia_max_3h": 13.75,
+  "lluvia_max_3h": 13.45,
   "lluvia_max_3h_p90": 22.49,
-  "lluvia_24h": 34.15,
-  "lluvia_24h_p90": 58.96,
-  "lluvia_48h": 34.8,
-  "lluvia_48h_p90": 60.88,
+  "lluvia_24h": 32.7,
+  "lluvia_24h_p90": 54.45,
+  "lluvia_48h": 33.45,
+  "lluvia_48h_p90": 56.37,
   "nivel": "sin_umbral",
   "probabilidades": {
-    "atencion": 20.7,
+    "atencion": 15.2,
     "alto": 1.1,
     "muy_alto": 0.0
   },
@@ -22,20 +22,6 @@
     "rafaga_fuerte_kmh": 60
   },
   "dias": [
-    {
-      "fecha": "2026-10-23",
-      "horas": 2,
-      "desde": "2026-10-23T22:00:00-03:00",
-      "hasta": "2026-10-24T00:00:00-03:00",
-      "p10": 0.0,
-      "p50": 1.0,
-      "p90": 6.8,
-      "max_1h": 0.5,
-      "prob_lluvioso": 0.0,
-      "prob_atencion": 0.0,
-      "prob_tormenta": 0.0,
-      "prob_rafagas": 0.0
-    },
     {
       "fecha": "2026-10-24",
       "horas": 24,
@@ -66,9 +52,9 @@
     },
     {
       "fecha": "2026-10-26",
-      "horas": 22,
+      "horas": 24,
       "desde": "2026-10-26T00:00:00-03:00",
-      "hasta": "2026-10-26T22:00:00-03:00",
+      "hasta": "2026-10-27T00:00:00-03:00",
       "p10": 0.0,
       "p50": 0.0,
       "p90": 0.0,
@@ -83,20 +69,6 @@
   "ventana_inicio": "2026-10-24T04:00:00-03:00",
   "ventana_fin": "2026-10-24T05:00:00-03:00",
   "horas": [
-    {
-      "time": "2026-10-23T23:00:00-03:00",
-      "p10": 0.0,
-      "p50": 0.4,
-      "p90": 4.32,
-      "media": 1.23
-    },
-    {
-      "time": "2026-10-24T00:00:00-03:00",
-      "p10": 0.0,
-      "p50": 0.5,
-      "p90": 4.49,
-      "media": 1.2
-    },
     {
       "time": "2026-10-24T01:00:00-03:00",
       "p10": 0.0,
@@ -586,12 +558,26 @@
       "p50": 0.0,
       "p90": 0.0,
       "media": 0.0
+    },
+    {
+      "time": "2026-10-26T23:00:00-03:00",
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 0.0,
+      "media": 0.0
+    },
+    {
+      "time": "2026-10-27T00:00:00-03:00",
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 0.0,
+      "media": 0.0
     }
   ],
   "metodo": "mediana de los picos de cada escenario",
   "alcance": "Una celda para Posadas; no distingue lluvia entre barrios",
   "acumulados": "Máximo móvil de 24/48 h dentro de las próximas 72 h",
-  "generated_at": "2026-10-24T01:14:09+00:00",
+  "generated_at": "2026-10-24T03:28:56+00:00",
   "umbrales": {
     "atencion": {
       "mm_1h": 20,
