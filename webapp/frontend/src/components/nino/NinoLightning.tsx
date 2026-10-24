@@ -1,8 +1,8 @@
 "use client";
 
 import type { NinoAhora } from "@/lib/nino-live/types";
-import { POSADAS, directionName } from "@/lib/nino-live/parse";
-import { LIGHTNING_COLORS, agoText, clockTime, formatNinoNumber as num, lightningColor } from "@/lib/nino-presentation";
+import { POSADAS, directionName, nearestLightning } from "@/lib/nino-live/parse";
+import { LIGHTNING_COLORS, LIGHTNING_NEAR_KM, agoText, clockTime, formatNinoNumber as num, lightningColor, lightningKm } from "@/lib/nino-presentation";
 import styles from "./nino.module.css";
 
 const RINGS = [15, 30, 60, 100];
@@ -14,24 +14,32 @@ const toKm = (lat: number, lon: number) => ({
   y: (lat - POSADAS.lat) * 110.57,
 });
 
+// Cuanto más alta la barra, más cerca estuvo el rayo más cercano de esos 10 minutos.
 function TrendLine({ tramos }: { tramos: Array<{ hace_min: number; km: number | null }> }) {
   const max = Math.max(60, ...tramos.map(t => t.km ?? 0));
-  return <ol className={styles.trend} aria-label="Distancia del rayo más cercano cada 10 minutos">
-    {tramos.map(t => <li key={t.hace_min}>
-      <span className={styles.trendBar} style={{ height: t.km == null ? 0 : `${Math.max(6, 100 - (t.km / max) * 100)}%` }} data-empty={t.km == null ? "1" : undefined} />
-      <span className={styles.trendKm}>{t.km == null ? "–" : `${t.km}`}</span>
-      <span className={styles.trendAgo}>{t.hace_min === 0 ? "ahora" : `-${t.hace_min}′`}</span>
-    </li>)}
-  </ol>;
+  return <figure className={styles.trendFigure}>
+    <figcaption className={styles.smallLine}>Qué tan cerca cayó el rayo más cercano, cada 10 minutos</figcaption>
+    <ol className={styles.trend} aria-label="Distancia del rayo más cercano cada 10 minutos">
+      {tramos.map(t => <li key={t.hace_min}>
+        <span className={styles.trendBar} style={{ height: t.km == null ? 0 : `${Math.max(6, 100 - (t.km / max) * 100)}%` }} data-empty={t.km == null ? "1" : undefined} />
+        <span className={styles.trendKm}>{t.km == null ? "sin rayos" : t.km < LIGHTNING_NEAR_KM ? `<${LIGHTNING_NEAR_KM} km` : `${t.km} km`}</span>
+        <span className={styles.trendAgo}>{t.hace_min === 0 ? "ahora" : `hace ${t.hace_min}′`}</span>
+      </li>)}
+    </ol>
+  </figure>;
 }
 
-export function NinoLightning({ rayos, metar, now }: { rayos: NinoAhora["rayos"] | undefined; metar: NinoAhora["metar"]["datos"] | undefined; now: number }) {
+export function NinoLightning({ rayos, metar, now, userLocation }: { rayos: NinoAhora["rayos"] | undefined; metar: NinoAhora["metar"]["datos"] | undefined; now: number; userLocation: [number, number] | null }) {
   const data = rayos?.datos;
   const points = (data?.puntos ?? []).map(([lat, lon, min]) => ({ ...toKm(lat, lon), min })).filter(p => Math.hypot(p.x, p.y) <= R);
-  const closest = data?.cercano;
+  // Con la ubicación de la persona, la distancia se mide desde ahí; si no, desde el centro.
+  const mine = data && userLocation ? nearestLightning(data.puntos, { lat: userLocation[0], lon: userLocation[1] }) : null;
+  const closest = mine ?? (data?.cercano && data.cercano.hace_min <= 15 ? data.cercano : null);
   const trend = data?.tendencia;
   const headline = !data ? "Sin datos del satélite ahora"
-    : closest && closest.hace_min <= 15 ? `El más cercano, a ${closest.km} km al ${directionName(closest.rumbo)}`
+    : closest ? (closest.km < LIGHTNING_NEAR_KM
+      ? `Hay rayos a menos de ${LIGHTNING_NEAR_KM} km ${mine ? "de vos" : "del centro"}`
+      : `El más cercano, a ${lightningKm(closest.km)} al ${directionName(closest.rumbo)} ${mine ? "de vos" : "del centro"}`)
     : data.zona_60min ? "Sin rayos cerca en los últimos 15 minutos" : "Sin rayos en 100 km a la redonda";
   const trendText = trend?.estado === "se_acerca"
     ? `Se acerca a unos ${Math.abs(trend.velocidad_kmh ?? 0)} km/h${trend.llegada_min ? `: si sigue así, llegaría en ${trend.llegada_min} minutos` : ""}.`
@@ -63,7 +71,8 @@ export function NinoLightning({ rayos, metar, now }: { rayos: NinoAhora["rayos"]
       </figure>
       <div className={styles.lightningText}>
         <p className={styles.bigLine}>{headline}</p>
-        {closest && closest.hace_min <= 15 && <p className={styles.smallLine}>Hace {closest.hace_min === 0 ? "menos de un minuto" : `${closest.hace_min} min`}. {num(data!.cerca_60min)} rayos a menos de {data!.radio_km} km en la última hora.</p>}
+        {closest && <p className={styles.smallLine}>Hace {closest.hace_min === 0 ? "menos de un minuto" : `${closest.hace_min} min`}. {num(data!.cerca_60min)} rayos a menos de {data!.radio_km} km del centro en la última hora.</p>}
+        {data && !mine && <p className={styles.smallLine}>Las distancias se miden desde el centro de Posadas. Para medirlas desde donde estás, tocá «Mi ubicación» en el mapa.</p>}
         {trendText && <p className={styles.trendText} data-state={trend?.estado}>{trendText}</p>}
         {trend && trend.estado !== "sin_datos" && <TrendLine tramos={trend.tramos} />}
         {metar?.ultimo_trueno && <p className={styles.smallLine}>En el aeropuerto se oyeron truenos {now - Date.parse(metar.ultimo_trueno) < 70 * 60_000 ? "en la última hora" : `a las ${clockTime(metar.ultimo_trueno)}`}.</p>}

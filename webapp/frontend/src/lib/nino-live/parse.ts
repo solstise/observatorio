@@ -509,6 +509,18 @@ export function bearingDeg(to: { lat: number; lon: number }, from = POSADAS) {
 const DIRECTIONS = ["norte", "noreste", "este", "sureste", "sur", "suroeste", "oeste", "noroeste"];
 export const directionName = (deg: number) => DIRECTIONS[Math.round(deg / 45) % 8];
 
+// El rayo más cercano a un punto (por ejemplo, la ubicación de la persona) entre los de los
+// últimos `maxMin` minutos. Los puntos son los del mapa: [lat, lon, minutos atrás].
+export function nearestLightning(points: Array<[number, number, number]>, from: { lat: number; lon: number }, maxMin = 15) {
+  let best: { km: number; lat: number; lon: number; min: number } | null = null;
+  for (const [lat, lon, min] of points) {
+    if (min > maxMin) continue;
+    const km = distanceKm(from, { lat, lon });
+    if (!best || km < best.km) best = { km, lat, lon, min };
+  }
+  return best && { km: Math.round(best.km), rumbo: bearingDeg(best, from), hace_min: Math.round(best.min) };
+}
+
 // Tendencia simple: recta sobre la distancia mínima de los últimos 40 minutos.
 // No es un seguimiento de celdas: si hay varias tormentas, sigue a la más cercana.
 export function lightningTrend(flashes: Array<{ t: number; km: number }>, now: number): LightningTrend {

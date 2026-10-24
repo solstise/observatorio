@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 import {
   capColor, capLinks, describeWx, isCapFeed, distanceToRingKm, parseCap, parseMetars, parsePrefectura,
   controlDay, parseSynop, parseTiepre, rainBlocks, selectAlerts, splitInstructions,
-  summarizeFlashes, summarizeSynop, POSADAS, bearingDeg, directionName, lightningTrend,
+  summarizeFlashes, summarizeSynop, POSADAS, bearingDeg, directionName, lightningTrend, nearestLightning,
 } from "../../src/lib/nino-live/parse.ts";
 
 const fixture = name => readFileSync(new URL(`./fixtures/${name}`, import.meta.url), "utf8");
@@ -293,4 +293,19 @@ test("granizo en las próximas 12 horas: consenso de al menos dos modelos", asyn
   // Pronóstico vencido o sin modelos: sin dato, nunca "bajo".
   assert.deepEqual(hailNext(hail({ gfs: serie(1.4) }), Date.parse("2026-10-25T10:00:00-03:00")), { nivel: null, modelos: 0 });
   assert.deepEqual(hailNext(null, now), { nivel: null, modelos: 0 });
+});
+
+test("rayo más cercano a la persona, no al centro", () => {
+  const chacra32 = { lat: -27.3988, lon: -55.9063 };
+  // Un rayo sobre la Chacra 32 hace 3 min, otro sobre el centro hace 2 min y uno viejo encima.
+  const points = [[-27.399, -55.906, 3], [POSADAS.lat, POSADAS.lon, 2], [-27.3988, -55.9063, 40]];
+  const mine = nearestLightning(points, chacra32);
+  assert.equal(mine.km, 0);
+  assert.equal(mine.hace_min, 3);
+  // Desde el centro, el más cercano es el que cayó encima del centro.
+  assert.equal(nearestLightning(points, POSADAS).hace_min, 2);
+  // Solo cuentan los últimos 15 minutos: sin rayos recientes no hay "más cercano".
+  assert.equal(nearestLightning([[-27.3988, -55.9063, 40]], chacra32), null);
+  // El rumbo va desde la persona: un rayo al norte de la Chacra 32 está al norte.
+  assert.equal(directionName(nearestLightning([[-27.30, -55.9063, 1]], chacra32).rumbo), "norte");
 });

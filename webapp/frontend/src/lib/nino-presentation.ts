@@ -128,6 +128,10 @@ export const ALERT_LABEL: Record<AlertColor, string> = {
 export const LIGHTNING_COLORS = [[15, "#7c2d12"], [30, "#c2410c"], [60, "#f97316"]] as const;
 export const lightningColor = (minutes: number) => LIGHTNING_COLORS.find(([limit]) => minutes <= limit)?.[1] ?? "#f97316";
 
+// El satélite ubica cada rayo con unos km de error: por debajo de 2 km no se da la distancia.
+export const LIGHTNING_NEAR_KM = 2;
+export const lightningKm = (km: number) => (km < LIGHTNING_NEAR_KM ? `menos de ${LIGHTNING_NEAR_KM} km` : `${km} km`);
+
 export function normalizeBarrio(value: string) {
   return value.normalize("NFD").replace(/[̀-ͯ]/g, "").toLocaleLowerCase("es").trim();
 }

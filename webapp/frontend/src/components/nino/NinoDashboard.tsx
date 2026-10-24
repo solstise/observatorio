@@ -114,6 +114,8 @@ export function NinoDashboard({ snapshot, barrios, zones, facilities, events, re
   const clock = now ?? (Date.parse(live?.generado ?? snapshot?.generated_at ?? "") || 0);
   const hero = heroState(live, level, fresh, clock);
   const lightning = live?.rayos.datos;
+  // Rayos a menos de 30 km del centro en los últimos 15 minutos: se avisa en el filtro del mapa.
+  const lightningNear = !!lightning?.cercano && lightning.cercano.hace_min <= 15 && lightning.cercano.km <= 30;
   const officialAlert = live?.alertas.datos?.posadas[0];
   const runoff = useMemo(() => Object.fromEntries((hydro?.barrios ?? []).map(b => [b.poligono_id, barrioRunoff(b, simMm, simAmc).porcentaje[1]])), [hydro, simMm, simAmc]);
   const selectedRow = rows.find(r => r.poligono_id === selectedId);
@@ -139,10 +141,10 @@ export function NinoDashboard({ snapshot, barrios, zones, facilities, events, re
       </nav>
     </header>
 
-    <NinoNow live={live} hero={hero} now={clock} climate={climate} hail={hail} loading={loading} />
+    <NinoNow live={live} hero={hero} now={clock} climate={climate} hail={hail} loading={loading} userLocation={userLocation} />
 
     <div className={styles.duo}>
-      <NinoLightning rayos={live?.rayos} metar={live?.metar.datos} now={clock} />
+      <NinoLightning rayos={live?.rayos} metar={live?.metar.datos} now={clock} userLocation={userLocation} />
       <NinoObserved live={live?.lluvia.datos} record={record} climate={climate} config={config} now={clock} threshold24h={rain?.umbrales.atencion?.mm_24h ?? 50} />
     </div>
 
@@ -156,7 +158,7 @@ export function NinoDashboard({ snapshot, barrios, zones, facilities, events, re
       {locating === "fuera" && <p className={styles.smallLine}>Tu ubicación está fuera de los barrios que analizamos.</p>}
       {locating === "error" && <p className={styles.smallLine}>No pudimos acceder a tu ubicación. Elegí tu barrio en la lista.</p>}
       <div className={styles.filters} role="group" aria-label="Qué mostrar en el mapa">
-        {LAYERS.map(layer => <button key={layer.key} type="button" className={styles.filter} data-layer={layer.key} aria-pressed={layers[layer.key]} onClick={() => setLayers(current => ({ ...current, [layer.key]: !current[layer.key] }))}>{layer.label}</button>)}
+        {LAYERS.map(layer => <button key={layer.key} type="button" className={styles.filter} data-layer={layer.key} data-hot={layer.key === "rayos" && lightningNear ? "1" : undefined} aria-pressed={layers[layer.key]} onClick={() => setLayers(current => ({ ...current, [layer.key]: !current[layer.key] }))}>{layer.label}{layer.key === "rayos" && lightningNear ? " · hay cerca" : ""}</button>)}
       </div>
       <div className={styles.mapWrap}>
         <NinoMapGL barrios={barrios} zones={zones} facilities={facilities} lightning={lightning?.puntos ?? []} runoff={runoff} layers={layers} selectedId={selectedId} userLocation={userLocation} onSelect={setSelectedId} />
