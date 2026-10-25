@@ -1,36 +1,11 @@
 {
-  "generated_at": "2026-10-25T15:32:04+00:00",
+  "generated_at": "2026-10-25T20:22:29+00:00",
   "fuente": "SMN, modelo WRF determinístico 4 km (datos abiertos en AWS)",
   "fuente_url": "https://registry.opendata.aws/smn-ar-wrf-dataset/",
   "radio_km": 12,
   "estado": "disponible",
   "corrida": "2026-10-25T12:00:00+00:00",
   "horas": [
-    {
-      "time": "2026-10-25T13:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.4
-    },
-    {
-      "time": "2026-10-25T14:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.1
-    },
-    {
-      "time": "2026-10-25T15:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.2
-    },
-    {
-      "time": "2026-10-25T16:00:00-03:00",
-      "centro": 0.1,
-      "max_zona": 1.4
-    },
-    {
-      "time": "2026-10-25T17:00:00-03:00",
-      "centro": 0.1,
-      "max_zona": 0.6
-    },
     {
       "time": "2026-10-25T18:00:00-03:00",
       "centro": 0.0,
@@ -355,9 +330,9 @@
   "dias": [
     {
       "fecha": "2026-10-25",
-      "horas": 12,
-      "centro": 0.2,
-      "max_zona": 1.9
+      "horas": 7,
+      "centro": 0.0,
+      "max_zona": 0.5
     },
     {
       "fecha": "2026-10-26",
@@ -378,9 +353,9 @@
       "max_zona": 0.0
     }
   ],
-  "max_1h_centro": 0.1,
-  "max_1h_zona": 1.4,
-  "max_24h_centro": 0.2,
+  "max_1h_centro": 0.0,
+  "max_1h_zona": 0.5,
+  "max_24h_centro": 0.0,
   "punto": [
     -27.38409423828125,
     -55.908599853515625
