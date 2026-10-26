@@ -1,61 +1,11 @@
 {
-  "generated_at": "2026-10-26T12:16:35+00:00",
+  "generated_at": "2026-10-26T22:17:14+00:00",
   "fuente": "SMN, modelo WRF determinístico 4 km (datos abiertos en AWS)",
   "fuente_url": "https://registry.opendata.aws/smn-ar-wrf-dataset/",
   "radio_km": 12,
   "estado": "disponible",
-  "corrida": "2026-10-26T06:00:00+00:00",
+  "corrida": "2026-10-26T18:00:00+00:00",
   "horas": [
-    {
-      "time": "2026-10-26T10:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-10-26T11:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-10-26T12:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-10-26T13:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-10-26T14:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-10-26T15:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-10-26T16:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-10-26T17:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-10-26T18:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-10-26T19:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
     {
       "time": "2026-10-26T20:00:00-03:00",
       "centro": 0.0,
@@ -264,37 +214,37 @@
     {
       "time": "2026-10-28T13:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.0
+      "max_zona": 1.3
     },
     {
       "time": "2026-10-28T14:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.0
+      "max_zona": 4.1
     },
     {
       "time": "2026-10-28T15:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.0
+      "max_zona": 1.3
     },
     {
       "time": "2026-10-28T16:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.0
+      "max_zona": 2.8
     },
     {
       "time": "2026-10-28T17:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.0
+      "max_zona": 1.6
     },
     {
       "time": "2026-10-28T18:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
+      "centro": 1.5,
+      "max_zona": 2.4
     },
     {
       "time": "2026-10-28T19:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
+      "centro": 1.4,
+      "max_zona": 1.4
     },
     {
       "time": "2026-10-28T20:00:00-03:00",
@@ -335,12 +285,72 @@
       "time": "2026-10-29T03:00:00-03:00",
       "centro": 0.0,
       "max_zona": 0.0
+    },
+    {
+      "time": "2026-10-29T04:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-10-29T05:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-10-29T06:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-10-29T07:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-10-29T08:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-10-29T09:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-10-29T10:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-10-29T11:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-10-29T12:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-10-29T13:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-10-29T14:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-10-29T15:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
     }
   ],
   "dias": [
     {
       "fecha": "2026-10-26",
-      "horas": 15,
+      "horas": 5,
       "centro": 0.0,
       "max_zona": 0.0
     },
@@ -353,19 +363,19 @@
     {
       "fecha": "2026-10-28",
       "horas": 24,
-      "centro": 0.0,
-      "max_zona": 0.0
+      "centro": 3.0,
+      "max_zona": 4.3
     },
     {
       "fecha": "2026-10-29",
-      "horas": 3,
+      "horas": 15,
       "centro": 0.0,
       "max_zona": 0.0
     }
   ],
-  "max_1h_centro": 0.0,
-  "max_1h_zona": 0.0,
-  "max_24h_centro": 0.0,
+  "max_1h_centro": 1.5,
+  "max_1h_zona": 4.1,
+  "max_24h_centro": 2.9,
   "punto": [
     -27.38409423828125,
     -55.908599853515625
