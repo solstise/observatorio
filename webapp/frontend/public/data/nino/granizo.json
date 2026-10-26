@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-26T03:09:05+00:00",
+ "generated_at": "2026-10-26T12:17:31+00:00",
  "estado": "disponible",
  "metodo": "SHIP (Storm Prediction Center, NOAA) con aproximaciones de Open-Meteo",
  "cortes": {
@@ -905,7 +905,7 @@
     },
     "icon_seamless": {
      "ship_max": 0.0,
-     "hora": "12:00",
+     "hora": "11:00",
      "cape_max": 10,
      "categoria": "bajo"
     }
@@ -923,8 +923,8 @@
     },
     "ecmwf_ifs025": {
      "ship_max": 0.0,
-     "hora": "21:00",
-     "cape_max": 100,
+     "hora": "23:00",
+     "cape_max": 0,
      "categoria": "bajo"
     },
     "icon_seamless": {
@@ -942,19 +942,19 @@
     "gfs_seamless": {
      "ship_max": 0.0,
      "hora": "18:00",
-     "cape_max": 20,
+     "cape_max": 10,
      "categoria": "bajo"
     },
     "ecmwf_ifs025": {
      "ship_max": 0.0,
-     "hora": "01:00",
-     "cape_max": 0,
+     "hora": "03:00",
+     "cape_max": 160,
      "categoria": "bajo"
     },
     "icon_seamless": {
      "ship_max": 0.0,
-     "hora": "12:00",
-     "cape_max": 10,
+     "hora": "15:00",
+     "cape_max": 40,
      "categoria": "bajo"
     }
    },
