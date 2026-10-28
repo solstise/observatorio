@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-28T12:08:02+00:00",
+ "generated_at": "2026-10-28T22:11:26+00:00",
  "estado": "disponible",
  "metodo": "SHIP (Storm Prediction Center, NOAA) con aproximaciones de Open-Meteo",
  "cortes": {
@@ -252,7 +252,7 @@
     },
     {
      "time": "2026-10-30T12:00",
-     "ship": 0.0
+     "ship": 0.01
     },
     {
      "time": "2026-10-30T13:00",
@@ -264,19 +264,19 @@
     },
     {
      "time": "2026-10-30T15:00",
-     "ship": 0.0
-    },
-    {
-     "time": "2026-10-30T16:00",
      "ship": 0.01
     },
     {
+     "time": "2026-10-30T16:00",
+     "ship": 0.02
+    },
+    {
      "time": "2026-10-30T17:00",
-     "ship": 0.16
+     "ship": 0.09
     },
     {
      "time": "2026-10-30T18:00",
-     "ship": 0.16
+     "ship": 0.09
     },
     {
      "time": "2026-10-30T19:00",
@@ -473,11 +473,11 @@
     },
     {
      "time": "2026-10-29T18:00",
-     "ship": 0.01
+     "ship": 0.0
     },
     {
      "time": "2026-10-29T19:00",
-     "ship": 0.01
+     "ship": 0.0
     },
     {
      "time": "2026-10-29T20:00",
@@ -537,19 +537,19 @@
     },
     {
      "time": "2026-10-30T10:00",
-     "ship": 0.01
+     "ship": 0.0
     },
     {
      "time": "2026-10-30T11:00",
-     "ship": 0.02
+     "ship": 0.0
     },
     {
      "time": "2026-10-30T12:00",
-     "ship": 0.03
+     "ship": 0.01
     },
     {
      "time": "2026-10-30T13:00",
-     "ship": 0.04
+     "ship": 0.02
     },
     {
      "time": "2026-10-30T14:00",
@@ -557,23 +557,23 @@
     },
     {
      "time": "2026-10-30T15:00",
-     "ship": 0.04
+     "ship": 0.07
     },
     {
      "time": "2026-10-30T16:00",
-     "ship": 0.04
+     "ship": 0.12
     },
     {
      "time": "2026-10-30T17:00",
-     "ship": 0.05
+     "ship": 0.19
     },
     {
      "time": "2026-10-30T18:00",
-     "ship": 0.05
+     "ship": 0.21
     },
     {
      "time": "2026-10-30T19:00",
-     "ship": 0.04
+     "ship": 0.12
     },
     {
      "time": "2026-10-30T20:00",
@@ -581,11 +581,11 @@
     },
     {
      "time": "2026-10-30T21:00",
-     "ship": 0.01
+     "ship": 0.0
     },
     {
      "time": "2026-10-30T22:00",
-     "ship": 0.01
+     "ship": 0.0
     },
     {
      "time": "2026-10-30T23:00",
@@ -830,19 +830,19 @@
     },
     {
      "time": "2026-10-30T10:00",
-     "ship": 0.02
+     "ship": 0.04
     },
     {
      "time": "2026-10-30T11:00",
-     "ship": 0.03
+     "ship": 0.01
     },
     {
      "time": "2026-10-30T12:00",
-     "ship": 0.0
+     "ship": 0.01
     },
     {
      "time": "2026-10-30T13:00",
-     "ship": 0.0
+     "ship": 0.01
     },
     {
      "time": "2026-10-30T14:00",
@@ -858,7 +858,7 @@
     },
     {
      "time": "2026-10-30T17:00",
-     "ship": 0.01
+     "ship": 0.0
     },
     {
      "time": "2026-10-30T18:00",
@@ -870,11 +870,11 @@
     },
     {
      "time": "2026-10-30T20:00",
-     "ship": 0.01
+     "ship": 0.0
     },
     {
      "time": "2026-10-30T21:00",
-     "ship": 0.01
+     "ship": 0.0
     },
     {
      "time": "2026-10-30T22:00",
@@ -899,14 +899,14 @@
     },
     "ecmwf_ifs025": {
      "ship_max": 0.0,
-     "hora": "18:00",
-     "cape_max": 100,
+     "hora": "00:00",
+     "cape_max": 30,
      "categoria": "bajo"
     },
     "icon_seamless": {
      "ship_max": 0.0,
-     "hora": "17:00",
-     "cape_max": 20,
+     "hora": "14:00",
+     "cape_max": 30,
      "categoria": "bajo"
     }
    },
@@ -918,19 +918,19 @@
     "gfs_seamless": {
      "ship_max": 0.01,
      "hora": "17:00",
-     "cape_max": 210,
+     "cape_max": 200,
      "categoria": "bajo"
     },
     "ecmwf_ifs025": {
-     "ship_max": 0.01,
-     "hora": "18:00",
-     "cape_max": 200,
+     "ship_max": 0.0,
+     "hora": "20:00",
+     "cape_max": 110,
      "categoria": "bajo"
     },
     "icon_seamless": {
      "ship_max": 0.0,
-     "hora": "14:00",
-     "cape_max": 10,
+     "hora": "18:00",
+     "cape_max": 20,
      "categoria": "bajo"
     }
    },
@@ -940,21 +940,21 @@
    "fecha": "2026-10-30",
    "modelos": {
     "gfs_seamless": {
-     "ship_max": 0.16,
-     "hora": "18:00",
-     "cape_max": 740,
+     "ship_max": 0.09,
+     "hora": "17:00",
+     "cape_max": 550,
      "categoria": "bajo"
     },
     "ecmwf_ifs025": {
-     "ship_max": 0.05,
-     "hora": "17:00",
-     "cape_max": 480,
+     "ship_max": 0.21,
+     "hora": "18:00",
+     "cape_max": 860,
      "categoria": "bajo"
     },
     "icon_seamless": {
-     "ship_max": 0.03,
-     "hora": "11:00",
-     "cape_max": 280,
+     "ship_max": 0.04,
+     "hora": "10:00",
+     "cape_max": 330,
      "categoria": "bajo"
     }
    },
