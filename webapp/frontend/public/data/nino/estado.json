@@ -1,17 +1,17 @@
 {
-  "generated_at": "2026-10-30T12:06:31+00:00",
+  "generated_at": "2026-10-30T21:56:11+00:00",
   "lluvia": {
-    "lluvia_max_1h": 0.6,
-    "lluvia_max_1h_p90": 5.18,
-    "lluvia_max_3h": 1.8,
-    "lluvia_max_3h_p90": 15.54,
-    "lluvia_24h": 3.0,
-    "lluvia_24h_p90": 24.48,
-    "lluvia_48h": 3.0,
-    "lluvia_48h_p90": 24.48,
+    "lluvia_max_1h": 1.55,
+    "lluvia_max_1h_p90": 5.07,
+    "lluvia_max_3h": 4.65,
+    "lluvia_max_3h_p90": 15.21,
+    "lluvia_24h": 8.85,
+    "lluvia_24h_p90": 32.91,
+    "lluvia_48h": 8.85,
+    "lluvia_48h_p90": 32.91,
     "nivel": "sin_umbral",
     "probabilidades": {
-      "atencion": 1.1,
+      "atencion": 3.3,
       "alto": 0.0,
       "muy_alto": 0.0
     },
@@ -26,12 +26,12 @@
     "dias": [
       {
         "fecha": "2026-10-30",
-        "horas": 15,
-        "desde": "2026-10-30T09:00:00-03:00",
+        "horas": 6,
+        "desde": "2026-10-30T18:00:00-03:00",
         "hasta": "2026-10-31T00:00:00-03:00",
         "p10": 0.0,
         "p50": 0.0,
-        "p90": 0.6,
+        "p90": 0.0,
         "max_1h": 0.0,
         "prob_lluvioso": 0.0,
         "prob_atencion": 0.0,
@@ -58,24 +58,24 @@
         "desde": "2026-11-01T00:00:00-03:00",
         "hasta": "2026-11-02T00:00:00-03:00",
         "p10": 0.0,
-        "p50": 1.4,
-        "p90": 19.9,
-        "max_1h": 0.3,
+        "p50": 3.3,
+        "p90": 22.3,
+        "max_1h": 0.9,
         "prob_lluvioso": 10.9,
-        "prob_atencion": 1.1,
+        "prob_atencion": 2.2,
         "prob_tormenta": 0.0,
         "prob_rafagas": 0.0
       },
       {
         "fecha": "2026-11-02",
-        "horas": 9,
+        "horas": 18,
         "desde": "2026-11-02T00:00:00-03:00",
-        "hasta": "2026-11-02T09:00:00-03:00",
+        "hasta": "2026-11-02T18:00:00-03:00",
         "p10": 0.0,
-        "p50": 0.0,
-        "p90": 4.8,
-        "max_1h": 0.0,
-        "prob_lluvioso": 1.1,
+        "p50": 2.2,
+        "p90": 11.8,
+        "max_1h": 0.4,
+        "prob_lluvioso": 4.3,
         "prob_atencion": 0.0,
         "prob_tormenta": 0.0,
         "prob_rafagas": 0.0
@@ -86,88 +86,25 @@
     "ventana_fin": "2026-11-01T19:00:00-03:00",
     "horas": [
       {
-        "time": "2026-10-30T10:00:00-03:00",
-        "p10": 0.0,
-        "p50": 0.0,
-        "p90": 0.09,
-        "media": 0.01
-      },
-      {
-        "time": "2026-10-30T11:00:00-03:00",
-        "p10": 0.0,
-        "p50": 0.0,
-        "p90": 0.09,
-        "media": 0.01
-      },
-      {
-        "time": "2026-10-30T12:00:00-03:00",
-        "p10": 0.0,
-        "p50": 0.0,
-        "p90": 0.09,
-        "media": 0.01
-      },
-      {
-        "time": "2026-10-30T13:00:00-03:00",
-        "p10": 0.0,
-        "p50": 0.0,
-        "p90": 0.1,
-        "media": 0.02
-      },
-      {
-        "time": "2026-10-30T14:00:00-03:00",
-        "p10": 0.0,
-        "p50": 0.0,
-        "p90": 0.1,
-        "media": 0.02
-      },
-      {
-        "time": "2026-10-30T15:00:00-03:00",
-        "p10": 0.0,
-        "p50": 0.0,
-        "p90": 0.1,
-        "media": 0.02
-      },
-      {
-        "time": "2026-10-30T16:00:00-03:00",
-        "p10": 0.0,
-        "p50": 0.0,
-        "p90": 0.19,
-        "media": 0.04
-      },
-      {
-        "time": "2026-10-30T17:00:00-03:00",
-        "p10": 0.0,
-        "p50": 0.0,
-        "p90": 0.19,
-        "media": 0.04
-      },
-      {
-        "time": "2026-10-30T18:00:00-03:00",
-        "p10": 0.0,
-        "p50": 0.0,
-        "p90": 0.19,
-        "media": 0.04
-      },
-      {
         "time": "2026-10-30T19:00:00-03:00",
         "p10": 0.0,
         "p50": 0.0,
         "p90": 0.0,
-        "media": 0.0
+        "media": 0.01
       },
       {
         "time": "2026-10-30T20:00:00-03:00",
         "p10": 0.0,
         "p50": 0.0,
         "p90": 0.0,
-        "media": 0.0
+        "media": 0.01
       },
       {
         "time": "2026-10-30T21:00:00-03:00",
         "p10": 0.0,
         "p50": 0.0,
         "p90": 0.0,
-        "media": 0.0
+        "media": 0.01
       },
       {
         "time": "2026-10-30T22:00:00-03:00",
@@ -446,154 +383,217 @@
         "time": "2026-11-01T13:00:00-03:00",
         "p10": 0.0,
         "p50": 0.0,
-        "p90": 0.2,
-        "media": 0.1
+        "p90": 0.1,
+        "media": 0.06
       },
       {
         "time": "2026-11-01T14:00:00-03:00",
         "p10": 0.0,
         "p50": 0.0,
-        "p90": 0.2,
-        "media": 0.1
+        "p90": 0.1,
+        "media": 0.06
       },
       {
         "time": "2026-11-01T15:00:00-03:00",
         "p10": 0.0,
         "p50": 0.0,
-        "p90": 0.2,
-        "media": 0.1
+        "p90": 0.1,
+        "media": 0.06
       },
       {
         "time": "2026-11-01T16:00:00-03:00",
         "p10": 0.0,
-        "p50": 0.0,
-        "p90": 1.5,
-        "media": 0.64
+        "p50": 0.1,
+        "p90": 2.38,
+        "media": 0.67
       },
       {
         "time": "2026-11-01T17:00:00-03:00",
         "p10": 0.0,
-        "p50": 0.0,
-        "p90": 1.5,
-        "media": 0.64
+        "p50": 0.1,
+        "p90": 2.38,
+        "media": 0.67
       },
       {
         "time": "2026-11-01T18:00:00-03:00",
         "p10": 0.0,
-        "p50": 0.0,
-        "p90": 1.5,
-        "media": 0.64
+        "p50": 0.1,
+        "p90": 2.38,
+        "media": 0.67
       },
       {
         "time": "2026-11-01T19:00:00-03:00",
         "p10": 0.0,
-        "p50": 0.1,
-        "p90": 3.48,
-        "media": 1.02
+        "p50": 0.3,
+        "p90": 3.8,
+        "media": 1.36
       },
       {
         "time": "2026-11-01T20:00:00-03:00",
         "p10": 0.0,
-        "p50": 0.1,
-        "p90": 3.48,
-        "media": 1.02
+        "p50": 0.3,
+        "p90": 3.8,
+        "media": 1.36
       },
       {
         "time": "2026-11-01T21:00:00-03:00",
         "p10": 0.0,
-        "p50": 0.1,
-        "p90": 3.48,
-        "media": 1.02
+        "p50": 0.3,
+        "p90": 3.8,
+        "media": 1.36
       },
       {
         "time": "2026-11-01T22:00:00-03:00",
         "p10": 0.0,
         "p50": 0.0,
-        "p90": 0.59,
-        "media": 0.31
+        "p90": 2.1,
+        "media": 0.69
       },
       {
         "time": "2026-11-01T23:00:00-03:00",
         "p10": 0.0,
         "p50": 0.0,
-        "p90": 0.59,
-        "media": 0.31
+        "p90": 2.1,
+        "media": 0.69
       },
       {
         "time": "2026-11-02T00:00:00-03:00",
         "p10": 0.0,
         "p50": 0.0,
-        "p90": 0.59,
-        "media": 0.31
+        "p90": 2.1,
+        "media": 0.69
       },
       {
         "time": "2026-11-02T01:00:00-03:00",
         "p10": 0.0,
         "p50": 0.0,
-        "p90": 0.6,
-        "media": 0.17
+        "p90": 0.3,
+        "media": 0.12
       },
       {
         "time": "2026-11-02T02:00:00-03:00",
         "p10": 0.0,
         "p50": 0.0,
-        "p90": 0.6,
-        "media": 0.17
+        "p90": 0.3,
+        "media": 0.12
       },
       {
         "time": "2026-11-02T03:00:00-03:00",
         "p10": 0.0,
         "p50": 0.0,
-        "p90": 0.6,
-        "media": 0.17
+        "p90": 0.3,
+        "media": 0.12
       },
       {
         "time": "2026-11-02T04:00:00-03:00",
         "p10": 0.0,
         "p50": 0.0,
-        "p90": 0.5,
-        "media": 0.17
+        "p90": 0.29,
+        "media": 0.08
       },
       {
         "time": "2026-11-02T05:00:00-03:00",
         "p10": 0.0,
         "p50": 0.0,
-        "p90": 0.5,
-        "media": 0.17
+        "p90": 0.29,
+        "media": 0.08
       },
       {
         "time": "2026-11-02T06:00:00-03:00",
         "p10": 0.0,
         "p50": 0.0,
-        "p90": 0.5,
-        "media": 0.17
+        "p90": 0.29,
+        "media": 0.08
       },
       {
         "time": "2026-11-02T07:00:00-03:00",
         "p10": 0.0,
         "p50": 0.0,
         "p90": 0.59,
-        "media": 0.18
+        "media": 0.21
       },
       {
         "time": "2026-11-02T08:00:00-03:00",
         "p10": 0.0,
         "p50": 0.0,
         "p90": 0.59,
-        "media": 0.18
+        "media": 0.21
       },
       {
         "time": "2026-11-02T09:00:00-03:00",
         "p10": 0.0,
         "p50": 0.0,
         "p90": 0.59,
-        "media": 0.18
+        "media": 0.21
+      },
+      {
+        "time": "2026-11-02T10:00:00-03:00",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.9,
+        "media": 0.38
+      },
+      {
+        "time": "2026-11-02T11:00:00-03:00",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.9,
+        "media": 0.38
+      },
+      {
+        "time": "2026-11-02T12:00:00-03:00",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.9,
+        "media": 0.38
+      },
+      {
+        "time": "2026-11-02T13:00:00-03:00",
+        "p10": 0.0,
+        "p50": 0.05,
+        "p90": 1.29,
+        "media": 0.49
+      },
+      {
+        "time": "2026-11-02T14:00:00-03:00",
+        "p10": 0.0,
+        "p50": 0.05,
+        "p90": 1.29,
+        "media": 0.49
+      },
+      {
+        "time": "2026-11-02T15:00:00-03:00",
+        "p10": 0.0,
+        "p50": 0.05,
+        "p90": 1.29,
+        "media": 0.49
+      },
+      {
+        "time": "2026-11-02T16:00:00-03:00",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 1.28,
+        "media": 0.37
+      },
+      {
+        "time": "2026-11-02T17:00:00-03:00",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 1.28,
+        "media": 0.37
+      },
+      {
+        "time": "2026-11-02T18:00:00-03:00",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 1.28,
+        "media": 0.37
       }
     ],
     "metodo": "mediana de los picos de cada escenario",
     "alcance": "Una celda para Posadas; no distingue lluvia entre barrios",
     "acumulados": "Máximo móvil de 24/48 h dentro de las próximas 72 h",
-    "generated_at": "2026-10-30T12:06:31+00:00",
+    "generated_at": "2026-10-30T21:56:11+00:00",
     "umbrales": {
       "atencion": {
         "mm_1h": 20,
@@ -636,15 +636,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 1.68,
+      "score_anegamiento": 4.96,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 77.45159016461417,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 54.6,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "san_lucas",
@@ -664,15 +664,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 1.41,
+      "score_anegamiento": 4.15,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 99.61528743997911,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 61.4,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "porvenir_2",
@@ -692,15 +692,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 3
       },
-      "score_anegamiento": 1.23,
+      "score_anegamiento": 3.63,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 62.7935250536633,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 49.9,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "23_de_septiembre",
@@ -720,15 +720,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 1.18,
+      "score_anegamiento": 3.49,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 100.0,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 62.0,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "norte",
@@ -748,43 +748,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 1.13,
+      "score_anegamiento": 3.34,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 22.32512446776555,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 36.4,
-      "generated_at": "2026-10-30T12:06:31+00:00"
-    },
-    {
-      "poligono_id": "monsenor_kemerer",
-      "nombre": "Monseñor Kemerer",
-      "edificios_total": 2334,
-      "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 582,
-      "pct_viviendas_expuestas": 24.94,
-      "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 695,
-      "poblacion_expuesta_min": 556,
-      "poblacion_expuesta_max": 834,
-      "estado": "calculado",
-      "cobertura_worldpop": "completa",
-      "diagnostico_alturas": {
-        "sin_altura_terreno": 0,
-        "sin_altura_drenaje": 0,
-        "borde_muestreo_resuelto": 1
-      },
-      "score_anegamiento": 1.09,
-      "nivel": "sin_umbral",
-      "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
-      "pct_impermeable": 95.7151603778836,
-      "riesgo_inundacion_base": null,
-      "anegamiento_v1": 60.6,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "dm_villa_urquiza_sureste",
@@ -804,15 +776,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 1.09,
+      "score_anegamiento": 3.23,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 75.05959659775424,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 54.3,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "nemesio_parma",
@@ -832,15 +804,43 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 1.09,
+      "score_anegamiento": 3.23,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 6.22146711272485,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 30.0,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
+    },
+    {
+      "poligono_id": "monsenor_kemerer",
+      "nombre": "Monseñor Kemerer",
+      "edificios_total": 2334,
+      "viviendas_muy_expuestas": 0,
+      "viviendas_expuestas": 582,
+      "pct_viviendas_expuestas": 24.94,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 695,
+      "poblacion_expuesta_min": 556,
+      "poblacion_expuesta_max": 834,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 1
+      },
+      "score_anegamiento": 3.22,
+      "nivel": "sin_umbral",
+      "categoria": "bajo",
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
+      "pct_impermeable": 95.7151603778836,
+      "riesgo_inundacion_base": null,
+      "anegamiento_v1": 60.6,
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "cit_riberas_del_parana",
@@ -860,15 +860,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 9
       },
-      "score_anegamiento": 1.07,
+      "score_anegamiento": 3.15,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 80.50184216173832,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 56.2,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "horacio_quiroga",
@@ -888,15 +888,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 2
       },
-      "score_anegamiento": 1.04,
+      "score_anegamiento": 3.06,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 74.00423031896521,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 53.6,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "villa_bonita",
@@ -916,15 +916,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 3
       },
-      "score_anegamiento": 1.02,
+      "score_anegamiento": 3.02,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 84.27326348633301,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 56.9,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "dm_itaembe_mini_este",
@@ -944,15 +944,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 7
       },
-      "score_anegamiento": 1.0,
+      "score_anegamiento": 2.94,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 72.15779492263273,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 53.0,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "los_patitos",
@@ -972,43 +972,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 2
       },
-      "score_anegamiento": 0.97,
+      "score_anegamiento": 2.87,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 12.766046102958487,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": null,
-      "generated_at": "2026-10-30T12:06:31+00:00"
-    },
-    {
-      "poligono_id": "aguas_corrientes",
-      "nombre": "Aguas Corrientes",
-      "edificios_total": 8924,
-      "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 1578,
-      "pct_viviendas_expuestas": 17.68,
-      "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 2235,
-      "poblacion_expuesta_min": 1788,
-      "poblacion_expuesta_max": 2682,
-      "estado": "calculado",
-      "cobertura_worldpop": "completa",
-      "diagnostico_alturas": {
-        "sin_altura_terreno": 0,
-        "sin_altura_drenaje": 0,
-        "borde_muestreo_resuelto": 2
-      },
-      "score_anegamiento": 0.96,
-      "nivel": "sin_umbral",
-      "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
-      "pct_impermeable": 95.82842241820396,
-      "riesgo_inundacion_base": null,
-      "anegamiento_v1": 60.7,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "malvinas",
@@ -1028,15 +1000,43 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 1
       },
-      "score_anegamiento": 0.96,
+      "score_anegamiento": 2.84,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 31.032366979313636,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 38.3,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
+    },
+    {
+      "poligono_id": "aguas_corrientes",
+      "nombre": "Aguas Corrientes",
+      "edificios_total": 8924,
+      "viviendas_muy_expuestas": 0,
+      "viviendas_expuestas": 1578,
+      "pct_viviendas_expuestas": 17.68,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 2235,
+      "poblacion_expuesta_min": 1788,
+      "poblacion_expuesta_max": 2682,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 2
+      },
+      "score_anegamiento": 2.82,
+      "nivel": "sin_umbral",
+      "categoria": "bajo",
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
+      "pct_impermeable": 95.82842241820396,
+      "riesgo_inundacion_base": null,
+      "anegamiento_v1": 60.7,
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "puerto_canela",
@@ -1056,15 +1056,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 20
       },
-      "score_anegamiento": 0.95,
+      "score_anegamiento": 2.81,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 26.01958518888326,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 37.3,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "fatima_sur",
@@ -1084,15 +1084,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 0.95,
+      "score_anegamiento": 2.81,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 62.78717264924033,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 49.8,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "nu_pora",
@@ -1112,15 +1112,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 4
       },
-      "score_anegamiento": 0.94,
+      "score_anegamiento": 2.77,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 98.35074638369846,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 61.2,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "chacra_32",
@@ -1140,15 +1140,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 19
       },
-      "score_anegamiento": 0.92,
+      "score_anegamiento": 2.71,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 98.26786526102302,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 61.4,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "el_laurel",
@@ -1168,43 +1168,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 0.92,
+      "score_anegamiento": 2.7,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 31.882845433084,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 41.2,
-      "generated_at": "2026-10-30T12:06:31+00:00"
-    },
-    {
-      "poligono_id": "cit_riberas_del_parana_oeste",
-      "nombre": "CIT Riberas del Paraná (oeste)",
-      "edificios_total": 8658,
-      "viviendas_muy_expuestas": 20,
-      "viviendas_expuestas": 1307,
-      "pct_viviendas_expuestas": 15.1,
-      "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "calculado",
-      "cobertura_worldpop": "nodata_en_poligono",
-      "diagnostico_alturas": {
-        "sin_altura_terreno": 0,
-        "sin_altura_drenaje": 0,
-        "borde_muestreo_resuelto": 15
-      },
-      "score_anegamiento": 0.91,
-      "nivel": "sin_umbral",
-      "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
-      "pct_impermeable": 79.47661777269272,
-      "riesgo_inundacion_base": null,
-      "anegamiento_v1": 55.2,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "el_palomar",
@@ -1224,15 +1196,43 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 3
       },
-      "score_anegamiento": 0.91,
+      "score_anegamiento": 2.69,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 100.0,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 62.1,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
+    },
+    {
+      "poligono_id": "cit_riberas_del_parana_oeste",
+      "nombre": "CIT Riberas del Paraná (oeste)",
+      "edificios_total": 8658,
+      "viviendas_muy_expuestas": 20,
+      "viviendas_expuestas": 1307,
+      "pct_viviendas_expuestas": 15.1,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": null,
+      "poblacion_expuesta_min": null,
+      "poblacion_expuesta_max": null,
+      "estado": "calculado",
+      "cobertura_worldpop": "nodata_en_poligono",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 15
+      },
+      "score_anegamiento": 2.68,
+      "nivel": "sin_umbral",
+      "categoria": "bajo",
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
+      "pct_impermeable": 79.47661777269272,
+      "riesgo_inundacion_base": null,
+      "anegamiento_v1": 55.2,
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "villa_mola",
@@ -1252,43 +1252,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 1
       },
-      "score_anegamiento": 0.9,
+      "score_anegamiento": 2.66,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 65.06414166984504,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 52.7,
-      "generated_at": "2026-10-30T12:06:31+00:00"
-    },
-    {
-      "poligono_id": "dm_villa_urquiza",
-      "nombre": "DM Villa Urquiza",
-      "edificios_total": 4713,
-      "viviendas_muy_expuestas": 3,
-      "viviendas_expuestas": 640,
-      "pct_viviendas_expuestas": 13.58,
-      "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 1105,
-      "poblacion_expuesta_min": 884,
-      "poblacion_expuesta_max": 1326,
-      "estado": "calculado",
-      "cobertura_worldpop": "completa",
-      "diagnostico_alturas": {
-        "sin_altura_terreno": 0,
-        "sin_altura_drenaje": 0,
-        "borde_muestreo_resuelto": 1
-      },
-      "score_anegamiento": 0.88,
-      "nivel": "sin_umbral",
-      "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
-      "pct_impermeable": 91.53021879017892,
-      "riesgo_inundacion_base": null,
-      "anegamiento_v1": 59.4,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "villa_urquiza",
@@ -1308,15 +1280,43 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 0.88,
+      "score_anegamiento": 2.61,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 97.3201941502867,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 60.9,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
+    },
+    {
+      "poligono_id": "dm_villa_urquiza",
+      "nombre": "DM Villa Urquiza",
+      "edificios_total": 4713,
+      "viviendas_muy_expuestas": 3,
+      "viviendas_expuestas": 640,
+      "pct_viviendas_expuestas": 13.58,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 1105,
+      "poblacion_expuesta_min": 884,
+      "poblacion_expuesta_max": 1326,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 1
+      },
+      "score_anegamiento": 2.59,
+      "nivel": "sin_umbral",
+      "categoria": "bajo",
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
+      "pct_impermeable": 91.53021879017892,
+      "riesgo_inundacion_base": null,
+      "anegamiento_v1": 59.4,
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "dm_miguel_lanus_sur",
@@ -1336,15 +1336,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 4
       },
-      "score_anegamiento": 0.88,
+      "score_anegamiento": 2.59,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 26.009807058595673,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 36.9,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "don_santiago",
@@ -1364,15 +1364,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 0.88,
+      "score_anegamiento": 2.59,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 97.980917161005,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 61.0,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "itaembe_pora",
@@ -1392,15 +1392,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 14
       },
-      "score_anegamiento": 0.86,
+      "score_anegamiento": 2.55,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 78.12166110468362,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 55.1,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "lomas_de_garupa",
@@ -1420,43 +1420,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 0.83,
+      "score_anegamiento": 2.45,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 71.47816053170375,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 52.5,
-      "generated_at": "2026-10-30T12:06:31+00:00"
-    },
-    {
-      "poligono_id": "a4_nueva_esperanza",
-      "nombre": "A4 - Nueva Esperanza",
-      "edificios_total": 138,
-      "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 14,
-      "pct_viviendas_expuestas": 10.14,
-      "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 165,
-      "poblacion_expuesta_min": 132,
-      "poblacion_expuesta_max": 198,
-      "estado": "calculado",
-      "cobertura_worldpop": "completa",
-      "diagnostico_alturas": {
-        "sin_altura_terreno": 0,
-        "sin_altura_drenaje": 0,
-        "borde_muestreo_resuelto": 1
-      },
-      "score_anegamiento": 0.82,
-      "nivel": "sin_umbral",
-      "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
-      "pct_impermeable": 97.35023237498905,
-      "riesgo_inundacion_base": null,
-      "anegamiento_v1": 60.2,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "dm_santa_rita",
@@ -1476,15 +1448,43 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 11
       },
-      "score_anegamiento": 0.81,
+      "score_anegamiento": 2.4,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 84.4411702939814,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 57.0,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
+    },
+    {
+      "poligono_id": "a4_nueva_esperanza",
+      "nombre": "A4 - Nueva Esperanza",
+      "edificios_total": 138,
+      "viviendas_muy_expuestas": 0,
+      "viviendas_expuestas": 14,
+      "pct_viviendas_expuestas": 10.14,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 165,
+      "poblacion_expuesta_min": 132,
+      "poblacion_expuesta_max": 198,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 1
+      },
+      "score_anegamiento": 2.4,
+      "nivel": "sin_umbral",
+      "categoria": "bajo",
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
+      "pct_impermeable": 97.35023237498905,
+      "riesgo_inundacion_base": null,
+      "anegamiento_v1": 60.2,
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "itaembe_guazu",
@@ -1504,15 +1504,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 8
       },
-      "score_anegamiento": 0.8,
+      "score_anegamiento": 2.37,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 65.74501684969029,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 50.7,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "dm_santa_rita_suroeste",
@@ -1532,43 +1532,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 6
       },
-      "score_anegamiento": 0.77,
+      "score_anegamiento": 2.26,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 94.09203865112094,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 60.0,
-      "generated_at": "2026-10-30T12:06:31+00:00"
-    },
-    {
-      "poligono_id": "dm_miguel_lanus",
-      "nombre": "DM Miguel Lanús",
-      "edificios_total": 3282,
-      "viviendas_muy_expuestas": 3,
-      "viviendas_expuestas": 235,
-      "pct_viviendas_expuestas": 7.16,
-      "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 1199,
-      "poblacion_expuesta_min": 959,
-      "poblacion_expuesta_max": 1439,
-      "estado": "calculado",
-      "cobertura_worldpop": "completa",
-      "diagnostico_alturas": {
-        "sin_altura_terreno": 0,
-        "sin_altura_drenaje": 0,
-        "borde_muestreo_resuelto": 0
-      },
-      "score_anegamiento": 0.76,
-      "nivel": "sin_umbral",
-      "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
-      "pct_impermeable": 30.75405417538452,
-      "riesgo_inundacion_base": null,
-      "anegamiento_v1": 38.7,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "miguel_lanus",
@@ -1588,43 +1560,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 4
       },
-      "score_anegamiento": 0.76,
+      "score_anegamiento": 2.26,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 89.76267293413824,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 58.8,
-      "generated_at": "2026-10-30T12:06:31+00:00"
-    },
-    {
-      "poligono_id": "complejo_habitacional_virgen_de_fatima",
-      "nombre": "Complejo Habitacional Vírgen de Fátima",
-      "edificios_total": 1014,
-      "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 73,
-      "pct_viviendas_expuestas": 7.2,
-      "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 167,
-      "poblacion_expuesta_min": 134,
-      "poblacion_expuesta_max": 200,
-      "estado": "calculado",
-      "cobertura_worldpop": "completa",
-      "diagnostico_alturas": {
-        "sin_altura_terreno": 0,
-        "sin_altura_drenaje": 0,
-        "borde_muestreo_resuelto": 0
-      },
-      "score_anegamiento": 0.76,
-      "nivel": "sin_umbral",
-      "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
-      "pct_impermeable": 98.6610928335255,
-      "riesgo_inundacion_base": null,
-      "anegamiento_v1": 61.1,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "san_isidro",
@@ -1644,15 +1588,71 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 2
       },
-      "score_anegamiento": 0.76,
+      "score_anegamiento": 2.25,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 96.42916978532098,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 60.4,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
+    },
+    {
+      "poligono_id": "dm_miguel_lanus",
+      "nombre": "DM Miguel Lanús",
+      "edificios_total": 3282,
+      "viviendas_muy_expuestas": 3,
+      "viviendas_expuestas": 235,
+      "pct_viviendas_expuestas": 7.16,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 1199,
+      "poblacion_expuesta_min": 959,
+      "poblacion_expuesta_max": 1439,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      },
+      "score_anegamiento": 2.24,
+      "nivel": "sin_umbral",
+      "categoria": "bajo",
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
+      "pct_impermeable": 30.75405417538452,
+      "riesgo_inundacion_base": null,
+      "anegamiento_v1": 38.7,
+      "generated_at": "2026-10-30T21:56:11+00:00"
+    },
+    {
+      "poligono_id": "complejo_habitacional_virgen_de_fatima",
+      "nombre": "Complejo Habitacional Vírgen de Fátima",
+      "edificios_total": 1014,
+      "viviendas_muy_expuestas": 0,
+      "viviendas_expuestas": 73,
+      "pct_viviendas_expuestas": 7.2,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 167,
+      "poblacion_expuesta_min": 134,
+      "poblacion_expuesta_max": 200,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      },
+      "score_anegamiento": 2.24,
+      "nivel": "sin_umbral",
+      "categoria": "bajo",
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
+      "pct_impermeable": 98.6610928335255,
+      "riesgo_inundacion_base": null,
+      "anegamiento_v1": 61.1,
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "villa_dolores",
@@ -1672,71 +1672,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 3
       },
-      "score_anegamiento": 0.75,
+      "score_anegamiento": 2.21,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 88.32172967879673,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 58.4,
-      "generated_at": "2026-10-30T12:06:31+00:00"
-    },
-    {
-      "poligono_id": "itaembe_mini",
-      "nombre": "Itaembé Miní",
-      "edificios_total": 2071,
-      "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 122,
-      "pct_viviendas_expuestas": 5.89,
-      "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 216,
-      "poblacion_expuesta_min": 173,
-      "poblacion_expuesta_max": 259,
-      "estado": "calculado",
-      "cobertura_worldpop": "completa",
-      "diagnostico_alturas": {
-        "sin_altura_terreno": 0,
-        "sin_altura_drenaje": 0,
-        "borde_muestreo_resuelto": 3
-      },
-      "score_anegamiento": 0.74,
-      "nivel": "sin_umbral",
-      "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
-      "pct_impermeable": 74.32183361733998,
-      "riesgo_inundacion_base": null,
-      "anegamiento_v1": 53.7,
-      "generated_at": "2026-10-30T12:06:31+00:00"
-    },
-    {
-      "poligono_id": "bajada_vieja",
-      "nombre": "Bajada Vieja",
-      "edificios_total": 680,
-      "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 40,
-      "pct_viviendas_expuestas": 5.88,
-      "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": null,
-      "poblacion_expuesta_min": null,
-      "poblacion_expuesta_max": null,
-      "estado": "calculado",
-      "cobertura_worldpop": "nodata_en_poligono",
-      "diagnostico_alturas": {
-        "sin_altura_terreno": 0,
-        "sin_altura_drenaje": 0,
-        "borde_muestreo_resuelto": 0
-      },
-      "score_anegamiento": 0.74,
-      "nivel": "sin_umbral",
-      "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
-      "pct_impermeable": 85.4261636147798,
-      "riesgo_inundacion_base": null,
-      "anegamiento_v1": 57.7,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "centro",
@@ -1756,15 +1700,71 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 2
       },
-      "score_anegamiento": 0.73,
+      "score_anegamiento": 2.17,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 100.0,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 61.9,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
+    },
+    {
+      "poligono_id": "itaembe_mini",
+      "nombre": "Itaembé Miní",
+      "edificios_total": 2071,
+      "viviendas_muy_expuestas": 0,
+      "viviendas_expuestas": 122,
+      "pct_viviendas_expuestas": 5.89,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 216,
+      "poblacion_expuesta_min": 173,
+      "poblacion_expuesta_max": 259,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 3
+      },
+      "score_anegamiento": 2.17,
+      "nivel": "sin_umbral",
+      "categoria": "bajo",
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
+      "pct_impermeable": 74.32183361733998,
+      "riesgo_inundacion_base": null,
+      "anegamiento_v1": 53.7,
+      "generated_at": "2026-10-30T21:56:11+00:00"
+    },
+    {
+      "poligono_id": "bajada_vieja",
+      "nombre": "Bajada Vieja",
+      "edificios_total": 680,
+      "viviendas_muy_expuestas": 0,
+      "viviendas_expuestas": 40,
+      "pct_viviendas_expuestas": 5.88,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": null,
+      "poblacion_expuesta_min": null,
+      "poblacion_expuesta_max": null,
+      "estado": "calculado",
+      "cobertura_worldpop": "nodata_en_poligono",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      },
+      "score_anegamiento": 2.17,
+      "nivel": "sin_umbral",
+      "categoria": "bajo",
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
+      "pct_impermeable": 85.4261636147798,
+      "riesgo_inundacion_base": null,
+      "anegamiento_v1": 57.7,
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "las_dolores",
@@ -1784,15 +1784,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 0.69,
+      "score_anegamiento": 2.03,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 60.14942708237838,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 50.1,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "villa_cabello",
@@ -1812,15 +1812,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 4
       },
-      "score_anegamiento": 0.68,
+      "score_anegamiento": 2.02,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 79.15340564036617,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 55.6,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "luis_piedrabuena",
@@ -1840,15 +1840,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 2
       },
-      "score_anegamiento": 0.68,
+      "score_anegamiento": 2.01,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 70.3052364702899,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 53.4,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "el_brete",
@@ -1868,15 +1868,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 0.67,
+      "score_anegamiento": 1.98,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 93.10954009250769,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 59.3,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "el_portal",
@@ -1896,15 +1896,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 1
       },
-      "score_anegamiento": 0.67,
+      "score_anegamiento": 1.97,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 76.20793037951117,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 53.9,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "fatima",
@@ -1924,43 +1924,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 0.67,
+      "score_anegamiento": 1.97,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 60.423343074769086,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 49.7,
-      "generated_at": "2026-10-30T12:06:31+00:00"
-    },
-    {
-      "poligono_id": "santa_helena",
-      "nombre": "Santa Helena",
-      "edificios_total": 1120,
-      "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 10,
-      "pct_viviendas_expuestas": 0.89,
-      "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 13,
-      "poblacion_expuesta_min": 10,
-      "poblacion_expuesta_max": 16,
-      "estado": "calculado",
-      "cobertura_worldpop": "completa",
-      "diagnostico_alturas": {
-        "sin_altura_terreno": 0,
-        "sin_altura_drenaje": 0,
-        "borde_muestreo_resuelto": 0
-      },
-      "score_anegamiento": 0.64,
-      "nivel": "sin_umbral",
-      "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
-      "pct_impermeable": 82.5536374014692,
-      "riesgo_inundacion_base": null,
-      "anegamiento_v1": 56.6,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "federal",
@@ -1980,15 +1952,43 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 0.64,
+      "score_anegamiento": 1.9,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 3.40395099037746,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 29.5,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
+    },
+    {
+      "poligono_id": "santa_helena",
+      "nombre": "Santa Helena",
+      "edificios_total": 1120,
+      "viviendas_muy_expuestas": 0,
+      "viviendas_expuestas": 10,
+      "pct_viviendas_expuestas": 0.89,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 13,
+      "poblacion_expuesta_min": 10,
+      "poblacion_expuesta_max": 16,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      },
+      "score_anegamiento": 1.89,
+      "nivel": "sin_umbral",
+      "categoria": "bajo",
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
+      "pct_impermeable": 82.5536374014692,
+      "riesgo_inundacion_base": null,
+      "anegamiento_v1": 56.6,
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "san_martin_sureste",
@@ -2008,15 +2008,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 1
       },
-      "score_anegamiento": 0.63,
+      "score_anegamiento": 1.87,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 86.19481275575879,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 57.2,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "rocamora",
@@ -2036,99 +2036,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 2
       },
-      "score_anegamiento": 0.63,
+      "score_anegamiento": 1.87,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 100.0,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 61.8,
-      "generated_at": "2026-10-30T12:06:31+00:00"
-    },
-    {
-      "poligono_id": "yacyreta",
-      "nombre": "Yacyretá",
-      "edificios_total": 2155,
-      "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 8,
-      "pct_viviendas_expuestas": 0.37,
-      "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 12,
-      "poblacion_expuesta_min": 10,
-      "poblacion_expuesta_max": 14,
-      "estado": "calculado",
-      "cobertura_worldpop": "completa",
-      "diagnostico_alturas": {
-        "sin_altura_terreno": 0,
-        "sin_altura_drenaje": 0,
-        "borde_muestreo_resuelto": 1
-      },
-      "score_anegamiento": 0.63,
-      "nivel": "sin_umbral",
-      "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
-      "pct_impermeable": 99.80365142352716,
-      "riesgo_inundacion_base": null,
-      "anegamiento_v1": 61.8,
-      "generated_at": "2026-10-30T12:06:31+00:00"
-    },
-    {
-      "poligono_id": "dm_itaembe_mini_este_suroeste",
-      "nombre": "DM Itaembé Miní Este (suroeste)",
-      "edificios_total": 2149,
-      "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 6,
-      "pct_viviendas_expuestas": 0.28,
-      "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 15,
-      "poblacion_expuesta_min": 12,
-      "poblacion_expuesta_max": 18,
-      "estado": "calculado",
-      "cobertura_worldpop": "completa",
-      "diagnostico_alturas": {
-        "sin_altura_terreno": 0,
-        "sin_altura_drenaje": 0,
-        "borde_muestreo_resuelto": 1
-      },
-      "score_anegamiento": 0.63,
-      "nivel": "sin_umbral",
-      "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
-      "pct_impermeable": 46.37297360713235,
-      "riesgo_inundacion_base": null,
-      "anegamiento_v1": 44.2,
-      "generated_at": "2026-10-30T12:06:31+00:00"
-    },
-    {
-      "poligono_id": "villa_sarita",
-      "nombre": "Villa Sarita",
-      "edificios_total": 2019,
-      "viviendas_muy_expuestas": 0,
-      "viviendas_expuestas": 4,
-      "pct_viviendas_expuestas": 0.2,
-      "edificios_a_verificar": 0,
-      "poblacion_expuesta_estimada": 6,
-      "poblacion_expuesta_min": 5,
-      "poblacion_expuesta_max": 7,
-      "estado": "calculado",
-      "cobertura_worldpop": "completa",
-      "diagnostico_alturas": {
-        "sin_altura_terreno": 0,
-        "sin_altura_drenaje": 0,
-        "borde_muestreo_resuelto": 0
-      },
-      "score_anegamiento": 0.63,
-      "nivel": "sin_umbral",
-      "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
-      "pct_impermeable": 99.82169668476608,
-      "riesgo_inundacion_base": null,
-      "anegamiento_v1": 61.7,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "complejo_gervasio_artigas",
@@ -2148,15 +2064,99 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 0.63,
+      "score_anegamiento": 1.87,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 17.85428316510497,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 33.6,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
+    },
+    {
+      "poligono_id": "yacyreta",
+      "nombre": "Yacyretá",
+      "edificios_total": 2155,
+      "viviendas_muy_expuestas": 0,
+      "viviendas_expuestas": 8,
+      "pct_viviendas_expuestas": 0.37,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 12,
+      "poblacion_expuesta_min": 10,
+      "poblacion_expuesta_max": 14,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 1
+      },
+      "score_anegamiento": 1.86,
+      "nivel": "sin_umbral",
+      "categoria": "bajo",
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
+      "pct_impermeable": 99.80365142352716,
+      "riesgo_inundacion_base": null,
+      "anegamiento_v1": 61.8,
+      "generated_at": "2026-10-30T21:56:11+00:00"
+    },
+    {
+      "poligono_id": "dm_itaembe_mini_este_suroeste",
+      "nombre": "DM Itaembé Miní Este (suroeste)",
+      "edificios_total": 2149,
+      "viviendas_muy_expuestas": 0,
+      "viviendas_expuestas": 6,
+      "pct_viviendas_expuestas": 0.28,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 15,
+      "poblacion_expuesta_min": 12,
+      "poblacion_expuesta_max": 18,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 1
+      },
+      "score_anegamiento": 1.86,
+      "nivel": "sin_umbral",
+      "categoria": "bajo",
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
+      "pct_impermeable": 46.37297360713235,
+      "riesgo_inundacion_base": null,
+      "anegamiento_v1": 44.2,
+      "generated_at": "2026-10-30T21:56:11+00:00"
+    },
+    {
+      "poligono_id": "villa_sarita",
+      "nombre": "Villa Sarita",
+      "edificios_total": 2019,
+      "viviendas_muy_expuestas": 0,
+      "viviendas_expuestas": 4,
+      "pct_viviendas_expuestas": 0.2,
+      "edificios_a_verificar": 0,
+      "poblacion_expuesta_estimada": 6,
+      "poblacion_expuesta_min": 5,
+      "poblacion_expuesta_max": 7,
+      "estado": "calculado",
+      "cobertura_worldpop": "completa",
+      "diagnostico_alturas": {
+        "sin_altura_terreno": 0,
+        "sin_altura_drenaje": 0,
+        "borde_muestreo_resuelto": 0
+      },
+      "score_anegamiento": 1.85,
+      "nivel": "sin_umbral",
+      "categoria": "bajo",
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
+      "pct_impermeable": 99.82169668476608,
+      "riesgo_inundacion_base": null,
+      "anegamiento_v1": 61.7,
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "santa_rita",
@@ -2176,15 +2176,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 5
       },
-      "score_anegamiento": 0.63,
+      "score_anegamiento": 1.85,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 99.99782724099539,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 61.4,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "a_3_2_sector_b",
@@ -2204,15 +2204,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 0.62,
+      "score_anegamiento": 1.84,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 100.0,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 62.0,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "colonia_laosiana",
@@ -2232,15 +2232,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 0.62,
+      "score_anegamiento": 1.84,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 5.34280663916383,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 29.1,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "san_jorge",
@@ -2260,15 +2260,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 2
       },
-      "score_anegamiento": 0.62,
+      "score_anegamiento": 1.84,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 87.85172689055676,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 58.2,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "alta_gracia",
@@ -2288,15 +2288,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 0.62,
+      "score_anegamiento": 1.84,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 99.2460024253363,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 61.4,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "san_martin",
@@ -2316,15 +2316,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 0.62,
+      "score_anegamiento": 1.84,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 100.0,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 62.0,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "cima_del_sol",
@@ -2344,15 +2344,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 0.62,
+      "score_anegamiento": 1.84,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 41.47294626486196,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": 42.5,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     },
     {
       "poligono_id": "la_eugenia",
@@ -2372,15 +2372,15 @@
         "sin_altura_drenaje": 0,
         "borde_muestreo_resuelto": 0
       },
-      "score_anegamiento": 0.62,
+      "score_anegamiento": 1.84,
       "nivel": "sin_umbral",
       "categoria": "bajo",
-      "lluvia_max_1h": 0.6,
-      "lluvia_48h_proj_mm": 3.0,
+      "lluvia_max_1h": 1.55,
+      "lluvia_48h_proj_mm": 8.85,
       "pct_impermeable": 23.678494347328318,
       "riesgo_inundacion_base": null,
       "anegamiento_v1": null,
-      "generated_at": "2026-10-30T12:06:31+00:00"
+      "generated_at": "2026-10-30T21:56:11+00:00"
     }
   ],
   "exposicion_generated_at": "2026-10-14T13:36:57.189828+00:00",
@@ -2393,58 +2393,13 @@
     "wrf_radio_celdas": 3
   },
   "wrf_smn": {
-    "generated_at": "2026-10-30T12:06:44+00:00",
+    "generated_at": "2026-10-30T21:56:23+00:00",
     "fuente": "SMN, modelo WRF determinístico 4 km (datos abiertos en AWS)",
     "fuente_url": "https://registry.opendata.aws/smn-ar-wrf-dataset/",
     "radio_km": 12,
     "estado": "disponible",
-    "corrida": "2026-10-30T06:00:00+00:00",
+    "corrida": "2026-10-30T18:00:00+00:00",
     "horas": [
-      {
-        "time": "2026-10-30T10:00:00-03:00",
-        "centro": 0.0,
-        "max_zona": 0.2
-      },
-      {
-        "time": "2026-10-30T11:00:00-03:00",
-        "centro": 0.1,
-        "max_zona": 0.3
-      },
-      {
-        "time": "2026-10-30T12:00:00-03:00",
-        "centro": 0.0,
-        "max_zona": 0.5
-      },
-      {
-        "time": "2026-10-30T13:00:00-03:00",
-        "centro": 0.0,
-        "max_zona": 1.1
-      },
-      {
-        "time": "2026-10-30T14:00:00-03:00",
-        "centro": 0.0,
-        "max_zona": 1.9
-      },
-      {
-        "time": "2026-10-30T15:00:00-03:00",
-        "centro": 0.0,
-        "max_zona": 1.9
-      },
-      {
-        "time": "2026-10-30T16:00:00-03:00",
-        "centro": 0.0,
-        "max_zona": 0.8
-      },
-      {
-        "time": "2026-10-30T17:00:00-03:00",
-        "centro": 0.0,
-        "max_zona": 0.2
-      },
-      {
-        "time": "2026-10-30T18:00:00-03:00",
-        "centro": 0.0,
-        "max_zona": 0.1
-      },
       {
         "time": "2026-10-30T19:00:00-03:00",
         "centro": 0.0,
@@ -2458,7 +2413,7 @@
       {
         "time": "2026-10-30T21:00:00-03:00",
         "centro": 0.0,
-        "max_zona": 0.0
+        "max_zona": 0.1
       },
       {
         "time": "2026-10-30T22:00:00-03:00",
@@ -2503,7 +2458,7 @@
       {
         "time": "2026-10-31T06:00:00-03:00",
         "centro": 0.0,
-        "max_zona": 0.1
+        "max_zona": 0.0
       },
       {
         "time": "2026-10-31T07:00:00-03:00",
@@ -2538,7 +2493,7 @@
       {
         "time": "2026-10-31T13:00:00-03:00",
         "centro": 0.0,
-        "max_zona": 0.8
+        "max_zona": 0.0
       },
       {
         "time": "2026-10-31T14:00:00-03:00",
@@ -2548,12 +2503,12 @@
       {
         "time": "2026-10-31T15:00:00-03:00",
         "centro": 0.0,
-        "max_zona": 0.0
+        "max_zona": 0.3
       },
       {
         "time": "2026-10-31T16:00:00-03:00",
         "centro": 0.0,
-        "max_zona": 0.0
+        "max_zona": 0.7
       },
       {
         "time": "2026-10-31T17:00:00-03:00",
@@ -2673,17 +2628,17 @@
       {
         "time": "2026-11-01T16:00:00-03:00",
         "centro": 0.0,
-        "max_zona": 0.0
+        "max_zona": 0.5
       },
       {
         "time": "2026-11-01T17:00:00-03:00",
         "centro": 0.0,
-        "max_zona": 0.0
+        "max_zona": 1.9
       },
       {
         "time": "2026-11-01T18:00:00-03:00",
         "centro": 0.0,
-        "max_zona": 0.0
+        "max_zona": 0.1
       },
       {
         "time": "2026-11-01T19:00:00-03:00",
@@ -2693,17 +2648,17 @@
       {
         "time": "2026-11-01T20:00:00-03:00",
         "centro": 0.0,
-        "max_zona": 0.0
+        "max_zona": 0.1
       },
       {
         "time": "2026-11-01T21:00:00-03:00",
-        "centro": 0.0,
-        "max_zona": 0.0
+        "centro": 1.3,
+        "max_zona": 15.1
       },
       {
         "time": "2026-11-01T22:00:00-03:00",
         "centro": 0.0,
-        "max_zona": 0.0
+        "max_zona": 4.5
       },
       {
         "time": "2026-11-01T23:00:00-03:00",
@@ -2729,37 +2684,97 @@
         "time": "2026-11-02T03:00:00-03:00",
         "centro": 0.0,
         "max_zona": 0.0
+      },
+      {
+        "time": "2026-11-02T04:00:00-03:00",
+        "centro": 0.0,
+        "max_zona": 0.0
+      },
+      {
+        "time": "2026-11-02T05:00:00-03:00",
+        "centro": 0.0,
+        "max_zona": 0.0
+      },
+      {
+        "time": "2026-11-02T06:00:00-03:00",
+        "centro": 0.0,
+        "max_zona": 0.0
+      },
+      {
+        "time": "2026-11-02T07:00:00-03:00",
+        "centro": 0.0,
+        "max_zona": 0.0
+      },
+      {
+        "time": "2026-11-02T08:00:00-03:00",
+        "centro": 0.0,
+        "max_zona": 0.0
+      },
+      {
+        "time": "2026-11-02T09:00:00-03:00",
+        "centro": 0.0,
+        "max_zona": 0.0
+      },
+      {
+        "time": "2026-11-02T10:00:00-03:00",
+        "centro": 0.0,
+        "max_zona": 0.0
+      },
+      {
+        "time": "2026-11-02T11:00:00-03:00",
+        "centro": 0.0,
+        "max_zona": 0.0
+      },
+      {
+        "time": "2026-11-02T12:00:00-03:00",
+        "centro": 0.0,
+        "max_zona": 0.0
+      },
+      {
+        "time": "2026-11-02T13:00:00-03:00",
+        "centro": 0.0,
+        "max_zona": 0.0
+      },
+      {
+        "time": "2026-11-02T14:00:00-03:00",
+        "centro": 0.0,
+        "max_zona": 0.3
+      },
+      {
+        "time": "2026-11-02T15:00:00-03:00",
+        "centro": 0.0,
+        "max_zona": 0.6
       }
     ],
     "dias": [
       {
         "fecha": "2026-10-30",
-        "horas": 15,
-        "centro": 0.2,
-        "max_zona": 3.2
+        "horas": 6,
+        "centro": 0.0,
+        "max_zona": 0.1
       },
       {
         "fecha": "2026-10-31",
         "horas": 24,
         "centro": 0.0,
-        "max_zona": 1.0
+        "max_zona": 1.1
       },
       {
         "fecha": "2026-11-01",
         "horas": 24,
-        "centro": 0.0,
-        "max_zona": 0.1
+        "centro": 1.3,
+        "max_zona": 15.8
       },
       {
         "fecha": "2026-11-02",
-        "horas": 3,
+        "horas": 15,
         "centro": 0.0,
-        "max_zona": 0.0
+        "max_zona": 0.6
       }
     ],
-    "max_1h_centro": 0.1,
-    "max_1h_zona": 1.9,
-    "max_24h_centro": 0.1,
+    "max_1h_centro": 1.3,
+    "max_1h_zona": 15.1,
+    "max_24h_centro": 1.3,
     "punto": [
       -27.38409423828125,
       -55.908599853515625
