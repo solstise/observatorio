@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-10-01T10:25:38",
+  "generated_at": "2026-11-01T10:29:34",
   "sensor": "CBERS-4 AWFI 64 m + Sentinel-2 SR",
   "rango": [
-    "2026-09-01",
-    "2026-10-01"
+    "2026-10-01",
+    "2026-11-01"
   ],
-  "n_meses": 106,
-  "total_obs_s2": 1172,
-  "total_obs_awfi": 334,
-  "total_obs_total": 1387,
+  "n_meses": 107,
+  "total_obs_s2": 1186,
+  "total_obs_awfi": 337,
+  "total_obs_total": 1402,
   "cobertura_pct_s2_solo": 98.1,
   "cobertura_pct_con_awfi": 99.1,
   "mejora_absoluta_pct": 1.0,

@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-10-01T10:46:49",
+  "generated_at": "2026-11-01T10:47:17",
   "fuente_primaria": "CBERS-4 AWFI 64m (NDWI McFeeters)",
   "fuente_secundaria": "Sentinel-1 SAR (script 43)",
   "ventana": [
     "2018-01-01",
-    "2026-10-01"
+    "2026-11-01"
   ],
   "n_eventos_detectados": 20,
   "n_eventos_alta_confianza": 0,
