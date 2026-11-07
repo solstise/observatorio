@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-07T12:26:42+00:00",
+ "generated_at": "2026-11-07T21:27:11+00:00",
  "estado": "disponible",
  "metodo": "SHIP (Storm Prediction Center, NOAA) con aproximaciones de Open-Meteo",
  "cortes": {
@@ -48,7 +48,7 @@
     },
     {
      "time": "2026-11-07T09:00",
-     "ship": 0.01
+     "ship": 0.0
     },
     {
      "time": "2026-11-07T10:00",
@@ -309,23 +309,23 @@
     },
     {
      "time": "2026-11-07T01:00",
-     "ship": 0.77
+     "ship": 0.81
     },
     {
      "time": "2026-11-07T02:00",
-     "ship": 0.62
+     "ship": 0.76
     },
     {
      "time": "2026-11-07T03:00",
-     "ship": 0.49
+     "ship": 0.64
     },
     {
      "time": "2026-11-07T04:00",
-     "ship": 0.37
+     "ship": 0.48
     },
     {
      "time": "2026-11-07T05:00",
-     "ship": 0.2
+     "ship": 0.28
     },
     {
      "time": "2026-11-07T06:00",
@@ -333,23 +333,23 @@
     },
     {
      "time": "2026-11-07T07:00",
-     "ship": 0.15
+     "ship": 0.08
     },
     {
      "time": "2026-11-07T08:00",
-     "ship": 0.24
+     "ship": 0.06
     },
     {
      "time": "2026-11-07T09:00",
-     "ship": 0.28
+     "ship": 0.05
     },
     {
      "time": "2026-11-07T10:00",
-     "ship": 0.17
+     "ship": 0.03
     },
     {
      "time": "2026-11-07T11:00",
-     "ship": 0.04
+     "ship": 0.01
     },
     {
      "time": "2026-11-07T12:00",
@@ -638,7 +638,7 @@
     },
     {
      "time": "2026-11-07T10:00",
-     "ship": 0.01
+     "ship": 0.0
     },
     {
      "time": "2026-11-07T11:00",
@@ -917,8 +917,8 @@
    "modelos": {
     "gfs_seamless": {
      "ship_max": 0.0,
-     "hora": "17:00",
-     "cape_max": 60,
+     "hora": "18:00",
+     "cape_max": 40,
      "categoria": "bajo"
     },
     "ecmwf_ifs025": {
@@ -947,14 +947,14 @@
     },
     "ecmwf_ifs025": {
      "ship_max": 0.0,
-     "hora": "18:00",
+     "hora": "17:00",
      "cape_max": 20,
      "categoria": "bajo"
     },
     "icon_seamless": {
      "ship_max": 0.0,
-     "hora": "13:00",
-     "cape_max": 10,
+     "hora": "20:00",
+     "cape_max": 20,
      "categoria": "bajo"
     }
    },
