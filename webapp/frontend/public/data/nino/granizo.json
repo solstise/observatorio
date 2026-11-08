@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-08T04:21:14+00:00",
+ "generated_at": "2026-11-08T12:45:58+00:00",
  "estado": "disponible",
  "metodo": "SHIP (Storm Prediction Center, NOAA) con aproximaciones de Open-Meteo",
  "cortes": {
@@ -589,7 +589,7 @@
     },
     {
      "time": "2026-11-10T23:00",
-     "ship": 0.02
+     "ship": 0.0
     }
    ]
   },
@@ -894,19 +894,19 @@
     "gfs_seamless": {
      "ship_max": 0.0,
      "hora": "17:00",
-     "cape_max": 60,
+     "cape_max": 40,
      "categoria": "bajo"
     },
     "ecmwf_ifs025": {
      "ship_max": 0.0,
-     "hora": "18:00",
-     "cape_max": 10,
+     "hora": "11:00",
+     "cape_max": 20,
      "categoria": "bajo"
     },
     "icon_seamless": {
      "ship_max": 0.0,
      "hora": "13:00",
-     "cape_max": 30,
+     "cape_max": 20,
      "categoria": "bajo"
     }
    },
@@ -918,18 +918,18 @@
     "gfs_seamless": {
      "ship_max": 0.0,
      "hora": "18:00",
-     "cape_max": 80,
+     "cape_max": 40,
      "categoria": "bajo"
     },
     "ecmwf_ifs025": {
      "ship_max": 0.0,
-     "hora": "18:00",
+     "hora": "22:00",
      "cape_max": 20,
      "categoria": "bajo"
     },
     "icon_seamless": {
      "ship_max": 0.0,
-     "hora": "13:00",
+     "hora": "12:00",
      "cape_max": 10,
      "categoria": "bajo"
     }
@@ -942,13 +942,13 @@
     "gfs_seamless": {
      "ship_max": 0.0,
      "hora": "18:00",
-     "cape_max": 40,
+     "cape_max": 30,
      "categoria": "bajo"
     },
     "ecmwf_ifs025": {
-     "ship_max": 0.02,
-     "hora": "23:00",
-     "cape_max": 410,
+     "ship_max": 0.0,
+     "hora": "00:00",
+     "cape_max": 10,
      "categoria": "bajo"
     },
     "icon_seamless": {
