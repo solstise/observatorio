@@ -9778,4 +9778,5 @@ fecha,mm,control,tormenta,granizo,reportes,fuente
 2026-11-06,0.0,ok,False,False,24,"SMN, estación Posadas Aero (SYNOP 87178 vía Ogimet)"
 2026-11-07,12.0,ok,True,False,24,"SMN, estación Posadas Aero (SYNOP 87178 vía Ogimet)"
 2026-11-08,0.0,ok,False,False,24,"SMN, estación Posadas Aero (SYNOP 87178 vía Ogimet)"
-2026-11-09,,sin_total,False,False,16,"SMN, estación Posadas Aero (SYNOP 87178 vía Ogimet)"
+2026-11-09,0.0,ok,False,False,24,"SMN, estación Posadas Aero (SYNOP 87178 vía Ogimet)"
+2026-11-10,,sin_total,False,False,2,"SMN, estación Posadas Aero (SYNOP 87178 vía Ogimet)"
