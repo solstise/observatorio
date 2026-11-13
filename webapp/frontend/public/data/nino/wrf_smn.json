@@ -1,56 +1,11 @@
 {
-  "generated_at": "2026-11-13T04:59:25+00:00",
+  "generated_at": "2026-11-13T13:54:41+00:00",
   "fuente": "SMN, modelo WRF determinístico 4 km (datos abiertos en AWS)",
   "fuente_url": "https://registry.opendata.aws/smn-ar-wrf-dataset/",
   "radio_km": 12,
   "estado": "disponible",
-  "corrida": "2026-11-13T00:00:00+00:00",
+  "corrida": "2026-11-13T12:00:00+00:00",
   "horas": [
-    {
-      "time": "2026-11-13T02:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-11-13T03:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-11-13T04:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-11-13T05:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-11-13T06:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-11-13T07:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-11-13T08:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-11-13T09:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-11-13T10:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
     {
       "time": "2026-11-13T11:00:00-03:00",
       "centro": 0.0,
@@ -189,52 +144,52 @@
     {
       "time": "2026-11-14T14:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.0
+      "max_zona": 1.8
     },
     {
       "time": "2026-11-14T15:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
+      "centro": 0.4,
+      "max_zona": 7.4
     },
     {
       "time": "2026-11-14T16:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.2
+      "max_zona": 0.0
     },
     {
       "time": "2026-11-14T17:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 1.6
+      "centro": 1.1,
+      "max_zona": 6.8
     },
     {
       "time": "2026-11-14T18:00:00-03:00",
-      "centro": 2.5,
-      "max_zona": 19.2
+      "centro": 0.4,
+      "max_zona": 6.3
     },
     {
       "time": "2026-11-14T19:00:00-03:00",
-      "centro": 4.4,
-      "max_zona": 11.1
+      "centro": 0.8,
+      "max_zona": 4.5
     },
     {
       "time": "2026-11-14T20:00:00-03:00",
-      "centro": 5.3,
-      "max_zona": 15.1
+      "centro": 0.1,
+      "max_zona": 1.5
     },
     {
       "time": "2026-11-14T21:00:00-03:00",
-      "centro": 7.6,
-      "max_zona": 11.6
+      "centro": 6.0,
+      "max_zona": 6.2
     },
     {
       "time": "2026-11-14T22:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.0
+      "max_zona": 0.3
     },
     {
       "time": "2026-11-14T23:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.0
+      "max_zona": 0.5
     },
     {
       "time": "2026-11-15T00:00:00-03:00",
@@ -248,48 +203,48 @@
     },
     {
       "time": "2026-11-15T02:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
+      "centro": 0.1,
+      "max_zona": 3.4
     },
     {
       "time": "2026-11-15T03:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.0
+      "max_zona": 1.9
     },
     {
       "time": "2026-11-15T04:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
+      "centro": 0.6,
+      "max_zona": 1.0
     },
     {
       "time": "2026-11-15T05:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
+      "centro": 0.6,
+      "max_zona": 15.7
     },
     {
       "time": "2026-11-15T06:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
+      "centro": 0.4,
+      "max_zona": 2.4
     },
     {
       "time": "2026-11-15T07:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.0
+      "max_zona": 0.5
     },
     {
       "time": "2026-11-15T08:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
+      "centro": 0.1,
+      "max_zona": 1.2
     },
     {
       "time": "2026-11-15T09:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.0
+      "max_zona": 0.2
     },
     {
       "time": "2026-11-15T10:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.0
+      "max_zona": 0.1
     },
     {
       "time": "2026-11-15T11:00:00-03:00",
@@ -304,37 +259,37 @@
     {
       "time": "2026-11-15T13:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.0
+      "max_zona": 0.5
     },
     {
       "time": "2026-11-15T14:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.0
+      "max_zona": 0.2
     },
     {
       "time": "2026-11-15T15:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.1
+      "max_zona": 0.0
     },
     {
       "time": "2026-11-15T16:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.1
+      "max_zona": 0.0
     },
     {
       "time": "2026-11-15T17:00:00-03:00",
-      "centro": 0.5,
-      "max_zona": 0.8
+      "centro": 0.0,
+      "max_zona": 0.0
     },
     {
       "time": "2026-11-15T18:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.4
+      "max_zona": 0.0
     },
     {
       "time": "2026-11-15T19:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.1
+      "max_zona": 0.0
     },
     {
       "time": "2026-11-15T20:00:00-03:00",
@@ -345,31 +300,97 @@
       "time": "2026-11-15T21:00:00-03:00",
       "centro": 0.0,
       "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-15T22:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-15T23:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-16T00:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-16T01:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-16T02:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-16T03:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-16T04:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-16T05:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-16T06:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-16T07:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-16T08:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-16T09:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
     }
   ],
   "dias": [
     {
       "fecha": "2026-11-13",
-      "horas": 23,
+      "horas": 14,
       "centro": 0.0,
       "max_zona": 0.0
     },
     {
       "fecha": "2026-11-14",
       "horas": 24,
-      "centro": 19.7,
-      "max_zona": 39.1
+      "centro": 8.9,
+      "max_zona": 17.3
     },
     {
       "fecha": "2026-11-15",
-      "horas": 21,
-      "centro": 0.6,
-      "max_zona": 0.9
+      "horas": 24,
+      "centro": 1.8,
+      "max_zona": 21.1
+    },
+    {
+      "fecha": "2026-11-16",
+      "horas": 9,
+      "centro": 0.0,
+      "max_zona": 0.1
     }
   ],
-  "max_1h_centro": 7.6,
-  "max_1h_zona": 19.2,
-  "max_24h_centro": 20.3,
+  "max_1h_centro": 6.0,
+  "max_1h_zona": 15.7,
+  "max_24h_centro": 10.6,
   "punto": [
     -27.38409423828125,
     -55.908599853515625
