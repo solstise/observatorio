@@ -1,56 +1,11 @@
 {
-  "generated_at": "2026-11-22T14:01:17+00:00",
+  "generated_at": "2026-11-22T23:13:16+00:00",
   "fuente": "SMN, modelo WRF determinístico 4 km (datos abiertos en AWS)",
   "fuente_url": "https://registry.opendata.aws/smn-ar-wrf-dataset/",
   "radio_km": 12,
   "estado": "disponible",
-  "corrida": "2026-11-22T06:00:00+00:00",
+  "corrida": "2026-11-22T18:00:00+00:00",
   "horas": [
-    {
-      "time": "2026-11-22T12:00:00-03:00",
-      "centro": 13.4,
-      "max_zona": 14.5
-    },
-    {
-      "time": "2026-11-22T13:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 13.3
-    },
-    {
-      "time": "2026-11-22T14:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 1.2
-    },
-    {
-      "time": "2026-11-22T15:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-11-22T16:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-11-22T17:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-11-22T18:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
-    {
-      "time": "2026-11-22T19:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.1
-    },
-    {
-      "time": "2026-11-22T20:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.0
-    },
     {
       "time": "2026-11-22T21:00:00-03:00",
       "centro": 0.0,
@@ -139,17 +94,17 @@
     {
       "time": "2026-11-23T14:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 3.1
+      "max_zona": 0.0
     },
     {
       "time": "2026-11-23T15:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.7
+      "max_zona": 0.0
     },
     {
       "time": "2026-11-23T16:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 2.2
+      "max_zona": 0.4
     },
     {
       "time": "2026-11-23T17:00:00-03:00",
@@ -209,77 +164,77 @@
     {
       "time": "2026-11-24T04:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.0
+      "max_zona": 0.1
     },
     {
       "time": "2026-11-24T05:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.0
+      "max_zona": 0.4
     },
     {
       "time": "2026-11-24T06:00:00-03:00",
-      "centro": 0.2,
-      "max_zona": 3.7
-    },
-    {
-      "time": "2026-11-24T07:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 0.5
-    },
-    {
-      "time": "2026-11-24T08:00:00-03:00",
-      "centro": 0.0,
-      "max_zona": 1.0
-    },
-    {
-      "time": "2026-11-24T09:00:00-03:00",
       "centro": 0.0,
       "max_zona": 0.6
     },
     {
+      "time": "2026-11-24T07:00:00-03:00",
+      "centro": 0.5,
+      "max_zona": 6.5
+    },
+    {
+      "time": "2026-11-24T08:00:00-03:00",
+      "centro": 7.3,
+      "max_zona": 26.8
+    },
+    {
+      "time": "2026-11-24T09:00:00-03:00",
+      "centro": 2.4,
+      "max_zona": 18.2
+    },
+    {
       "time": "2026-11-24T10:00:00-03:00",
-      "centro": 9.7,
-      "max_zona": 17.8
+      "centro": 2.4,
+      "max_zona": 4.8
     },
     {
       "time": "2026-11-24T11:00:00-03:00",
-      "centro": 5.0,
-      "max_zona": 22.8
+      "centro": 0.2,
+      "max_zona": 0.3
     },
     {
       "time": "2026-11-24T12:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 4.6
+      "max_zona": 0.3
     },
     {
       "time": "2026-11-24T13:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 1.4
+      "max_zona": 0.0
     },
     {
       "time": "2026-11-24T14:00:00-03:00",
-      "centro": 23.9,
-      "max_zona": 52.9
+      "centro": 0.0,
+      "max_zona": 0.0
     },
     {
       "time": "2026-11-24T15:00:00-03:00",
-      "centro": 5.3,
-      "max_zona": 29.9
+      "centro": 0.0,
+      "max_zona": 0.0
     },
     {
       "time": "2026-11-24T16:00:00-03:00",
-      "centro": 0.1,
-      "max_zona": 0.5
+      "centro": 0.0,
+      "max_zona": 0.0
     },
     {
       "time": "2026-11-24T17:00:00-03:00",
       "centro": 0.0,
-      "max_zona": 0.2
+      "max_zona": 0.0
     },
     {
       "time": "2026-11-24T18:00:00-03:00",
-      "centro": 0.1,
-      "max_zona": 2.8
+      "centro": 0.0,
+      "max_zona": 0.0
     },
     {
       "time": "2026-11-24T19:00:00-03:00",
@@ -325,37 +280,97 @@
       "time": "2026-11-25T03:00:00-03:00",
       "centro": 0.0,
       "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-25T04:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-25T05:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-25T06:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-25T07:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-25T08:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-25T09:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-25T10:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-25T11:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-25T12:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-25T13:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-25T14:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
+    },
+    {
+      "time": "2026-11-25T15:00:00-03:00",
+      "centro": 0.0,
+      "max_zona": 0.0
     }
   ],
   "dias": [
     {
       "fecha": "2026-11-22",
-      "horas": 13,
-      "centro": 13.5,
-      "max_zona": 15.7
+      "horas": 4,
+      "centro": 0.0,
+      "max_zona": 0.0
     },
     {
       "fecha": "2026-11-23",
       "horas": 24,
       "centro": 0.0,
-      "max_zona": 3.2
+      "max_zona": 0.4
     },
     {
       "fecha": "2026-11-24",
       "horas": 24,
-      "centro": 44.4,
-      "max_zona": 63.4
+      "centro": 13.0,
+      "max_zona": 40.4
     },
     {
       "fecha": "2026-11-25",
-      "horas": 3,
+      "horas": 15,
       "centro": 0.0,
-      "max_zona": 0.0
+      "max_zona": 0.1
     }
   ],
-  "max_1h_centro": 23.9,
-  "max_1h_zona": 52.9,
-  "max_24h_centro": 44.3,
+  "max_1h_centro": 7.3,
+  "max_1h_zona": 26.8,
+  "max_24h_centro": 12.8,
   "punto": [
     -27.38409423828125,
     -55.908599853515625
